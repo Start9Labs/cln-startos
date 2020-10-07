@@ -1,0 +1,46 @@
+compat: v0
+id: c-lightning
+version: "0.1.0"
+title: c-lightning
+description:
+  short: "The Lightning Node implementation by Blockstream"
+  long: "A lightweight, highly customizable and standard compliant implementation of the Lightning Network protocol."
+release-notes: https://github.com/ElementsProject/lightning/releases/tag/v0.1.0
+ports:
+  - internal: 8080
+    tor: 8080
+image:
+  type: tar
+mount: /root/.lightning
+has-instructions: true
+os-version-required: ">=0.2.5"
+os-version-recommended: ">=0.2.5"
+assets: []
+hidden-service-version: v3
+dependencies:
+  btc-rpc-proxy:
+    version: "^0.1.0"
+    optional: Can configure an external bitcoin node.
+    description: Required for fetching validated blocks.
+    config:
+      - rule: '''users.*.name = "c-lightning"'
+        description: 'Must have an RPC user named "c-lightning"'
+        suggestions:
+          - PUSH:
+              to: 'users'
+              value:
+                name: c-lightning
+      - rule: 'users.[first(item => ''item.name = "c-lightning")].password?'
+        description: 'RPC user "c-lightning" must have a password'
+        suggestions:
+          - SET:
+              var: 'users.[first(item => ''item.name = "c-lightning")].password'
+              to-entropy:
+                charset: 'a-z,A-Z,0-9'
+                len: 22
+      - rule: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks?'
+        description: 'RPC user "c-lightning" must have "Fetch Blocks" enabled'
+        suggestions:
+          - SET:
+              var: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks'
+              to-value: true

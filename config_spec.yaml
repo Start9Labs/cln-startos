@@ -1,0 +1,84 @@
+bitcoind:
+  type: union
+  name: Bitcoin Core
+  description: |
+    The Bitcoin Core node to connect to:
+      - internal: The Bitcoin Core RPC Proxy service installed to your Embassy
+      - external: An unpruned Bitcoin Core node running on a different device
+  tag: type
+  default: internal
+  variants:
+    internal:
+      address:
+        type: pointer
+        name: Local Address
+        description: The LAN IP address of your Bitcoin Core RPC Proxy service
+        subtype: app
+        app-id: btc-rpc-proxy
+        target: lan-address
+      user:
+        type: pointer
+        name: RPC Username
+        description: The username for the RPC user allocated to c-lightning
+        subtype: app
+        app-id: btc-rpc-proxy
+        target: config
+        index: 'users.[first(item => ''item.name = "c-lightning")].name'
+      password:
+        type: pointer
+        name: RPC Password
+        description: The password for the RPC user allocated to c-ligtning
+        subtype: app
+        app-id: btc-rpc-proxy
+        target: config
+        index: 'users.[first(item => ''item.name = "c-lightning")].password'
+    external:
+      address:
+        type: string
+        name: Public Address
+        description: The public address of your Bitcoin Core RPC server
+        nullable: false
+      user:
+        type: string
+        name: RPC Username
+        description: The username for the RPC user on your Bitcoin Core RPC server
+        nullable: false
+      password:
+        type: string
+        name: RPC Password
+        description: The password for the RPC user on your Bitcoin Core RPC server
+        nullable: false
+    btc-standup:
+      quick-connect-url:
+        type: string
+        name: Quick Connect URL
+        description: The Quick Connect URL for your Bitcoin Core RPC server
+        nullable: false
+        pattern: 'btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\?(label=.+)?)?)?'
+        patternDescription: Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md
+rpc:
+  type: object
+  name: RPC Options
+  description: Options for the HTTP RPC interface
+  nullable: false
+  nullByDefault: false
+  spec:
+    enabled:
+      type: boolean
+      name: Enable
+      description: Whether to enable the RPC webserver
+      default: true
+    user:
+      type: string
+      name: RPC Username
+      description: The username for the RPC user on your c-lightning node
+      nullable: false
+      default: lightning
+    password:
+      type: string
+      name: RPC Password
+      description: The password for the RPC user on your c-lightning node
+      nullable: false
+      default:
+        charset: 'a-z,A-Z,0-9'
+        len: 22
