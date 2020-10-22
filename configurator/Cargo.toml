@@ -1,0 +1,13 @@
+[package]
+name = "configurator"
+version = "0.1.0"
+authors = ["Aiden McClelland <me@drbonez.dev>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.33"
+http = "0.2.1"
+serde = { version = "1.0.117", features = ["derive"] }
+serde_yaml = "0.8.13"

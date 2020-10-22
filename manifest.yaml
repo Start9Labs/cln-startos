@@ -1,12 +1,14 @@
 compat: v0
 id: c-lightning
-version: "0.1.0"
+version: 0.9.1
 title: c-lightning
 description:
   short: "The Lightning Node implementation by Blockstream"
   long: "A lightweight, highly customizable and standard compliant implementation of the Lightning Network protocol."
-release-notes: https://github.com/ElementsProject/lightning/releases/tag/v0.1.0
+release-notes: https://github.com/lightning/lightning/releases/tag/v0.9.1
 ports:
+  - internal: 9735
+    tor: 9735
   - internal: 8080
     tor: 8080
 image:
@@ -19,7 +21,7 @@ assets: []
 hidden-service-version: v3
 dependencies:
   btc-rpc-proxy:
-    version: "^0.1.0"
+    version: "^0.2.0"
     optional: Can configure an external bitcoin node.
     description: Required for fetching validated blocks.
     config:
@@ -27,17 +29,57 @@ dependencies:
         description: 'Must have an RPC user named "c-lightning"'
         suggestions:
           - PUSH:
-              to: 'users'
+              to: "users"
               value:
                 name: c-lightning
-      - rule: 'users.[first(item => ''item.name = "c-lightning")].password?'
-        description: 'RPC user "c-lightning" must have a password'
-        suggestions:
+                allowed-calls: []
           - SET:
               var: 'users.[first(item => ''item.name = "c-lightning")].password'
               to-entropy:
-                charset: 'a-z,A-Z,0-9'
+                charset: "a-z,A-Z,0-9"
                 len: 22
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "gettxout"'
+        description: 'RPC user "c-lightning" must have "gettxout" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "gettxout"
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockchaininfo"'
+        description: 'RPC user "c-lightning" must have "getblockchaininfo" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "getblockchaininfo"
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "sendrawtransaction"'
+        description: 'RPC user "c-lightning" must have "sendrawtransaction" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "sendrawtransaction"
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockhash"'
+        description: 'RPC user "c-lightning" must have "getblockhash" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "getblockhash"
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblock"'
+        description: 'RPC user "c-lightning" must have "getblock" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "getblock"
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "estimatesmartfee"'
+        description: 'RPC user "c-lightning" must have "estimatesmartfee" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "estimatesmartfee"
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getnetworkinfo"'
+        description: 'RPC user "c-lightning" must have "getnetworkinfo" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "getnetworkinfo"
       - rule: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks?'
         description: 'RPC user "c-lightning" must have "Fetch Blocks" enabled'
         suggestions:

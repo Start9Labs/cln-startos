@@ -1,0 +1,12 @@
+network=bitcoin
+bitcoin-rpcuser={bitcoin_rpc_user}
+bitcoin-rpcpassword={bitcoin_rpc_pass}
+bitcoin-rpcconnect={bitcoin_rpc_host}
+bitcoin-rpcport={bitcoin_rpc_port}
+http-user={rpc_user}
+http-pass={rpc_pass}
+http-bind={rpc_bind}
+bind-addr=0.0.0.0:9735
+announce-addr={peer_tor_address}:9735
+proxy={tor_proxy}
+always-use-proxy={tor_only}

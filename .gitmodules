@@ -1,0 +1,6 @@
+[submodule "lightning"]
+	path = lightning
+	url = git@github.com:ElementsProject/lightning.git
+[submodule "c-lightning-http-plugin"]
+	path = c-lightning-http-plugin
+	url = git@github.com:Start9Labs/c-lightning-http-plugin.git

@@ -5,6 +5,7 @@ bitcoind:
     The Bitcoin Core node to connect to:
       - internal: The Bitcoin Core RPC Proxy service installed to your Embassy
       - external: An unpruned Bitcoin Core node running on a different device
+      - quick-connect: A Quick Connect URL for an unpruned Bitcoin Core node
   tag: type
   default: internal
   variants:
@@ -48,7 +49,7 @@ bitcoind:
         name: RPC Password
         description: The password for the RPC user on your Bitcoin Core RPC server
         nullable: false
-    btc-standup:
+    quick-connect:
       quick-connect-url:
         type: string
         name: Quick Connect URL
@@ -80,5 +81,17 @@ rpc:
       description: The password for the RPC user on your c-lightning node
       nullable: false
       default:
-        charset: 'a-z,A-Z,0-9'
+        charset: "a-z,A-Z,0-9"
         len: 22
+advanced:
+  type: object
+  name: Advanced
+  description: Advanced Options
+  nullable: false
+  nullByDefault: false
+  spec:
+    tor-only:
+      type: boolean
+      name: Only Use Tor
+      description: Use Tor for outgoing connections
+      default: false

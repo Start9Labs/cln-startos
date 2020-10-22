@@ -1,8 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-set -euo pipefail
+export HOST_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 
-while [ 1 -eq 1 ]; do
-  sleep 5
-  echo Running...
-done
+configurator
+lightningd || sleep 5000
