@@ -28,7 +28,7 @@ bitcoind:
       password:
         type: pointer
         name: RPC Password
-        description: The password for the RPC user allocated to c-ligtning
+        description: The password for the RPC user allocated to c-lightning
         subtype: app
         app-id: btc-rpc-proxy
         target: config
