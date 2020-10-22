@@ -66,7 +66,7 @@ FROM alpine:3.12 as runner
 
 RUN apk update
 RUN apk add tini
-RUN apk add sqlite-dev gmp libgcc libevent libstdc++
+RUN apk add sqlite-dev gmp libgcc libevent libstdc++ boost-filesystem=1.72.0-r6
 
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"
