@@ -3,6 +3,7 @@ bitcoin-rpcuser={bitcoin_rpc_user}
 bitcoin-rpcpassword={bitcoin_rpc_pass}
 bitcoin-rpcconnect={bitcoin_rpc_host}
 bitcoin-rpcport={bitcoin_rpc_port}
+plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
 http-user={rpc_user}
 http-pass={rpc_pass}
 http-bind={rpc_bind}

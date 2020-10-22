@@ -5,7 +5,7 @@ title: c-lightning
 description:
   short: "The Lightning Node implementation by Blockstream"
   long: "A lightweight, highly customizable and standard compliant implementation of the Lightning Network protocol."
-release-notes: https://github.com/lightning/lightning/releases/tag/v0.9.1
+release-notes: https://github.com/ElementsProject/lightning/releases/tag/v0.9.1
 ports:
   - internal: 9735
     tor: 9735
