@@ -3,8 +3,8 @@ id: c-lightning
 version: 0.9.1
 title: c-lightning
 description:
-  short: "The Lightning Node implementation by Blockstream"
-  long: "A lightweight, highly customizable and standard compliant implementation of the Lightning Network protocol."
+  short: "An implementation of the Lightning Network protocol by Blockstream."
+  long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
 release-notes: https://github.com/ElementsProject/lightning/releases/tag/v0.9.1
 ports:
   - internal: 9735
