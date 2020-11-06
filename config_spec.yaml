@@ -49,6 +49,7 @@ bitcoind:
         name: RPC Password
         description: The password for the RPC user on your Bitcoin Core RPC server
         nullable: false
+        masked: true
     quick-connect:
       quick-connect-url:
         type: string
@@ -75,6 +76,7 @@ rpc:
       description: The username for the RPC user on your c-lightning node
       nullable: false
       default: lightning
+      copyable: true
     password:
       type: string
       name: RPC Password
@@ -83,6 +85,8 @@ rpc:
       default:
         charset: "a-z,A-Z,0-9"
         len: 22
+      copyable: true
+      masked: true
 advanced:
   type: object
   name: Advanced
