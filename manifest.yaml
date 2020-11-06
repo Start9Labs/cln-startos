@@ -22,8 +22,8 @@ hidden-service-version: v3
 dependencies:
   btc-rpc-proxy:
     version: "^0.2.0"
-    optional: Can configure an external bitcoin node.
-    description: Required for fetching validated blocks.
+    optional: Can alternatively configure an external bitcoin node.
+    description: Used to fetch validated blocks.
     config:
       - rule: '''users.*.name = "c-lightning"'
         description: 'Must have an RPC user named "c-lightning"'

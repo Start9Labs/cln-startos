@@ -44,17 +44,20 @@ struct Config {
 #[serde(tag = "type")]
 #[serde(rename_all = "kebab-case")]
 enum BitcoinCoreConfig {
+    #[serde(rename_all = "kebab-case")]
     Internal {
         address: IpAddr,
         user: String,
         password: String,
     },
+    #[serde(rename_all = "kebab-case")]
     External {
         #[serde(deserialize_with = "deserialize_parse")]
         address: Uri,
         user: String,
         password: String,
     },
+    #[serde(rename_all = "kebab-case")]
     QuickConnect {
         #[serde(deserialize_with = "deserialize_parse")]
         quick_connect_url: Uri,
