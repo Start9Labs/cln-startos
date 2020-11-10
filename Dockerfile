@@ -49,18 +49,22 @@ RUN ./configure LDFLAGS=-L`ls -d /opt/db*`/lib/ CPPFLAGS=-I`ls -d /opt/db*`/incl
     --with-gui=no \
     --disable-wallet \
     --enable-util-cli
-RUN make -j$(($(nproc) / 2))
+RUN make -j4
 RUN strip ./src/bitcoin-cli
 
 FROM alpine:3.12 as builder
 
-ADD . /root/c-lightning
-WORKDIR /root/c-lightning/lightning
-RUN apk add ca-certificates alpine-sdk autoconf automake git libtool \
-    gmp-dev sqlite-dev python2 python3 py3-mako net-tools zlib-dev libsodium gettext
+RUN apk add ca-certificates alpine-sdk autoconf automake git libtool gmp-dev \
+    sqlite-dev python2 python3 py3-pip py3-mako net-tools zlib-dev libsodium gettext
+RUN pip3 install mrkd
+
+ADD ./.gitmodules /root/.gitmodules
+ADD ./.git /root/.git
+ADD ./lightning /root/lightning
+WORKDIR /root/lightning
 
 RUN ./configure
-RUN make -j$(($(nproc) / 2))
+RUN make
 RUN make install
 
 FROM alpine:3.12 as runner

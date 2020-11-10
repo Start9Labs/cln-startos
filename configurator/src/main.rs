@@ -109,6 +109,24 @@ pub enum Property {
 }
 
 fn main() -> Result<(), anyhow::Error> {
+    for shared_dir_res in std::fs::read_dir("/root/.lightning/shared")? {
+        let shared_dir = shared_dir_res?;
+        let path = shared_dir.path();
+        let rpc_path = path.join("lightning-rpc");
+        if rpc_path.exists() {
+            std::fs::remove_file(&rpc_path)?;
+        }
+        if !std::process::Command::new("ln")
+            .arg("/root/.lightning/bitcoin/lightning-rpc")
+            .arg(&rpc_path)
+            .status()?
+            .success()
+        {
+            return Err(anyhow::anyhow!(
+                "error creating domain socket for dependent"
+            ));
+        }
+    }
     let config: Config =
         serde_yaml::from_reader(File::open("/root/.lightning/start9/config.yaml")?)?;
     {

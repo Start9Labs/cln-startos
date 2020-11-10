@@ -13,7 +13,9 @@ ports:
     tor: 8080
 image:
   type: tar
+shm-size-mb: 64
 mount: /root/.lightning
+shared: shared
 has-instructions: true
 os-version-required: ">=0.2.5"
 os-version-recommended: ">=0.2.5"
@@ -38,6 +40,12 @@ dependencies:
               to-entropy:
                 charset: "a-z,A-Z,0-9"
                 len: 22
+      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "echo"'
+        description: 'RPC user "c-lightning" must have "echo" enabled'
+        suggestions:
+          - PUSH:
+              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+              value: "echo"
       - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "gettxout"'
         description: 'RPC user "c-lightning" must have "gettxout" enabled'
         suggestions:
