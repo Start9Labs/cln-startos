@@ -186,8 +186,10 @@ fn main() -> Result<(), anyhow::Error> {
     if rpc_path.exists() {
         std::fs::remove_file(rpc_path)?;
     }
+    println!("Daemonizing...");
     #[cfg(target = "linux")]
     nix::unistd::daemon(true, true)?;
+    println!("Daemonized.");
     while !rpc_path.exists() {
         std::thread::sleep(std::time::Duration::from_secs(1));
     }
