@@ -88,4 +88,4 @@ WORKDIR /root
 
 EXPOSE 9735 8080
 
-ENTRYPOINT ["tini", "-g", "--", "/usr/local/bin/docker_entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/docker_entrypoint.sh"]
