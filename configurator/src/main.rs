@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 use std::net::{IpAddr, SocketAddr};
+use std::path::Path;
 
 use http::Uri;
 use linear_map::LinearMap;
@@ -180,6 +181,25 @@ fn main() -> Result<(), anyhow::Error> {
                 },
             },
         )?;
+    }
+    let rpc_path = Path::new("/root/.lightning/bitcoin/lightning-rpc");
+    if rpc_path.exists() {
+        std::fs::remove_file(rpc_path)?;
+    }
+    #[cfg(target = "linux")]
+    nix::unistd::daemon(true, true)?;
+    while !rpc_path.exists() {
+        std::thread::sleep(std::time::Duration::from_secs(1));
+    }
+    for shared_dir in std::fs::read_dir("/root/.lightning/shared")? {
+        let shared_dir = shared_dir?;
+        if shared_dir.metadata()?.is_dir() {
+            let link = shared_dir.path().join("lightning-rpc");
+            if link.exists() {
+                std::fs::remove_file(&link)?;
+            }
+            std::fs::hard_link(rpc_path, &link)?;
+        }
     }
     Ok(())
 }
