@@ -1,5 +1,13 @@
 # Compatible Wallets
 
+## Spark Wallet
+
+### Available for
+- Embassy
+
+### Instructions
+1. Download Spark Wallet from the Start9 Service Marketplace and follow instructions.
+
 ## Fully Noded
 
 ### Available for
