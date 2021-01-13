@@ -88,6 +88,8 @@ pub struct Properties {
 pub struct Data {
     #[serde(rename = "Quick Connect URL")]
     quick_connect_url: Property,
+    rpc_username: Property,
+    rpc_password: Property
 }
 
 #[derive(serde::Serialize)]
@@ -176,6 +178,26 @@ fn main() -> Result<(), anyhow::Error> {
                         description: None,
                         copyable: true,
                         qr: true,
+                        masked: true,
+                    },
+                    rpc_username: Property::String {
+                        value: format!(
+                            "{}",
+                            config.rpc.user,
+                        ),
+                        description: None,
+                        copyable: true,
+                        qr: false,
+                        masked: true,
+                    },
+                    rpc_password: Property::String {
+                        value: format!(
+                            "{}",
+                            config.rpc.password,
+                        ),
+                        description: None,
+                        copyable: true,
+                        qr: false,
                         masked: true,
                     },
                 },
