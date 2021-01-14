@@ -31,5 +31,5 @@ c-lightning-http-plugin/target/armv7-unknown-linux-musleabihf/release/c-lightnin
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:armv7-musleabihf musl-strip target/armv7-unknown-linux-musleabihf/release/c-lightning-http-plugin
 
 manifest.yaml: $(C_LIGHTNING_GIT_FILE)
-	yq w -i manifest.yaml version $(VERSION)
-	yq w -i manifest.yaml release-notes https://github.com/ElementsProject/lightning/releases/tag/$(VERSION_TAG)
+	yq eval -i ".version = \"$(VERSION)\"" manifest.yaml
+	yq eval -i ".release-notes = \"https://github.com/ElementsProject/lightning/releases/tag/$(VERSION_TAG)\"" manifest.yaml
