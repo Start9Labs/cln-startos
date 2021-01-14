@@ -89,7 +89,9 @@ pub struct Data {
     #[serde(rename = "Quick Connect URL")]
     quick_connect_url: Property,
     rpc_username: Property,
-    rpc_password: Property
+    rpc_password: Property,
+    node_alias: Property,
+    node_id: Property
 }
 
 #[derive(serde::Serialize)]
@@ -161,6 +163,13 @@ fn main() -> Result<(), anyhow::Error> {
             tor_only = config.advanced.tor_only,
         )?;
     }
+    #[derive(serde::Deserialize)]
+    struct NodeInfo {
+        id: String,
+        alias: String,
+    }
+    let output = std::process::Command::new("lightning-cli").arg("getinfo").output().expect("lightning-cli getinfo to run");
+    let node_info: NodeInfo = serde_json::from_str(&String::from_utf8(output.stdout)?)?;
     if config.rpc.enabled {
         serde_yaml::to_writer(
             File::create("/root/.lightning/start9/stats.yaml")?,
@@ -196,6 +205,26 @@ fn main() -> Result<(), anyhow::Error> {
                             config.rpc.password,
                         ),
                         description: None,
+                        copyable: true,
+                        qr: false,
+                        masked: true,
+                    },
+                    node_id: Property::String {
+                        value: format!(
+                            "{}",
+                            node_info.id,
+                        ),
+                        description: format!("{}", "The node identifier. Provide this when connecting to other nodes."),
+                        copyable: true,
+                        qr: false,
+                        masked: true,
+                    },
+                    node_alias: Property::String {
+                        value: format!(
+                            "{}",
+                            node_info.alias,
+                        ),
+                        description: format!("{}", "The friendly identifier for your node"),
                         copyable: true,
                         qr: false,
                         masked: true,
