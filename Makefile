@@ -1,4 +1,4 @@
-ASSETS := $(shell yq r manifest.yaml assets.*.src)
+ASSETS := $(shell yq e ".assets.[].src" manifest.yaml)
 ASSET_PATHS := $(addprefix assets/,$(ASSETS))
 VERSION_TAG := $(shell git --git-dir=lightning/.git describe --abbrev=0)
 VERSION := $(VERSION_TAG:v%=%)
