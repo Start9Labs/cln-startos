@@ -168,8 +168,22 @@ fn main() -> Result<(), anyhow::Error> {
         id: String,
         alias: String,
     }
-    let output = std::process::Command::new("lightning-cli").arg("getinfo").output().expect("lightning-cli getinfo to run");
-    let node_info: NodeInfo = serde_json::from_str(&String::from_utf8(output.stdout)?)?;
+
+    #[cfg(target_os = "linux")]
+    nix::unistd::daemon(true, true)?;
+    let node_info: NodeInfo;
+    loop {
+        let output = std::process::Command::new("lightning-cli").arg("getinfo").output()?;
+        let res: Result<NodeInfo, _> = serde_json::from_str(&String::from_utf8(output.stdout)?);
+
+        match res {
+            Ok(n) => node_info = n,
+            Err(e) => println!("error parsing header: {:?}", e),
+        }
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        break;
+    }
+
     if config.rpc.enabled {
         serde_yaml::to_writer(
             File::create("/root/.lightning/start9/stats.yaml")?,
