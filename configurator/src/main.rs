@@ -168,21 +168,24 @@ fn main() -> Result<(), anyhow::Error> {
         id: String,
         alias: String,
     }
+    #[derive(Debug, Clone)]
+    struct ParseError;
 
     #[cfg(target_os = "linux")]
     nix::unistd::daemon(true, true)?;
-    let node_info: NodeInfo;
-    loop {
-        let output = std::process::Command::new("lightning-cli").arg("getinfo").output()?;
-        let res: Result<NodeInfo, _> = serde_json::from_str(&String::from_utf8(output.stdout)?);
-
-        match res {
-            Ok(n) => node_info = n,
-            Err(e) => println!("error parsing header: {:?}", e),
+    fn get_node_info() -> Result<NodeInfo, anyhow::Error> {
+        loop {
+            let output = std::process::Command::new("lightning-cli").arg("getinfo").output()?;
+            let res = serde_json::from_str(&String::from_utf8(output.stdout)?);
+    
+            match res {
+                Ok(n) => return Ok(n),
+                Err(e) => eprintln!("error parsing node id: {:?}", e),
+            }
+            std::thread::sleep(std::time::Duration::from_secs(1));
         }
-        std::thread::sleep(std::time::Duration::from_secs(1));
-        break;
     }
+    let node_info = get_node_info()?;
 
     if config.rpc.enabled {
         serde_yaml::to_writer(
