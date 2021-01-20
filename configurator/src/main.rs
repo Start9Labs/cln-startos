@@ -88,9 +88,15 @@ pub struct Properties {
 pub struct Data {
     #[serde(rename = "Quick Connect URL")]
     quick_connect_url: Property,
+    #[serde(rename = "RPC Username")]
     rpc_username: Property,
+    #[serde(rename = "RPC Password")]
     rpc_password: Property,
+    #[serde(rename = "Node Alias")]
     node_alias: Property,
+    #[serde(rename = "Node URI")]
+    node_uri: Property,
+    #[serde(rename = "Node ID")]
     node_id: Property
 }
 
@@ -168,8 +174,6 @@ fn main() -> Result<(), anyhow::Error> {
         id: String,
         alias: String,
     }
-    #[derive(Debug, Clone)]
-    struct ParseError;
 
     #[cfg(target_os = "linux")]
     nix::unistd::daemon(true, true)?;
@@ -206,24 +210,15 @@ fn main() -> Result<(), anyhow::Error> {
                         qr: true,
                         masked: true,
                     },
-                    rpc_username: Property::String {
+                    node_uri: Property::String {
                         value: format!(
-                            "{}",
-                            config.rpc.user,
+                            "{}@{}",
+                            node_info.id,
+                            std::env::var("TOR_ADDRESS")?
                         ),
-                        description: None,
+                        description: Some(format!("{}", "The node URI.")),
                         copyable: true,
-                        qr: false,
-                        masked: true,
-                    },
-                    rpc_password: Property::String {
-                        value: format!(
-                            "{}",
-                            config.rpc.password,
-                        ),
-                        description: None,
-                        copyable: true,
-                        qr: false,
+                        qr: true,
                         masked: true,
                     },
                     node_id: Property::String {
@@ -234,7 +229,7 @@ fn main() -> Result<(), anyhow::Error> {
                         description: Some(format!("{}", "The node identifier. Provide this when connecting to other nodes.")),
                         copyable: true,
                         qr: false,
-                        masked: true,
+                        masked: false,
                     },
                     node_alias: Property::String {
                         value: format!(
@@ -242,6 +237,26 @@ fn main() -> Result<(), anyhow::Error> {
                             node_info.alias,
                         ),
                         description: Some(format!("{}", "The friendly identifier for your node")),
+                        copyable: true,
+                        qr: false,
+                        masked: false,
+                    },
+                    rpc_username: Property::String {
+                        value: format!(
+                            "{}",
+                            config.rpc.user,
+                        ),
+                        description: None,
+                        copyable: true,
+                        qr: false,
+                        masked: false,
+                    },
+                    rpc_password: Property::String {
+                        value: format!(
+                            "{}",
+                            config.rpc.password,
+                        ),
+                        description: None,
                         copyable: true,
                         qr: false,
                         masked: true,

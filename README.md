@@ -27,6 +27,7 @@ git submodule update --init
 To build the project, run the following commands:
 
 ```
+git submodule update --init --recursive 
 make
 ```
 
