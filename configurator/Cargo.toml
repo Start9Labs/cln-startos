@@ -13,3 +13,4 @@ linear-map = { version = "1.2.0", features = ["serde_impl"] }
 nix = "0.19.0"
 serde = { version = "1.0.117", features = ["derive"] }
 serde_yaml = "0.8.13"
+serde_json = "1.0.59"
