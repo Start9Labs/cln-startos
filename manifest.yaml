@@ -1,6 +1,6 @@
 compat: v0
 id: c-lightning
-version: 0.9.1.1
+version: 0.9.3
 title: c-lightning
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

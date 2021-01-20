@@ -97,7 +97,7 @@ pub struct Data {
     #[serde(rename = "Node URI")]
     node_uri: Property,
     #[serde(rename = "Node ID")]
-    node_id: Property
+    node_id: Property,
 }
 
 #[derive(serde::Serialize)]
@@ -122,53 +122,52 @@ pub enum Property {
 fn main() -> Result<(), anyhow::Error> {
     let config: Config =
         serde_yaml::from_reader(File::open("/root/.lightning/start9/config.yaml")?)?;
-    {
-        let mut outfile = File::create("/root/.lightning/config")?;
+    let mut outfile = File::create("/root/.lightning/config")?;
 
-        let (bitcoin_rpc_user, bitcoin_rpc_pass, bitcoin_rpc_host, bitcoin_rpc_port) =
-            match config.bitcoind {
-                BitcoinCoreConfig::Internal {
-                    address,
-                    user,
-                    password,
-                } => (user, password, format!("{}", address), 8332),
-                BitcoinCoreConfig::External {
-                    address,
-                    user,
-                    password,
-                } => (
-                    user,
-                    password,
-                    format!("{}", address.host().unwrap()),
-                    address.port_u16().unwrap_or(8332),
-                ),
-                BitcoinCoreConfig::QuickConnect { quick_connect_url } => {
-                    parse_quick_connect_url(quick_connect_url)?
-                }
-            };
-        let rpc_bind: SocketAddr = if config.rpc.enabled {
-            ([0, 0, 0, 0], 8080).into()
-        } else {
-            ([127, 0, 0, 0], 8080).into()
+    let (bitcoin_rpc_user, bitcoin_rpc_pass, bitcoin_rpc_host, bitcoin_rpc_port) =
+        match config.bitcoind {
+            BitcoinCoreConfig::Internal {
+                address,
+                user,
+                password,
+            } => (user, password, format!("{}", address), 8332),
+            BitcoinCoreConfig::External {
+                address,
+                user,
+                password,
+            } => (
+                user,
+                password,
+                format!("{}", address.host().unwrap()),
+                address.port_u16().unwrap_or(8332),
+            ),
+            BitcoinCoreConfig::QuickConnect { quick_connect_url } => {
+                parse_quick_connect_url(quick_connect_url)?
+            }
         };
-        let peer_tor_address = std::env::var("TOR_ADDRESS")?;
-        let tor_proxy: SocketAddr = (std::env::var("HOST_IP")?.parse::<IpAddr>()?, 9050).into();
+    let rpc_bind: SocketAddr = if config.rpc.enabled {
+        ([0, 0, 0, 0], 8080).into()
+    } else {
+        ([127, 0, 0, 0], 8080).into()
+    };
+    let peer_tor_address = std::env::var("TOR_ADDRESS")?;
+    let tor_proxy: SocketAddr = (std::env::var("HOST_IP")?.parse::<IpAddr>()?, 9050).into();
 
-        write!(
-            outfile,
-            include_str!("config.template"),
-            bitcoin_rpc_user = bitcoin_rpc_user,
-            bitcoin_rpc_pass = bitcoin_rpc_pass,
-            bitcoin_rpc_host = bitcoin_rpc_host,
-            bitcoin_rpc_port = bitcoin_rpc_port,
-            rpc_user = config.rpc.user,
-            rpc_pass = config.rpc.password,
-            rpc_bind = rpc_bind,
-            peer_tor_address = peer_tor_address,
-            tor_proxy = tor_proxy,
-            tor_only = config.advanced.tor_only,
-        )?;
-    }
+    write!(
+        outfile,
+        include_str!("config.template"),
+        bitcoin_rpc_user = bitcoin_rpc_user,
+        bitcoin_rpc_pass = bitcoin_rpc_pass,
+        bitcoin_rpc_host = bitcoin_rpc_host,
+        bitcoin_rpc_port = bitcoin_rpc_port,
+        rpc_user = config.rpc.user,
+        rpc_pass = config.rpc.password,
+        rpc_bind = rpc_bind,
+        peer_tor_address = peer_tor_address,
+        tor_proxy = tor_proxy,
+        tor_only = config.advanced.tor_only,
+    )?;
+    drop(outfile);
     #[derive(serde::Deserialize)]
     struct NodeInfo {
         id: String,
@@ -179,9 +178,10 @@ fn main() -> Result<(), anyhow::Error> {
     nix::unistd::daemon(true, true)?;
     fn get_node_info() -> Result<NodeInfo, anyhow::Error> {
         loop {
-            let output = std::process::Command::new("lightning-cli").arg("getinfo").output()?;
+            let output = std::process::Command::new("lightning-cli")
+                .arg("getinfo")
+                .output()?;
             let res = serde_json::from_str(&String::from_utf8(output.stdout)?);
-    
             match res {
                 Ok(n) => return Ok(n),
                 Err(e) => eprintln!("error parsing node id: {:?}", e),
@@ -200,10 +200,7 @@ fn main() -> Result<(), anyhow::Error> {
                     quick_connect_url: Property::String {
                         value: format!(
                             "clightning-rpc://{}:{}@{}:{}",
-                            config.rpc.user,
-                            config.rpc.password,
-                            std::env::var("TOR_ADDRESS")?,
-                            8080
+                            config.rpc.user, config.rpc.password, peer_tor_address, 8080
                         ),
                         description: None,
                         copyable: true,
@@ -211,51 +208,38 @@ fn main() -> Result<(), anyhow::Error> {
                         masked: true,
                     },
                     node_uri: Property::String {
-                        value: format!(
-                            "{}@{}",
-                            node_info.id,
-                            std::env::var("TOR_ADDRESS")?
-                        ),
-                        description: Some(format!("{}", "The node URI.")),
+                        value: format!("{}@{}", node_info.id, peer_tor_address),
+                        description: Some("Enables connecting to another remote node.".to_owned()),
                         copyable: true,
                         qr: true,
                         masked: true,
                     },
                     node_id: Property::String {
-                        value: format!(
-                            "{}",
-                            node_info.id,
+                        value: format!("{}", node_info.id,),
+                        description: Some(
+                            "The node identifier that can be used for connecting to other nodes."
+                                .to_owned(),
                         ),
-                        description: Some(format!("{}", "The node identifier. Provide this when connecting to other nodes.")),
                         copyable: true,
                         qr: false,
                         masked: false,
                     },
                     node_alias: Property::String {
-                        value: format!(
-                            "{}",
-                            node_info.alias,
-                        ),
-                        description: Some(format!("{}", "The friendly identifier for your node")),
+                        value: format!("{}", node_info.alias,),
+                        description: Some("The friendly identifier for your node".to_owned()),
                         copyable: true,
                         qr: false,
                         masked: false,
                     },
                     rpc_username: Property::String {
-                        value: format!(
-                            "{}",
-                            config.rpc.user,
-                        ),
+                        value: format!("{}", config.rpc.user,),
                         description: None,
                         copyable: true,
                         qr: false,
                         masked: false,
                     },
                     rpc_password: Property::String {
-                        value: format!(
-                            "{}",
-                            config.rpc.password,
-                        ),
+                        value: format!("{}", config.rpc.password,),
                         description: None,
                         copyable: true,
                         qr: false,
