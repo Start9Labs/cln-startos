@@ -202,22 +202,36 @@ fn main() -> Result<(), anyhow::Error> {
                             "clightning-rpc://{}:{}@{}:{}",
                             config.rpc.user, config.rpc.password, peer_tor_address, 8080
                         ),
-                        description: None,
+                        description: Some("A convenient way to connect a wallet to a remote node".to_owned()),
                         copyable: true,
                         qr: true,
                         masked: true,
                     },
                     node_uri: Property::String {
                         value: format!("{}@{}", node_info.id, peer_tor_address),
-                        description: Some("Enables connecting to another remote node.".to_owned()),
+                        description: Some("Enables connecting to another remote node".to_owned()),
                         copyable: true,
                         qr: true,
                         masked: true,
                     },
+                    rpc_password: Property::String {
+                        value: format!("{}", config.rpc.password,),
+                        description: Some("Password for RPC connections".to_owned()),
+                        copyable: true,
+                        qr: false,
+                        masked: true,
+                    },
+                    rpc_username: Property::String {
+                        value: format!("{}", config.rpc.user,),
+                        description: Some("Username for RPC connections".to_owned()),
+                        copyable: true,
+                        qr: false,
+                        masked: false,
+                    },
                     node_id: Property::String {
                         value: format!("{}", node_info.id,),
                         description: Some(
-                            "The node identifier that can be used for connecting to other nodes."
+                            "The node identifier that can be used for connecting to other nodes"
                                 .to_owned(),
                         ),
                         copyable: true,
@@ -230,20 +244,6 @@ fn main() -> Result<(), anyhow::Error> {
                         copyable: true,
                         qr: false,
                         masked: false,
-                    },
-                    rpc_username: Property::String {
-                        value: format!("{}", config.rpc.user,),
-                        description: None,
-                        copyable: true,
-                        qr: false,
-                        masked: false,
-                    },
-                    rpc_password: Property::String {
-                        value: format!("{}", config.rpc.password,),
-                        description: None,
-                        copyable: true,
-                        qr: false,
-                        masked: true,
                     },
                 },
             },
