@@ -5,6 +5,7 @@ use std::path::Path;
 
 use http::Uri;
 use linear_map::LinearMap;
+use rand::Rng;
 use serde::{
     de::{Deserializer, Error as DeserializeError, Unexpected},
     Deserialize,
@@ -36,6 +37,8 @@ fn parse_quick_connect_url(url: Uri) -> Result<(String, String, String, u16), an
 
 #[derive(Deserialize)]
 struct Config {
+    alias: Option<String>,
+    color: String,
     bitcoind: BitcoinCoreConfig,
     rpc: RpcConfig,
     advanced: AdvancedConfig,
@@ -76,6 +79,13 @@ struct RpcConfig {
 #[serde(rename_all = "kebab-case")]
 struct AdvancedConfig {
     tor_only: bool,
+    fee_base: usize,
+    fee_rate: usize,
+    min_capacity: usize,
+    ignore_fee_limits: bool,
+    funding_confirms: usize,
+    cltv_delta: usize,
+    wumbo_channels: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -119,10 +129,30 @@ pub enum Property {
     },
 }
 
+fn get_alias(config: &Config) -> Result<String, anyhow::Error> {
+    Ok(match &config.alias {
+        // if it isn't defined in the config
+        None => {
+            // generate it and write it to a file
+            let alias_path = Path::new("/root/.lightning/default_alias.txt");
+            if alias_path.exists() {
+                std::fs::read_to_string(alias_path)?
+            } else {
+                let mut rng = rand::thread_rng();
+                let default_alias = format!("start9-{:#010x}", rng.gen::<u64>());
+                std::fs::write(alias_path, &default_alias)?;
+                default_alias
+            }
+        }
+        Some(a) => a.clone(),
+    })
+}
+
 fn main() -> Result<(), anyhow::Error> {
     let config: Config =
         serde_yaml::from_reader(File::open("/root/.lightning/start9/config.yaml")?)?;
     let mut outfile = File::create("/root/.lightning/config")?;
+    let alias = get_alias(&config)?;
 
     let (bitcoin_rpc_user, bitcoin_rpc_pass, bitcoin_rpc_host, bitcoin_rpc_port) =
         match config.bitcoind {
@@ -156,6 +186,8 @@ fn main() -> Result<(), anyhow::Error> {
     write!(
         outfile,
         include_str!("config.template"),
+        alias = config.alias.unwrap_or(alias),
+        rgb = config.color,
         bitcoin_rpc_user = bitcoin_rpc_user,
         bitcoin_rpc_pass = bitcoin_rpc_pass,
         bitcoin_rpc_host = bitcoin_rpc_host,
@@ -166,6 +198,17 @@ fn main() -> Result<(), anyhow::Error> {
         peer_tor_address = peer_tor_address,
         tor_proxy = tor_proxy,
         tor_only = config.advanced.tor_only,
+        fee_base = config.advanced.fee_base,
+        fee_rate = config.advanced.fee_rate,
+        min_capacity = config.advanced.min_capacity,
+        ignore_fee_limits = config.advanced.ignore_fee_limits,
+        funding_confirms = config.advanced.funding_confirms,
+        cltv_delta = config.advanced.cltv_delta,
+        enable_wumbo = if config.advanced.wumbo_channels {
+            "large-channels"
+        } else {
+            ""
+        },
     )?;
     drop(outfile);
     #[derive(serde::Deserialize)]

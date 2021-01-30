@@ -1,3 +1,23 @@
+
+alias:
+  type: string
+  name: Alias
+  description: Recognizable name for the Lightning Network
+  nullable: true
+  pattern: ".{1,32}"
+  patternDescription: "Must be at least 1 character and no more than 32 characters"
+color:
+  type: string
+  name: Color
+  description: Color value for the Lightning Network
+  nullable: false
+  pattern: "[0-9a-fA-F]{6}"
+  patternDescription: |
+    Must be a valid 6 digit hexadecimal RGB value. The first two digits are red, middle two are green and final two are
+    blue
+  default:
+    charset: "a-f,0-9"
+    len: 6
 bitcoind:
   type: union
   name: Bitcoin Core
@@ -98,4 +118,81 @@ advanced:
       type: boolean
       name: Only Use Tor
       description: Use Tor for outgoing connections
+      default: false
+    fee-base:
+      type: number
+      name: Routing Base Fee
+      description: |
+        The base fee in millisatoshis you will charge for forwarding payments on your channels.
+      nullable: false
+      range: "[0,*)"
+      integral: true
+      default: 1000
+      units: millisatoshis
+    fee-rate:
+      type: number
+      name: Routing Fee Rate
+      description: |
+        The fee rate used when forwarding payments on your channels. The total fee charged is
+        the Base Fee + (amount * Fee Rate / 1,000,000), where the amount is the forwarded amount.
+        Measured in sats per million.
+      nullable: false
+      range: "[1,1000000)"
+      integral: true
+      default: 1
+      units: "sats per million"
+    min-capacity:
+      type: number
+      name: Minimum Channel Capacity
+      description: |
+        This value defines the minimal effective channel capacity in satoshis to accept for channel opening requests.
+        This will reject any opening of a channel which can't pass an HTLC of at least this value. Usually this prevents
+        a peer opening a tiny channel, but it can also prevent a channel you open with a reasonable amount and the peer
+        is requesting such a large reserve that the capacity of the channel falls below this.
+      nullable: false
+      range: "[1,16777215]"
+      integral: true
+      default: 10000
+      units: satoshis
+    ignore-fee-limits:
+      type: boolean
+      name: Ignore Fee Limits
+      description: |
+        Allow nodes which establish channels to you to set any fee they want. This may result in a channel which cannot
+        be closed, should fees increase, but make channels far more reliable since c-lightning will never close it due
+        to unreasonable fees.
+      default: false
+    funding-confirms:
+      type: number
+      name: Required Funding Confirmations
+      description: |
+        Confirmations required for the funding transaction when the other side opens a channel before the channel is
+        usable.
+      nullable: false
+      range: "[1,6]"
+      integral: true
+      default: 3
+      units: blocks
+    cltv-delta:
+      type: number
+      name: Time Lock Delta
+      description: |
+        The number of blocks between the incoming payments and outgoing payments: this needs to be enough to make sure
+        that if it has to, c-lightning can close the outgoing payment before the incoming, or redeem the incoming once
+        the outgoing is redeemed.
+      nullable: false
+      range: "[6,144]"
+      integral: true
+      default: 40
+      units: blocks
+    wumbo-channels:
+      type: boolean
+      name: Enable Wumbo Channels
+      description: |
+        Removes capacity limits for channel creation. Version 1.0 of the specification limited channel sizes to 16777215
+        satoshis. With this option (which your node will advertise to peers), your node will accept larger incoming
+        channels and if the peer supports it, will open larger channels.
+
+        Warning: This is #Reckless and you should not enable it unless you deeply understand the risks associated with
+        the Lightning Network.
       default: false
