@@ -174,22 +174,38 @@ fn main() -> Result<(), anyhow::Error> {
         alias: String,
     }
 
+    let rpc_path = Path::new("/root/.lightning/bitcoin/lightning-rpc");
+    if rpc_path.exists() {
+        std::fs::remove_file(rpc_path)?;
+    }
     #[cfg(target_os = "linux")]
     nix::unistd::daemon(true, true)?;
-    fn get_node_info() -> Result<NodeInfo, anyhow::Error> {
-        loop {
-            let output = std::process::Command::new("lightning-cli")
-                .arg("getinfo")
-                .output()?;
-            let res = serde_json::from_str(&String::from_utf8(output.stdout)?);
-            match res {
-                Ok(n) => return Ok(n),
-                Err(e) => eprintln!("error parsing node id: {:?}", e),
+    while !rpc_path.exists() {
+        std::thread::sleep(std::time::Duration::from_secs(1));
+    }
+    for shared_dir in std::fs::read_dir("/root/.lightning/shared")? {
+        let shared_dir = shared_dir?;
+        if shared_dir.metadata()?.is_dir() {
+            let link = shared_dir.path().join("lightning-rpc");
+            if link.exists() {
+                std::fs::remove_file(&link)?;
             }
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            std::fs::hard_link(rpc_path, &link)?;
         }
     }
-    let node_info = get_node_info()?;
+
+    let node_info: NodeInfo = {
+        let output = std::process::Command::new("lightning-cli")
+            .arg("getinfo")
+            .output()?;
+        if !output.status.success() {
+            return Err(anyhow::anyhow!(
+                "error in lightning-cli: {:?}",
+                String::from_utf8(output.stderr)
+            ));
+        }
+        serde_json::from_str(&String::from_utf8(output.stdout)?)?
+    };
 
     if config.rpc.enabled {
         serde_yaml::to_writer(
@@ -202,7 +218,9 @@ fn main() -> Result<(), anyhow::Error> {
                             "clightning-rpc://{}:{}@{}:{}",
                             config.rpc.user, config.rpc.password, peer_tor_address, 8080
                         ),
-                        description: Some("A convenient way to connect a wallet to a remote node".to_owned()),
+                        description: Some(
+                            "A convenient way to connect a wallet to a remote node".to_owned(),
+                        ),
                         copyable: true,
                         qr: true,
                         masked: true,
@@ -249,24 +267,6 @@ fn main() -> Result<(), anyhow::Error> {
             },
         )?;
     }
-    let rpc_path = Path::new("/root/.lightning/bitcoin/lightning-rpc");
-    if rpc_path.exists() {
-        std::fs::remove_file(rpc_path)?;
-    }
-    #[cfg(target_os = "linux")]
-    nix::unistd::daemon(true, true)?;
-    while !rpc_path.exists() {
-        std::thread::sleep(std::time::Duration::from_secs(1));
-    }
-    for shared_dir in std::fs::read_dir("/root/.lightning/shared")? {
-        let shared_dir = shared_dir?;
-        if shared_dir.metadata()?.is_dir() {
-            let link = shared_dir.path().join("lightning-rpc");
-            if link.exists() {
-                std::fs::remove_file(&link)?;
-            }
-            std::fs::hard_link(rpc_path, &link)?;
-        }
-    }
+
     Ok(())
 }
