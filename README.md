@@ -8,7 +8,7 @@ This project wraps [c-lightning](https://github.com/ElementsProject/lightning
 - [docker](https://docs.docker.com/get-docker)
 - [docker-buildx](https://docs.docker.com/buildx/working-with-buildx/)
 - [yq](https://mikefarah.gitbook.io/yq)
-- [appmgr](https://github.com/Start9Labs/appmgr)
+- [appmgr](https://github.com/Start9Labs/embassy-os/tree/master/appmgr)
 - [make](https://www.gnu.org/software/make/)
 
 ## Cloning
