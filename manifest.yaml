@@ -1,6 +1,6 @@
 compat: v0
 id: c-lightning
-version: 0.9.3
+version: 0.9.3.1
 title: c-lightning
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -9,21 +9,23 @@ release-notes: https://github.com/ElementsProject/lightning/releases/tag/v0.9.3
 ports:
   - internal: 9735
     tor: 9735
+    lan: ~
   - internal: 8080
     tor: 8080
+    lan: ~
 image:
   type: tar
 shm-size-mb: 64
 mount: /root/.lightning
 shared: shared
 has-instructions: true
-os-version-required: ">=0.2.8"
-os-version-recommended: ">=0.2.8"
+os-version-required: ">=0.2.10"
+os-version-recommended: ">=0.2.10"
 assets: []
 hidden-service-version: v3
 dependencies:
   btc-rpc-proxy:
-    version: "^0.2.4"
+    version: ">=0.2.4 <0.4.0"
     optional: Can alternatively configure an external bitcoin node.
     description: Used to fetch validated blocks.
     config:
@@ -110,4 +112,3 @@ restore-alert: |
   Restoring c-lightning will overwrite its current data, including its on-chain wallet and channels. Any channels opened
   since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
   closed and their funds returned to your wallet, assuming your peers choose to cooperate.
-
