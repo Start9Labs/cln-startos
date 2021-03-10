@@ -19,8 +19,8 @@ shm-size-mb: 64
 mount: /root/.lightning
 shared: shared
 has-instructions: true
-os-version-required: ">=0.2.10"
-os-version-recommended: ">=0.2.10"
+os-version-required: "^0.2.10"
+os-version-recommended: "^0.2.10"
 assets: []
 hidden-service-version: v3
 dependencies:
