@@ -63,9 +63,10 @@ bitcoind:
         tag:
           id: type
           name: Type
-        description: |
+          description: |
             - Manual: Raw information for finding a Bitcoin Core node
             - Quick Connect: A Quick Connect URL for a Bitcoin Core node
+        default: quick-connect
         variantNames:
           manual: Manual
           quick-connect: Quick Connect
