@@ -56,6 +56,16 @@ enum BitcoinCoreConfig {
     },
     #[serde(rename_all = "kebab-case")]
     External {
+        connection_settings: ExternalBitcoinCoreConfig,
+    },
+}
+
+#[derive(serde::Deserialize)]
+#[serde(tag = "type")]
+#[serde(rename_all = "kebab-case")]
+enum ExternalBitcoinCoreConfig {
+    #[serde(rename_all = "kebab-case")]
+    Manual {
         #[serde(deserialize_with = "deserialize_parse")]
         address: Uri,
         user: String,
@@ -67,7 +77,6 @@ enum BitcoinCoreConfig {
         quick_connect_url: Uri,
     },
 }
-
 #[derive(Deserialize)]
 struct RpcConfig {
     enabled: bool,
@@ -162,18 +171,21 @@ fn main() -> Result<(), anyhow::Error> {
                 password,
             } => (user, password, format!("{}", address), 8332),
             BitcoinCoreConfig::External {
-                address,
-                user,
-                password,
+                connection_settings:
+                    ExternalBitcoinCoreConfig::Manual {
+                        address,
+                        user,
+                        password,
+                    },
             } => (
                 user,
                 password,
                 format!("{}", address.host().unwrap()),
                 address.port_u16().unwrap_or(8332),
             ),
-            BitcoinCoreConfig::QuickConnect { quick_connect_url } => {
-                parse_quick_connect_url(quick_connect_url)?
-            }
+            BitcoinCoreConfig::External {
+                connection_settings: ExternalBitcoinCoreConfig::QuickConnect { quick_connect_url },
+            } => parse_quick_connect_url(quick_connect_url)?,
         };
     let rpc_bind: SocketAddr = if config.rpc.enabled {
         ([0, 0, 0, 0], 8080).into()

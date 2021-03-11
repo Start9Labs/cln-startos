@@ -1,4 +1,3 @@
-
 alias:
   type: string
   name: Alias
@@ -23,10 +22,18 @@ bitcoind:
   name: Bitcoin Core
   description: |
     The Bitcoin Core node to connect to:
-      - internal: The Bitcoin Core RPC Proxy service installed to your Embassy
-      - external: An unpruned Bitcoin Core node running on a different device
-      - quick-connect: A Quick Connect URL for an unpruned Bitcoin Core node
-  tag: type
+      - Internal: The Bitcoin Core RPC Proxy service installed to your Embassy
+      - External: An unpruned Bitcoin Core node running on a different device
+  tag:
+    id: type
+    name: Type
+    variantNames:
+      internal: Internal
+      external: External
+    description: |
+      The Bitcoin Core node to connect to:
+        - Internal: The Bitcoin Core RPC Proxy service installed to your Embassy
+        - External: An unpruned Bitcoin Core node running on a different device
   default: internal
   variants:
     internal:
@@ -54,30 +61,46 @@ bitcoind:
         target: config
         index: 'users.[first(item => ''item.name = "c-lightning")].password'
     external:
-      address:
-        type: string
-        name: Public Address
-        description: The public address of your Bitcoin Core RPC server
-        nullable: false
-      user:
-        type: string
-        name: RPC Username
-        description: The username for the RPC user on your Bitcoin Core RPC server
-        nullable: false
-      password:
-        type: string
-        name: RPC Password
-        description: The password for the RPC user on your Bitcoin Core RPC server
-        nullable: false
-        masked: true
-    quick-connect:
-      quick-connect-url:
-        type: string
-        name: Quick Connect URL
-        description: The Quick Connect URL for your Bitcoin Core RPC server
-        nullable: false
-        pattern: 'btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\?(label=.+)?)?)?'
-        patternDescription: Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md
+      connection-settings:
+        type: union
+        name: Connection Settings
+        description: Information to connect to an external unpruned Bitcoin Core node
+        tag:
+          id: type
+          name: Type
+          description: |
+            - Manual: Raw information for finding a Bitcoin Core node
+            - Quick Connect: A Quick Connect URL for a Bitcoin Core node
+          variantNames:
+            manual: Manual
+            quick-connect: Quick Connect
+        default: quick-connect
+        variants:
+          manual:
+            address:
+              type: string
+              name: Public Address
+              description: The public address of your Bitcoin Core RPC server
+              nullable: false
+            user:
+              type: string
+              name: RPC Username
+              description: The username for the RPC user on your Bitcoin Core RPC server
+              nullable: false
+            password:
+              type: string
+              name: RPC Password
+              description: The password for the RPC user on your Bitcoin Core RPC server
+              nullable: false
+              masked: true
+          quick-connect:
+            quick-connect-url:
+              type: string
+              name: Quick Connect URL
+              description: The Quick Connect URL for your Bitcoin Core RPC server
+              nullable: false
+              pattern: 'btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\?(label=.+)?)?)?'
+              patternDescription: Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md
 rpc:
   type: object
   name: RPC Options
