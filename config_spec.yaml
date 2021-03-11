@@ -25,10 +25,12 @@ bitcoind:
       - internal: The Bitcoin Core RPC Proxy service installed to your Embassy
       - external: An unpruned Bitcoin Core node running on a different device
       - quick-connect: A Quick Connect URL for an unpruned Bitcoin Core node
-  variantNames:
-    internal: Internal
-    external: External
-  tag: type
+  tag:
+    id: type
+    name: Type
+    variantNames:
+      internal: Internal
+      external: External
   default: internal
   variants:
     internal:
@@ -66,10 +68,10 @@ bitcoind:
           description: |
             - Manual: Raw information for finding a Bitcoin Core node
             - Quick Connect: A Quick Connect URL for a Bitcoin Core node
+          variantNames:
+            manual: Manual
+            quick-connect: Quick Connect
         default: quick-connect
-        variantNames:
-          manual: Manual
-          quick-connect: Quick Connect
         variants:
           manual:
             address:
