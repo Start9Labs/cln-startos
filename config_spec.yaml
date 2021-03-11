@@ -22,15 +22,18 @@ bitcoind:
   name: Bitcoin Core
   description: |
     The Bitcoin Core node to connect to:
-      - internal: The Bitcoin Core RPC Proxy service installed to your Embassy
-      - external: An unpruned Bitcoin Core node running on a different device
-      - quick-connect: A Quick Connect URL for an unpruned Bitcoin Core node
+      - Internal: The Bitcoin Core RPC Proxy service installed to your Embassy
+      - External: An unpruned Bitcoin Core node running on a different device
   tag:
     id: type
     name: Type
     variantNames:
       internal: Internal
       external: External
+    description: |
+      The Bitcoin Core node to connect to:
+        - Internal: The Bitcoin Core RPC Proxy service installed to your Embassy
+        - External: An unpruned Bitcoin Core node running on a different device
   default: internal
   variants:
     internal:

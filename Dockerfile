@@ -49,7 +49,7 @@ RUN ./configure LDFLAGS=-L`ls -d /opt/db*`/lib/ CPPFLAGS=-I`ls -d /opt/db*`/incl
     --with-gui=no \
     --disable-wallet \
     --enable-util-cli
-RUN make -j4
+RUN make -j24
 RUN strip ./src/bitcoin-cli
 
 FROM alpine:3.12 as builder
@@ -64,7 +64,7 @@ ADD ./lightning /root/lightning
 WORKDIR /root/lightning
 
 RUN ./configure
-RUN make
+RUN make -j24
 RUN make install
 
 FROM alpine:3.12 as runner
