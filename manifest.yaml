@@ -1,13 +1,12 @@
 compat: v0
 id: c-lightning
-version: 0.9.3.1
+version: 0.10.0
 title: c-lightning
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
   long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
-release-notes: |
-  - https://github.com/ElementsProject/lightning/releases/tag/v0.9.3
-  - Compatibility with Bitcoin Proxy 0.3.1 and EmbassyOS 0.2.10
+release-notes: |-
+  https://github.com/ElementsProject/lightning/releases/tag/v0.10.0
 ports:
   - internal: 9735
     tor: 9735
