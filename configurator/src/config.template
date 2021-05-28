@@ -23,3 +23,7 @@ ignore-fee-limits={ignore_fee_limits}
 funding-confirms={funding_confirms}
 cltv-delta={cltv_delta}
 {enable_wumbo}
+{enable_experimental_dual_fund}
+{enable_experimental_onion_messages}
+{enable_experimental_offers}
+{enable_experimental_shutdown_wrong_funding}

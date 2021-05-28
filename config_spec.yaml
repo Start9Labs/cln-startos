@@ -221,7 +221,8 @@ advanced:
       default: false
     experimental:
       type: object
-      name: Experimental Features that have not made it into the BOLT specifications
+      name: Experimental Features
+      description: Experimental features that have not been standardized across Lightning Network implementations
       nullable: false
       nullByDefault: false
       spec:

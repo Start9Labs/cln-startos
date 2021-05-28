@@ -95,6 +95,16 @@ struct AdvancedConfig {
     funding_confirms: usize,
     cltv_delta: usize,
     wumbo_channels: bool,
+    experimental: ExperimentalConfig,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "kebab-case")]
+struct ExperimentalConfig {
+    dual_fund: bool,
+    onion_messages: bool,
+    offers: bool,
+    shutdown_wrong_funding: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -221,6 +231,27 @@ fn main() -> Result<(), anyhow::Error> {
         } else {
             ""
         },
+        enable_experimental_dual_fund = if config.advanced.experimental.dual_fund {
+            "experimental-dual-fund"
+        } else {
+            ""
+        },
+        enable_experimental_onion_messages = if config.advanced.experimental.onion_messages {
+            "experimental-onion-messages"
+        } else {
+            ""
+        },
+        enable_experimental_offers = if config.advanced.experimental.offers {
+            "experimental-offers"
+        } else {
+            ""
+        },
+        enable_experimental_shutdown_wrong_funding =
+            if config.advanced.experimental.shutdown_wrong_funding {
+                "experimental-shutdown-wrong-funding"
+            } else {
+                ""
+            }
     )?;
     drop(outfile);
     #[derive(serde::Deserialize)]
