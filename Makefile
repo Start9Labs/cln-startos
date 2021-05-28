@@ -1,8 +1,6 @@
 ASSETS := $(shell yq e ".assets.[].src" manifest.yaml)
 ASSET_PATHS := $(addprefix assets/,$(ASSETS))
-VERSION_TAG := $(shell git --git-dir=lightning/.git describe --abbrev=0)
-VERSION := $(VERSION_TAG:v%=%)
-BITCOIN_VERSION := "0.20.0"
+BITCOIN_VERSION := "0.21.0"
 C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
 C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
 HTTP_PLUGIN_SRC := $(shell find ./c-lightning-http-plugin/src) c-lightning-http-plugin/Cargo.toml c-lightning-http-plugin/Cargo.lock
@@ -30,6 +28,3 @@ c-lightning-http-plugin/target/armv7-unknown-linux-musleabihf/release/c-lightnin
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:armv7-musleabihf cargo +beta build --release
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:armv7-musleabihf musl-strip target/armv7-unknown-linux-musleabihf/release/c-lightning-http-plugin
 
-manifest.yaml: $(C_LIGHTNING_GIT_FILE)
-	yq eval -i ".version = \"$(VERSION)\"" manifest.yaml
-	yq eval -i ".release-notes = \"https://github.com/ElementsProject/lightning/releases/tag/$(VERSION_TAG)\"" manifest.yaml
