@@ -219,3 +219,34 @@ advanced:
         Warning: This is #Reckless and you should not enable it unless you deeply understand the risks associated with
         the Lightning Network.
       default: false
+    experimental:
+      type: object
+      name: Experimental Features that have not made it into the BOLT specifications
+      nullable: false
+      nullByDefault: false
+      spec:
+        dual-fund:
+          type: boolean
+          name: Dual Funding
+          description: |
+            Enables the option to dual fund channels with other compatible lightning implementations using the v2
+            channel opening protocol
+          default: false
+        onion-messages:
+          type: boolean
+          name: Onion Messages
+          description: |
+            Enable the sending, receiving, and relay of onion messages
+          default: false
+        offers:
+          type: boolean
+          name: Offers
+          description: |
+            Enable the sending and receiving of offers (this requires Onion Messages to be enabled as well)
+          default: false
+        shutdown-wrong-funding:
+          type: boolean
+          name: Shutdown Wrong Funding
+          description: |
+            Allow channel shutdown with alternate txids
+          default: false

@@ -1,1 +1,3 @@
-[]
+---
+- rule: "!(advanced.experimental.offers?) OR advanced.experimental.offers? AND advanced.experimental.onion-messages?"
+  description: You must enable 'Onion Messages' if you wish to enable 'Offers'
