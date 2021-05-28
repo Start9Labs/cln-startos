@@ -223,6 +223,10 @@ advanced:
       type: object
       name: Experimental Features
       description: Experimental features that have not been standardized across Lightning Network implementations
+      changeWarning: |
+        These are experimental features. Enable them at your own risk. It is possible that software bugs can lead to
+        unknown problems. We recommend not using them with large amounts of money. Unless you understand how these
+        features work, you should not enable them.
       nullable: false
       nullByDefault: false
       spec:
