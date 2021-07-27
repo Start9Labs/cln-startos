@@ -4,6 +4,12 @@ bitcoin-rpcpassword={bitcoin_rpc_pass}
 bitcoin-rpcconnect={bitcoin_rpc_host}
 bitcoin-rpcport={bitcoin_rpc_port}
 plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
+plugin=/usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
+plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py
+plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js
+rest-port=3001
+rest-docport=4001
+rest-protocol=https
 
 http-user={rpc_user}
 http-pass={rpc_pass}

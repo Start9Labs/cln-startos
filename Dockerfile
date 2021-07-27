@@ -67,16 +67,50 @@ RUN ./configure
 RUN make -j24
 RUN make install
 
-FROM alpine:3.12 as runner
+# FROM mcr.microsoft.com/dotnet/core/sdk:3.1.100 AS cl-rest-builder
+# RUN apt-get update \
+# 	&& apt-get install -qq --no-install-recommends qemu qemu-user-static qemu-user binfmt-support
+
+# FROM arm32v7/node:12-alpine AS cl-rest
+# COPY --from=cl-rest-builder /usr/bin/qemu-arm-static /usr/bin/qemu-arm-static
+# WORKDIR /usr/src/app
+# COPY ./c-lightning-REST .
+# RUN apk add --update openssl && \
+#     rm -rf /var/cache/apk/*
+# RUN npm install --only=production
+
+
+# FROM alpine:3.12 as runner
+FROM arm32v7/node:12-alpine3.12 as runner
 
 RUN apk update
 RUN apk add tini
-RUN apk add sqlite-dev gmp libgcc libevent libstdc++ boost-filesystem=1.72.0-r6
+RUN apk add sqlite-dev gmp libgcc libevent libstdc++ boost-filesystem=1.72.0-r6 python3 py3-pip nodejs
+RUN apk add --update openssl && \
+    rm -rf /var/cache/apk/*
+
+RUN mkdir -p /usr/local/libexec/c-lightning/plugins
+
+# rebalance
+ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
+
+#summary
+ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
+
+#c-lightning-REST
+ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
+# ADD /usr/src/app/node_modules/ /usr/local/libexec/c-lightning/plugins/c-lightning-REST/node_modules 
+WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
+RUN npm install --only=production
+RUN npm audit fix
 
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"
 
-RUN mkdir -p /usr/local/libexec/c-lightning/plugins
 COPY --from=builder /usr/local /usr/local
 COPY --from=bitcoin-core /bitcoin-${BITCOIN_VERSION}/src/bitcoin-cli /usr/local/bin
 ADD ./c-lightning-http-plugin/target/armv7-unknown-linux-musleabihf/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin

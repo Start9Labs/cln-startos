@@ -280,6 +280,17 @@ fn main() -> Result<(), anyhow::Error> {
         }
     }
 
+    std::fs::create_dir_all("/root/.lightning/public")?;
+    for macaroon in std::fs::read_dir("/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs")? {
+        let macaroon = macaroon?;
+        if macaroon.path().extension().and_then(|s| s.to_str()) == Some("macaroon") {
+            std::fs::copy(
+                macaroon.path(),
+                Path::new("/root/.lightning/public").join(macaroon.path().file_name().unwrap()),
+            )?;
+        }
+    }
+
     let node_info: NodeInfo = {
         let output = std::process::Command::new("lightning-cli")
             .arg("getinfo")

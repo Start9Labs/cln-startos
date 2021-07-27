@@ -14,11 +14,15 @@ ports:
   - internal: 8080
     tor: 8080
     lan: ~
+  - internal: 3001
+    tor: 3001
+    lan: ~
 image:
   type: tar
 shm-size-mb: 64
 mount: /root/.lightning
 shared: shared
+public: public
 has-instructions: true
 os-version-required: "^0.2.10"
 os-version-recommended: "^0.2.10"

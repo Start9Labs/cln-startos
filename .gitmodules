@@ -4,3 +4,9 @@
 [submodule "c-lightning-http-plugin"]
 	path = c-lightning-http-plugin
 	url = git@github.com:Start9Labs/c-lightning-http-plugin.git
+[submodule "plugins"]
+	path = plugins
+	url = https://github.com/lightningd/plugins
+[submodule "c-lightning-REST"]
+	path = c-lightning-REST
+	url = https://github.com/Ride-The-Lightning/c-lightning-REST
