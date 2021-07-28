@@ -1,12 +1,17 @@
 compat: v0
 id: c-lightning
-version: 0.10.0
+version: 0.10.0.1
 title: c-lightning
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
   long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
 release-notes: |-
-  https://github.com/ElementsProject/lightning/releases/tag/v0.10.0
+  - Update to v0.10.1 (waiting)
+  - Enable summary plugin
+  - Enable rebalance plugin
+  - Add c-lightning-REST plugin for RTL compatibility
+  - Enable accepting of dual fund requests
+  - For more, see: https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
 ports:
   - internal: 9735
     tor: 9735

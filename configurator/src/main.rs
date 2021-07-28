@@ -264,6 +264,8 @@ fn main() -> Result<(), anyhow::Error> {
     if rpc_path.exists() {
         std::fs::remove_file(rpc_path)?;
     }
+
+    // have configurator background itself
     #[cfg(target_os = "linux")]
     nix::unistd::daemon(true, true)?;
     while !rpc_path.exists() {
@@ -280,16 +282,15 @@ fn main() -> Result<(), anyhow::Error> {
         }
     }
 
-    std::fs::create_dir_all("/root/.lightning/public")?;
-    for macaroon in std::fs::read_dir("/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs")? {
-        let macaroon = macaroon?;
-        if macaroon.path().extension().and_then(|s| s.to_str()) == Some("macaroon") {
-            std::fs::copy(
-                macaroon.path(),
-                Path::new("/root/.lightning/public").join(macaroon.path().file_name().unwrap()),
-            )?;
-        }
+    let macaroon_path = Path::new("/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon");
+    while !macaroon_path.exists() {
+        std::thread::sleep(std::time::Duration::from_secs(1));
     }
+    std::fs::create_dir_all("/root/.lightning/public")?;
+    std::fs::copy(
+        macaroon_path,
+        Path::new("/root/.lightning/public").join(macaroon_path.file_name().unwrap()),
+    )?;
 
     let node_info: NodeInfo = {
         let output = std::process::Command::new("lightning-cli")

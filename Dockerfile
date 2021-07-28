@@ -67,20 +67,6 @@ RUN ./configure
 RUN make -j24
 RUN make install
 
-# FROM mcr.microsoft.com/dotnet/core/sdk:3.1.100 AS cl-rest-builder
-# RUN apt-get update \
-# 	&& apt-get install -qq --no-install-recommends qemu qemu-user-static qemu-user binfmt-support
-
-# FROM arm32v7/node:12-alpine AS cl-rest
-# COPY --from=cl-rest-builder /usr/bin/qemu-arm-static /usr/bin/qemu-arm-static
-# WORKDIR /usr/src/app
-# COPY ./c-lightning-REST .
-# RUN apk add --update openssl && \
-#     rm -rf /var/cache/apk/*
-# RUN npm install --only=production
-
-
-# FROM alpine:3.12 as runner
 FROM arm32v7/node:12-alpine3.12 as runner
 
 RUN apk update
