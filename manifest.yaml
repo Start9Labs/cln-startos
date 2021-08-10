@@ -1,23 +1,78 @@
 compat: v0
 id: c-lightning
-version: 0.10.2
+version: 0.10.2.1
 title: c-lightning
+license: BSD-MIT
+wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
+upstream-repo: https://github.com/ElementsProject/lightning
+build: ["make"]
+min-os-version: 0.3.0
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
   long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
+assets:
+  license: LICENSE
+  icon: icon.png
+  instructions: instructions.md
+  docker-images: image.tar
+  icon-type: png
+main:
+  type: docker
+  image: main
+  entrypoint: "/usr/local/bin/docker_entrypoint.sh"
+  args: []
+  mounts: {}
+  io-format: yaml
+health-checks: {}
+config:
+  get:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: config
+    args: 
+      - "get"
+      - "/root"
+    mounts: {}
+    io-format: yaml
+  set:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: config
+    args:
+      - "set"
+      - "/root"
+    mounts: {}
+    io-format: yaml
+volumes: {}
+interfaces:
+  main:
+    tor-config:
+      port-mapping:
+        9735: "9735"
+        8080: "8080"
+    ui: true
+    protocols:
+      - tcp
+      - http
+backup:
+  create:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: "true"
+    args: []
+    mounts: {}
+  restore:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: "true"
+    args: []
+    mounts: {} 
 release-notes: |-
-  - Update to v0.10.2
-  - Enable summary plugin (https://github.com/lightningd/plugins/tree/master/summary)
-  - Enable rebalance plugin (https://github.com/lightningd/plugins/tree/master/rebalance)
-  - Enable c-lightning-REST plugin (https://github.com/Ride-The-Lightning/c-lightning-REST)
-  - Enable accepting of dual fund requests
-  - Enable BOLT12 offers
-  - For more about 0.10.1, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
-  - For more about 0.10.2, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.2
-  - Note: your version will appear as "v0.10.2-modded" in `getinfo`.
-    - This is because it was necessary to delete some test files to fix this build error:
-    - https://github.com/ElementsProject/lightning/pull/4950#issuecomment-985907455
-    - This does not affect the functioning of your node in any way.
+  Upgrade to EmbassyOS v0.3.0
 ports:
   - internal: 9735
     tor: 9735
@@ -38,83 +93,92 @@ mount: /root/.lightning
 shared: shared
 public: public
 has-instructions: true
-os-version-required: "^0.2.15"
-os-version-recommended: "^0.2.15"
-assets: []
 hidden-service-version: v3
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
     optional: Can alternatively configure an external bitcoin node.
     description: Used to fetch validated blocks.
+    critical: false
     config:
-      - rule: '''users.*.name = "c-lightning"'
-        description: 'Must have an RPC user named "c-lightning"'
-        suggestions:
-          - PUSH:
-              to: "users"
-              value:
-                name: c-lightning
-                allowed-calls: []
-          - SET:
-              var: 'users.[first(item => ''item.name = "c-lightning")].password'
-              to-entropy:
-                charset: "a-z,A-Z,0-9"
-                len: 22
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "echo"'
-        description: 'RPC user "c-lightning" must have "echo" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "echo"
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "gettxout"'
-        description: 'RPC user "c-lightning" must have "gettxout" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "gettxout"
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockchaininfo"'
-        description: 'RPC user "c-lightning" must have "getblockchaininfo" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "getblockchaininfo"
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "sendrawtransaction"'
-        description: 'RPC user "c-lightning" must have "sendrawtransaction" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "sendrawtransaction"
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockhash"'
-        description: 'RPC user "c-lightning" must have "getblockhash" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "getblockhash"
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblock"'
-        description: 'RPC user "c-lightning" must have "getblock" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "getblock"
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "estimatesmartfee"'
-        description: 'RPC user "c-lightning" must have "estimatesmartfee" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "estimatesmartfee"
-      - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getnetworkinfo"'
-        description: 'RPC user "c-lightning" must have "getnetworkinfo" enabled'
-        suggestions:
-          - PUSH:
-              to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-              value: "getnetworkinfo"
-      - rule: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks?'
-        description: 'RPC user "c-lightning" must have "Fetch Blocks" enabled'
-        suggestions:
-          - SET:
-              var: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks'
-              to-value: true
+      check: 
+        type: docker
+        image: compat
+        system: true
+        entrypoint: "true"
+      auto-configure:
+        type: docker
+        image: compat
+        system: true
+        entrypoint: "true"
+        implementation:
+          - rule: '''users.*.name = "c-lightning"'
+            description: 'Must have an RPC user named "c-lightning"'
+            suggestions:
+              - PUSH:
+                  to: "users"
+                  value:
+                    name: c-lightning
+                    allowed-calls: []
+              - SET:
+                  var: 'users.[first(item => ''item.name = "c-lightning")].password'
+                  to-entropy:
+                    charset: "a-z,A-Z,0-9"
+                    len: 22
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "echo"'
+            description: 'RPC user "c-lightning" must have "echo" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "echo"
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "gettxout"'
+            description: 'RPC user "c-lightning" must have "gettxout" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "gettxout"
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockchaininfo"'
+            description: 'RPC user "c-lightning" must have "getblockchaininfo" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "getblockchaininfo"
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "sendrawtransaction"'
+            description: 'RPC user "c-lightning" must have "sendrawtransaction" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "sendrawtransaction"
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockhash"'
+            description: 'RPC user "c-lightning" must have "getblockhash" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "getblockhash"
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblock"'
+            description: 'RPC user "c-lightning" must have "getblock" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "getblock"
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "estimatesmartfee"'
+            description: 'RPC user "c-lightning" must have "estimatesmartfee" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "estimatesmartfee"
+          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getnetworkinfo"'
+            description: 'RPC user "c-lightning" must have "getnetworkinfo" enabled'
+            suggestions:
+              - PUSH:
+                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+                  value: "getnetworkinfo"
+          - rule: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks?'
+            description: 'RPC user "c-lightning" must have "Fetch Blocks" enabled'
+            suggestions:
+              - SET:
+                  var: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks'
+                  to-value: true
 install-alert: |
   READ CAREFULLY! c-lightning and the Lightning Network are considered beta software. Please use with caution and do not
   risk more money than you are willing to lose. We encourage frequent backups. If for any reason, you need to restore
