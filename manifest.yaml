@@ -43,7 +43,7 @@ config:
       - "/mnt/assets/config_spec.yaml"
     mounts:
       compat: "/mnt/assets"
-      main: "/root"
+      main: "/root/.lightning"
     io-format: yaml
   set:
     type: docker
@@ -54,7 +54,7 @@ config:
       - "set"
       - "/root/.lightning/start9/config.yaml"
     mounts:
-      main: "/root"
+      main: "/root/.lightning"
     io-format: yaml
 volumes:
   # this is the image where data will go from 0.2.x
@@ -140,7 +140,7 @@ backup:
     # arguments to pass into the entrypoint ie. duplicity in this case
     # thus, the full commamnd run will be: `duplicity /root file:///mnt/backup`
     args:
-      - /root
+      - /root/.lightning
       - file:///mnt/backup
     mounts:
       # BACKUP is the default volume that is used for backups - this is whatever backup drive is mounted to the device, or a network filesystem
@@ -155,7 +155,7 @@ backup:
     entrypoint: duplicity
     args:
       - file:///mnt/backup
-      - /root
+      - /root/.lightning
     mounts:
       BACKUP: "/mnt/backup"
       main: "/root/.lightning" 
