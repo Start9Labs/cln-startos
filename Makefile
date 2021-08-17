@@ -5,17 +5,20 @@ C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
 C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
 HTTP_PLUGIN_SRC := $(shell find ./c-lightning-http-plugin/src) c-lightning-http-plugin/Cargo.toml c-lightning-http-plugin/Cargo.lock
 CONFIGURATOR_SRC := $(shell find ./configurator/src) configurator/Cargo.toml configurator/Cargo.lock
+S9PK_PATH=$(shell find . -name c-lightning.s9pk -print)
 
 .DELETE_ON_ERROR:
 
-all: c-lightning.s9pk
+all: verify
+
+verify: c-lightning.s9pk $(S9PK_PATH)
+	embassy-sdk verify $(S9PK_PATH)
 
 install: c-lightning.s9pk
-	embassy-sdk pack
+	embassy-cli package install c-lightning
 
-c-lightning.s9pk: manifest.yaml config_spec.yaml config_rules.yaml image.tar instructions.md $(ASSET_PATHS)
-	appmgr -vv pack $(shell pwd) -o c-lightning.s9pk
-	appmgr -vv verify c-lightning.s9pk
+c-lightning.s9pk: manifest.yaml assets/compat/config_spec.yaml assets/compat/config_rules.yaml image.tar instructions.md $(ASSET_PATHS)
+	embassy-sdk pack
 
 image.tar: Dockerfile docker_entrypoint.sh configurator/target/aarch64-unknown-linux-musl/release/configurator c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin $(C_LIGHTNING_GIT_FILE)
 	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/c-lightning --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --platform=linux/arm64 -o type=docker,dest=image.tar .

@@ -5,6 +5,11 @@ title: c-lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
 upstream-repo: https://github.com/ElementsProject/lightning
+support-site: https://github.com/ElementsProject/lightning/issues
+marketing-site: https://blockstream.com/lightning
+release-notes: |-
+  Upgrade to EmbassyOS v0.3.0
+  https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
 build: ["make"]
 min-os-version: 0.3.0
 description:
@@ -19,173 +24,157 @@ assets:
 main:
   type: docker
   image: main
-  entrypoint: "/usr/local/bin/docker_entrypoint.sh"
+  entrypoint: "docker_entrypoint.sh"
   args: []
-  mounts: {}
+  mounts:
+    btc-rpc-proxy: "/mnt/btc-rpc-proxy"
   io-format: yaml
+  shm-size: 64M
 health-checks: {}
 config:
   get:
     type: docker
     image: compat
-    system: true
-    entrypoint: config
+    entrypoint: compat
     args: 
+      - "config"
       - "get"
-      - "/root"
-    mounts: {}
+      - "/root/.lightning/start9/config.yaml"
+      - "/mnt/assets/config_spec.yaml"
+    mounts:
+      compat: "/mnt/assets"
+      main: "/root"
     io-format: yaml
   set:
     type: docker
     image: compat
-    system: true
-    entrypoint: config
+    entrypoint: compat
     args:
+      - "config"
       - "set"
-      - "/root"
-    mounts: {}
+      - "/root/.lightning/start9/config.yaml"
+    mounts:
+      main: "/root"
     io-format: yaml
-volumes: {}
-interfaces:
+volumes:
+  # this is the image where data will go from 0.2.x
   main:
+    type: data
+  # this is the image where files from the project asset directory will go
+  compat:
+    type: assets
+  # this is a pointer volume, where the image is specified in `<pointer-id>.volume-id` and the mount point is specificed in `main.mounts.<pointer-id>`
+  btc-rpc-proxy:
+    type: pointer
+    package-id: btc-rpc-proxy
+    volume-id: main
+    path: "/root"
+    readonly: false
+  # TODO - update configurator to not gen cert
+  certificates:
+    type: certificate
+    # id of the volume you want the cert for
+    interface-id: main
+interfaces:
+  peer:
+    name: Peer Interface
+    description: Specifies the interfaces to listen on for p2p connections.
+    tor-config:
+        port-mapping:
+          9735: "9735"
+    ui: false
+    protocols:
+      - tcp
+      - http
+      - lightning
+  rest:
+    name: REST Interface
+    description: Specifies the interfaces to listen on for REST connections to the c-lightning-http-plugin plugin
     tor-config:
       port-mapping:
-        9735: "9735"
         8080: "8080"
-    ui: true
+    ui: false
     protocols:
       - tcp
       - http
 backup:
   create:
     type: docker
-    image: compat
+    # default backup process is duplicity - EOS will have access to this image
+    image: duplicity
     system: true
-    entrypoint: "true"
-    args: []
-    mounts: {}
+    # command to run the backup executable, in this case, duplicity
+    entrypoint: duplicity
+    # arguments to pass into the entrypoint ie. duplicity in this case
+    # thus, the full commamnd run will be: `duplicity /root file:///mnt/backup`
+    args:
+      - /root
+      - file:///mnt/backup
+    mounts:
+      # BACKUP is the default volume that is used for backups - this is whatever backup drive is mounted to the device, or a network filesystem
+      # the value here denotes where the data mount point will be
+      # mounts backup drive to this location, which contains previous backups
+      BACKUP: "/mnt/backup"
+      main: "/root/.lightning"
   restore:
     type: docker
-    image: compat
+    image: duplicity
     system: true
-    entrypoint: "true"
-    args: []
-    mounts: {} 
-release-notes: |-
-  Upgrade to EmbassyOS v0.3.0
-  https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
-ports:
-  - internal: 9735
-    tor: 9735
-    lan: ~
-  - internal: 8080
-    tor: 8080
-    lan: ~
-image:
-  type: tar
-shm-size-mb: 64
-mount: /root/.lightning
-shared: shared
-has-instructions: true
-hidden-service-version: v3
+    entrypoint: duplicity
+    args:
+      - file:///mnt/backup
+      - /root
+    mounts:
+      BACKUP: "/mnt/backup"
+      main: "/root/.lightning" 
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
     optional: Can alternatively configure an external bitcoin node.
     description: Used to fetch validated blocks.
+    recommended: true
     critical: false
     config:
       check: 
         type: docker
         image: compat
         system: true
-        entrypoint: "true"
+        # the compat image will contain a tool to check the config rules against the specified dependency
+        entrypoint: compat
+        args:
+          - "dependency"
+          - "check"
+          - "/mnt/assets/btc-rpc-proxy.rules.yaml"
+        mounts:
+          compat: "/mnt/assets"  
       auto-configure:
         type: docker
         image: compat
+        # if true, the denoted image is prebuilt and comes stock with EOS
+        # uncommon: if you want something not prebuilt with EOS, you can bundle multiple docker images into the `image.tar` during the `make` build process
         system: true
-        entrypoint: "true"
-        implementation:
-          - rule: '''users.*.name = "c-lightning"'
-            description: 'Must have an RPC user named "c-lightning"'
-            suggestions:
-              - PUSH:
-                  to: "users"
-                  value:
-                    name: c-lightning
-                    allowed-calls: []
-              - SET:
-                  var: 'users.[first(item => ''item.name = "c-lightning")].password'
-                  to-entropy:
-                    charset: "a-z,A-Z,0-9"
-                    len: 22
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "echo"'
-            description: 'RPC user "c-lightning" must have "echo" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "echo"
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "gettxout"'
-            description: 'RPC user "c-lightning" must have "gettxout" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "gettxout"
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockchaininfo"'
-            description: 'RPC user "c-lightning" must have "getblockchaininfo" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "getblockchaininfo"
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "sendrawtransaction"'
-            description: 'RPC user "c-lightning" must have "sendrawtransaction" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "sendrawtransaction"
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockhash"'
-            description: 'RPC user "c-lightning" must have "getblockhash" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "getblockhash"
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblock"'
-            description: 'RPC user "c-lightning" must have "getblock" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "getblock"
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "estimatesmartfee"'
-            description: 'RPC user "c-lightning" must have "estimatesmartfee" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "estimatesmartfee"
-          - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getnetworkinfo"'
-            description: 'RPC user "c-lightning" must have "getnetworkinfo" enabled'
-            suggestions:
-              - PUSH:
-                  to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
-                  value: "getnetworkinfo"
-          - rule: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks?'
-            description: 'RPC user "c-lightning" must have "Fetch Blocks" enabled'
-            suggestions:
-              - SET:
-                  var: 'users.[first(item => ''item.name = "c-lightning")].fetch-blocks'
-                  to-value: true
-install-alert: |
-  READ CAREFULLY! c-lightning and the Lightning Network are considered beta software. Please use with caution and do not
-  risk more money than you are willing to lose. We encourage frequent backups. If for any reason, you need to restore
-  c-lightning from a backup, your on-chain wallet will be restored, but the money locked up in your channels will be
-  stuck in those channels for an indeterminate period of time, if they are returned to you at all. It depends on the
-  cooperation of your peers. Choose peers with discretion.
-uninstall-alert: |
-  READ CAREFULLY! Uninstalling c-lightning will result in permanent loss of data, including its private keys for its
-  on-chain wallet and all channel states. Please make a backup if you have any funds in your on-chain wallet or in any
-  channels. Recovering from backup will restore your on-chain wallet, but due to the architecture of the Lightning
-  Network, your channels cannot be recovered. All your channel funds will be stuck in those channels for an indeterminate
-  period of time, and if your peers do not cooperate, they will not be recoverable at all.
-restore-alert: |
-  Restoring c-lightning will overwrite its current data, including its on-chain wallet and channels. Any channels opened
-  since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
-  closed and their funds returned to your wallet, assuming your peers choose to cooperate.
+        entrypoint: compat
+        args:
+          - "dependency"
+          - "auto-configure"
+          - "/mnt/assets/btc-rpc-proxy.rules.yaml"
+        mounts:
+          compat: "/mnt/assets"        
+          
+alert:
+  install: |
+    READ CAREFULLY! c-lightning and the Lightning Network are considered beta software. Please use with caution and do not
+    risk more money than you are willing to lose. We encourage frequent backups. If for any reason, you need to restore
+    c-lightning from a backup, your on-chain wallet will be restored, but the money locked up in your channels will be
+    stuck in those channels for an indeterminate period of time, if they are returned to you at all. It depends on the
+    cooperation of your peers. Choose peers with discretion.
+  uninstall: |
+    READ CAREFULLY! Uninstalling c-lightning will result in permanent loss of data, including its private keys for its
+    on-chain wallet and all channel states. Please make a backup if you have any funds in your on-chain wallet or in any
+    channels. Recovering from backup will restore your on-chain wallet, but due to the architecture of the Lightning
+    Network, your channels cannot be recovered. All your channel funds will be stuck in those channels for an indeterminate
+    period of time, and if your peers do not cooperate, they will not be recoverable at all.
+  restore: |
+    Restoring c-lightning will overwrite its current data, including its on-chain wallet and channels. Any channels opened
+    since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
+    closed and their funds returned to your wallet, assuming your peers choose to cooperate.
