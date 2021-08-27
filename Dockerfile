@@ -89,10 +89,8 @@ RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
 #c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-# ADD /usr/src/app/node_modules/ /usr/local/libexec/c-lightning/plugins/c-lightning-REST/node_modules 
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 RUN npm install --only=production
-RUN npm audit fix
 
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"

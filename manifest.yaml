@@ -7,8 +7,8 @@ description:
   long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
 release-notes: |-
   - Update to v0.10.1
-  - Enable summary plugin
-  - Enable rebalance plugin
+  - Enable summary plugin (https://github.com/lightningd/plugins/tree/master/summary)
+  - Enable rebalance plugin (https://github.com/lightningd/plugins/tree/master/rebalance)
   - Add c-lightning-REST plugin for RTL compatibility
   - Enable accepting of dual fund requests
   - For more, see: https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
