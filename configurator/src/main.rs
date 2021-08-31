@@ -96,6 +96,7 @@ struct AdvancedConfig {
     cltv_delta: usize,
     wumbo_channels: bool,
     experimental: ExperimentalConfig,
+    plugins: PluginConfig,
 }
 
 #[derive(Deserialize)]
@@ -105,6 +106,15 @@ struct ExperimentalConfig {
     onion_messages: bool,
     offers: bool,
     shutdown_wrong_funding: bool,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "kebab-case")]
+struct PluginConfig {
+    http: bool,
+    rebalance: bool,
+    summary: bool,
+    rest: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -246,12 +256,34 @@ fn main() -> Result<(), anyhow::Error> {
         } else {
             ""
         },
-        enable_experimental_shutdown_wrong_funding =
-            if config.advanced.experimental.shutdown_wrong_funding {
-                "experimental-shutdown-wrong-funding"
-            } else {
-                ""
-            }
+        enable_experimental_shutdown_wrong_funding = if config.advanced.experimental.shutdown_wrong_funding {
+            "experimental-shutdown-wrong-funding"
+        } else {
+            ""
+        },
+        enable_http_plugin = if config.advanced.plugins.http {
+            "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin"
+        } else {
+            ""
+        },
+        enable_rebalance_plugin = if config.advanced.plugins.rebalance {
+            "plugin=/usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py"
+        } else {
+            ""
+        },
+        enable_summary_plugin = if config.advanced.plugins.summary {
+            "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
+        } else {
+            ""
+        },
+        enable_rest_plugin = if config.advanced.plugins.rest {
+            "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\n\
+            rest-port=3001\n\
+            rest-docport=4001\n\
+            rest-protocol=https"
+        } else {
+            ""
+        },
     )?;
     drop(outfile);
     #[derive(serde::Deserialize)]

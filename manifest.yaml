@@ -22,6 +22,9 @@ ports:
   - internal: 3001
     tor: 3001
     lan: ~
+  - internal: 4001
+    tor: 4001
+    lan: ~
 image:
   type: tar
 shm-size-mb: 64
