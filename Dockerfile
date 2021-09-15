@@ -96,6 +96,9 @@ RUN npm install --only=production
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"
 
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
+    tar xz && mv yq_linux_arm /usr/bin/yq
+
 COPY --from=builder /usr/local /usr/local
 COPY --from=bitcoin-core /bitcoin-${BITCOIN_VERSION}/src/bitcoin-cli /usr/local/bin
 ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin

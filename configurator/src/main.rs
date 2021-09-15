@@ -236,7 +236,7 @@ fn main() -> Result<(), anyhow::Error> {
     } else {
         ([127, 0, 0, 0], 8080).into()
     };
-    let peer_tor_address = std::env::var("TOR_ADDRESS")?;
+    let peer_tor_address = std::env::var("PEER_TOR_ADDRESS")?;
     let tor_proxy: SocketAddr = (std::env::var("HOST_IP")?.parse::<IpAddr>()?, 9050).into();
 
     write!(
