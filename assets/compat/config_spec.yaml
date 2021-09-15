@@ -1,3 +1,19 @@
+peer-tor-address:
+  name: Peer Tor Address
+  description: The Tor address of the peer interface
+  type: pointer
+  subtype: package
+  package-id: c-lightning
+  target: tor-address
+  interface: peer
+rpc-tor-address:
+  name: RPC Tor Address
+  description: The Tor address of the RPC interface
+  type: pointer
+  subtype: package
+  package-id: c-lightning
+  target: tor-address
+  interface: rpc
 alias:
   type: string
   name: Alias

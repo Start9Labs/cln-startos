@@ -76,6 +76,9 @@ RUN apk add sqlite-dev gmp libgcc libevent libstdc++ boost-filesystem=1.72.0-r6
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"
 
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
+    tar xz && mv yq_linux_arm /usr/bin/yq
+
 RUN mkdir -p /usr/local/libexec/c-lightning/plugins
 COPY --from=builder /usr/local /usr/local
 COPY --from=bitcoin-core /bitcoin-${BITCOIN_VERSION}/src/bitcoin-cli /usr/local/bin
