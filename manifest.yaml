@@ -117,10 +117,11 @@ interfaces:
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
-    optional: Can alternatively configure an external bitcoin node.
     description: Used to fetch validated blocks.
-    recommended: true
     critical: false
+    requirement:
+      type: "opt-out"
+      how: Can alternatively configure an external bitcoin node.
     config:
       check: 
         type: docker
