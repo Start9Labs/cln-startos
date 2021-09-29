@@ -23,7 +23,7 @@ c-lightning.s9pk: manifest.yaml assets/compat/config_spec.yaml assets/compat/con
 	embassy-sdk pack
 
 image.tar: Dockerfile docker_entrypoint.sh configurator/target/aarch64-unknown-linux-musl/release/configurator c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(C_LIGHTNING_REST_SRC)
-	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/c-lightning/main:$(VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --platform=linux/arm64 -o type=docker,dest=image.tar .
+	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/c-lightning/main:$(VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --platform=linux/arm64/v8 -o type=docker,dest=image.tar .
 
 configurator/target/aarch64-unknown-linux-musl/release/configurator: $(CONFIGURATOR_SRC)
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/configurator:/home/rust/src start9/rust-musl-cross:aarch64-musl cargo +beta build --release
