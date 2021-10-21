@@ -29,7 +29,18 @@ main:
     compat: /mnt/assets
   io-format: yaml
   shm-size: 64M
-health-checks: {}
+health-checks:
+  rpc: 
+    type: docker
+    image: main
+    system: false
+    entrypoint: lightning-cli
+    args: ["getinfo"]
+    mounts:
+      main: /root/.lightning
+    io-format: yaml
+    critical: false
+    inject: true
 config:
   get:
     type: docker
