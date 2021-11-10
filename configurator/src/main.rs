@@ -49,11 +49,7 @@ struct Config {
 #[serde(rename_all = "kebab-case")]
 enum BitcoinCoreConfig {
     #[serde(rename_all = "kebab-case")]
-    Internal {
-        address: IpAddr,
-        user: String,
-        password: String,
-    },
+    Internal { user: String, password: String },
     #[serde(rename_all = "kebab-case")]
     External {
         connection_settings: ExternalBitcoinCoreConfig,
@@ -175,11 +171,9 @@ fn main() -> Result<(), anyhow::Error> {
 
     let (bitcoin_rpc_user, bitcoin_rpc_pass, bitcoin_rpc_host, bitcoin_rpc_port) =
         match config.bitcoind {
-            BitcoinCoreConfig::Internal {
-                address,
-                user,
-                password,
-            } => (user, password, format!("{}", address), 8332),
+            BitcoinCoreConfig::Internal { user, password } => {
+                (user, password, format!("{}", "btc-rpc-proxy.embassy"), 8332)
+            }
             BitcoinCoreConfig::External {
                 connection_settings:
                     ExternalBitcoinCoreConfig::Manual {
@@ -203,7 +197,7 @@ fn main() -> Result<(), anyhow::Error> {
         ([127, 0, 0, 0], 8080).into()
     };
     let peer_tor_address = std::env::var("PEER_TOR_ADDRESS")?;
-    let tor_proxy: SocketAddr = (std::env::var("HOST_IP")?.parse::<IpAddr>()?, 9050).into();
+    let tor_proxy: SocketAddr = (std::env::var("EMBASSY_IP")?.parse::<IpAddr>()?, 9050).into();
 
     write!(
         outfile,
