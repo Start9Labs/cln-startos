@@ -36,8 +36,7 @@ health-checks:
     system: false
     entrypoint: lightning-cli
     args: ["getinfo"]
-    mounts:
-      main: /root/.lightning
+    mounts: {}
     io-format: yaml
     critical: false
     inject: true
@@ -81,11 +80,24 @@ properties:
     - /root/.lightning
   mounts:
     main: /root/.lightning
+  io-format: yaml
 volumes:
   main:
     type: data
   compat:
     type: assets
+  bitcoind:
+    type: pointer
+    package-id: bitcoind
+    volume-id: main
+    path: /root/.bitcoin
+    readonly: true
+  btc-rpc-proxy:
+    type: pointer
+    package-id: "btc-rpc-proxy"
+    volume-id: main
+    path: /root
+    readonly: false
 alerts:
   install: |
     READ CAREFULLY! c-lightning and the Lightning Network are considered beta software. Please use with caution and do not
@@ -190,6 +202,10 @@ backup:
     tor-config:
       port-mapping:
         8080: "8080"
+    lan-config:
+      8080:
+        ssl: false
+        mapping: 8080
     ui: false
     protocols:
       - tcp
@@ -199,8 +215,8 @@ backup:
     name: Peer Interface
     description: Listens for incoming connections from lightning peers.
     tor-config:
-        port-mapping:
-          9735: "9735"
+      port-mapping:
+        9735: "9735"
     ui: false
     protocols:
       - tcp
@@ -208,34 +224,44 @@ backup:
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
-    description: Used to fetch validated blocks.
     critical: false
     requirement:
       type: "opt-out"
       how: Can alternatively configure an external bitcoin node.
+    description: Used to fetch validated blocks.
     config:
       check: 
         type: docker
         image: compat
         system: true
         entrypoint: compat
+        io-format: yaml
         args:
           - dependency
           - check
-          - /mnt/assets/btc-rpc-proxy.rules.yaml
+          - "c-lightning"
+          - "btc-rpc-proxy"
+          - /root/.lightning
+          - "/mnt/assets/btc-rpc-proxy.rules.yaml"
         mounts:
           compat: /mnt/assets
+          main: /root/.lightning
       auto-configure:
         type: docker
         image: compat
         system: true
         entrypoint: compat
+        io-format: yaml
         args:
           - dependency
-          - auto-configure
-          - /mnt/assets/btc-rpc-proxy.rules.yaml
+          - "auto-configure"
+          - "c-lightning"
+          - "btc-rpc-proxy"
+          - /root/.lightning
+          - "/mnt/assets/btc-rpc-proxy.rules.yaml"
         mounts:
           compat: /mnt/assets
+          main: /root/.lightning
 backup:
   create:
     type: docker
@@ -255,12 +281,13 @@ backup:
     type: docker
     image: compat
     system: true
-    entrypoint: /mnt/assets/backup-restore.sh
+    entrypoint: compat
     args:
+      - duplicity
       - restore
-      - c-lightning
-      - /root/.lightning
+      - "c-lightning"
       - /mnt/backup
+      - /root/.lightning
     mounts:
       BACKUP: /mnt/backup
       main: /root/.lightning

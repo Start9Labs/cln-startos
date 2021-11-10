@@ -53,29 +53,26 @@ bitcoind:
   default: internal
   variants:
     internal:
-      address:
-        type: pointer
-        name: Local Address
-        description: The LAN IP address of your Bitcoin Core RPC Proxy service
-        subtype: app
-        app-id: btc-rpc-proxy
-        target: lan-address
       user:
         type: pointer
         name: RPC Username
         description: The username for the RPC user allocated to c-lightning
-        subtype: app
-        app-id: btc-rpc-proxy
+        subtype: package
+        package-id: btc-rpc-proxy
         target: config
-        index: 'users.[first(item => ''item.name = "c-lightning")].name'
+        # index: 'users.[first(item => ''item.name = "c-lightning")].name'
+        selector: '$.users[?(@.name == "c-lightning")].name'
+        multi: false
       password:
         type: pointer
         name: RPC Password
         description: The password for the RPC user allocated to c-lightning
-        subtype: app
-        app-id: btc-rpc-proxy
+        subtype: package
+        package-id: btc-rpc-proxy
         target: config
-        index: 'users.[first(item => ''item.name = "c-lightning")].password'
+        # index: 'users.[first(item => ''item.name = "c-lightning")].password'
+        selector: '$.users[?(@.name == "c-lightning")].password'
+        multi: false
     external:
       connection-settings:
         type: union
