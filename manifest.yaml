@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.10.0.1
+version: 0.10.1
 title: c-lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -191,7 +191,6 @@ backup:
     args:
       - duplicity
       - create
-      - c-lightning
       - /mnt/backup
       - /root/.lightning
     mounts:
@@ -205,7 +204,6 @@ backup:
     args:
       - duplicity
       - restore
-      - "c-lightning"
       - /mnt/backup
       - /root/.lightning
     mounts:
