@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.10.1
+version: 0.10.0.1
 title: c-lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -31,6 +31,8 @@ main:
   shm-size: 64M
 health-checks:
   rpc: 
+    name: RPC
+    description: Indicates when the RPC server is alive and listening for commands. Dependent services that need the RPC interface will not work until this health check passes.
     type: docker
     image: main
     system: false
@@ -38,7 +40,7 @@ health-checks:
     args: ["getinfo"]
     mounts: {}
     io-format: yaml
-    critical: false
+    severity: warning
     inject: true
 config:
   get:
