@@ -87,10 +87,10 @@ ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
 RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
-#c-lightning-REST
-ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-RUN npm install --only=production
+# #c-lightning-REST
+# ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
+# WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
+# RUN npm install --only=production
 
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"

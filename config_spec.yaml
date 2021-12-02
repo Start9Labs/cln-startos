@@ -292,11 +292,11 @@ advanced:
 
             Source: https://github.com/lightningd/plugins/tree/master/summary
           default: false
-        rest:
-          type: boolean
-          name: Enable C-Lightning-REST Plugin
-          description: |
-            This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to C-Lightning.
+        # rest:
+        #   type: boolean
+        #   name: Enable C-Lightning-REST Plugin
+        #   description: |
+        #     This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to C-Lightning.
 
-            Source: https://github.com/Ride-The-Lightning/c-lightning-REST
-          default: true
+        #     Source: https://github.com/Ride-The-Lightning/c-lightning-REST
+        #   default: true
