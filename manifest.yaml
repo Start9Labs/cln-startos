@@ -40,7 +40,6 @@ health-checks:
     args: ["getinfo"]
     mounts: {}
     io-format: yaml
-    severity: warning
     inject: true
 config:
   get:
