@@ -1,9 +1,5 @@
 id: c-lightning
-<<<<<<< HEAD
 version: 0.10.2.1
-=======
-version: 0.10.1
->>>>>>> bump version and add manifest to image.tar make step
 title: c-lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
