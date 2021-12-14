@@ -11,7 +11,9 @@ release-notes: |-
   - Enable rebalance plugin (https://github.com/lightningd/plugins/tree/master/rebalance)
   - Enable c-lightning-REST plugin (https://github.com/Ride-The-Lightning/c-lightning-REST)
   - Enable accepting of dual fund requests
-  - For more, see: https://github.com/ElementsProject/lightning/releases/tag/v0.10.1 and https://github.com/ElementsProject/lightning/releases/tag/v0.10.2
+  - Enable BOLT12 offers
+  - For more about 0.10.1, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
+  - For more about 0.10.2, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.2
 ports:
   - internal: 9735
     tor: 9735
