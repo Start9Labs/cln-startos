@@ -155,8 +155,12 @@ pub struct RpcProperties {
 
 #[derive(serde::Serialize)]
 pub struct RestProperties {
+    #[serde(rename = "Rest API Port")]
+    rest_port: Property,
     #[serde(rename = "Rest API Macaroon")]
     rest_macaroon: Property,
+    #[serde(rename = "Rest API Macaroon (Hex)")]
+    rest_macaroon_hex: Property,
 }
 
 #[derive(serde::Serialize)]
@@ -423,7 +427,7 @@ fn main() -> Result<(), anyhow::Error> {
                             description: Some("Username for RPC connections".to_owned()),
                             copyable: true,
                             qr: false,
-                            masked: false,
+                            masked: true,
                         },
                         rpc_password: Property::String {
                             value: format!("{}", config.rpc.password,),
@@ -437,6 +441,19 @@ fn main() -> Result<(), anyhow::Error> {
                 },
                 rest: match config.advanced.plugins.rest {
                     true => Some(RestProperties {
+                        rest_port: Property::String {
+                            value: format!(
+                                "{}",
+                                3001,
+                            ),
+                            description: Some(
+                                "The port your c-lightning-REST API is listening on"
+                                    .to_owned(),
+                            ),
+                            copyable: true,
+                            qr: false,
+                            masked: false,
+                        },
                         rest_macaroon: Property::String {
                             value: format!(
                                 "{}",
@@ -453,73 +470,27 @@ fn main() -> Result<(), anyhow::Error> {
                             qr: false,
                             masked: true,
                         },
+                        rest_macaroon_hex: Property::String {
+                            value: format!(
+                                "{}",
+                                hex::encode(
+                                    &macaroon_vec,
+                                ),
+                            ),
+                            description: Some(
+                                "The macaroon that grants access to your node's REST API plugin, in hexadecimal format"
+                                    .to_owned(),
+                            ),
+                            copyable: true,
+                            qr: false,
+                            masked: true,
+                        },
                     }),
                     false => None,
                 },
             },
         },
     )?;
-
-    if config.rpc.enabled {
-        serde_yaml::to_writer(
-            stats_file,
-            &Properties {
-                version: 2,
-                data: Data {
-                    quick_connect_url: Property::String {
-                        value: format!(
-                            "clightning-rpc://{}:{}@{}:{}",
-                            config.rpc.user, config.rpc.password, peer_tor_address, 8080
-                        ),
-                        description: Some(
-                            "A convenient way to connect a wallet to a remote node".to_owned(),
-                        ),
-                        copyable: true,
-                        qr: true,
-                        masked: true,
-                    },
-                    node_uri: Property::String {
-                        value: format!("{}@{}", node_info.id, peer_tor_address),
-                        description: Some("Enables connecting to another remote node".to_owned()),
-                        copyable: true,
-                        qr: true,
-                        masked: true,
-                    },
-                    rpc_password: Property::String {
-                        value: format!("{}", config.rpc.password,),
-                        description: Some("Password for RPC connections".to_owned()),
-                        copyable: true,
-                        qr: false,
-                        masked: true,
-                    },
-                    rpc_username: Property::String {
-                        value: format!("{}", config.rpc.user,),
-                        description: Some("Username for RPC connections".to_owned()),
-                        copyable: true,
-                        qr: false,
-                        masked: false,
-                    },
-                    node_id: Property::String {
-                        value: format!("{}", node_info.id,),
-                        description: Some(
-                            "The node identifier that can be used for connecting to other nodes"
-                                .to_owned(),
-                        ),
-                        copyable: true,
-                        qr: false,
-                        masked: false,
-                    },
-                    node_alias: Property::String {
-                        value: format!("{}", node_info.alias,),
-                        description: Some("The friendly identifier for your node".to_owned()),
-                        copyable: true,
-                        qr: false,
-                        masked: false,
-                    },
-                },
-            },
-        )?;
-    }
 
     Ok(())
 }

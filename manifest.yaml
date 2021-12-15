@@ -14,6 +14,10 @@ release-notes: |-
   - Enable BOLT12 offers
   - For more about 0.10.1, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
   - For more about 0.10.2, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.2
+  - Note: your version will appear as "v0.10.2-modded" in `getinfo`.
+    - This is because it was necessary to delete some test files to fix this build error:
+    - https://github.com/ElementsProject/lightning/pull/4950#issuecomment-985907455
+    - This does not affect the functioning of your node in any way.
 ports:
   - internal: 9735
     tor: 9735
