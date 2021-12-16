@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::net::{IpAddr, SocketAddr};
 use std::path::Path;
 
@@ -96,6 +96,7 @@ struct AdvancedConfig {
     cltv_delta: usize,
     wumbo_channels: bool,
     experimental: ExperimentalConfig,
+    plugins: PluginConfig,
 }
 
 #[derive(Deserialize)]
@@ -107,6 +108,15 @@ struct ExperimentalConfig {
     shutdown_wrong_funding: bool,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "kebab-case")]
+struct PluginConfig {
+    http: bool,
+    rebalance: bool,
+    summary: bool,
+    rest: bool,
+}
+
 #[derive(serde::Serialize)]
 pub struct Properties {
     version: u8,
@@ -115,18 +125,42 @@ pub struct Properties {
 
 #[derive(serde::Serialize)]
 pub struct Data {
+    #[serde(flatten)]
+    basic: BasicProperties,
+    #[serde(flatten)]
+    rpc: Option<RpcProperties>,
+    #[serde(flatten)]
+    rest: Option<RestProperties>,
+}
+
+#[derive(serde::Serialize)]
+pub struct BasicProperties {
+    #[serde(rename = "Node Alias")]
+    node_alias: Property,
+    #[serde(rename = "Node ID")]
+    node_id: Property,
+    #[serde(rename = "Node URI")]
+    node_uri: Property,
+}
+
+#[derive(serde::Serialize)]
+pub struct RpcProperties {
     #[serde(rename = "Quick Connect URL")]
     quick_connect_url: Property,
     #[serde(rename = "RPC Username")]
     rpc_username: Property,
     #[serde(rename = "RPC Password")]
     rpc_password: Property,
-    #[serde(rename = "Node Alias")]
-    node_alias: Property,
-    #[serde(rename = "Node URI")]
-    node_uri: Property,
-    #[serde(rename = "Node ID")]
-    node_id: Property,
+}
+
+#[derive(serde::Serialize)]
+pub struct RestProperties {
+    #[serde(rename = "Rest API Port")]
+    rest_port: Property,
+    #[serde(rename = "Rest API Macaroon")]
+    rest_macaroon: Property,
+    #[serde(rename = "Rest API Macaroon (Hex)")]
+    rest_macaroon_hex: Property,
 }
 
 #[derive(serde::Serialize)]
@@ -251,7 +285,31 @@ fn main() -> Result<(), anyhow::Error> {
                 "experimental-shutdown-wrong-funding"
             } else {
                 ""
-            }
+            },
+        enable_http_plugin = if config.advanced.plugins.http {
+            "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin"
+        } else {
+            ""
+        },
+        enable_rebalance_plugin = if config.advanced.plugins.rebalance {
+            "plugin=/usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py"
+        } else {
+            ""
+        },
+        enable_summary_plugin = if config.advanced.plugins.summary {
+            "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
+        } else {
+            ""
+        },
+        enable_rest_plugin = if config.advanced.plugins.rest {
+            "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\n\
+            rest-port=3001\n\
+            rest-docport=4001\n\
+            rest-protocol=https\n\
+            "
+        } else {
+            ""
+        },
     )?;
     drop(outfile);
     #[derive(serde::Deserialize)]
@@ -264,6 +322,8 @@ fn main() -> Result<(), anyhow::Error> {
     if rpc_path.exists() {
         std::fs::remove_file(rpc_path)?;
     }
+
+    // have configurator background itself
     #[cfg(target_os = "linux")]
     nix::unistd::daemon(true, true)?;
     while !rpc_path.exists() {
@@ -280,6 +340,28 @@ fn main() -> Result<(), anyhow::Error> {
         }
     }
 
+    let mut macaroon_vec: Vec<u8> = Vec::new();
+
+    if config.advanced.plugins.rest {
+        let macaroon_path = Path::new(
+            "/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon",
+        );
+        while !macaroon_path.exists() {
+            std::thread::sleep(std::time::Duration::from_secs(1));
+        }
+        std::fs::create_dir_all("/root/.lightning/public")?;
+        std::fs::copy(
+            macaroon_path,
+            Path::new("/root/.lightning/public").join(macaroon_path.file_name().unwrap()),
+        )?;
+
+        let mut macaroon_file = File::open(
+            "/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon",
+        )?;
+        macaroon_vec = Vec::with_capacity(macaroon_file.metadata()?.len() as usize);
+        macaroon_file.read_to_end(&mut macaroon_vec)?;
+    }
+
     let node_info: NodeInfo = {
         let output = std::process::Command::new("lightning-cli")
             .arg("getinfo")
@@ -293,44 +375,20 @@ fn main() -> Result<(), anyhow::Error> {
         serde_json::from_str(&String::from_utf8(output.stdout)?)?
     };
 
-    if config.rpc.enabled {
-        serde_yaml::to_writer(
-            File::create("/root/.lightning/start9/stats.yaml")?,
-            &Properties {
-                version: 2,
-                data: Data {
-                    quick_connect_url: Property::String {
-                        value: format!(
-                            "clightning-rpc://{}:{}@{}:{}",
-                            config.rpc.user, config.rpc.password, peer_tor_address, 8080
-                        ),
-                        description: Some(
-                            "A convenient way to connect a wallet to a remote node".to_owned(),
-                        ),
-                        copyable: true,
-                        qr: true,
-                        masked: true,
-                    },
+    let stats_file = File::create("/root/.lightning/start9/stats.yaml")?;
+
+    serde_yaml::to_writer(
+        stats_file,
+        &Properties {
+            version: 2,
+            data: Data {
+                basic: BasicProperties {
                     node_uri: Property::String {
                         value: format!("{}@{}", node_info.id, peer_tor_address),
                         description: Some("Enables connecting to another remote node".to_owned()),
                         copyable: true,
                         qr: true,
                         masked: true,
-                    },
-                    rpc_password: Property::String {
-                        value: format!("{}", config.rpc.password,),
-                        description: Some("Password for RPC connections".to_owned()),
-                        copyable: true,
-                        qr: false,
-                        masked: true,
-                    },
-                    rpc_username: Property::String {
-                        value: format!("{}", config.rpc.user,),
-                        description: Some("Username for RPC connections".to_owned()),
-                        copyable: true,
-                        qr: false,
-                        masked: false,
                     },
                     node_id: Property::String {
                         value: format!("{}", node_info.id,),
@@ -350,9 +408,89 @@ fn main() -> Result<(), anyhow::Error> {
                         masked: false,
                     },
                 },
+                rpc: match config.rpc.enabled {
+                    true => Some(RpcProperties {
+                        quick_connect_url: Property::String {
+                            value: format!(
+                                "clightning-rpc://{}:{}@{}:{}",
+                                config.rpc.user, config.rpc.password, peer_tor_address, 8080
+                            ),
+                            description: Some(
+                                "A convenient way to connect a wallet to a remote node".to_owned(),
+                            ),
+                            copyable: true,
+                            qr: true,
+                            masked: true,
+                        },
+                        rpc_username: Property::String {
+                            value: format!("{}", config.rpc.user,),
+                            description: Some("Username for RPC connections".to_owned()),
+                            copyable: true,
+                            qr: false,
+                            masked: true,
+                        },
+                        rpc_password: Property::String {
+                            value: format!("{}", config.rpc.password,),
+                            description: Some("Password for RPC connections".to_owned()),
+                            copyable: true,
+                            qr: false,
+                            masked: true,
+                        },
+                    }),
+                    false => None,
+                },
+                rest: match config.advanced.plugins.rest {
+                    true => Some(RestProperties {
+                        rest_port: Property::String {
+                            value: format!(
+                                "{}",
+                                3001,
+                            ),
+                            description: Some(
+                                "The port your c-lightning-REST API is listening on"
+                                    .to_owned(),
+                            ),
+                            copyable: true,
+                            qr: false,
+                            masked: false,
+                        },
+                        rest_macaroon: Property::String {
+                            value: format!(
+                                "{}",
+                                base64::encode_config(
+                                    &macaroon_vec,
+                                    base64::Config::new(base64::CharacterSet::UrlSafe, false)
+                                ),
+                            ),
+                            description: Some(
+                                "The macaroon that grants access to your node's REST API plugin"
+                                    .to_owned(),
+                            ),
+                            copyable: true,
+                            qr: false,
+                            masked: true,
+                        },
+                        rest_macaroon_hex: Property::String {
+                            value: format!(
+                                "{}",
+                                hex::encode(
+                                    &macaroon_vec,
+                                ),
+                            ),
+                            description: Some(
+                                "The macaroon that grants access to your node's REST API plugin, in hexadecimal format"
+                                    .to_owned(),
+                            ),
+                            copyable: true,
+                            qr: false,
+                            masked: true,
+                        },
+                    }),
+                    false => None,
+                },
             },
-        )?;
-    }
+        },
+    )?;
 
     Ok(())
 }

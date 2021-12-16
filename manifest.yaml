@@ -1,12 +1,23 @@
 compat: v0
 id: c-lightning
-version: 0.10.0
+version: 0.10.2
 title: c-lightning
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
   long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
 release-notes: |-
-  https://github.com/ElementsProject/lightning/releases/tag/v0.10.0
+  - Update to v0.10.2
+  - Enable summary plugin (https://github.com/lightningd/plugins/tree/master/summary)
+  - Enable rebalance plugin (https://github.com/lightningd/plugins/tree/master/rebalance)
+  - Enable c-lightning-REST plugin (https://github.com/Ride-The-Lightning/c-lightning-REST)
+  - Enable accepting of dual fund requests
+  - Enable BOLT12 offers
+  - For more about 0.10.1, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
+  - For more about 0.10.2, see https://github.com/ElementsProject/lightning/releases/tag/v0.10.2
+  - Note: your version will appear as "v0.10.2-modded" in `getinfo`.
+    - This is because it was necessary to delete some test files to fix this build error:
+    - https://github.com/ElementsProject/lightning/pull/4950#issuecomment-985907455
+    - This does not affect the functioning of your node in any way.
 ports:
   - internal: 9735
     tor: 9735
@@ -14,14 +25,21 @@ ports:
   - internal: 8080
     tor: 8080
     lan: ~
+  - internal: 3001
+    tor: 3001
+    lan: ~
+  - internal: 4001
+    tor: 4001
+    lan: ~
 image:
   type: tar
 shm-size-mb: 64
 mount: /root/.lightning
 shared: shared
+public: public
 has-instructions: true
-os-version-required: "^0.2.10"
-os-version-recommended: "^0.2.10"
+os-version-required: "^0.2.15"
+os-version-recommended: "^0.2.15"
 assets: []
 hidden-service-version: v3
 dependencies:

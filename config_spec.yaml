@@ -255,3 +255,48 @@ advanced:
           description: |
             Allow channel shutdown with alternate txids
           default: false
+    plugins:
+      type: object
+      name: Plugins
+      description: |
+        Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside 
+        the main C-Lightning container in order to communicate directly with it.
+        Their source is maintained separately from that of C-Lightning itself.
+      nullable: false
+      nullByDefault: false
+      spec:
+        http:
+          type: boolean
+          name: Enable C-Lightning-HTTP-Plugin
+          description: |
+            This plugin is a direct proxy for the unix domain socket from the HTTP interface. 
+            It is required for Spark Wallet to connect to C-Lightning.
+
+            Source: https://github.com/Start9Labs/c-lightning-http-plugin
+          default: true
+        rebalance:
+          type: boolean
+          name: Enable Rebalance Plugin
+          description: |
+            Enables the `rebalance` rpc command, which moves liquidity between your channels using circular payments.
+            See `help rebalance` on the CLI or in the Spark console for usage instructions.
+
+            Source: https://github.com/lightningd/plugins/tree/master/rebalance
+          default: false
+        summary:
+          type: boolean
+          name: Enable Summary Plugin
+          description: |
+            Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.
+            Can be called via command line or the Spark console.        
+
+            Source: https://github.com/lightningd/plugins/tree/master/summary
+          default: false
+        rest:
+          type: boolean
+          name: Enable C-Lightning-REST Plugin
+          description: |
+            This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to C-Lightning.
+
+            Source: https://github.com/Ride-The-Lightning/c-lightning-REST
+          default: true

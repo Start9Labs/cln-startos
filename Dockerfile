@@ -49,34 +49,53 @@ RUN ./configure LDFLAGS=-L`ls -d /opt/db*`/lib/ CPPFLAGS=-I`ls -d /opt/db*`/incl
     --with-gui=no \
     --disable-wallet \
     --enable-util-cli
-RUN make -j24
+RUN make -j$(($(nproc) - 1))
 RUN strip ./src/bitcoin-cli
 
 FROM alpine:3.12 as builder
 
 RUN apk add ca-certificates alpine-sdk autoconf automake git libtool gmp-dev \
-    sqlite-dev python2 python3 py3-pip py3-mako net-tools zlib-dev libsodium gettext
-RUN pip3 install mrkd
+    sqlite-dev python2 python3 py3-pip py3-mako net-tools zlib-dev libsodium gettext jq
+RUN pip3 install mrkd mistune==0.8.4
 
 ADD ./.gitmodules /root/.gitmodules
 ADD ./.git /root/.git
 ADD ./lightning /root/lightning
 WORKDIR /root/lightning
 
+RUN rm -rf cli/test/*.c
 RUN ./configure
-RUN make -j24
+RUN make -j$(($(nproc) - 1))
 RUN make install
 
-FROM alpine:3.12 as runner
+FROM arm32v7/node:12-alpine3.12 as runner
 
 RUN apk update
 RUN apk add tini
-RUN apk add sqlite-dev gmp libgcc libevent libstdc++ boost-filesystem=1.72.0-r6
+RUN apk add sqlite-dev gmp libgcc libevent libstdc++ boost-filesystem=1.72.0-r6 python3 py3-pip nodejs
+RUN apk add --update openssl && \
+    rm -rf /var/cache/apk/*
+
+RUN mkdir -p /usr/local/libexec/c-lightning/plugins
+
+# rebalance
+ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
+
+#summary
+ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
+
+#c-lightning-REST
+ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
+WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
+RUN npm install --only=production
 
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"
 
-RUN mkdir -p /usr/local/libexec/c-lightning/plugins
 COPY --from=builder /usr/local /usr/local
 COPY --from=bitcoin-core /bitcoin-${BITCOIN_VERSION}/src/bitcoin-cli /usr/local/bin
 ADD ./c-lightning-http-plugin/target/armv7-unknown-linux-musleabihf/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
