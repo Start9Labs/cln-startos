@@ -31,6 +31,8 @@ main:
   shm-size: 64M
 health-checks:
   rpc: 
+    name: RPC
+    description: Indicates when the RPC server is alive and listening for commands. Dependent services that need the RPC interface will not work until this health check passes.
     type: docker
     image: main
     system: false
@@ -38,7 +40,6 @@ health-checks:
     args: ["getinfo"]
     mounts: {}
     io-format: yaml
-    critical: false
     inject: true
 config:
   get:
@@ -169,58 +170,6 @@ interfaces:
     protocols:
       - tcp
       - http
-backup:
-  create:
-    type: docker
-    # default backup process is duplicity - EOS will have access to this image
-    image: duplicity
-    system: true
-    # command to run the backup executable, in this case, duplicity
-    entrypoint: duplicity
-    # arguments to pass into the entrypoint ie. duplicity in this case
-    # thus, the full commamnd run will be: `duplicity /root file:///mnt/backup`
-    args:
-      - /root/.lightning
-      - file:///mnt/backup
-    mounts:
-      # BACKUP is the default volume that is used for backups - this is whatever backup drive is mounted to the device, or a network filesystem
-      # the value here denotes where the data mount point will be
-      # mounts backup drive to this location, which contains previous backups
-      BACKUP: "/mnt/backup"
-      main: "/root/.lightning"
-  restore:
-    type: docker
-    image: duplicity
-    system: true
-    entrypoint: duplicity
-    args:
-      - file:///mnt/backup
-      - /root/.lightning
-    mounts:
-      BACKUP: "/mnt/backup"
-      main: "/root/.lightning" 
-    tor-config:
-      port-mapping:
-        8080: "8080"
-    lan-config:
-      8080:
-        ssl: false
-        mapping: 8080
-    ui: false
-    protocols:
-      - tcp
-      - http
-      - json-rpc
-  peer:
-    name: Peer Interface
-    description: Listens for incoming connections from lightning peers.
-    tor-config:
-      port-mapping:
-        9735: "9735"
-    ui: false
-    protocols:
-      - tcp
-      - lightning
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
