@@ -316,23 +316,17 @@ fn main() -> Result<(), anyhow::Error> {
     if rpc_path.exists() {
         std::fs::remove_file(rpc_path)?;
     }
-
-    // have configurator background itself
     #[cfg(target_os = "linux")]
     nix::unistd::daemon(true, true)?;
     while !rpc_path.exists() {
         std::thread::sleep(std::time::Duration::from_secs(1));
     }
-    for shared_dir in std::fs::read_dir("/root/.lightning/shared")? {
-        let shared_dir = shared_dir?;
-        if shared_dir.metadata()?.is_dir() {
-            let link = shared_dir.path().join("lightning-rpc");
-            if link.exists() {
-                std::fs::remove_file(&link)?;
-            }
-            std::fs::hard_link(rpc_path, &link)?;
-        }
+    let shared_path = Path::new("/root/.lightning/shared");
+    let link = shared_path.join("lightning-rpc");
+    if link.exists() {
+        std::fs::remove_file(&link)?;
     }
+    std::fs::hard_link(rpc_path, &link)?;
 
     let mut macaroon_vec: Vec<u8> = Vec::new();
 
