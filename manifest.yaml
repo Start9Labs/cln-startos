@@ -87,18 +87,6 @@ volumes:
     type: data
   compat:
     type: assets
-  bitcoind:
-    type: pointer
-    package-id: bitcoind
-    volume-id: main
-    path: /root/.bitcoin
-    readonly: true
-  btc-rpc-proxy:
-    type: pointer
-    package-id: "btc-rpc-proxy"
-    volume-id: main
-    path: /root
-    readonly: false
 alerts:
   install: |
     READ CAREFULLY! c-lightning and the Lightning Network are considered beta software. Please use with caution and do not
@@ -220,7 +208,6 @@ backup:
     args:
       - duplicity
       - create
-      - c-lightning
       - /mnt/backup
       - /root/.lightning
     mounts:
@@ -234,7 +221,6 @@ backup:
     args:
       - duplicity
       - restore
-      - "c-lightning"
       - /mnt/backup
       - /root/.lightning
     mounts:
