@@ -68,14 +68,26 @@ RUN ./configure
 RUN make -j$(($(nproc) - 1))
 RUN make install
 
-FROM arm32v7/node:12-alpine3.12 as runner
+FROM arm64v8/node:12-alpine3.12 as runner
 
 RUN apk update
 RUN apk add tini
-RUN apk add sqlite-dev gmp libgcc libevent libstdc++ boost-filesystem=1.72.0-r6 python3 py3-pip nodejs
+RUN apk add sqlite-dev build-base linux-headers ca-certificates gcc gmp libffi-dev libgcc libevent libstdc++ boost-filesystem=1.72.0-r6 python3 python3-dev py3-pip nodejs
 RUN apk add --update openssl && \
     rm -rf /var/cache/apk/*
 
+ARG BITCOIN_VERSION
+RUN test -n "$BITCOIN_VERSION"
+
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
+    tar xz && mv yq_linux_arm /usr/bin/yq
+
+COPY --from=builder /usr/local /usr/local
+COPY --from=bitcoin-core /bitcoin-${BITCOIN_VERSION}/src/bitcoin-cli /usr/local/bin
+
+# PLUGINS
+RUN pip install --upgrade pip
+RUN pip install wheel
 RUN mkdir -p /usr/local/libexec/c-lightning/plugins
 
 # rebalance
@@ -93,13 +105,8 @@ ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 RUN npm install --only=production
 
-ARG BITCOIN_VERSION
-RUN test -n "$BITCOIN_VERSION"
-
-COPY --from=builder /usr/local /usr/local
-COPY --from=bitcoin-core /bitcoin-${BITCOIN_VERSION}/src/bitcoin-cli /usr/local/bin
-ADD ./c-lightning-http-plugin/target/armv7-unknown-linux-musleabihf/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
-ADD ./configurator/target/armv7-unknown-linux-musleabihf/release/configurator /usr/local/bin/configurator
+ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
+ADD ./configurator/target/aarch64-unknown-linux-musl/release/configurator /usr/local/bin/configurator
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 RUN chmod a+x /usr/local/bin/docker_entrypoint.sh
 

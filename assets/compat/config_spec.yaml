@@ -1,17 +1,33 @@
+peer-tor-address:
+  name: Peer Tor Address
+  description: The Tor address of the peer interface
+  type: pointer
+  subtype: package
+  package-id: c-lightning
+  target: tor-address
+  interface: peer
+rpc-tor-address:
+  name: RPC Tor Address
+  description: The Tor address of the RPC interface
+  type: pointer
+  subtype: package
+  package-id: c-lightning
+  target: tor-address
+  interface: rpc
 alias:
   type: string
   name: Alias
   description: Recognizable name for the Lightning Network
   nullable: true
   pattern: ".{1,32}"
-  patternDescription: "Must be at least 1 character and no more than 32 characters"
+  pattern-description: "Must be at least 1 character and no more than 32 characters"
 color:
   type: string
   name: Color
   description: Color value for the Lightning Network
   nullable: false
   pattern: "[0-9a-fA-F]{6}"
-  patternDescription: |
+  pattern-description: |
     Must be a valid 6 digit hexadecimal RGB value. The first two digits are red, middle two are green and final two are
     blue
   default:
@@ -27,7 +43,7 @@ bitcoind:
   tag:
     id: type
     name: Type
-    variantNames:
+    variant-names:
       internal: Internal
       external: External
     description: |
@@ -37,29 +53,26 @@ bitcoind:
   default: internal
   variants:
     internal:
-      address:
-        type: pointer
-        name: Local Address
-        description: The LAN IP address of your Bitcoin Core RPC Proxy service
-        subtype: app
-        app-id: btc-rpc-proxy
-        target: lan-address
       user:
         type: pointer
         name: RPC Username
         description: The username for the RPC user allocated to c-lightning
-        subtype: app
-        app-id: btc-rpc-proxy
+        subtype: package
+        package-id: btc-rpc-proxy
         target: config
-        index: 'users.[first(item => ''item.name = "c-lightning")].name'
+        # index: 'users.[first(item => ''item.name = "c-lightning")].name'
+        selector: '$.users[?(@.name == "c-lightning")].name'
+        multi: false
       password:
         type: pointer
         name: RPC Password
         description: The password for the RPC user allocated to c-lightning
-        subtype: app
-        app-id: btc-rpc-proxy
+        subtype: package
+        package-id: btc-rpc-proxy
         target: config
-        index: 'users.[first(item => ''item.name = "c-lightning")].password'
+        # index: 'users.[first(item => ''item.name = "c-lightning")].password'
+        selector: '$.users[?(@.name == "c-lightning")].password'
+        multi: false
     external:
       connection-settings:
         type: union
@@ -71,7 +84,7 @@ bitcoind:
           description: |
             - Manual: Raw information for finding a Bitcoin Core node
             - Quick Connect: A Quick Connect URL for a Bitcoin Core node
-          variantNames:
+          variant-names:
             manual: Manual
             quick-connect: Quick Connect
         default: quick-connect
@@ -100,13 +113,11 @@ bitcoind:
               description: The Quick Connect URL for your Bitcoin Core RPC server
               nullable: false
               pattern: 'btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\?(label=.+)?)?)?'
-              patternDescription: Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md
+              pattern-description: Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md
 rpc:
   type: object
   name: RPC Options
   description: Options for the HTTP RPC interface
-  nullable: false
-  nullByDefault: false
   spec:
     enabled:
       type: boolean
@@ -134,8 +145,6 @@ advanced:
   type: object
   name: Advanced
   description: Advanced Options
-  nullable: false
-  nullByDefault: false
   spec:
     tor-only:
       type: boolean
@@ -223,12 +232,10 @@ advanced:
       type: object
       name: Experimental Features
       description: Experimental features that have not been standardized across Lightning Network implementations
-      changeWarning: |
+      change-warning: |
         These are experimental features. Enable them at your own risk. It is possible that software bugs can lead to
         unknown problems. We recommend not using them with large amounts of money. Unless you understand how these
         features work, you should not enable them.
-      nullable: false
-      nullByDefault: false
       spec:
         dual-fund:
           type: boolean
