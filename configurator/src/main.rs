@@ -314,7 +314,6 @@ fn main() -> Result<(), anyhow::Error> {
         enable_rest_plugin = if config.advanced.plugins.rest {
             "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\n\
             rest-port=3001\n\
-            rest-docport=4001\n\
             rest-protocol=https\n\
             "
         } else {

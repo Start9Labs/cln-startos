@@ -144,20 +144,6 @@ interfaces:
     protocols:
       - tcp
       - http
-  rest-docs:
-    name: REST Documentation
-    description: A documentation site for the C-Lightning-REST API
-    tor-config:
-      port-mapping:
-        4001: "4001"
-    lan-config:
-      4001:
-        ssl: true
-        mapping: 4001
-    ui: true
-    protocols:
-      - tcp
-      - http
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
