@@ -71,7 +71,7 @@ RUN make install
 FROM arm64v8/node:12-alpine3.12 as runner
 
 RUN apk update
-RUN apk add tini
+RUN apk add bash tini
 RUN apk add sqlite-dev build-base linux-headers ca-certificates gcc gmp libffi-dev libgcc libevent libstdc++ boost-filesystem=1.72.0-r6 python3 python3-dev py3-pip nodejs
 RUN apk add --update openssl && \
     rm -rf /var/cache/apk/*
@@ -109,6 +109,8 @@ ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightn
 ADD ./configurator/target/aarch64-unknown-linux-musl/release/configurator /usr/local/bin/configurator
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 RUN chmod a+x /usr/local/bin/docker_entrypoint.sh
+ADD ./check-rpc.sh /usr/local/bin/check-rpc.sh
+RUN chmod a+x /usr/local/bin/check-rpc.sh
 
 WORKDIR /root
 

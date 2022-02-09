@@ -30,16 +30,16 @@ main:
   io-format: yaml
   shm-size: 64M
 health-checks:
-  rpc: 
+  rpc:
     name: RPC
     description: Indicates when the RPC server is alive and listening for commands. Dependent services that need the RPC interface will not work until this health check passes.
     type: docker
     image: main
     system: false
-    entrypoint: lightning-cli
-    args: ["getinfo"]
+    entrypoint: check-rpc.sh
+    args: []
     mounts: {}
-    io-format: yaml
+    io-format: json
     inject: true
 config:
   get:
@@ -47,7 +47,7 @@ config:
     image: compat
     system: true
     entrypoint: compat
-    args: 
+    args:
       - config
       - get
       - /root/.lightning
@@ -114,7 +114,7 @@ interfaces:
     lan-config:
       8080:
         ssl: false
-        mapping: 8080
+        internal: 8080
     ui: false
     protocols:
       - tcp
@@ -139,7 +139,7 @@ interfaces:
     lan-config:
       3001:
         ssl: true
-        mapping: 3001
+        internal: 3001
     ui: false
     protocols:
       - tcp
@@ -153,7 +153,7 @@ dependencies:
       how: Can alternatively configure an external bitcoin node.
     description: Used to fetch validated blocks.
     config:
-      check: 
+      check:
         type: docker
         image: compat
         system: true
