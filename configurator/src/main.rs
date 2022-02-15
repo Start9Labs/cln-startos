@@ -241,10 +241,28 @@ fn main() -> Result<(), anyhow::Error> {
                 connection_settings: ExternalBitcoinCoreConfig::QuickConnect { quick_connect_url },
             } => parse_quick_connect_url(quick_connect_url)?,
         };
+
+    // Wait for bitcoind to start up all the way, to prevent unnecessary crashes
+    loop {
+        let out = std::process::Command::new("bitcoin-cli")
+            .arg(format!("-rpcconnect={}", bitcoin_rpc_host))
+            .arg(format!("-rpcport={}", bitcoin_rpc_port))
+            .arg(format!("-rpcuser={}", bitcoin_rpc_user))
+            .arg(format!("-rpcpassword={}", bitcoin_rpc_pass))
+            .arg("getblockcount")
+            .output()
+            .unwrap();
+        if out.status.code() != Some(28) {
+            break;
+        }
+        println!("Waiting for bitcoin RPC...");
+        std::thread::sleep(std::time::Duration::from_secs(1));
+    }
+
     let rpc_bind: SocketAddr = if config.rpc.enabled {
         ([0, 0, 0, 0], 8080).into()
     } else {
-        ([127, 0, 0, 0], 8080).into()
+        ([127, 0, 0, 1], 8080).into()
     };
     let peer_tor_address = std::env::var("PEER_TOR_ADDRESS")?;
     let tor_proxy: SocketAddr = (std::env::var("EMBASSY_IP")?.parse::<IpAddr>()?, 9050).into();
