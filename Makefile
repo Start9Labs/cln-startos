@@ -14,7 +14,7 @@ VERSION := $(shell yq e ".version" manifest.yaml)
 all: verify
 
 verify: c-lightning.s9pk
-	embassy-sdk verify c-lightning.s9pk
+	embassy-sdk verify s9pk c-lightning.s9pk
 
 install: c-lightning.s9pk
 	embassy-cli package install c-lightning
