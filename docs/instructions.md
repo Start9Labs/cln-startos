@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-c-lightning on the Embassy requires a full archival Bitcoin node to function. Since your Embassy Bitcoin node is pruned by default, an additional service, Bitcoin Proxy, is also required.
+c-lightning on the Embassy requires a full archival Bitcoin node to function. If your Embassy Bitcoin node is pruned, an additional service, Bitcoin Proxy, is also required.
 
 ## c-lightning Config
 

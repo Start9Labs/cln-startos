@@ -10,10 +10,9 @@ release-notes: |-
   Upgrade to EmbassyOS v0.3.0
   https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
 build: ["make"]
-min-os-version: 0.3.0
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
-  long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
+  long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extensibility."
 assets:
   license: LICENSE
   icon: icon.png
@@ -28,11 +27,11 @@ main:
     main: /root/.lightning
     compat: /mnt/assets
   io-format: yaml
-  shm-size: 64M
+  shm-size-mb: 64
 health-checks:
   rpc:
     name: RPC
-    description: Indicates when the RPC server is alive and listening for commands. Dependent services that need the RPC interface will not work until this health check passes.
+    success-message: RPC server is alive and listening for commands
     type: docker
     image: main
     system: false
@@ -147,7 +146,6 @@ interfaces:
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
-    critical: false
     requirement:
       type: "opt-out"
       how: Can alternatively configure an external bitcoin node.
