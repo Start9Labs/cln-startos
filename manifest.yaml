@@ -12,7 +12,7 @@ release-notes: |-
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
-  long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extendibility."
+  long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extensibility."
 assets:
   license: LICENSE
   icon: icon.png
