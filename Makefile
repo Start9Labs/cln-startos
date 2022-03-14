@@ -19,7 +19,7 @@ verify: c-lightning.s9pk
 install: c-lightning.s9pk
 	embassy-cli package install c-lightning
 
-c-lightning.s9pk: manifest.yaml assets/compat/config_spec.yaml assets/compat/config_rules.yaml image.tar instructions.md $(ASSET_PATHS)
+c-lightning.s9pk: manifest.yaml assets/compat/* image.tar instructions.md $(ASSET_PATHS)
 	embassy-sdk pack
 
 image.tar: Dockerfile docker_entrypoint.sh check-rpc.sh configurator/target/aarch64-unknown-linux-musl/release/configurator c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(C_LIGHTNING_REST_SRC) manifest.yaml

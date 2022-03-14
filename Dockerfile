@@ -111,6 +111,8 @@ ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 RUN chmod a+x /usr/local/bin/docker_entrypoint.sh
 ADD ./check-rpc.sh /usr/local/bin/check-rpc.sh
 RUN chmod a+x /usr/local/bin/check-rpc.sh
+ADD ./check-synced.sh /usr/local/bin/check-synced.sh
+RUN chmod a+x /usr/local/bin/check-synced.sh
 
 WORKDIR /root
 
