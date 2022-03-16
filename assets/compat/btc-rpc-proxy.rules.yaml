@@ -47,6 +47,12 @@
     - PUSH:
         to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
         value: "getblock"
+- rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "getblockcount"'
+  description: 'RPC user "c-lightning" must have "getblockcount" enabled'
+  suggestions:
+    - PUSH:
+        to: 'users.[first(item => ''item.name = "c-lightning")].allowed-calls'
+        value: "getblockcount"
 - rule: '''users.[first(item => ''item.name = "c-lightning")].allowed-calls.* = "estimatesmartfee"'
   description: 'RPC user "c-lightning" must have "estimatesmartfee" enabled'
   suggestions:
