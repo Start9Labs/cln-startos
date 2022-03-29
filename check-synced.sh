@@ -2,11 +2,6 @@
 
 set -e
 
-# if ! [ -s /root/.lightning/config ]; then
-#   #Starting
-#   exit 60
-# fi
-
 b_type=$(yq e '.bitcoind.type' /root/.lightning/start9/config.yaml)
 if [ "$b_type" = "internal" ]; then
     b_host="bitcoind.embassy"
@@ -33,7 +28,6 @@ fi
 c_gi_result=$(lightning-cli getinfo)
 error_code=$?
 if [ $error_code -ne 0 ]; then
-    # Starting
     echo $c_gi_result >&2
     exit $error_code
 fi

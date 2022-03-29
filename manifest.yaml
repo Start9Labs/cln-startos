@@ -198,7 +198,7 @@ dependencies:
     version: ">=0.21.1.2 <23.0.0"
     requirement:
       type: "opt-out"
-      how: Can alternatively configure an internal Bitcoin Proxy, or an external bitcoin node.
+      how: Can alternatively configure the internal Bitcoin Proxy service, or an external bitcoin node.
     description: Used as a blockchain backend.
     config:
       check:
