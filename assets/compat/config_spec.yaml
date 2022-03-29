@@ -44,11 +44,13 @@ bitcoind:
     id: type
     name: Type
     variant-names:
-      internal: Internal
+      internal: Internal (Bitcoin Core)
+      internal-proxy: Internal (Bitcoin Proxy)
       external: External
     description: |
       The Bitcoin Core node to connect to:
-        - Internal: The Bitcoin Core RPC Proxy service installed to your Embassy
+        - Internal (Bitcoin Core): The Bitcoin Core service installed to your Embassy
+        - Internal (Bitcoin Proxy): The Bitcoin RPC Proxy service installed to your Embassy
         - External: An unpruned Bitcoin Core node running on a different device
   default: internal
   variants:
@@ -56,11 +58,29 @@ bitcoind:
       user:
         type: pointer
         name: RPC Username
+        description: The username for Bitcoin Core's RPC interface
+        subtype: package
+        package-id: bitcoind
+        target: config
+        multi: false
+        selector: "$.rpc.username"
+      password:
+        type: pointer
+        name: RPC Password
+        description: The password for Bitcoin Core's RPC interface
+        subtype: package
+        package-id: bitcoind
+        target: config
+        multi: false
+        selector: "$.rpc.password"
+    internal-proxy:
+      user:
+        type: pointer
+        name: RPC Username
         description: The username for the RPC user allocated to c-lightning
         subtype: package
         package-id: btc-rpc-proxy
         target: config
-        # index: 'users.[first(item => ''item.name = "c-lightning")].name'
         selector: '$.users[?(@.name == "c-lightning")].name'
         multi: false
       password:
@@ -70,7 +90,6 @@ bitcoind:
         subtype: package
         package-id: btc-rpc-proxy
         target: config
-        # index: 'users.[first(item => ''item.name = "c-lightning")].password'
         selector: '$.users[?(@.name == "c-lightning")].password'
         multi: false
     external:

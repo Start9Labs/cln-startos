@@ -51,6 +51,8 @@ enum BitcoinCoreConfig {
     #[serde(rename_all = "kebab-case")]
     Internal { user: String, password: String },
     #[serde(rename_all = "kebab-case")]
+    InternalProxy { user: String, password: String },
+    #[serde(rename_all = "kebab-case")]
     External {
         connection_settings: ExternalBitcoinCoreConfig,
     },
@@ -222,6 +224,9 @@ fn main() -> Result<(), anyhow::Error> {
     let (bitcoin_rpc_user, bitcoin_rpc_pass, bitcoin_rpc_host, bitcoin_rpc_port) =
         match config.bitcoind {
             BitcoinCoreConfig::Internal { user, password } => {
+                (user, password, format!("{}", "bitcoind.embassy"), 8332)
+            }
+            BitcoinCoreConfig::InternalProxy { user, password } => {
                 (user, password, format!("{}", "btc-rpc-proxy.embassy"), 8332)
             }
             BitcoinCoreConfig::External {

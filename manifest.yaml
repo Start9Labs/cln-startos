@@ -194,6 +194,45 @@ dependencies:
         mounts:
           compat: /mnt/assets
           main: /root/.lightning
+  bitcoind:
+    version: ">=0.21.1.2 <23.0.0"
+    requirement:
+      type: "opt-out"
+      how: Can alternatively configure the internal Bitcoin Proxy service, or an external bitcoin node.
+    description: Used as a blockchain backend.
+    config:
+      check:
+        type: docker
+        image: compat
+        system: true
+        entrypoint: compat
+        args:
+          - dependency
+          - check
+          - "c-lightning"
+          - bitcoind
+          - /root/.lightning
+          - "/mnt/assets/bitcoind.rules.yaml"
+        mounts:
+          compat: /mnt/assets
+          main: /root/.lightning
+        io-format: yaml
+      auto-configure:
+        type: docker
+        image: compat
+        system: true
+        entrypoint: compat
+        args:
+          - dependency
+          - "auto-configure"
+          - "c-lightning"
+          - bitcoind
+          - /root/.lightning
+          - "/mnt/assets/bitcoind.rules.yaml"
+        mounts:
+          compat: /mnt/assets
+          main: /root/.lightning
+        io-format: yaml
 backup:
   create:
     type: docker
