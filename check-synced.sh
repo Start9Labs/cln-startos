@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 b_type=$(yq e '.bitcoind.type' /root/.lightning/start9/config.yaml)
 if [ "$b_type" = "internal" ]; then
     b_host="bitcoind.embassy"
@@ -12,9 +10,8 @@ elif [ "$b_type" = "internal-proxy" ]; then
     b_username=$(yq e '.bitcoind.user' /root/.lightning/start9/config.yaml)
     b_password=$(yq e '.bitcoind.password' /root/.lightning/start9/config.yaml)
 else
-    b_host=$(yq e '.bitcoind.connection-settings.address' /root/.lightning/start9/config.yaml)
-    b_username=$(yq e '.bitcoind.connection-settings.user' /root/.lightning/start9/config.yaml)
-    b_password=$(yq e '.bitcoind.connection-settings.password' /root/.lightning/start9/config.yaml)
+    echo "Invalid Bitcoin Core type" >&2
+    exit 1
 fi
 c_username=$(yq e '.rpc.user' /root/.lightning/start9/config.yaml)
 c_password=$(yq e '.rpc.password' /root/.lightning/start9/config.yaml)
@@ -28,8 +25,7 @@ fi
 c_gi_result=$(lightning-cli getinfo)
 error_code=$?
 if [ $error_code -ne 0 ]; then
-    echo $c_gi_result >&2
-    exit $error_code
+    exit 60
 fi
 
 warning_lightningd_sync=$(echo "$c_gi_result" | yq e '.warning_lightningd_sync' -)

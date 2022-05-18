@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.10.2.1
+version: 0.11.1
 title: c-lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,8 +7,8 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  Upgrade to EmbassyOS v0.3.0
-  https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
+  https://github.com/ElementsProject/lightning/releases/tag/v0.11.0
+  https://github.com/ElementsProject/lightning/releases/tag/v0.11.1
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -159,7 +159,7 @@ dependencies:
     version: ">=0.2.4 <0.4.0"
     requirement:
       type: "opt-out"
-      how: Can alternatively configure an external bitcoin node.
+      how: Can alternatively configure a direct connection to the internal Bitcoin Core.
     description: Used to fetch validated blocks.
     config:
       check:
@@ -198,7 +198,7 @@ dependencies:
     version: ">=0.21.1.2 <23.0.0"
     requirement:
       type: "opt-out"
-      how: Can alternatively configure the internal Bitcoin Proxy service, or an external bitcoin node.
+      how: Can alternatively configure the internal Bitcoin Proxy service.
     description: Used as a blockchain backend.
     config:
       check:
