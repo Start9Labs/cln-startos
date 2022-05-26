@@ -2375,12 +2375,55 @@ class State {
     }
     schema;
 }
+class LoaderState extends State {
+    documents;
+    length;
+    lineIndent;
+    lineStart;
+    position;
+    line;
+    filename;
+    onWarning;
+    legacy;
+    json;
+    listener;
+    implicitTypes;
+    typeMap;
+    version;
+    checkLineBreaks;
+    tagMap;
+    anchorMap;
+    tag;
+    anchor;
+    kind;
+    result;
+    constructor(input, { filename , schema , onWarning , legacy =false , json: json1 = false , listener =null  }){
+        super(schema);
+        this.input = input;
+        this.documents = [];
+        this.lineIndent = 0;
+        this.lineStart = 0;
+        this.position = 0;
+        this.line = 0;
+        this.result = "";
+        this.filename = filename;
+        this.onWarning = onWarning;
+        this.legacy = legacy;
+        this.json = json1;
+        this.listener = listener;
+        this.implicitTypes = this.schema.compiledImplicit;
+        this.typeMap = this.schema.compiledTypeMap;
+        this.length = input.length;
+    }
+    input;
+}
 const { hasOwn: hasOwn2  } = Object;
 const CONTEXT_BLOCK_IN = 3;
 const CONTEXT_BLOCK_OUT = 4;
 const CHOMPING_STRIP = 2;
 const CHOMPING_KEEP = 3;
 const PATTERN_NON_PRINTABLE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x84\x86-\x9F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
+const PATTERN_NON_ASCII_LINE_BREAKS = /[\x85\u2028\u2029]/;
 const PATTERN_FLOW_INDICATORS = /[,\[\]\{\}]/;
 const PATTERN_TAG_HANDLE = /^(?:!|!!|![a-z\-]+!)$/i;
 const PATTERN_TAG_URI = /^(?:!|[^,\[\]\{\}])(?:%[0-9a-f]{2}|[0-9a-z\-#;\/\?:@&=\+\$,_\.!~\*'\(\)\[\]])*$/i;
@@ -2457,7 +2500,7 @@ function throwWarning(state, message) {
         state.onWarning.call(null, generateError(state, message));
     }
 }
-({
+const directiveHandlers = {
     YAML (state, _name, ...args) {
         if (state.version !== null) {
             return throwError(state, "duplication of %YAML directive");
@@ -2500,7 +2543,7 @@ function throwWarning(state, message) {
         }
         state.tagMap[handle] = prefix;
     }
-});
+};
 function captureSegment(state, start, end, checkJson) {
     let result;
     if (start < end) {
@@ -3315,6 +3358,115 @@ function composeNode(state, parentIndent, nodeContext, allowToSeek, allowCompact
     }
     return state.tag !== null || state.anchor !== null || hasContent;
 }
+function readDocument(state) {
+    const documentStart = state.position;
+    let position, directiveName, directiveArgs, hasDirectives = false, ch;
+    state.version = null;
+    state.checkLineBreaks = state.legacy;
+    state.tagMap = {};
+    state.anchorMap = {};
+    while((ch = state.input.charCodeAt(state.position)) !== 0){
+        skipSeparationSpace(state, true, -1);
+        ch = state.input.charCodeAt(state.position);
+        if (state.lineIndent > 0 || ch !== 0x25) {
+            break;
+        }
+        hasDirectives = true;
+        ch = state.input.charCodeAt(++state.position);
+        position = state.position;
+        while(ch !== 0 && !isWsOrEol(ch)){
+            ch = state.input.charCodeAt(++state.position);
+        }
+        directiveName = state.input.slice(position, state.position);
+        directiveArgs = [];
+        if (directiveName.length < 1) {
+            return throwError(state, "directive name must not be less than one character in length");
+        }
+        while(ch !== 0){
+            while(isWhiteSpace(ch)){
+                ch = state.input.charCodeAt(++state.position);
+            }
+            if (ch === 0x23) {
+                do {
+                    ch = state.input.charCodeAt(++state.position);
+                }while (ch !== 0 && !isEOL(ch))
+                break;
+            }
+            if (isEOL(ch)) break;
+            position = state.position;
+            while(ch !== 0 && !isWsOrEol(ch)){
+                ch = state.input.charCodeAt(++state.position);
+            }
+            directiveArgs.push(state.input.slice(position, state.position));
+        }
+        if (ch !== 0) readLineBreak(state);
+        if (hasOwn2(directiveHandlers, directiveName)) {
+            directiveHandlers[directiveName](state, directiveName, ...directiveArgs);
+        } else {
+            throwWarning(state, `unknown document directive "${directiveName}"`);
+        }
+    }
+    skipSeparationSpace(state, true, -1);
+    if (state.lineIndent === 0 && state.input.charCodeAt(state.position) === 0x2d && state.input.charCodeAt(state.position + 1) === 0x2d && state.input.charCodeAt(state.position + 2) === 0x2d) {
+        state.position += 3;
+        skipSeparationSpace(state, true, -1);
+    } else if (hasDirectives) {
+        return throwError(state, "directives end mark is expected");
+    }
+    composeNode(state, state.lineIndent - 1, 4, false, true);
+    skipSeparationSpace(state, true, -1);
+    if (state.checkLineBreaks && PATTERN_NON_ASCII_LINE_BREAKS.test(state.input.slice(documentStart, state.position))) {
+        throwWarning(state, "non-ASCII line breaks are interpreted as content");
+    }
+    state.documents.push(state.result);
+    if (state.position === state.lineStart && testDocumentSeparator(state)) {
+        if (state.input.charCodeAt(state.position) === 0x2e) {
+            state.position += 3;
+            skipSeparationSpace(state, true, -1);
+        }
+        return;
+    }
+    if (state.position < state.length - 1) {
+        return throwError(state, "end of the stream or a document separator is expected");
+    } else {
+        return;
+    }
+}
+function loadDocuments(input, options) {
+    input = String(input);
+    options = options || {};
+    if (input.length !== 0) {
+        if (input.charCodeAt(input.length - 1) !== 0x0a && input.charCodeAt(input.length - 1) !== 0x0d) {
+            input += "\n";
+        }
+        if (input.charCodeAt(0) === 0xfeff) {
+            input = input.slice(1);
+        }
+    }
+    const state = new LoaderState(input, options);
+    state.input += "\0";
+    while(state.input.charCodeAt(state.position) === 0x20){
+        state.lineIndent += 1;
+        state.position += 1;
+    }
+    while(state.position < state.length - 1){
+        readDocument(state);
+    }
+    return state.documents;
+}
+function load(input, options) {
+    const documents = loadDocuments(input, options);
+    if (documents.length === 0) {
+        return;
+    }
+    if (documents.length === 1) {
+        return documents[0];
+    }
+    throw new YAMLError("expected a single document in the stream, but found more");
+}
+function parse(content, options) {
+    return load(content, options);
+}
 const { hasOwn: hasOwn3  } = Object;
 function compileStyleMap(schema, map6) {
     if (typeof map6 === "undefined" || map6 === null) return {};
@@ -3858,7 +4010,13 @@ shape1({
     password: string1
 });
 async function getConfig(effects) {
+    const config = await effects.readFile({
+        path: "start9/config.yaml",
+        volumeId: "main"
+    }).then(parse).then(matchConfigShape.unsafeCast).catch(()=>undefined
+    );
     return {
+        config,
         spec: {
             "peer-tor-address": {
                 name: "Peer Tor Address",
@@ -4207,7 +4365,9 @@ const matchConfigShape = shape1({
         "allowed-calls": arrayOf1(string1),
         password: string1,
         "fetch-blocks": __boolean1
-    }))
+    }, [
+        "fetch-blocks"
+    ]))
 });
 function times(fn, amount) {
     const answer = new Array(amount);
@@ -4273,7 +4433,10 @@ const checks = [
                 if (!found) {
                     throw new Error("Users for c-lightning should exist");
                 }
-                found["allowed-calls"].push(operator);
+                found["allowed-calls"] = [
+                    ...found["allowed-calls"] ?? [],
+                    operator
+                ];
             }
         })
     ),
@@ -4311,29 +4474,30 @@ const matchBitcoindConfig = shape1({
 const dependencies = {
     "btc-rpc-proxy": {
         async check (effects, configInput) {
+            effects.error("check btc-rpc-proxy");
             for (const checker of checks){
                 const error = checker.currentError(configInput);
                 if (error) {
+                    effects.error(`throwing error: ${error}`);
                     throw error;
                 }
             }
             return null;
         },
         async autoConfigure (effects, configInput) {
+            effects.error("autoconfigure btc-rpc-proxy");
             for (const checker of checks){
                 const error = checker.currentError(configInput);
                 if (error) {
                     checker.fix(configInput);
                 }
             }
-            const config = matchBitcoindConfig.unsafeCast(configInput);
-            config.advanced.pruning.mode = "disabled";
-            return config;
+            return configInput;
         }
     },
     bitcoind: {
         async check (effects, configInput) {
-            effects.error("check");
+            effects.error("check bitcoind");
             const config = matchBitcoindConfig.unsafeCast(configInput);
             if (config.advanced.pruning.mode !== "disabled") {
                 throw 'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.';
@@ -4341,7 +4505,7 @@ const dependencies = {
             return null;
         },
         async autoConfigure (effects, configInput) {
-            effects.error("AutoCOnfigure");
+            effects.error("autoconfigure bitcoind");
             const config = matchBitcoindConfig.unsafeCast(configInput);
             config.advanced.pruning.mode = "disabled";
             return config;

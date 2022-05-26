@@ -2,16 +2,9 @@
 
 import matches from "https://deno.land/x/ts_matches/mod.ts";
 import * as YAML from "https://deno.land/std@0.140.0/encoding/yaml.ts";
+import {Effects, ConfigRes, Config, SetResult, Properties, Dependencies} from 'https://raw.githubusercontent.com/Start9Labs/embassy-os/master/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts';
 const { shape, number, string, some, arrayOf, boolean } = matches;
 
-/**
- * @typedef {import('https://raw.githubusercontent.com/Start9Labs/embassy-os/fix/making-js-work/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts').Effects} Effects
- * @typedef {import('https://raw.githubusercontent.com/Start9Labs/embassy-os/fix/making-js-work/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts').ConfigRes} ConfigRes
- * @typedef {import('https://raw.githubusercontent.com/Start9Labs/embassy-os/fix/making-js-work/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts').Config} Config
- * @typedef {import('https://raw.githubusercontent.com/Start9Labs/embassy-os/fix/making-js-work/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts').SetResult} SetResult
- * @typedef {import('https://raw.githubusercontent.com/Start9Labs/embassy-os/fix/making-js-work/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts').Properties} Properties
- * @typedef {import('https://raw.githubusercontent.com/Start9Labs/embassy-os/fix/making-js-work/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts').Dependencies} Dependencies
- */
 
 const matchesStringRec = some(
   string,
@@ -33,13 +26,17 @@ const matchesConfigFile = shape({
   password: string,
 });
 
-/**
- *
- * @param {Effects} effects
- * @returns {Promise<ConfigRes>}
- */
-export async function getConfig(effects) {
+export async function getConfig(effects: Effects): Promise<ConfigRes> {
+  const config = await effects
+    .readFile({
+      path: "start9/config.yaml",
+      volumeId: "main",
+    })
+    .then(YAML.parse)
+    .then(matchConfigShape.unsafeCast)
+    .catch(() => undefined);
   return {
+    config,
     spec: {
       "peer-tor-address": {
         name: "Peer Tor Address",
@@ -65,7 +62,8 @@ export async function getConfig(effects) {
         description: "Recognizable name for the Lightning Network",
         nullable: true,
         pattern: ".{1,32}",
-        "pattern-description": "Must be at least 1 character and no more than 32 characters",
+        "pattern-description":
+          "Must be at least 1 character and no more than 32 characters",
       },
       color: {
         type: "string",
@@ -124,7 +122,8 @@ export async function getConfig(effects) {
             user: {
               type: "pointer",
               name: "RPC Username",
-              description: "The username for the RPC user allocated to c-lightning",
+              description:
+                "The username for the RPC user allocated to c-lightning",
               subtype: "package",
               "package-id": "btc-rpc-proxy",
               target: "config",
@@ -134,7 +133,8 @@ export async function getConfig(effects) {
             password: {
               type: "pointer",
               name: "RPC Password",
-              description: "The password for the RPC user allocated to c-lightning",
+              description:
+                "The password for the RPC user allocated to c-lightning",
               subtype: "package",
               "package-id": "btc-rpc-proxy",
               target: "config",
@@ -146,7 +146,8 @@ export async function getConfig(effects) {
             "connection-settings": {
               type: "union",
               name: "Connection Settings",
-              description: "Information to connect to an external unpruned Bitcoin Core node",
+              description:
+                "Information to connect to an external unpruned Bitcoin Core node",
               tag: {
                 id: "type",
                 name: "Type",
@@ -163,19 +164,22 @@ export async function getConfig(effects) {
                   address: {
                     type: "string",
                     name: "Public Address",
-                    description: "The public address of your Bitcoin Core RPC server",
+                    description:
+                      "The public address of your Bitcoin Core RPC server",
                     nullable: false,
                   },
                   user: {
                     type: "string",
                     name: "RPC Username",
-                    description: "The username for the RPC user on your Bitcoin Core RPC server",
+                    description:
+                      "The username for the RPC user on your Bitcoin Core RPC server",
                     nullable: false,
                   },
                   password: {
                     type: "string",
                     name: "RPC Password",
-                    description: "The password for the RPC user on your Bitcoin Core RPC server",
+                    description:
+                      "The password for the RPC user on your Bitcoin Core RPC server",
                     nullable: false,
                     masked: true,
                   },
@@ -184,9 +188,11 @@ export async function getConfig(effects) {
                   "quick-connect-url": {
                     type: "string",
                     name: "Quick Connect URL",
-                    description: "The Quick Connect URL for your Bitcoin Core RPC server",
+                    description:
+                      "The Quick Connect URL for your Bitcoin Core RPC server",
                     nullable: false,
-                    pattern: "btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\\?(label=.+)?)?)?",
+                    pattern:
+                      "btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\\?(label=.+)?)?)?",
                     "pattern-description":
                       "Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md",
                   },
@@ -210,7 +216,8 @@ export async function getConfig(effects) {
           user: {
             type: "string",
             name: "RPC Username",
-            description: "The username for the RPC user on your c-lightning node",
+            description:
+              "The username for the RPC user on your c-lightning node",
             nullable: false,
             default: "lightning",
             copyable: true,
@@ -218,7 +225,8 @@ export async function getConfig(effects) {
           password: {
             type: "string",
             name: "RPC Password",
-            description: "The password for the RPC user on your c-lightning node",
+            description:
+              "The password for the RPC user on your c-lightning node",
             nullable: false,
             default: {
               charset: "a-z,A-Z,0-9",
@@ -243,7 +251,8 @@ export async function getConfig(effects) {
           "fee-base": {
             type: "number",
             name: "Routing Base Fee",
-            description: "The base fee in millisatoshis you will charge for forwarding payments on your channels.\n",
+            description:
+              "The base fee in millisatoshis you will charge for forwarding payments on your channels.\n",
             nullable: false,
             range: "[0,*)",
             integral: true,
@@ -324,7 +333,8 @@ export async function getConfig(effects) {
               "onion-messages": {
                 type: "boolean",
                 name: "Onion Messages",
-                description: "Enable the sending, receiving, and relay of onion messages\n",
+                description:
+                  "Enable the sending, receiving, and relay of onion messages\n",
                 default: false,
               },
               offers: {
@@ -384,13 +394,7 @@ export async function getConfig(effects) {
   };
 }
 
-/**
- *
- * @param {Effects} effects
- * @param {Config} input
- * @returns {Promise<SetResult>}
- */
-export async function setConfig(effects, input) {
+export async function setConfig(effects:Effects, input: Config): Promise<SetResult> {
   await effects.createDir({
     path: "start9",
     volumeId: "main",
@@ -457,22 +461,19 @@ const matchesSyncthingSystem = shape({
 
 const matchConfigShape = shape({
   users: arrayOf(
-    shape({
-      name: string,
-      "allowed-calls": arrayOf(string),
-      password: string,
-      "fetch-blocks": boolean,
-    })
+    shape(
+      {
+        name: string,
+        "allowed-calls": arrayOf(string),
+        password: string,
+        "fetch-blocks": boolean,
+      },
+      ["fetch-blocks"]
+    )
   ),
 });
 
-/**
- * @template T
- * @param {(i: number) => T} fn
- * @param {number} amount
- * @returns {Array<T>}
- */
-function times(fn, amount) {
+function times<T>(fn: (i: number) => T, amount: number): T[] {
   const answer = new Array(amount);
   for (let i = 0; i < amount; i++) {
     answer[i] = fn(i);
@@ -480,27 +481,19 @@ function times(fn, amount) {
   return answer;
 }
 
-/**
- *
- * @param {string} input
- * @returns
- */
-function randomItemString(input) {
+function randomItemString(input: string) {
   return input[Math.floor(Math.random() * input.length)];
 }
 
 const serviceName = "c-lightning";
-const fullChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-/** @typedef {{
-    currentError(config: Config): string | void ,
-    fix(config: Config): void
-  }} Check 
-*/
+const fullChars =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+type Check = {
+  currentError(config: Config): string | void ,
+  fix(config: Config): void
+}
 
-/**
-  @type {Array<Check>}
- */
-const checks = [
+const checks: Array<Check> = [
   {
     currentError(config) {
       if (!matchConfigShape.test(config)) {
@@ -509,7 +502,7 @@ const checks = [
       if (config.users.some((x) => x.name === serviceName)) {
         return;
       }
-      return `Must have an RPC user named "c-lightning"`;
+      return `Must have an RPC user named "${serviceName}"`;
     },
     fix(config) {
       config.users.push({
@@ -530,14 +523,16 @@ const checks = [
     "estimatesmartfee",
     "getnetworkinfo",
   ].map(
-    (operator) =>
-      /** @type Check */ ({
+    (operator): Check =>
+      ({
         currentError(config) {
           if (!matchConfigShape.test(config)) {
             return "Config is not the correct shape";
           }
           if (
-            config.users.find((x) => x.name === serviceName)?.["allowed-calls"]?.some((x) => x === operator) ??
+            config.users
+              .find((x) => x.name === serviceName)
+              ?.["allowed-calls"]?.some((x) => x === operator) ??
             false
           ) {
             return;
@@ -552,7 +547,7 @@ const checks = [
           if (!found) {
             throw new Error("Users for c-lightning should exist");
           }
-          found["allowed-calls"].push(operator);
+          found["allowed-calls"] = [...(found["allowed-calls"] ?? []), operator];
         },
       })
   ),
@@ -561,7 +556,10 @@ const checks = [
       if (!matchConfigShape.test(config)) {
         return "Config is not the correct shape";
       }
-      if (config.users.find((x) => x.name === serviceName)?.["fetch-blocks"] ?? false) {
+      if (
+        config.users.find((x) => x.name === serviceName)?.["fetch-blocks"] ??
+        false
+      ) {
         return;
       }
       return `RPC user "c-lightning" must have "Fetch Blocks" enabled`;
@@ -587,33 +585,33 @@ const matchBitcoindConfig = shape({
   }),
 });
 
-/** @type {Dependencies} */
-export const dependencies = {
+export const dependencies: Dependencies = {
   "btc-rpc-proxy": {
     async check(effects, configInput) {
+      effects.error("check btc-rpc-proxy");
       for (const checker of checks) {
         const error = checker.currentError(configInput);
         if (error) {
+          effects.error(`throwing error: ${error}`);
           throw error;
         }
       }
       return null;
     },
     async autoConfigure(effects, configInput) {
+      effects.error("autoconfigure btc-rpc-proxy");
       for (const checker of checks) {
         const error = checker.currentError(configInput);
         if (error) {
           checker.fix(configInput);
         }
       }
-      const config = matchBitcoindConfig.unsafeCast(configInput);
-      config.advanced.pruning.mode = "disabled";
-      return config;
+      return configInput;
     },
   },
   bitcoind: {
     async check(effects, configInput) {
-      effects.error("check");
+      effects.error("check bitcoind");
       const config = matchBitcoindConfig.unsafeCast(configInput);
       if (config.advanced.pruning.mode !== "disabled") {
         throw 'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.';
@@ -621,7 +619,7 @@ export const dependencies = {
       return null;
     },
     async autoConfigure(effects, configInput) {
-      effects.error("AutoCOnfigure");
+      effects.error("autoconfigure bitcoind");
       const config = matchBitcoindConfig.unsafeCast(configInput);
       config.advanced.pruning.mode = "disabled";
       return config;
