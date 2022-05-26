@@ -3994,27 +3994,25 @@ function dump(input, options) {
 function stringify(obj, options) {
     return dump(obj, options);
 }
-const { shape: shape1 , number: number1 , string: string1 , some: some1 , arrayOf: arrayOf1 , boolean: __boolean1  } = matches;
-const matchesStringRec = some1(string1, shape1({
-    charset: string1,
-    len: number1
-}, [
-    "charset"
-]));
-shape1({
-    username: matchesStringRec,
-    password: matchesStringRec
-});
-shape1({
-    username: string1,
-    password: string1
-});
+const { shape: shape1 , number: number1 , string: string1 , some: some1 , arrayOf: arrayOf1 , boolean: __boolean1 , dictionary: dictionary1 , any: any1  } = matches;
+const matchConfig = dictionary1([
+    string1,
+    any1
+]);
 async function getConfig(effects) {
     const config = await effects.readFile({
         path: "start9/config.yaml",
         volumeId: "main"
-    }).then(parse).then(matchConfigShape.unsafeCast).catch(()=>undefined
-    );
+    }).then((x)=>{
+        effects.error(x);
+        return x;
+    }).then((x)=>parse(x)
+    ).then((x)=>matchConfig.unsafeCast(x)
+    ).catch((e)=>{
+        effects.warn(`Got error ${e} while trying to read the config`);
+        return undefined;
+    });
+    effects.error(`Receieved ${JSON.stringify(config)} from the config.yaml`);
     return {
         config,
         spec: {
@@ -4359,7 +4357,7 @@ async function setConfig(effects, input) {
 shape1({
     myID: string1
 });
-const matchConfigShape = shape1({
+const matchProxyConfig = shape1({
     users: arrayOf1(shape1({
         name: string1,
         "allowed-calls": arrayOf1(string1),
@@ -4384,14 +4382,14 @@ const fullChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678
 const checks = [
     {
         currentError (config) {
-            if (!matchConfigShape.test(config)) {
+            if (!matchProxyConfig.test(config)) {
                 return "Config is not the correct shape";
             }
             if (config.users.some((x)=>x.name === serviceName
             )) {
                 return;
             }
-            return `Must have an RPC user named "c-lightning"`;
+            return `Must have an RPC user named "${serviceName}"`;
         },
         fix (config) {
             config.users.push({
@@ -4414,7 +4412,7 @@ const checks = [
         "getnetworkinfo", 
     ].map((operator)=>({
             currentError (config) {
-                if (!matchConfigShape.test(config)) {
+                if (!matchProxyConfig.test(config)) {
                     return "Config is not the correct shape";
                 }
                 if (config.users.find((x)=>x.name === serviceName
@@ -4425,7 +4423,7 @@ const checks = [
                 return `RPC user "c-lightning" must have "${operator}" enabled`;
             },
             fix (config) {
-                if (!matchConfigShape.test(config)) {
+                if (!matchProxyConfig.test(config)) {
                     throw new Error("Config is not the correct shape");
                 }
                 const found = config.users.find((x)=>x.name === serviceName
@@ -4442,7 +4440,7 @@ const checks = [
     ),
     {
         currentError (config) {
-            if (!matchConfigShape.test(config)) {
+            if (!matchProxyConfig.test(config)) {
                 return "Config is not the correct shape";
             }
             if (config.users.find((x)=>x.name === serviceName
@@ -4452,7 +4450,7 @@ const checks = [
             return `RPC user "c-lightning" must have "Fetch Blocks" enabled`;
         },
         fix (config) {
-            if (!matchConfigShape.test(config)) {
+            if (!matchProxyConfig.test(config)) {
                 throw new Error("Config is not the correct shape");
             }
             const found = config.users.find((x)=>x.name === serviceName
@@ -4474,7 +4472,7 @@ const matchBitcoindConfig = shape1({
 const dependencies = {
     "btc-rpc-proxy": {
         async check (effects, configInput) {
-            effects.error("check btc-rpc-proxy");
+            effects.info("check btc-rpc-proxy");
             for (const checker of checks){
                 const error = checker.currentError(configInput);
                 if (error) {
@@ -4485,7 +4483,7 @@ const dependencies = {
             return null;
         },
         async autoConfigure (effects, configInput) {
-            effects.error("autoconfigure btc-rpc-proxy");
+            effects.info("autoconfigure btc-rpc-proxy");
             for (const checker of checks){
                 const error = checker.currentError(configInput);
                 if (error) {
@@ -4497,7 +4495,7 @@ const dependencies = {
     },
     bitcoind: {
         async check (effects, configInput) {
-            effects.error("check bitcoind");
+            effects.info("check bitcoind");
             const config = matchBitcoindConfig.unsafeCast(configInput);
             if (config.advanced.pruning.mode !== "disabled") {
                 throw 'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.';
@@ -4505,7 +4503,7 @@ const dependencies = {
             return null;
         },
         async autoConfigure (effects, configInput) {
-            effects.error("autoconfigure bitcoind");
+            effects.info("autoconfigure bitcoind");
             const config = matchBitcoindConfig.unsafeCast(configInput);
             config.advanced.pruning.mode = "disabled";
             return config;

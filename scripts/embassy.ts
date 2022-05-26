@@ -1,30 +1,12 @@
 // @ts-check
 
-import matches from "https://deno.land/x/ts_matches/mod.ts";
+import matches from "https://deno.land/x/ts_matches@5.1.5/mod.ts";
 import * as YAML from "https://deno.land/std@0.140.0/encoding/yaml.ts";
 import {Effects, ConfigRes, Config, SetResult, Properties, Dependencies} from 'https://raw.githubusercontent.com/Start9Labs/embassy-os/master/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts';
-const { shape, number, string, some, arrayOf, boolean } = matches;
+const { shape, number, string, some, arrayOf, boolean, dictionary, any } = matches;
 
 
-const matchesStringRec = some(
-  string,
-  shape(
-    {
-      charset: string,
-      len: number,
-    },
-    ["charset"]
-  )
-);
-const matchesConfigRec = shape({
-  username: matchesStringRec,
-  password: matchesStringRec,
-});
-
-const matchesConfigFile = shape({
-  username: string,
-  password: string,
-});
+const matchConfig = dictionary([string, any])
 
 export async function getConfig(effects: Effects): Promise<ConfigRes> {
   const config = await effects
@@ -32,9 +14,12 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
       path: "start9/config.yaml",
       volumeId: "main",
     })
-    .then(YAML.parse)
-    .then(matchConfigShape.unsafeCast)
-    .catch(() => undefined);
+    .then(x => YAML.parse(x))
+    .then(x => matchConfig.unsafeCast(x))
+    .catch(e => {
+      effects.warn(`Got error ${e} while trying to read the config`);
+      return undefined
+    });
   return {
     config,
     spec: {
@@ -459,7 +444,7 @@ const matchesSyncthingSystem = shape({
 //   };
 // }
 
-const matchConfigShape = shape({
+const matchProxyConfig = shape({
   users: arrayOf(
     shape(
       {
@@ -496,7 +481,7 @@ type Check = {
 const checks: Array<Check> = [
   {
     currentError(config) {
-      if (!matchConfigShape.test(config)) {
+      if (!matchProxyConfig.test(config)) {
         return "Config is not the correct shape";
       }
       if (config.users.some((x) => x.name === serviceName)) {
@@ -526,7 +511,7 @@ const checks: Array<Check> = [
     (operator): Check =>
       ({
         currentError(config) {
-          if (!matchConfigShape.test(config)) {
+          if (!matchProxyConfig.test(config)) {
             return "Config is not the correct shape";
           }
           if (
@@ -540,7 +525,7 @@ const checks: Array<Check> = [
           return `RPC user "c-lightning" must have "${operator}" enabled`;
         },
         fix(config) {
-          if (!matchConfigShape.test(config)) {
+          if (!matchProxyConfig.test(config)) {
             throw new Error("Config is not the correct shape");
           }
           const found = config.users.find((x) => x.name === serviceName);
@@ -553,7 +538,7 @@ const checks: Array<Check> = [
   ),
   {
     currentError(config) {
-      if (!matchConfigShape.test(config)) {
+      if (!matchProxyConfig.test(config)) {
         return "Config is not the correct shape";
       }
       if (
@@ -565,7 +550,7 @@ const checks: Array<Check> = [
       return `RPC user "c-lightning" must have "Fetch Blocks" enabled`;
     },
     fix(config) {
-      if (!matchConfigShape.test(config)) {
+      if (!matchProxyConfig.test(config)) {
         throw new Error("Config is not the correct shape");
       }
       const found = config.users.find((x) => x.name === serviceName);
@@ -588,7 +573,7 @@ const matchBitcoindConfig = shape({
 export const dependencies: Dependencies = {
   "btc-rpc-proxy": {
     async check(effects, configInput) {
-      effects.error("check btc-rpc-proxy");
+      effects.info("check btc-rpc-proxy");
       for (const checker of checks) {
         const error = checker.currentError(configInput);
         if (error) {
@@ -599,7 +584,7 @@ export const dependencies: Dependencies = {
       return null;
     },
     async autoConfigure(effects, configInput) {
-      effects.error("autoconfigure btc-rpc-proxy");
+      effects.info("autoconfigure btc-rpc-proxy");
       for (const checker of checks) {
         const error = checker.currentError(configInput);
         if (error) {
@@ -611,7 +596,7 @@ export const dependencies: Dependencies = {
   },
   bitcoind: {
     async check(effects, configInput) {
-      effects.error("check bitcoind");
+      effects.info("check bitcoind");
       const config = matchBitcoindConfig.unsafeCast(configInput);
       if (config.advanced.pruning.mode !== "disabled") {
         throw 'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.';
@@ -619,7 +604,7 @@ export const dependencies: Dependencies = {
       return null;
     },
     async autoConfigure(effects, configInput) {
-      effects.error("autoconfigure bitcoind");
+      effects.info("autoconfigure bitcoind");
       const config = matchBitcoindConfig.unsafeCast(configInput);
       config.advanced.pruning.mode = "disabled";
       return config;
