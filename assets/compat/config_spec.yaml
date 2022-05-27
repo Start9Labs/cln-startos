@@ -75,7 +75,7 @@ bitcoind:
       user:
         type: pointer
         name: RPC Username
-        description: The username for the RPC user allocated to c-lightning
+        description: The username for the RPC user allocated to Core Lightning
         subtype: package
         package-id: btc-rpc-proxy
         target: config
@@ -84,7 +84,7 @@ bitcoind:
       password:
         type: pointer
         name: RPC Password
-        description: The password for the RPC user allocated to c-lightning
+        description: The password for the RPC user allocated to Core Lightning
         subtype: package
         package-id: btc-rpc-proxy
         target: config
@@ -103,14 +103,14 @@ rpc:
     user:
       type: string
       name: RPC Username
-      description: The username for the RPC user on your c-lightning node
+      description: The username for the RPC user on your Core Lightning node
       nullable: false
       default: lightning
       copyable: true
     password:
       type: string
       name: RPC Password
-      description: The password for the RPC user on your c-lightning node
+      description: The password for the RPC user on your Core Lightning node
       nullable: false
       default:
         charset: "a-z,A-Z,0-9"
@@ -167,7 +167,7 @@ advanced:
       name: Ignore Fee Limits
       description: |
         Allow nodes which establish channels to you to set any fee they want. This may result in a channel which cannot
-        be closed, should fees increase, but make channels far more reliable since c-lightning will never close it due
+        be closed, should fees increase, but make channels far more reliable since Core Lightning will never close it due
         to unreasonable fees.
       default: false
     funding-confirms:
@@ -186,7 +186,7 @@ advanced:
       name: Time Lock Delta
       description: |
         The number of blocks between the incoming payments and outgoing payments: this needs to be enough to make sure
-        that if it has to, c-lightning can close the outgoing payment before the incoming, or redeem the incoming once
+        that if it has to, Core Lightning can close the outgoing payment before the incoming, or redeem the incoming once
         the outgoing is redeemed.
       nullable: false
       range: "[6,144]"
@@ -243,8 +243,8 @@ advanced:
       name: Plugins
       description: |
         Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside 
-        the main C-Lightning container in order to communicate directly with it.
-        Their source is maintained separately from that of C-Lightning itself.
+        the main Core Lightning container in order to communicate directly with it.
+        Their source is maintained separately from that of Core Lightning itself.
       nullable: false
       nullByDefault: false
       spec:
@@ -253,7 +253,7 @@ advanced:
           name: Enable C-Lightning-HTTP-Plugin
           description: |
             This plugin is a direct proxy for the unix domain socket from the HTTP interface. 
-            It is required for Spark Wallet to connect to C-Lightning.
+            It is required for Spark Wallet to connect to Core Lightning.
 
             Source: https://github.com/Start9Labs/c-lightning-http-plugin
           default: true
@@ -279,7 +279,7 @@ advanced:
           type: boolean
           name: Enable C-Lightning-REST Plugin
           description: |
-            This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to C-Lightning.
+            This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.
 
             Source: https://github.com/Ride-The-Lightning/c-lightning-REST
           default: true
