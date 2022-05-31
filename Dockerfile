@@ -26,6 +26,7 @@ RUN set -ex \
 
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"
+
 ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}
 
 RUN wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS.asc

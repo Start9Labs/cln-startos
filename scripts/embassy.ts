@@ -2,11 +2,19 @@
 
 import matches from "https://deno.land/x/ts_matches@5.1.5/mod.ts";
 import * as YAML from "https://deno.land/std@0.140.0/encoding/yaml.ts";
-import {Effects, ConfigRes, Config, SetResult, Properties, Dependencies} from 'https://raw.githubusercontent.com/Start9Labs/embassy-os/master/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts';
+import {
+  Config,
+  ConfigRes,
+  Dependencies,
+  Effects,
+  PackagePropertiesV2,
+  PackagePropertyObject,
+  Properties,
+  SetResult,
+} from "https://raw.githubusercontent.com/Start9Labs/embassy-os/master/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts";
 const { shape, number, string, some, arrayOf, boolean, dictionary, any } = matches;
 
-
-const matchConfig = dictionary([string, any])
+const matchConfig = dictionary([string, any]);
 
 export async function getConfig(effects: Effects): Promise<ConfigRes> {
   const config = await effects
@@ -14,11 +22,11 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
       path: "start9/config.yaml",
       volumeId: "main",
     })
-    .then(x => YAML.parse(x))
-    .then(x => matchConfig.unsafeCast(x))
-    .catch(e => {
+    .then((x) => YAML.parse(x))
+    .then((x) => matchConfig.unsafeCast(x))
+    .catch((e) => {
       effects.warn(`Got error ${e} while trying to read the config`);
-      return undefined
+      return undefined;
     });
   return {
     config,
@@ -47,8 +55,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
         description: "Recognizable name for the Lightning Network",
         nullable: true,
         pattern: ".{1,32}",
-        "pattern-description":
-          "Must be at least 1 character and no more than 32 characters",
+        "pattern-description": "Must be at least 1 character and no more than 32 characters",
       },
       color: {
         type: "string",
@@ -107,8 +114,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
             user: {
               type: "pointer",
               name: "RPC Username",
-              description:
-                "The username for the RPC user allocated to c-lightning",
+              description: "The username for the RPC user allocated to c-lightning",
               subtype: "package",
               "package-id": "btc-rpc-proxy",
               target: "config",
@@ -118,8 +124,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
             password: {
               type: "pointer",
               name: "RPC Password",
-              description:
-                "The password for the RPC user allocated to c-lightning",
+              description: "The password for the RPC user allocated to c-lightning",
               subtype: "package",
               "package-id": "btc-rpc-proxy",
               target: "config",
@@ -131,8 +136,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
             "connection-settings": {
               type: "union",
               name: "Connection Settings",
-              description:
-                "Information to connect to an external unpruned Bitcoin Core node",
+              description: "Information to connect to an external unpruned Bitcoin Core node",
               tag: {
                 id: "type",
                 name: "Type",
@@ -149,22 +153,19 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
                   address: {
                     type: "string",
                     name: "Public Address",
-                    description:
-                      "The public address of your Bitcoin Core RPC server",
+                    description: "The public address of your Bitcoin Core RPC server",
                     nullable: false,
                   },
                   user: {
                     type: "string",
                     name: "RPC Username",
-                    description:
-                      "The username for the RPC user on your Bitcoin Core RPC server",
+                    description: "The username for the RPC user on your Bitcoin Core RPC server",
                     nullable: false,
                   },
                   password: {
                     type: "string",
                     name: "RPC Password",
-                    description:
-                      "The password for the RPC user on your Bitcoin Core RPC server",
+                    description: "The password for the RPC user on your Bitcoin Core RPC server",
                     nullable: false,
                     masked: true,
                   },
@@ -173,11 +174,9 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
                   "quick-connect-url": {
                     type: "string",
                     name: "Quick Connect URL",
-                    description:
-                      "The Quick Connect URL for your Bitcoin Core RPC server",
+                    description: "The Quick Connect URL for your Bitcoin Core RPC server",
                     nullable: false,
-                    pattern:
-                      "btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\\?(label=.+)?)?)?",
+                    pattern: "btcstandup://[^:]*:[^@]*@[a-zA-Z0-9.-]+:[0-9]+(/(\\?(label=.+)?)?)?",
                     "pattern-description":
                       "Must be a valid Quick Connect URL. For help, check out https://github.com/BlockchainCommons/Gordian/blob/master/Docs/Quick-Connect-API.md",
                   },
@@ -201,8 +200,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
           user: {
             type: "string",
             name: "RPC Username",
-            description:
-              "The username for the RPC user on your c-lightning node",
+            description: "The username for the RPC user on your c-lightning node",
             nullable: false,
             default: "lightning",
             copyable: true,
@@ -210,8 +208,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
           password: {
             type: "string",
             name: "RPC Password",
-            description:
-              "The password for the RPC user on your c-lightning node",
+            description: "The password for the RPC user on your c-lightning node",
             nullable: false,
             default: {
               charset: "a-z,A-Z,0-9",
@@ -236,8 +233,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
           "fee-base": {
             type: "number",
             name: "Routing Base Fee",
-            description:
-              "The base fee in millisatoshis you will charge for forwarding payments on your channels.\n",
+            description: "The base fee in millisatoshis you will charge for forwarding payments on your channels.\n",
             nullable: false,
             range: "[0,*)",
             integral: true,
@@ -318,8 +314,7 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
               "onion-messages": {
                 type: "boolean",
                 name: "Onion Messages",
-                description:
-                  "Enable the sending, receiving, and relay of onion messages\n",
+                description: "Enable the sending, receiving, and relay of onion messages\n",
                 default: false,
               },
               offers: {
@@ -379,7 +374,34 @@ export async function getConfig(effects: Effects): Promise<ConfigRes> {
   };
 }
 
-export async function setConfig(effects:Effects, input: Config): Promise<SetResult> {
+type Lazy<T> = {
+  val(): T;
+  map<U>(fn: (t: T) => U): Lazy<U>;
+};
+
+const NOT_COMPUTED = Symbol("not_computed");
+type Once<T> = () => T;
+function once<T>(val: () => T) {
+  let computed: unknown = NOT_COMPUTED;
+  return (() => {
+    if (computed === NOT_COMPUTED) {
+      computed = val();
+    }
+    return computed;
+  }) as Once<T>;
+}
+function lazy<T>(val: () => T): Lazy<T> {
+  return {
+    val,
+    map(next) {
+      return lazy(() => next(val()));
+    },
+  };
+}
+
+const lazyOnce = <T>(x: () => T) => lazy(once(x));
+
+export async function setConfig(effects: Effects, input: Config): Promise<SetResult> {
   await effects.createDir({
     path: "start9",
     volumeId: "main",
@@ -395,54 +417,148 @@ export async function setConfig(effects:Effects, input: Config): Promise<SetResu
   };
 }
 
-const matchesSyncthingSystem = shape({
-  myID: string,
+const nodeInfoMatcher = shape({
+  id: string,
+  alias: string,
 });
 
-// /**
-//  *
-//  * @param {Effects} effects
-//  * @returns {Promise<Properties>}
-//  */
-// export async function properties(effects) {
-//   const config_promise = effects
-//     .readFile({
-//       volumeId: "main",
-//       path: "./start9/config.yaml",
-//     })
-//     .then((x) => YAML.parse(x))
-//     .then((x) => matchesConfigFile.unsafeCast(x));
+const propertiesConfigMatcher = shape({
+  rpc: shape({
+    enabled: boolean,
+    user: string,
+    password: string,
+  }),
+  advanced: shape({
+    plugins: shape({
+      rest: boolean,
+    }),
+  }),
+});
 
-//   return {
-//     version: 2,
-//     data: {
-//       "Device Id": {
-//         type: "string",
-//         value: syncthing_system.myID,
-//         description: "his is the ID for syncthing to attach others to",
-//         copyable: true,
-//         qr: true,
-//         masked: false,
-//       },
-//       Username: {
-//         type: "string",
-//         value: config.username,
-//         description: "Username to login to the UI",
-//         copyable: true,
-//         qr: false,
-//         masked: false,
-//       },
-//       Password: {
-//         type: "string",
-//         value: config.password,
-//         description: "Password to login to the UI",
-//         copyable: true,
-//         qr: false,
-//         masked: true,
-//       },
-//     },
-//   };
-// }
+export async function properties(effects: Effects): Promise<Properties> {
+  const nodeInfo = nodeInfoMatcher.unsafeCast(
+    await effects.readJsonFile({
+      volumeId: "main",
+      path: "start9/lightningGetInfo",
+    })
+  );
+  const peerTorAddress = await effects
+    .readFile({
+      volumeId: "main",
+      path: "start9/peerTorAddress",
+    })
+    .then((x) => x.trim());
+  const config = propertiesConfigMatcher.unsafeCast(
+    YAML.parse(
+      await effects.readFile({
+        path: "start9/config.yaml",
+        volumeId: "main",
+      })
+    )
+  );
+  const macaroonBase64 = lazyOnce(() =>
+    effects.readFile({
+      path: "public/access.macaroon.base64",
+      volumeId: "main",
+    })
+  );
+
+  const rpcProperties: PackagePropertiesV2 = !config.rpc.enabled
+    ? {}
+    : {
+        "Quick Connect URL": {
+          type: "string",
+          value: `clightning-rpc://${config.rpc.user}:${config.rpc.password}@${peerTorAddress}:8080`,
+          description: "A convenient way to connect a wallet to a remote node",
+          copyable: true,
+          qr: true,
+          masked: true,
+        },
+        "RPC Username": {
+          type: "string",
+          value: config.rpc.user,
+          description: "Username for RPC connections",
+          copyable: true,
+          qr: false,
+          masked: true,
+        },
+        "RPC Password": {
+          type: "string",
+          value: config.rpc.password,
+          description: "Password for RPC connections",
+          copyable: true,
+          qr: false,
+          masked: true,
+        },
+      };
+
+  const hexMacaroon = lazyOnce(() =>
+    effects.readFile({
+      path: "start9/access.macaroon.hex",
+      volumeId: "main",
+    })
+  );
+  const restProperties: PackagePropertiesV2 = !config.advanced.plugins.rest
+    ? {}
+    : {
+        "Rest API Port": {
+          type: "string",
+          value: "3001",
+          description: "The port your c-lightning-REST API is listening on",
+          copyable: true,
+          qr: false,
+          masked: false,
+        },
+        "Rest API Macaroon": {
+          type: "string",
+          value: await macaroonBase64.val(),
+          description: "The macaroon that grants access to your node's REST API plugin",
+          copyable: true,
+          qr: false,
+          masked: true,
+        },
+        "Rest API Macaroon (Hex)": {
+          type: "string",
+          value: await hexMacaroon.val(),
+          description: "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
+          copyable: true,
+          qr: false,
+          masked: true,
+        },
+      };
+
+  return {
+    version: 2,
+    data: {
+      "Node Id": {
+        type: "string",
+        value: nodeInfo.id,
+        description: "The node identifier that can be used for connecting to other nodes",
+        copyable: true,
+        qr: false,
+        masked: false,
+      },
+      "Node Uri": {
+        type: "string",
+        value: `${nodeInfo.id}@${peerTorAddress}`,
+        description: "Enables connecting to another remote node",
+        copyable: true,
+        qr: true,
+        masked: true,
+      },
+      "Node Alias": {
+        type: "string",
+        value: nodeInfo.alias,
+        description: "The friendly identifier for your node",
+        copyable: true,
+        qr: false,
+        masked: false,
+      },
+      ...rpcProperties,
+      ...restProperties,
+    },
+  };
+}
 
 const matchProxyConfig = shape({
   users: arrayOf(
@@ -471,12 +587,11 @@ function randomItemString(input: string) {
 }
 
 const serviceName = "c-lightning";
-const fullChars =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const fullChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 type Check = {
-  currentError(config: Config): string | void ,
-  fix(config: Config): void
-}
+  currentError(config: Config): string | void;
+  fix(config: Config): void;
+};
 
 const checks: Array<Check> = [
   {
@@ -508,43 +623,34 @@ const checks: Array<Check> = [
     "estimatesmartfee",
     "getnetworkinfo",
   ].map(
-    (operator): Check =>
-      ({
-        currentError(config) {
-          if (!matchProxyConfig.test(config)) {
-            return "Config is not the correct shape";
-          }
-          if (
-            config.users
-              .find((x) => x.name === serviceName)
-              ?.["allowed-calls"]?.some((x) => x === operator) ??
-            false
-          ) {
-            return;
-          }
-          return `RPC user "c-lightning" must have "${operator}" enabled`;
-        },
-        fix(config) {
-          if (!matchProxyConfig.test(config)) {
-            throw new Error("Config is not the correct shape");
-          }
-          const found = config.users.find((x) => x.name === serviceName);
-          if (!found) {
-            throw new Error("Users for c-lightning should exist");
-          }
-          found["allowed-calls"] = [...(found["allowed-calls"] ?? []), operator];
-        },
-      })
+    (operator): Check => ({
+      currentError(config) {
+        if (!matchProxyConfig.test(config)) {
+          return "Config is not the correct shape";
+        }
+        if (config.users.find((x) => x.name === serviceName)?.["allowed-calls"]?.some((x) => x === operator) ?? false) {
+          return;
+        }
+        return `RPC user "c-lightning" must have "${operator}" enabled`;
+      },
+      fix(config) {
+        if (!matchProxyConfig.test(config)) {
+          throw new Error("Config is not the correct shape");
+        }
+        const found = config.users.find((x) => x.name === serviceName);
+        if (!found) {
+          throw new Error("Users for c-lightning should exist");
+        }
+        found["allowed-calls"] = [...(found["allowed-calls"] ?? []), operator];
+      },
+    })
   ),
   {
     currentError(config) {
       if (!matchProxyConfig.test(config)) {
         return "Config is not the correct shape";
       }
-      if (
-        config.users.find((x) => x.name === serviceName)?.["fetch-blocks"] ??
-        false
-      ) {
+      if (config.users.find((x) => x.name === serviceName)?.["fetch-blocks"] ?? false) {
         return;
       }
       return `RPC user "c-lightning" must have "Fetch Blocks" enabled`;

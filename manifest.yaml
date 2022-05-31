@@ -57,16 +57,7 @@ config:
   set:
     type: script
 properties:
-  type: docker
-  image: compat
-  system: true
-  entrypoint: compat
-  args:
-    - properties
-    - /root/.lightning
-  mounts:
-    main: /root/.lightning
-  io-format: yaml
+  type: script
 volumes:
   main:
     type: data
