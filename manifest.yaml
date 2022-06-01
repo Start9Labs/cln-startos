@@ -7,8 +7,15 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  https://github.com/ElementsProject/lightning/releases/tag/v0.11.0
-  https://github.com/ElementsProject/lightning/releases/tag/v0.11.1
+  - Highlights:
+  - Updates upstream to v0.11.1
+  - Updates plugin (c-lightning-REST, summary, and rebalance) submodules
+  - Renames to Core Lightning
+  - Removes insecure cleartext external bitcoind rpc connections
+
+  - For more, see:
+  - https://github.com/ElementsProject/lightning/releases/tag/v0.11.0
+  - https://github.com/ElementsProject/lightning/releases/tag/v0.11.1
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -195,9 +202,9 @@ dependencies:
           compat: /mnt/assets
           main: /root/.lightning
   bitcoind:
-    version: ">=0.21.1.2 <23.0.0"
+    version: ">=0.21.1.2 <24.0.0"
     requirement:
-      type: "opt-out"
+      type: "opt-in"
       how: Can alternatively configure the internal Bitcoin Proxy service.
     description: Used as a blockchain backend.
     config:

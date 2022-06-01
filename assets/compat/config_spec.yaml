@@ -50,7 +50,7 @@ bitcoind:
       The Bitcoin Core node to connect to:
         - Internal (Bitcoin Core): The Bitcoin Core service installed to your Embassy
         - Internal (Bitcoin Proxy): The Bitcoin RPC Proxy service installed to your Embassy
-  default: internal
+  default: internal-proxy
   variants:
     internal:
       user:

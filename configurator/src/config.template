@@ -1,5 +1,4 @@
 network=bitcoin
-bitcoin-cli={bitcoin_cli}
 bitcoin-rpcuser={bitcoin_rpc_user}
 bitcoin-rpcpassword={bitcoin_rpc_pass}
 bitcoin-rpcconnect={bitcoin_rpc_host}
