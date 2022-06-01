@@ -10,7 +10,7 @@ elif [ "$b_type" = "internal-proxy" ]; then
     b_username=$(yq e '.bitcoind.user' /root/.lightning/start9/config.yaml)
     b_password=$(yq e '.bitcoind.password' /root/.lightning/start9/config.yaml)
 else
-    echo "Invalid Bitcoin Core type" >&2
+    echo "Invalid Bitcoin Core configuration" >&2
     exit 1
 fi
 c_username=$(yq e '.rpc.user' /root/.lightning/start9/config.yaml)
