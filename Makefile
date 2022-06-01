@@ -33,5 +33,5 @@ c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-ht
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl cargo +beta build --release
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl musl-strip target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin
 
-scripts/embassy.js: scripts/embassy.ts
+scripts/embassy.js: scripts/**/*.ts
 	deno bundle scripts/embassy.ts scripts/embassy.js
