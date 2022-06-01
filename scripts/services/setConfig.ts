@@ -6,12 +6,35 @@ const { string } = matches;
 
 const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
 function urlParse(input: string) {
+  const url = new URL(input)
   const [, _protocol, host, port] = Array.from(regexUrl.exec(input) || []);
   return {
     host,
     port,
   };
 }
+async function createWaitForService(effects: Effects, config: SetConfig) {
+  const { bitcoin_rpc_host, bitcoin_rpc_pass, bitcoin_rpc_port, bitcoin_rpc_user } = userInformation(config);
+  await effects.writeFile({
+    path: "start9/waitForStart.sh",
+    toWrite: `
+    #!/bin/sh
+    echo "Starting Wait for Bitcoin Start"
+    while true; do
+      bitcoin-cli -rpcconnect=${bitcoin_rpc_host} -rpcport=${bitcoin_rpc_port} -rpcuser=${bitcoin_rpc_user} -rpcpassword=${bitcoin_rpc_pass} getblockchaininfo 2> /dev/null
+      if [ $? -eq 0 ] 
+      then 
+        break
+      else 
+        echo "Waiting for Bitcoin to start..."
+        sleep 1
+      fi
+    done    
+    `,
+    volumeId: "main",
+  });
+}
+
 function parseQuickCOnnectUrl(url: string): {
   bitcoin_rpc_user: string;
   bitcoin_rpc_pass: string;
@@ -48,7 +71,7 @@ function userInformation(config: SetConfig) {
     case "internal":
       return {
         bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.user,
+        bitcoin_rpc_pass: config.bitcoind.password,
         bitcoin_rpc_host: "bitcoind.embassy",
         bitcoin_rpc_port: 8332,
       };
@@ -56,7 +79,7 @@ function userInformation(config: SetConfig) {
     case "internal-proxy":
       return {
         bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.user,
+        bitcoin_rpc_pass: config.bitcoind.password,
         bitcoin_rpc_host: "btc-rpc-proxy.embassy",
         bitcoin_rpc_port: 8332,
       };
@@ -157,6 +180,8 @@ export async function setConfig(effects: Effects, input: Config): Promise<SetRes
     toWrite: configMaker(alias, config),
     volumeId: "main",
   });
+
+  await createWaitForService(effects, config);
 
   return {
     signal: "SIGTERM",

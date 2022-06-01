@@ -349,9 +349,7 @@ fn main() -> Result<(), anyhow::Error> {
         id: String,
         alias: String,
     }
-
-    // TODO remove the files and link
-
+    
     let rpc_path = Path::new("/root/.lightning/bitcoin/lightning-rpc");
     if rpc_path.exists() {
         std::fs::remove_file(rpc_path)?;
