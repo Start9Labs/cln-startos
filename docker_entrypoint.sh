@@ -14,26 +14,26 @@ sh /root/.lightning/start9/waitForStart.sh
 sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/start9/config.main > /root/.lightning/start9/config
 
 echo "Cleaning old lightning rpc"
-if [ -f /root/.lightning/bitcoin/lightning-rpc ]; then
+if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
     rm /root/.lightning/bitcoin/lightning-rpc
 fi
 
 echo "Starting lightning"
 lightningd &
 
-while [ ! -f /root/.lightning/bitcoin/lightning-rpc ]; do
+while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
     sleep 1
 done
 
 echo "Cleaning link to lightning rpc"
-if [ -f /root/.lightning/shared/lightning-rpc ]; then
+if [ -e /root/.lightning/shared/lightning-rpc ]; then
     rm /root/.lightning/shared/lightning-rpc
 fi
 ln /root/.lightning/bitcoin/lightning-rpc /root/.lightning/shared/lightning-rpc
 
 
-while ! [ -f /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon ];
+while ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon ];
 do
     echo "Waiting for macaroon..."
     sleep 1
