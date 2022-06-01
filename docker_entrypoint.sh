@@ -21,7 +21,7 @@ fi
 echo "Starting lightning"
 lightningd &
 
-while ! [ -f /root/.lightning/bitcoin/lightning-rpc ]; then
+while [ ! -f /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
     sleep 1
 done
