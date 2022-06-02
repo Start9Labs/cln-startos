@@ -12,7 +12,7 @@ echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 
 
 sh /root/.lightning/start9/waitForStart.sh
-sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/start9/config.main > /root/.lightning/start9/config
+sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /root/.lightning/config
 
 echo "Cleaning old lightning rpc"
 if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then

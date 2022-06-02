@@ -18,18 +18,18 @@ async function createWaitForService(effects: Effects, config: SetConfig) {
   await effects.writeFile({
     path: "start9/waitForStart.sh",
     toWrite: `
-    #!/bin/sh
-    echo "Starting Wait for Bitcoin Start"
-    while true; do
-      bitcoin-cli -rpcconnect=${bitcoin_rpc_host} -rpcport=${bitcoin_rpc_port} -rpcuser=${bitcoin_rpc_user} -rpcpassword=${bitcoin_rpc_pass} getblockchaininfo 2> /dev/null
-      if [ $? -eq 0 ] 
-      then 
-        break
-      else 
-        echo "Waiting for Bitcoin to start..."
-        sleep 1
-      fi
-    done    
+#!/bin/sh
+echo "Starting Wait for Bitcoin Start"
+while true; do
+  bitcoin-cli -rpcconnect=${bitcoin_rpc_host} -rpcport=${bitcoin_rpc_port} -rpcuser=${bitcoin_rpc_user} -rpcpassword=${bitcoin_rpc_pass} getblockchaininfo > /dev/null
+  if [ $? -eq 0 ] 
+  then 
+    break
+  else 
+    echo "Waiting for Bitcoin to start..."
+    sleep 1
+  fi
+done    
     `,
     volumeId: "main",
   });
@@ -108,47 +108,43 @@ function configMaker(alias: Alias, config: SetConfig) {
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
   const enableRestPlugin = config.advanced.plugins.rest
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\n\
-  rest-port=3001\n\
-  rest-protocol=https\n\
-  "
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
 
   return `
-  network=bitcoin
-  bitcoin-rpcuser=${bitcoin_rpc_user}
-  bitcoin-rpcpassword=${bitcoin_rpc_pass}
-  bitcoin-rpcconnect=${bitcoin_rpc_host}
-  bitcoin-rpcport=${bitcoin_rpc_port}
-  
-  http-user=${config.rpc.user}
-  http-pass=${config.rpc.password}
-  http-bind=${rpcBind}
-  bind-addr=0.0.0.0:9735
-  announce-addr=${config["peer-tor-address"]}:9735
-  proxy={proxy}
-  always-use-proxy=${config.advanced["tor-only"]}
-  
-  alias=${alias}
-  rgb=${config.color}
-  
-  fee-base=${config.advanced["fee-base"]}
-  fee-per-satoshi=${config.advanced["fee-rate"]}
-  min-capacity-sat=${config.advanced["min-capacity"]}
-  ignore-fee-limits=${config.advanced["ignore-fee-limits"]}
-  funding-confirms=${config.advanced["funding-confirms"]}
-  cltv-delta=${config.advanced["cltv-delta"]}
-  ${enableWumbo}
-  ${enableExperimentalDualFund}
-  ${enableExperimentalOnionMessages}
-  ${enableExperimentalOffers}
-  ${enableExperimentalShutdownWrongFunding}
-  
-  ${enableHttpPlugin}
-  ${enableRebalancePlugin}
-  ${enableSummaryPlugin}
-  ${enableRestPlugin}
-`;
+network=bitcoin
+bitcoin-rpcuser=${bitcoin_rpc_user}
+bitcoin-rpcpassword=${bitcoin_rpc_pass}
+bitcoin-rpcconnect=${bitcoin_rpc_host}
+bitcoin-rpcport=${bitcoin_rpc_port}
+
+http-user=${config.rpc.user}
+http-pass=${config.rpc.password}
+http-bind=${rpcBind}
+bind-addr=0.0.0.0:9735
+announce-addr=${config["peer-tor-address"]}:9735
+proxy={proxy}
+always-use-proxy=${config.advanced["tor-only"]}
+
+alias=${alias}
+rgb=${config.color}
+
+fee-base=${config.advanced["fee-base"]}
+fee-per-satoshi=${config.advanced["fee-rate"]}
+min-capacity-sat=${config.advanced["min-capacity"]}
+ignore-fee-limits=${config.advanced["ignore-fee-limits"]}
+funding-confirms=${config.advanced["funding-confirms"]}
+cltv-delta=${config.advanced["cltv-delta"]}
+${enableWumbo}
+${enableExperimentalDualFund}
+${enableExperimentalOnionMessages}
+${enableExperimentalOffers}
+${enableExperimentalShutdownWrongFunding}
+
+${enableHttpPlugin}
+${enableRebalancePlugin}
+${enableSummaryPlugin}
+${enableRestPlugin}`;
 }
 
 export async function setConfig(effects: Effects, input: Config): Promise<SetResult> {
