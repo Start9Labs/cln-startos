@@ -52,29 +52,8 @@ enum BitcoinCoreConfig {
     Internal { user: String, password: String },
     #[serde(rename_all = "kebab-case")]
     InternalProxy { user: String, password: String },
-    #[serde(rename_all = "kebab-case")]
-    External {
-        connection_settings: ExternalBitcoinCoreConfig,
-    },
 }
 
-#[derive(serde::Deserialize)]
-#[serde(tag = "type")]
-#[serde(rename_all = "kebab-case")]
-enum ExternalBitcoinCoreConfig {
-    #[serde(rename_all = "kebab-case")]
-    Manual {
-        #[serde(deserialize_with = "deserialize_parse")]
-        address: Uri,
-        user: String,
-        password: String,
-    },
-    #[serde(rename_all = "kebab-case")]
-    QuickConnect {
-        #[serde(deserialize_with = "deserialize_parse")]
-        quick_connect_url: Uri,
-    },
-}
 #[derive(Deserialize)]
 struct RpcConfig {
     enabled: bool,
@@ -229,22 +208,6 @@ fn main() -> Result<(), anyhow::Error> {
             BitcoinCoreConfig::InternalProxy { user, password } => {
                 (user, password, format!("{}", "btc-rpc-proxy.embassy"), 8332)
             }
-            BitcoinCoreConfig::External {
-                connection_settings:
-                    ExternalBitcoinCoreConfig::Manual {
-                        address,
-                        user,
-                        password,
-                    },
-            } => (
-                user,
-                password,
-                format!("{}", address.host().unwrap()),
-                address.port_u16().unwrap_or(8332),
-            ),
-            BitcoinCoreConfig::External {
-                connection_settings: ExternalBitcoinCoreConfig::QuickConnect { quick_connect_url },
-            } => parse_quick_connect_url(quick_connect_url)?,
         };
 
     // Wait for bitcoind to start up all the way, to prevent unnecessary crashes

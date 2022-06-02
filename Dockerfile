@@ -53,6 +53,7 @@ RUN ./configure LDFLAGS=-L`ls -d /opt/db*`/lib/ CPPFLAGS=-I`ls -d /opt/db*`/incl
 RUN make -j$(($(nproc) - 1))
 RUN strip ./src/bitcoin-cli
 
+# Builder
 FROM alpine:3.12 as builder
 
 RUN apk add ca-certificates alpine-sdk autoconf automake git libtool gmp-dev \
@@ -69,6 +70,9 @@ RUN ./configure
 RUN make -j$(($(nproc) - 1))
 RUN make install
 
+
+
+# Runner
 FROM arm64v8/node:12-alpine3.12 as runner
 
 RUN apk update
@@ -96,17 +100,20 @@ ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
 RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
 
-#summary
+# summary
 ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
 RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
-#c-lightning-REST
+# c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 RUN npm install --only=production
 
+# c-lightning-http-plugin
 ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
+
+# other scripts
 ADD ./configurator/target/aarch64-unknown-linux-musl/release/configurator /usr/local/bin/configurator
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 RUN chmod a+x /usr/local/bin/docker_entrypoint.sh

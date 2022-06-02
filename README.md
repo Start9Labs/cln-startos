@@ -1,7 +1,7 @@
-# Wrapper for c-lightning
+# Wrapper for Core Lightning (CLN)
 
-This project wraps [c-lightning](https://github.com/ElementsProject/lightning
-) for EmbassyOS. c-lightning is a lightweight, highly customizable and standard compliant implementation of the [Lightning Network](https://lightning.network/) protocol.
+This project wraps [Core Lightning](https://github.com/ElementsProject/lightning
+) for EmbassyOS. Core Lightning is a lightweight, highly customizable and standard compliant implementation of the [Lightning Network](https://lightning.network/) protocol.
 
 ## Dependencies
 
@@ -36,8 +36,8 @@ make
 
 SSH into an Embassy device.
 `scp` the `.s9pk` to any directory from your local machine.
-Run the following command to determine successful install:
+Then install:
 
 ```
-appmgr install c-lightning.s9pk
+embassy-cli package install /path/to/c-lightning.s9pk
 ```

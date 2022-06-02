@@ -1,18 +1,25 @@
 id: c-lightning
-version: 0.10.2.1
-title: c-lightning
+version: 0.11.1
+title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
 upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  Upgrade to EmbassyOS v0.3.0
-  https://github.com/ElementsProject/lightning/releases/tag/v0.10.1
+  - Highlights:
+  - Updates upstream to v0.11.1
+  - Updates plugin (c-lightning-REST, summary, and rebalance) submodules
+  - Renames to Core Lightning
+  - Removes insecure cleartext external bitcoind rpc connections
+
+  - For more, see:
+  - https://github.com/ElementsProject/lightning/releases/tag/v0.11.0
+  - https://github.com/ElementsProject/lightning/releases/tag/v0.11.1
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
-  long: "c-lightning is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extensibility."
+  long: "Core Lightning (CLN) (formerly c-lightning) is a lightweight, highly customizable, and standards compliant implementation of the Lightning Network protocol. It is optimized for performance and extensibility."
 assets:
   license: LICENSE
   icon: icon.png
@@ -65,19 +72,19 @@ volumes:
     type: assets
 alerts:
   install: |
-    READ CAREFULLY! c-lightning and the Lightning Network are considered beta software. Please use with caution and do not
+    READ CAREFULLY! Core Lightning and the Lightning Network are considered beta software. Please use with caution and do not
     risk more money than you are willing to lose. We encourage frequent backups. If for any reason, you need to restore
     c-lightning from a backup, your on-chain wallet will be restored, but the money locked up in your channels will be
     stuck in those channels for an indeterminate period of time, if they are returned to you at all. It depends on the
     cooperation of your peers. Choose peers with discretion.
   uninstall: |
-    READ CAREFULLY! Uninstalling c-lightning will result in permanent loss of data, including its private keys for its
+    READ CAREFULLY! Uninstalling Core Lightning will result in permanent loss of data, including its private keys for its
     on-chain wallet and all channel states. Please make a backup if you have any funds in your on-chain wallet or in any
     channels. Recovering from backup will restore your on-chain wallet, but due to the architecture of the Lightning
     Network, your channels cannot be recovered. All your channel funds will be stuck in those channels for an indeterminate
     period of time, and if your peers do not cooperate, they will not be recoverable at all.
   restore: |
-    Restoring c-lightning will overwrite its current data, including its on-chain wallet and channels. Any channels opened
+    Restoring Core Lightning will overwrite its current data, including its on-chain wallet and channels. Any channels opened
     since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
     closed and their funds returned to your wallet, assuming your peers choose to cooperate.
 interfaces:
@@ -108,7 +115,7 @@ interfaces:
       - lightning
   rest:
     name: C-Lightning-REST API
-    description: C-Lightning-REST is a plugin for c-lightning written by the RTL team that exposes an LND-like REST API for C-Lightning.
+    description: C-Lightning-REST is a plugin for Core Lightning written by the RTL team that exposes an LND-like REST API for C-Lightning.
     tor-config:
       port-mapping:
         3001: "3001"
@@ -125,7 +132,7 @@ dependencies:
     version: ">=0.2.4 <0.4.0"
     requirement:
       type: "opt-out"
-      how: Can alternatively configure an external bitcoin node.
+      how: Can alternatively configure a direct connection to the internal Bitcoin Core.
     description: Used to fetch validated blocks.
     config:
       check:
@@ -133,10 +140,10 @@ dependencies:
       auto-configure:
         type: script
   bitcoind:
-    version: ">=0.21.1.2 <23.0.0"
+    version: ">=0.21.1.2 <24.0.0"
     requirement:
-      type: "opt-out"
-      how: Can alternatively configure the internal Bitcoin Proxy service, or an external bitcoin node.
+      type: "opt-in"
+      how: Can alternatively configure the internal Bitcoin Proxy service.
     description: Used as a blockchain backend.
     config:
       check:
@@ -170,3 +177,22 @@ backup:
     mounts:
       BACKUP: /mnt/backup
       main: /root/.lightning
+migrations:
+  from:
+    "<0.11.1":
+      type: docker
+      image: main
+      system: false
+      entrypoint: "/bin/echo"
+      args: ['{"configured": true}']
+      io-format: json
+      inject: false
+  to:
+    "<0.11.1":
+      type: docker
+      image: main
+      system: false
+      entrypoint: "/bin/echo"
+      args: ['{"configured": true}']
+      io-format: json
+      inject: false
