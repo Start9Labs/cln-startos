@@ -17,22 +17,8 @@ export const setConfigMatcher = shape(
         type: literal("internal-proxy"),
         user: string,
         password: string,
-      }),
-      shape({
-        type: literal("external"),
-        "connection-settings": some(
-          shape({
-            type: literal("manual"),
-            address: string,
-            user: string,
-            password: string,
-          }),
-          shape({
-            type: literal("quick-connect"),
-            "quick-connect-url": string,
-          })
-        ),
       })
+    
     ),
     rpc: shape({
       enabled: boolean,

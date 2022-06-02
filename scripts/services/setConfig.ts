@@ -83,17 +83,6 @@ function userInformation(config: SetConfig) {
         bitcoin_rpc_host: "btc-rpc-proxy.embassy",
         bitcoin_rpc_port: 8332,
       };
-    case "external":
-      if (config.bitcoind["connection-settings"].type === "manual") {
-        const { host, port } = urlParse(config.bitcoind["connection-settings"].address);
-        return {
-          bitcoin_rpc_user: config.bitcoind["connection-settings"].user,
-          bitcoin_rpc_pass: config.bitcoind["connection-settings"].password,
-          bitcoin_rpc_host: host,
-          bitcoin_rpc_port: port ?? 8332,
-        };
-      }
-      return parseQuickCOnnectUrl(config.bitcoind["connection-settings"]["quick-connect-url"]);
   }
 }
 
