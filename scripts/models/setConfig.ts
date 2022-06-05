@@ -10,15 +10,14 @@ export const setConfigMatcher = shape(
     bitcoind: some(
       shape({
         type: literal("internal"),
-        user: string,
-        password: string,
+        user: string.optional(),
+        password: string.optional(),
       }),
       shape({
         type: literal("internal-proxy"),
-        user: string,
-        password: string,
-      })
-    
+        user: string.optional(),
+        password: string.optional(),
+      })    
     ),
     rpc: shape({
       enabled: boolean,
