@@ -5,6 +5,7 @@ export type {
   ConfigRes,
   Dependencies,
   Effects,
+  KnownError,
   PackagePropertiesV2,
   PackagePropertyObject,
   Properties,

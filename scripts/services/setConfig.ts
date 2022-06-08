@@ -1,4 +1,4 @@
-import { Effects, Config, SetResult, YAML, matches } from "../deps.ts";
+import { Effects, Config, KnownError, SetResult, YAML, matches } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "../models/setConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
@@ -35,11 +35,11 @@ const configRules: Array<Check> = [
   },
 ];
 
-function checkConfigRules(config: Config) {
+function checkConfigRules(config: Config): KnownError | void {
   for (const checker of configRules) {
     const error = checker.currentError(config);
     if (error) {
-      throw error;
+      return { error: error };
     }
   }
 }
@@ -186,7 +186,7 @@ ${enableSummaryPlugin}
 ${enableRestPlugin}`;
 }
 
-export async function setConfig(effects: Effects, input: Config): Promise<SetResult> {
+export async function setConfig(effects: Effects, input: Config): Promise<KnownError | SetResult> {
   const config = setConfigMatcher.unsafeCast(input);
   await checkConfigRules(config);
   const alias = await getAlias(effects, config);
