@@ -26,9 +26,10 @@ const configRules: Array<Check> = [
       if (!matchConfig.test(config)) {
         return "Config is not the correct shape";
       }
-      if (!config.advanced.experimental.offers || config.advanced.experimental["onion-messages"] && config.advanced.experimental.offers) {
-        return;
-      }
+      const hasOffers = config.advanced.experimental.offers;
+      const hasOnionMessagesAndOffers = config.advanced.experimental["onion-messages"] && hasOffers;
+      const doesntHaveOffers = !hasOffers;
+      if (hasOnionMessagesAndOffers || doesntHaveOffers) return;
       return `You must enable 'Onion Messages' if you wish to enable 'Offers'`;
     },
   },
