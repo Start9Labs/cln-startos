@@ -9,6 +9,6 @@ export type {
   PackagePropertyObject,
   Properties,
   SetResult,
-} from "https://raw.githubusercontent.com/Start9Labs/embassy-os/master/backend/test/js_action_execute/package-data/scripts/test-package/0.3.0.3/types.d.ts";
+} from "https://start9.com/procedure/types.0.3.1.d.ts";
 
 export { matches };
