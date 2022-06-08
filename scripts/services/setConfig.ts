@@ -2,9 +2,48 @@ import { Effects, Config, SetResult, YAML, matches } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "../models/setConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
-const { string } = matches;
+const { string, boolean, arrayOf, shape } = matches;
 
 const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
+type Check = {
+  currentError(config: Config): string | void;
+};
+const matchConfig = shape({
+  advanced: shape(
+    {
+      experimental: shape(
+        {
+          "onion-messages": boolean,
+          offers: boolean,
+        }
+      )
+    },
+  )
+});
+const configRules: Array<Check> = [
+  {
+    currentError(config) {
+      if (!matchConfig.test(config)) {
+        return "Config is not the correct shape";
+      }
+      const hasOffers = config.advanced.experimental.offers;
+      const hasOnionMessagesAndOffers = config.advanced.experimental["onion-messages"] && hasOffers;
+      const doesntHaveOffers = !hasOffers;
+      if (hasOnionMessagesAndOffers || doesntHaveOffers) return;
+      return `You must enable 'Onion Messages' if you wish to enable 'Offers'`;
+    },
+  },
+];
+
+function checkConfigRules(config: Config) {
+  for (const checker of configRules) {
+    const error = checker.currentError(config);
+    if (error) {
+      throw error;
+    }
+  }
+}
+
 function urlParse(input: string) {
   const url = new URL(input)
   const [, _protocol, host, port] = Array.from(regexUrl.exec(input) || []);
@@ -149,6 +188,7 @@ ${enableRestPlugin}`;
 
 export async function setConfig(effects: Effects, input: Config): Promise<SetResult> {
   const config = setConfigMatcher.unsafeCast(input);
+  await checkConfigRules(config);
   const alias = await getAlias(effects, config);
   await effects.createDir({
     path: "start9",
