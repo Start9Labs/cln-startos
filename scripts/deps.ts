@@ -10,6 +10,6 @@ export type {
   PackagePropertyObject,
   Properties,
   SetResult,
-} from "https://start9.com/procedure/types.0.3.1.d.ts";
+} from "https://raw.githubusercontent.com/Start9Labs/embassy-os/3d91bca8691fdcfc63007d27b782d07ad7b2b239/libs/artifacts/types.d.ts";
 
 export { matches };

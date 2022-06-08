@@ -1,6 +1,6 @@
 ASSETS := $(shell yq e ".assets.[].src" manifest.yaml)
 ASSET_PATHS := $(addprefix assets/,$(ASSETS))
-BITCOIN_VERSION := "0.21.1"
+BITCOIN_VERSION := "22.0"
 C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
 C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
 C_LIGHTNING_REST_SRC := $(shell find ./c-lightning-REST)
