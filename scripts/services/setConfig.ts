@@ -1,8 +1,8 @@
-import { Effects, Config, KnownError, SetResult, YAML, matches } from "../deps.ts";
+import { Effects, Config, YAML, matches, KnownError, ExpectedExports, SetResult } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "../models/setConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
-const { string, boolean, arrayOf, shape } = matches;
+const { string, boolean, shape } = matches;
 
 const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
 type Check = {
@@ -186,7 +186,7 @@ ${enableSummaryPlugin}
 ${enableRestPlugin}`;
 }
 
-export async function setConfig(effects: Effects, input: Config): Promise<KnownError | SetResult> {
+export const setConfig: ExpectedExports.setConfig = async (effects: Effects, input: Config) => {
   const config = setConfigMatcher.unsafeCast(input);
   await checkConfigRules(config);
   const alias = await getAlias(effects, config);
@@ -207,9 +207,9 @@ export async function setConfig(effects: Effects, input: Config): Promise<KnownE
   });
 
   await createWaitForService(effects, config);
-
-  return {
+  const result: SetResult = {
     signal: "SIGTERM",
     "depends-on": {},
-  };
+  }
+  return { result };
 }
