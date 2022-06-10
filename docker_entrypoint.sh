@@ -1,12 +1,19 @@
 #!/bin/sh
 
+set -ea
+
+_term() {
+  echo "Caught SIGTERM signal!"
+  kill -TERM "$lightningd_child" 2>/dev/null
+}
+
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 
 
 mkdir -p /root/.lightning/shared
-mkdir /root/.lightning/public
+mkdir -p /root/.lightning/public
 
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 
@@ -21,6 +28,7 @@ fi
 
 echo "Starting lightning"
 lightningd &
+lightningd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
@@ -47,4 +55,6 @@ lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
 echo "All configuration Done"
 
-wait
+trap _term TERM
+
+wait $lightningd_child
