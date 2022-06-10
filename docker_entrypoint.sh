@@ -47,5 +47,4 @@ lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
 echo "All configuration Done"
 
-
-wait -n
+wait

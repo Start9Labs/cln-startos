@@ -283,3 +283,12 @@ advanced:
 
             Source: https://github.com/Ride-The-Lightning/c-lightning-REST
           default: true
+        clboss:
+          type: boolean
+          name: Enable CLBOSS Plugin
+          description: |
+            CLBOSS is an automated manager for Core Lightning forwarding nodes.
+            Can be called via command line or the Spark console.        
+
+            Source: https://github.com/ZmnSCPxj/clboss
+          default: false

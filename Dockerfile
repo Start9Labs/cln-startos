@@ -76,7 +76,7 @@ RUN wget -qO /opt/tini "https://github.com/krallin/tini/releases/download/v0.18.
     && chmod +x /opt/tini
 
 ARG BITCOIN_VERSION=22.0
-ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz
+ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-aarch64-linux-gnu.tar.gz
 ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
 ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS
 
@@ -89,19 +89,19 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
     && rm $BITCOIN_TARBALL
 
-ENV LITECOIN_VERSION 0.16.3
-ENV LITECOIN_PGP_KEY FE3348877809386C
-ENV LITECOIN_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-x86_64-linux-gnu.tar.gz
-ENV LITECOIN_ASC_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-linux-signatures.asc
-ENV LITECOIN_SHA256 686d99d1746528648c2c54a1363d046436fd172beadaceea80bdc93043805994
+# ENV LITECOIN_VERSION 0.16.3
+# ENV LITECOIN_PGP_KEY FE3348877809386C
+# ENV LITECOIN_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-aarch64-linux-gnu.tar.gz
+# ENV LITECOIN_ASC_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-linux-signatures.asc
+# ENV LITECOIN_SHA256 686d99d1746528648c2c54a1363d046436fd172beadaceea80bdc93043805994
 
-# install litecoin binaries
-RUN mkdir /opt/litecoin && cd /opt/litecoin \
-    && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
-    && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
-    && BD=litecoin-$LITECOIN_VERSION/bin \
-    && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
-    && rm litecoin.tar.gz
+# # install litecoin binaries
+# RUN mkdir /opt/litecoin && cd /opt/litecoin \
+#     && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
+#     && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
+#     && BD=litecoin-$LITECOIN_VERSION/bin \
+#     && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
+#     && rm litecoin.tar.gz
 
 FROM debian:bullseye-slim as builder
 
@@ -109,6 +109,7 @@ ENV LIGHTNINGD_VERSION=master
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
         autoconf \
+        autoconf-archive \
         automake \
         build-essential \
         ca-certificates \
@@ -117,9 +118,13 @@ RUN apt-get update -qq && \
         gettext \
         git \
         gnupg \
+        libcurl4-gnutls-dev \
+        libev-dev \
         libpq-dev \
+        libsqlite3-dev \
         libtool \
         libffi-dev \
+        pkg-config \
         python3 \
         python3-dev \
         python3-mako \
@@ -128,6 +133,15 @@ RUN apt-get update -qq && \
         python3-setuptools \
         wget
 
+# CLBOSS
+COPY clboss/. /tmp/clboss
+WORKDIR /tmp/clboss
+RUN autoreconf -i
+RUN ./configure
+RUN make
+RUN make install
+
+# CLN
 RUN wget -q https://zlib.net/zlib-1.2.12.tar.gz \
 && tar xvf zlib-1.2.12.tar.gz \
 && cd zlib-1.2.12 \
@@ -167,12 +181,24 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/inst
     && /root/.local/bin/poetry config virtualenvs.create false \
     && /root/.local/bin/poetry install
 
-RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j3 DEVELOPER=${DEVELOPER} && make install
+RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
 
-FROM debian:bullseye-slim as final
+FROM node:12-bullseye-slim as final
 
 COPY --from=downloader /opt/tini /usr/bin/tini
-RUN apt-get update && apt-get install -y --no-install-recommends socat inotify-tools python3 python3-pip libpq5\
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dnsutils \
+    socat \
+    inotify-tools \
+    iproute2 \
+    libcurl4-gnutls-dev \
+    libev-dev \
+    libsqlite3-dev \
+    python3 \
+    python3-pip \
+    libpq5 \
+    wget \
+    xxd \
     && rm -rf /var/lib/apt/lists/*
 
 ENV LIGHTNINGD_DATA=/root/.lightning
@@ -185,7 +211,7 @@ RUN mkdir $LIGHTNINGD_DATA && \
 VOLUME [ "/root/.lightning" ]
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
-COPY --from=downloader /opt/litecoin/bin /usr/bin
+# COPY --from=downloader /opt/litecoin/bin /usr/bin
 # COPY lightning/tools/docker-entrypoint.sh entrypoint.sh
 
 # EXPOSE 9735 9835
@@ -222,25 +248,27 @@ COPY --from=downloader /opt/litecoin/bin /usr/bin
 # ARG BITCOIN_VERSION
 # RUN test -n "$BITCOIN_VERSION"
 
-# RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
-#     tar xz && mv yq_linux_arm /usr/bin/yq
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
+    tar xz && mv yq_linux_arm /usr/bin/yq
 
 # COPY --from=builder /usr/local /usr/local
 # COPY --from=bitcoin-core /opt/bitcoin-${BITCOIN_VERSION}/bin/bitcoin-qt /usr/local/bin
 
 # PLUGINS
-RUN pip install --upgrade pip
+# RUN mkdir -p /usr/local/libexec/c-lightning/plugins
+WORKDIR /usr/local/libexec/c-lightning/plugins
+RUN pip install -U pip
 RUN pip install wheel
-RUN mkdir -p /usr/local/libexec/c-lightning/plugins
+RUN pip install -U pyln-proto pyln-bolt7
 
 # rebalance
 ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
-RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
+RUN pip install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
 
 # summary
 ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
-RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
+RUN pip install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
 # c-lightning-REST
@@ -250,6 +278,9 @@ RUN npm install --only=production
 
 # c-lightning-http-plugin
 ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
+
+# CLBOSS
+COPY --from=builder /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh

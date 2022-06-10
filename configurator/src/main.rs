@@ -92,6 +92,7 @@ struct PluginConfig {
     rebalance: bool,
     summary: bool,
     rest: bool,
+    clboss: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -305,6 +306,11 @@ fn main() -> Result<(), anyhow::Error> {
         } else {
             ""
         },
+        enable_clboss_plugin = if config.advanced.plugins.clboss {
+            "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
+        } else {
+            ""
+        },
     )?;
     drop(outfile);
     #[derive(serde::Deserialize)]
@@ -312,7 +318,7 @@ fn main() -> Result<(), anyhow::Error> {
         id: String,
         alias: String,
     }
-    
+
     let rpc_path = Path::new("/root/.lightning/bitcoin/lightning-rpc");
     if rpc_path.exists() {
         std::fs::remove_file(rpc_path)?;

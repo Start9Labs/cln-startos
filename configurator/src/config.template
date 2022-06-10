@@ -31,3 +31,4 @@ cltv-delta={cltv_delta}
 {enable_rebalance_plugin}
 {enable_summary_plugin}
 {enable_rest_plugin}
+{enable_clboss_plugin}

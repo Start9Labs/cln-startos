@@ -1,4 +1,4 @@
 **/*.rs.bk
 c-lightning.s9pk
 image.tar
-scripts/embassy.js
+scripts/embassy.jstmp/

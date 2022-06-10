@@ -17,7 +17,7 @@ export const setConfigMatcher = shape(
         type: literal("internal-proxy"),
         user: string.optional(),
         password: string.optional(),
-      })    
+      })
     ),
     rpc: shape({
       enabled: boolean,
@@ -44,6 +44,7 @@ export const setConfigMatcher = shape(
         rebalance: boolean,
         summary: boolean,
         rest: boolean,
+        clboss: boolean,
       }),
     }),
   },
