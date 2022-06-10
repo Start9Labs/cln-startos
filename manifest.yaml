@@ -179,7 +179,7 @@ backup:
       main: /root/.lightning
 migrations:
   from:
-    "<0.11.1":
+    "*":
       type: docker
       image: main
       system: false
@@ -188,7 +188,7 @@ migrations:
       io-format: json
       inject: false
   to:
-    "<0.11.1":
+    "*":
       type: docker
       image: main
       system: false
