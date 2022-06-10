@@ -1,68 +1,3 @@
-# FROM debian:bullseye-slim as bitcoin-core
-
-# LABEL maintainer.0="João Fonseca (@joaopaulofonseca)" \
-#   maintainer.1="Pedro Branco (@pedrobranco)" \
-#   maintainer.2="Rui Marinho (@ruimarinho)"
-
-# RUN useradd -r bitcoin \
-#   && apt-get update -y \
-#   && apt-get install -y curl gnupg gosu \
-#   && apt-get clean \
-#   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# ARG TARGETPLATFORM
-# ENV BITCOIN_VERSION=23.0
-# ENV BITCOIN_DATA=/home/bitcoin/.bitcoin
-# ENV PATH=/opt/bitcoin-${BITCOIN_VERSION}/bin:$PATH
-
-# RUN set -ex \
-#   && if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then export TARGETPLATFORM=x86_64-linux-gnu; fi \
-#   && if [ "${TARGETPLATFORM}" = "linux/arm64" ]; then export TARGETPLATFORM=aarch64-linux-gnu; fi \
-#   && if [ "${TARGETPLATFORM}" = "linux/arm/v7" ]; then export TARGETPLATFORM=arm-linux-gnueabihf; fi \
-#   && for key in \
-#     152812300785C96444D3334D17565732E08E5E41 \
-#     0AD83877C1F0CD1EE9BD660AD7CC770B81FD22A8 \
-#     590B7292695AFFA5B672CBB2E13FC145CD3F4304 \
-#     28F5900B1BB5D1A4B6B6D1A9ED357015286A333D \
-#     637DB1E23370F84AFF88CCE03152347D07DA627C \
-#     CFB16E21C950F67FA95E558F2EEB9F5CC09526C1 \
-#     F4FC70F07310028424EFC20A8E4256593F177720 \
-#     D1DBF2C4B96F2DEBF4C16654410108112E7EA81F \
-#     287AE4CA1187C68C08B49CB2D11BD4F33F1DB499 \
-#     F9A8737BF4FF5C89C903DF31DD78544CF91B1514 \
-#     9DEAE0DC7063249FB05474681E4AED62986CD25D \
-#     E463A93F5F3117EEDE6C7316BD02942421F4889F \
-#     9D3CC86A72F8494342EA5FD10A41BDC3F4FAFF1C \
-#     4DAF18FE948E7A965B30F9457E296D555E7F63A7 \
-#     28E72909F1717FE9607754F8A7BEB2621678D37D \
-#     74E2DEF5D77260B98BC19438099BAD163C70FBFA \
-#   ; do \
-#       gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" || \
-#       gpg --batch --keyserver keys.openpgp.org --recv-keys "$key" || \
-#       gpg --batch --keyserver pgp.mit.edu --recv-keys "$key" || \
-#       gpg --batch --keyserver keyserver.pgp.com --recv-keys "$key" || \
-#       gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key" || \
-#       gpg --batch --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" ; \
-#     done \
-#   && curl -SL https://raw.githubusercontent.com/Kvaciral/kvaciral/main/kvaciral.asc | gpg --import \
-#   && curl -SLO https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/bitcoin-${BITCOIN_VERSION}-${TARGETPLATFORM}.tar.gz \
-#   && curl -SLO https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS \
-#   && curl -SLO https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS.asc \
-#   && gpg --verify SHA256SUMS.asc SHA256SUMS \
-#   && grep " bitcoin-${BITCOIN_VERSION}-${TARGETPLATFORM}.tar.gz" SHA256SUMS | sha256sum -c - \
-#   && tar -xzf *.tar.gz -C /opt \
-#   && rm *.tar.gz *.asc \
-#   && rm -rf /opt/bitcoin-${BITCOIN_VERSION}/bin/bitcoin-qt
-
-# Builder
-
-# This dockerfile is meant to compile a core-lightning x64 image
-# It is using multi stage build:
-# * downloader: Download litecoin/bitcoin and qemu binaries needed for core-lightning
-# * builder: Compile core-lightning dependencies, then core-lightning itself with static linking
-# * final: Copy the binaries required at runtime
-# The resulting image uploaded to dockerhub will only contain what is needed for runtime.
-# From the root of the repository, run "docker build -t yourimage:yourtag ."
 FROM debian:bullseye-slim as downloader
 
 RUN set -ex \
@@ -88,20 +23,6 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && BD=bitcoin-$BITCOIN_VERSION/bin \
     && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
     && rm $BITCOIN_TARBALL
-
-# ENV LITECOIN_VERSION 0.16.3
-# ENV LITECOIN_PGP_KEY FE3348877809386C
-# ENV LITECOIN_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-aarch64-linux-gnu.tar.gz
-# ENV LITECOIN_ASC_URL https://download.litecoin.org/litecoin-${LITECOIN_VERSION}/linux/litecoin-${LITECOIN_VERSION}-linux-signatures.asc
-# ENV LITECOIN_SHA256 686d99d1746528648c2c54a1363d046436fd172beadaceea80bdc93043805994
-
-# # install litecoin binaries
-# RUN mkdir /opt/litecoin && cd /opt/litecoin \
-#     && wget -qO litecoin.tar.gz "$LITECOIN_URL" \
-#     && echo "$LITECOIN_SHA256  litecoin.tar.gz" | sha256sum -c - \
-#     && BD=litecoin-$LITECOIN_VERSION/bin \
-#     && tar -xzvf litecoin.tar.gz $BD/litecoin-cli --strip-components=1 --exclude=*-qt \
-#     && rm litecoin.tar.gz
 
 FROM debian:bullseye-slim as builder
 
@@ -211,42 +132,6 @@ RUN mkdir $LIGHTNINGD_DATA && \
 VOLUME [ "/root/.lightning" ]
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
-# COPY --from=downloader /opt/litecoin/bin /usr/bin
-# COPY lightning/tools/docker-entrypoint.sh entrypoint.sh
-
-# EXPOSE 9735 9835
-# ENTRYPOINT  [ "/usr/bin/tini", "-g", "--", "./entrypoint.sh" ]
-
-
-# FROM alpine:3.12 as builder
-
-# RUN apk add ca-certificates alpine-sdk autoconf automake git libtool gmp-dev \
-#     sqlite-dev python2 python3 py3-pip py3-mako net-tools zlib-dev libsodium gettext jq
-# RUN pip3 install mrkd mistune==0.8.4
-
-# ADD ./.gitmodules /root/.gitmodules
-# ADD ./.git /root/.git
-# ADD ./lightning /root/lightning
-# WORKDIR /root/lightning
-
-# RUN rm -rf cli/test/*.c
-# RUN ./configure
-# RUN make -j$(($(nproc) - 1))
-# RUN make install
-
-
-
-# # Runner
-# FROM arm64v8/node:12-alpine3.12 as runner
-
-# RUN apk update
-# RUN apk add bash tini
-# RUN apk add sqlite-dev build-base linux-headers ca-certificates gcc gmp libffi-dev libgcc libevent libstdc++ boost-filesystem=1.72.0-r6 python3 python3-dev py3-pip nodejs
-# RUN apk add --update openssl && \
-#     rm -rf /var/cache/apk/*
-
-# ARG BITCOIN_VERSION
-# RUN test -n "$BITCOIN_VERSION"
 
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
     tar xz && mv yq_linux_arm /usr/bin/yq

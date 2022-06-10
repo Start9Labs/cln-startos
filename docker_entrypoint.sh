@@ -40,8 +40,8 @@ do
     sleep 1
 done
 cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon /root/.lightning/public/access.macaroon
-cat /root/.lightning/public/access.macaroon | base64  > /root/.lightning/start9/access.macaroon.base64
-cat /root/.lightning/public/access.macaroon | base64 | xxd  > /root/.lightning/start9/access.macaroon.hex
+cat /root/.lightning/public/access.macaroon | basenc --base64url -w0  > /root/.lightning/start9/access.macaroon.base64
+cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.lightning/start9/access.macaroon.hex
 
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
