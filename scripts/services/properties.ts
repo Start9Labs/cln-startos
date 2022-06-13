@@ -1,4 +1,4 @@
-import { matches, Effects, Properties, YAML, PackagePropertiesV2 } from "../deps.ts";
+import { matches, Effects, YAML, ExpectedExports, PackagePropertiesV2, Properties } from "../deps.ts";
 import { lazy } from "../models/lazy.ts";
 import { setConfigMatcher } from "../models/setConfig.ts";
 import { getAlias } from "./getAlias.ts";
@@ -22,7 +22,7 @@ const propertiesConfigMatcher = shape({
   }),
 });
 
-export async function properties(effects: Effects): Promise<Properties> {
+export const properties: ExpectedExports.properties = async (effects: Effects) => {
   const nodeInfo = nodeInfoMatcher.unsafeCast(
     await effects.readJsonFile({
       volumeId: "main",
@@ -59,63 +59,63 @@ export async function properties(effects: Effects): Promise<Properties> {
   const rpcProperties: PackagePropertiesV2 = !config.rpc.enabled
     ? {}
     : {
-        "Quick Connect URL": {
-          type: "string",
-          value: `clightning-rpc://${config.rpc.user}:${config.rpc.password}@${peerTorAddress}:8080`,
-          description: "A convenient way to connect a wallet to a remote node",
-          copyable: true,
-          qr: true,
-          masked: true,
-        },
-        "RPC Username": {
-          type: "string",
-          value: config.rpc.user,
-          description: "Username for RPC connections",
-          copyable: true,
-          qr: false,
-          masked: true,
-        },
-        "RPC Password": {
-          type: "string",
-          value: config.rpc.password,
-          description: "Password for RPC connections",
-          copyable: true,
-          qr: false,
-          masked: true,
-        },
-      };
+      "Quick Connect URL": {
+        type: "string",
+        value: `clightning-rpc://${config.rpc.user}:${config.rpc.password}@${peerTorAddress}:8080`,
+        description: "A convenient way to connect a wallet to a remote node",
+        copyable: true,
+        qr: true,
+        masked: true,
+      },
+      "RPC Username": {
+        type: "string",
+        value: config.rpc.user,
+        description: "Username for RPC connections",
+        copyable: true,
+        qr: false,
+        masked: true,
+      },
+      "RPC Password": {
+        type: "string",
+        value: config.rpc.password,
+        description: "Password for RPC connections",
+        copyable: true,
+        qr: false,
+        masked: true,
+      },
+    };
 
   const restProperties: PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
     : {
-        "Rest API Port": {
-          type: "string",
-          value: "3001",
-          description: "The port your c-lightning-REST API is listening on",
-          copyable: true,
-          qr: false,
-          masked: false,
-        },
-        "Rest API Macaroon": {
-          type: "string",
-          value: await macaroonBase64.val(),
-          description: "The macaroon that grants access to your node's REST API plugin",
-          copyable: true,
-          qr: false,
-          masked: true,
-        },
-        "Rest API Macaroon (Hex)": {
-          type: "string",
-          value: await hexMacaroon.val(),
-          description: "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
-          copyable: true,
-          qr: false,
-          masked: true,
-        },
-      };
+      "Rest API Port": {
+        type: "string",
+        value: "3001",
+        description: "The port your c-lightning-REST API is listening on",
+        copyable: true,
+        qr: false,
+        masked: false,
+      },
+      "Rest API Macaroon": {
+        type: "string",
+        value: await macaroonBase64.val(),
+        description: "The macaroon that grants access to your node's REST API plugin",
+        copyable: true,
+        qr: false,
+        masked: true,
+      },
+      "Rest API Macaroon (Hex)": {
+        type: "string",
+        value: await hexMacaroon.val(),
+        description: "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
+        copyable: true,
+        qr: false,
+        masked: true,
+      },
+    };
   const alias = await getAlias(effects, config)
-  return {
-    version: 2,
+  const result: Properties = {
+    version: 2 as 2,
     data: {
       "Node Id": {
         type: "string",
@@ -145,4 +145,5 @@ export async function properties(effects: Effects): Promise<Properties> {
       ...restProperties,
     },
   };
+  return { result }
 }

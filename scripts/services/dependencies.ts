@@ -1,4 +1,4 @@
-import { Config, Dependencies, matches } from "../deps.ts";
+import { ExpectedExports, Config, matches } from "../deps.ts";
 
 const { shape, arrayOf, string, boolean } = matches;
 
@@ -118,7 +118,7 @@ const matchBitcoindConfig = shape({
   }),
 });
 
-export const dependencies: Dependencies = {
+export const dependencies: ExpectedExports.dependencies = {
   "btc-rpc-proxy": {
     async check(effects, configInput) {
       effects.info("check btc-rpc-proxy");
@@ -126,10 +126,10 @@ export const dependencies: Dependencies = {
         const error = checker.currentError(configInput);
         if (error) {
           effects.error(`throwing error: ${error}`);
-          throw error;
+          return { error };
         }
       }
-      return null;
+      return { result: null };
     },
     async autoConfigure(effects, configInput) {
       effects.info("autoconfigure btc-rpc-proxy");
@@ -139,7 +139,7 @@ export const dependencies: Dependencies = {
           checker.fix(configInput);
         }
       }
-      return configInput;
+      return { result: configInput };
     },
   },
   bitcoind: {
@@ -147,15 +147,15 @@ export const dependencies: Dependencies = {
       effects.info("check bitcoind");
       const config = matchBitcoindConfig.unsafeCast(configInput);
       if (config.advanced.pruning.mode !== "disabled") {
-        throw 'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.';
+        return { error: 'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.' };
       }
-      return null;
+      return { result: null };
     },
     async autoConfigure(effects, configInput) {
       effects.info("autoconfigure bitcoind");
       const config = matchBitcoindConfig.unsafeCast(configInput);
       config.advanced.pruning.mode = "disabled";
-      return config;
+      return { result: config };
     },
   },
 };

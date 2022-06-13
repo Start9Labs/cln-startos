@@ -1,4 +1,4 @@
-import { Effects } from "../deps.ts";
+import { Effects, ExpectedExports } from "../deps.ts";
 import { SetConfig } from "../models/setConfig.ts";
 
 export type Alias = string & { _type: "alias" };
