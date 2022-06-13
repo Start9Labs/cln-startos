@@ -136,11 +136,7 @@ COPY --from=downloader /opt/bitcoin/bin /usr/bin
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
     tar xz && mv yq_linux_arm /usr/bin/yq
 
-# COPY --from=builder /usr/local /usr/local
-# COPY --from=bitcoin-core /opt/bitcoin-${BITCOIN_VERSION}/bin/bitcoin-qt /usr/local/bin
-
 # PLUGINS
-# RUN mkdir -p /usr/local/libexec/c-lightning/plugins
 WORKDIR /usr/local/libexec/c-lightning/plugins
 RUN pip install -U pip
 RUN pip install wheel
