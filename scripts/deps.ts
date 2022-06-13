@@ -7,6 +7,6 @@ export type {
   Properties,
   KnownError,
   SetResult,
-} from "https://raw.githubusercontent.com/Start9Labs/embassy-os/5a88f41718836e2b05a0b67c096193e0070fb4ec/libs/artifacts/types.d.ts";
+} from "https://start9.com/procedure/types.0.3.1.d.ts";
 
 export { matches };

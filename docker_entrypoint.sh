@@ -1,12 +1,19 @@
 #!/bin/sh
 
+set -ea
+
+_term() {
+  echo "Caught SIGTERM signal!"
+  kill -TERM "$lightningd_child" 2>/dev/null
+}
+
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 
 
 mkdir -p /root/.lightning/shared
-mkdir /root/.lightning/public
+mkdir -p /root/.lightning/public
 
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 
@@ -21,6 +28,7 @@ fi
 
 echo "Starting lightning"
 lightningd &
+lightningd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
@@ -40,12 +48,13 @@ do
     sleep 1
 done
 cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon /root/.lightning/public/access.macaroon
-cat /root/.lightning/public/access.macaroon | base64  > /root/.lightning/start9/access.macaroon.base64
-cat /root/.lightning/public/access.macaroon | base64 | xxd  > /root/.lightning/start9/access.macaroon.hex
+cat /root/.lightning/public/access.macaroon | basenc --base64url -w0  > /root/.lightning/start9/access.macaroon.base64
+cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.lightning/start9/access.macaroon.hex
 
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
 echo "All configuration Done"
 
+trap _term TERM
 
-wait -n
+wait $lightningd_child

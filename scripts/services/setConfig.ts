@@ -149,6 +149,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
+  const enableClbossPlugin = config.advanced.plugins.clboss
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
+    : "";
 
   return `
 network=bitcoin
@@ -183,7 +186,8 @@ ${enableExperimentalShutdownWrongFunding}
 ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
-${enableRestPlugin}`;
+${enableRestPlugin}
+${enableClbossPlugin}`;
 }
 
 export const setConfig: ExpectedExports.setConfig = async (effects: Effects, input: Config) => {

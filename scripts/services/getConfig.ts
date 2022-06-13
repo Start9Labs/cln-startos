@@ -285,6 +285,12 @@ export const getConfig: ExpectedExports.getConfig = async (effects) => {
                   "name": "Enable C-Lightning-REST Plugin",
                   "description": "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
                   "default": true
+                },
+                "clboss": {
+                  "type": "boolean",
+                  "name": "Enable CLBOSS Plugin",
+                  "description": "CLBOSS is an automated manager for Core Lightning forwarding nodes.\n\nSource: https://github.com/ZmnSCPxj/clboss\n",
+                  "default": true
                 }
               }
             }
