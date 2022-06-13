@@ -10,6 +10,7 @@ This project wraps [Core Lightning](https://github.com/ElementsProject/lightning
 - [yq](https://mikefarah.gitbook.io/yq)
 - [appmgr](https://github.com/Start9Labs/embassy-os/tree/master/appmgr)
 - [make](https://www.gnu.org/software/make/)
+- [deno](https://deno.land/)
 
 ## Cloning
 

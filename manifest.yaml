@@ -60,45 +60,11 @@ health-checks:
     inject: true
 config:
   get:
-    type: docker
-    image: compat
-    system: true
-    entrypoint: compat
-    args:
-      - config
-      - get
-      - /root/.lightning
-      - /mnt/assets/config_spec.yaml
-    mounts:
-      compat: /mnt/assets
-      main: /root/.lightning
-    io-format: yaml
+    type: script
   set:
-    type: docker
-    image: compat
-    system: true
-    entrypoint: compat
-    args:
-      - config
-      - set
-      - c-lightning
-      - /root/.lightning
-      - /mnt/assets/config_rules.yaml
-    mounts:
-      compat: /mnt/assets
-      main: /root/.lightning
-    io-format: yaml
+    type: script
 properties:
-  type: docker
-  image: compat
-  system: true
-  entrypoint: compat
-  args:
-    - properties
-    - /root/.lightning
-  mounts:
-    main: /root/.lightning
-  io-format: yaml
+  type: script
 volumes:
   main:
     type: data
@@ -170,37 +136,9 @@ dependencies:
     description: Used to fetch validated blocks.
     config:
       check:
-        type: docker
-        image: compat
-        system: true
-        entrypoint: compat
-        io-format: yaml
-        args:
-          - dependency
-          - check
-          - "c-lightning"
-          - "btc-rpc-proxy"
-          - /root/.lightning
-          - "/mnt/assets/btc-rpc-proxy.rules.yaml"
-        mounts:
-          compat: /mnt/assets
-          main: /root/.lightning
+        type: script
       auto-configure:
-        type: docker
-        image: compat
-        system: true
-        entrypoint: compat
-        io-format: yaml
-        args:
-          - dependency
-          - "auto-configure"
-          - "c-lightning"
-          - "btc-rpc-proxy"
-          - /root/.lightning
-          - "/mnt/assets/btc-rpc-proxy.rules.yaml"
-        mounts:
-          compat: /mnt/assets
-          main: /root/.lightning
+        type: script
   bitcoind:
     version: ">=0.21.1.2 <24.0.0"
     requirement:
@@ -209,37 +147,9 @@ dependencies:
     description: Used as a blockchain backend.
     config:
       check:
-        type: docker
-        image: compat
-        system: true
-        entrypoint: compat
-        args:
-          - dependency
-          - check
-          - "c-lightning"
-          - bitcoind
-          - /root/.lightning
-          - "/mnt/assets/bitcoind.rules.yaml"
-        mounts:
-          compat: /mnt/assets
-          main: /root/.lightning
-        io-format: yaml
+        type: script
       auto-configure:
-        type: docker
-        image: compat
-        system: true
-        entrypoint: compat
-        args:
-          - dependency
-          - "auto-configure"
-          - "c-lightning"
-          - bitcoind
-          - /root/.lightning
-          - "/mnt/assets/bitcoind.rules.yaml"
-        mounts:
-          compat: /mnt/assets
-          main: /root/.lightning
-        io-format: yaml
+        type: script
 backup:
   create:
     type: docker

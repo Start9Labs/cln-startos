@@ -26,6 +26,7 @@ RUN set -ex \
 
 ARG BITCOIN_VERSION
 RUN test -n "$BITCOIN_VERSION"
+
 ENV BITCOIN_PREFIX=/opt/bitcoin-${BITCOIN_VERSION}
 
 RUN wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS.asc
@@ -113,7 +114,6 @@ RUN npm install --only=production
 ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
 
 # other scripts
-ADD ./configurator/target/aarch64-unknown-linux-musl/release/configurator /usr/local/bin/configurator
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 RUN chmod a+x /usr/local/bin/docker_entrypoint.sh
 ADD ./check-rpc.sh /usr/local/bin/check-rpc.sh
