@@ -26,7 +26,6 @@ main:
   args: []
   mounts:
     main: /root/.lightning
-    compat: /mnt/assets
   io-format: yaml
   shm-size-mb: 64
 health-checks:
@@ -62,8 +61,6 @@ properties:
 volumes:
   main:
     type: data
-  compat:
-    type: assets
 alerts:
   install: |
     READ CAREFULLY! Core Lightning and the Lightning Network are considered beta software. Please use with caution and do not
