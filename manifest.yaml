@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.11.1
+version: 0.11.1.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,15 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  - Highlights:
-  - Updates upstream to v0.11.1
-  - Updates plugin (c-lightning-REST, summary, and rebalance) submodules
-  - Renames to Core Lightning
-  - Removes insecure cleartext external bitcoind rpc connections
-
-  - For more, see:
-  - https://github.com/ElementsProject/lightning/releases/tag/v0.11.0
-  - https://github.com/ElementsProject/lightning/releases/tag/v0.11.1
+  - Adds CLBOSS Automated C-Lightning Node Manager
+  - Fixes summary and rebalance plugins
+  - Speeds up config and properties actions
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -179,7 +173,15 @@ backup:
       main: /root/.lightning
 migrations:
   from:
-    "*":
+    "<0.11.1.1":
+      type: docker
+      image: main
+      system: false
+      entrypoint: "/bin/echo"
+      args: ['{"configured": false}']
+      io-format: json
+      inject: false
+    "=0.11.1.1":
       type: docker
       image: main
       system: false
