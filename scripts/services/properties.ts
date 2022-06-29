@@ -1,28 +1,45 @@
-import { matches, Effects, YAML, ExpectedExports, PackagePropertiesV2, Properties } from "../deps.ts";
+import { matches, YAML, types as T, exists } from "../deps.ts";
 import { lazy } from "../models/lazy.ts";
 import { setConfigMatcher } from "../models/setConfig.ts";
 import { getAlias } from "./getAlias.ts";
-const { shape, string, boolean } = matches;
+const { shape, string, } = matches;
 
 const nodeInfoMatcher = shape({
   id: string,
   alias: string,
 }, ['alias']);
 
-const propertiesConfigMatcher = shape({
-  rpc: shape({
-    enabled: boolean,
-    user: string,
-    password: string,
-  }),
-  advanced: shape({
-    plugins: shape({
-      rest: boolean,
-    }),
-  }),
-});
 
-export const properties: ExpectedExports.properties = async (effects: Effects) => {
+const noPropertiesFound: T.ResultType<T.Properties> = {
+  result: {
+    version: 2,
+    data: {
+      "Not Ready": {
+        type: "string",
+        value: "Could not find properties. The service might still be starting",
+        qr: false,
+        copyable: false,
+        masked: false,
+        description: "Fallback Message When Properties could not be found"
+      }
+    }
+  }
+} as const
+
+export const properties: T.ExpectedExports.properties = async (effects: T.Effects) => {
+  if (await exists(effects, {
+    volumeId: "main",
+    path: "start9/lightningGetInfo",
+  }) === false) {
+    return noPropertiesFound;
+  }
+  if (await exists(effects, {
+    volumeId: "main",
+    path: "start9/peerTorAddress",
+  }) === false) {
+    return noPropertiesFound;
+  }
+
   const nodeInfo = nodeInfoMatcher.unsafeCast(
     await effects.readJsonFile({
       volumeId: "main",
@@ -56,7 +73,7 @@ export const properties: ExpectedExports.properties = async (effects: Effects) =
     })
   );
 
-  const rpcProperties: PackagePropertiesV2 = !config.rpc.enabled
+  const rpcProperties: T.PackagePropertiesV2 = !config.rpc.enabled
     ? {}
     : {
       "Quick Connect URL": {
@@ -85,7 +102,7 @@ export const properties: ExpectedExports.properties = async (effects: Effects) =
       },
     };
 
-  const restProperties: PackagePropertiesV2 = !config.advanced.plugins.rest
+  const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
     : {
       "Rest API Port": {
@@ -114,8 +131,8 @@ export const properties: ExpectedExports.properties = async (effects: Effects) =
       },
     };
   const alias = await getAlias(effects, config)
-  const result: Properties = {
-    version: 2 as 2,
+  const result: T.Properties = {
+    version: 2,
     data: {
       "Node Id": {
         type: "string",
