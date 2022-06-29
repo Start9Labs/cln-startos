@@ -1,4 +1,4 @@
-import { Effects, Config, YAML, matches, KnownError, ExpectedExports, SetResult } from "../deps.ts";
+import { YAML, matches, types as T, compat } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "../models/setConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
@@ -6,7 +6,7 @@ const { string, boolean, shape } = matches;
 
 const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
 type Check = {
-  currentError(config: Config): string | void;
+  currentError(config: T.Config): string | void;
 };
 const matchConfig = shape({
   advanced: shape(
@@ -35,7 +35,7 @@ const configRules: Array<Check> = [
   },
 ];
 
-function checkConfigRules(config: Config): KnownError | void {
+function checkConfigRules(config: T.Config): T.KnownError | void {
   for (const checker of configRules) {
     const error = checker.currentError(config);
     if (error) {
@@ -52,7 +52,7 @@ function urlParse(input: string) {
     port,
   };
 }
-async function createWaitForService(effects: Effects, config: SetConfig) {
+async function createWaitForService(effects: T.Effects, config: SetConfig) {
   const { bitcoin_rpc_host, bitcoin_rpc_pass, bitcoin_rpc_port, bitcoin_rpc_user } = userInformation(config);
   await effects.writeFile({
     path: "start9/waitForStart.sh",
@@ -190,19 +190,10 @@ ${enableRestPlugin}
 ${enableClbossPlugin}`;
 }
 
-export const setConfig: ExpectedExports.setConfig = async (effects: Effects, input: Config) => {
+export const setConfig: T.ExpectedExports.setConfig = async (effects: T.Effects, input: T.Config) => {
   const config = setConfigMatcher.unsafeCast(input);
   await checkConfigRules(config);
   const alias = await getAlias(effects, config);
-  await effects.createDir({
-    path: "start9",
-    volumeId: "main",
-  });
-  await effects.writeFile({
-    path: "start9/config.yaml",
-    toWrite: YAML.stringify(input),
-    volumeId: "main",
-  });
 
   await effects.writeFile({
     path: "config.main",
@@ -211,9 +202,5 @@ export const setConfig: ExpectedExports.setConfig = async (effects: Effects, inp
   });
 
   await createWaitForService(effects, config);
-  const result: SetResult = {
-    signal: "SIGTERM",
-    "depends-on": {},
-  }
-  return { result };
+  return await compat.setConfig(effects, input)
 }
