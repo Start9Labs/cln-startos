@@ -276,7 +276,7 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
             "type": "boolean",
             "name": "Enable CLBOSS Plugin",
             "description": "CLBOSS is an automated manager for Core Lightning forwarding nodes.\n\nSource: https://github.com/ZmnSCPxj/clboss\n",
-            "default": true
+            "default": false
           }
         }
       }
