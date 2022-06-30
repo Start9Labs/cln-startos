@@ -12,12 +12,12 @@ export const setConfigMatcher = shape(
         type: literal("internal"),
         user: string.optional(),
         password: string.optional(),
-      }),
+      }, ['user', 'password']),
       shape({
         type: literal("internal-proxy"),
         user: string.optional(),
         password: string.optional(),
-      })
+      }, ['user', 'password'])
     ),
     rpc: shape({
       enabled: boolean,
@@ -48,6 +48,6 @@ export const setConfigMatcher = shape(
       }),
     }),
   },
-  ["alias"]
+  ["alias", "peer-tor-address", 'rpc-tor-address']
 );
 export type SetConfig = typeof setConfigMatcher._TYPE;
