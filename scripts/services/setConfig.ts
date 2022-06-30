@@ -195,6 +195,11 @@ export const setConfig: T.ExpectedExports.setConfig = async (effects: T.Effects,
   await checkConfigRules(config);
   const alias = await getAlias(effects, config);
 
+  await effects.createDir({
+    path: 'start9',
+    volumeId: 'main'
+  })
+
   await effects.writeFile({
     path: "config.main",
     toWrite: configMaker(alias, config),
