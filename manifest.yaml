@@ -7,9 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Adds CLBOSS Automated C-Lightning Node Manager
-  * Fixes summary and rebalance plugins
-  * Switch to using new EOS APIs for faster configuration and properties
+  * New plugin: [CLBOSS Automated Node Manager](https://github.com/ZmnSCPxj/clboss) (see plugins section of config to enable)
+  * Fix `summary` and `rebalance` plugins
+  * Switch to using new eOS APIs for faster configuration and properties
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
