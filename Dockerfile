@@ -115,6 +115,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-gnutls-dev \
     libev-dev \
     libsqlite3-dev \
+    procps \
     python3 \
     python3-gdbm \
     python3-pip \
