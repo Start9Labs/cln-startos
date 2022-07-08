@@ -50,6 +50,10 @@ while ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/acces
 do
     echo "Waiting for macaroon..."
     sleep 1
+    if ! ps -p $lightningd_child > /dev/null; then
+        echo "lightningd has exited!"
+        break
+    fi
 done
 cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon /root/.lightning/public/access.macaroon
 cat /root/.lightning/public/access.macaroon | basenc --base64url -w0  > /root/.lightning/start9/access.macaroon.base64
