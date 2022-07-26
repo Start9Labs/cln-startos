@@ -169,28 +169,10 @@ backup:
       main: /root/.lightning
 migrations:
   from:
-    "<0.11.2":
-      type: docker
-      image: main
-      system: false
-      entrypoint: "/bin/echo"
-      args: ['{"configured": false}']
-      io-format: json
-      inject: false
-    "=0.11.2":
-      type: docker
-      image: main
-      system: false
-      entrypoint: "/bin/echo"
-      args: ['{"configured": false}']
-      io-format: json
-      inject: false
+    "*":
+      type: script
+      args: ["from"]
   to:
     "*":
-      type: docker
-      image: main
-      system: false
-      entrypoint: "/bin/echo"
-      args: ['{"configured": false}']
-      io-format: json
-      inject: false
+      type: script
+      args: ["to"]

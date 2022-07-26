@@ -1,4 +1,4 @@
-import { types as T, matches } from "../deps.ts";
+import { matches, types as T } from "../deps.ts";
 
 const { shape, arrayOf, string, boolean } = matches;
 
@@ -11,8 +11,8 @@ const matchProxyConfig = shape({
         password: string,
         "fetch-blocks": boolean,
       },
-      ["fetch-blocks"]
-    )
+      ["fetch-blocks"],
+    ),
   ),
 });
 
@@ -29,7 +29,8 @@ function randomItemString(input: string) {
 }
 
 const serviceName = "c-lightning";
-const fullChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const fullChars =
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 type Check = {
   currentError(config: T.Config): string | void;
   fix(config: T.Config): void;
@@ -48,7 +49,7 @@ const checks: Array<Check> = [
     },
     fix(config) {
       if (!matchProxyConfig.test(config)) {
-        return
+        return;
       }
       config.users.push({
         name: serviceName,
@@ -73,7 +74,10 @@ const checks: Array<Check> = [
         if (!matchProxyConfig.test(config)) {
           return "Config is not the correct shape";
         }
-        if (config.users.find((x) => x.name === serviceName)?.["allowed-calls"]?.some((x) => x === operator) ?? false) {
+        if (
+          config.users.find((x) => x.name === serviceName)?.["allowed-calls"]
+            ?.some((x) => x === operator) ?? false
+        ) {
           return;
         }
         return `RPC user "c-lightning" must have "${operator}" enabled`;
@@ -88,14 +92,17 @@ const checks: Array<Check> = [
         }
         found["allowed-calls"] = [...(found["allowed-calls"] ?? []), operator];
       },
-    })
+    }),
   ),
   {
     currentError(config) {
       if (!matchProxyConfig.test(config)) {
         return "Config is not the correct shape";
       }
-      if (config.users.find((x) => x.name === serviceName)?.["fetch-blocks"] ?? false) {
+      if (
+        config.users.find((x) => x.name === serviceName)?.["fetch-blocks"] ??
+          false
+      ) {
         return;
       }
       return `RPC user "c-lightning" must have "Fetch Blocks" enabled`;
@@ -153,7 +160,10 @@ export const dependencies: T.ExpectedExports.dependencies = {
       effects.info("check bitcoind");
       const config = matchBitcoindConfig.unsafeCast(configInput);
       if (config.advanced.pruning.mode !== "disabled") {
-        return { error: 'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.' };
+        return {
+          error:
+            'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.',
+        };
       }
       return { result: null };
     },

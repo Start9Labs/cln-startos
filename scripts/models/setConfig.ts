@@ -1,6 +1,7 @@
 import { matches } from "../deps.ts";
 
-const { literal, literals, shape, number, string, some, boolean, object } = matches;
+const { literal, literals, shape, number, string, some, boolean, object } =
+  matches;
 export const setConfigMatcher = shape(
   {
     "peer-tor-address": string,
@@ -12,12 +13,12 @@ export const setConfigMatcher = shape(
         type: literal("internal"),
         user: string.optional(),
         password: string.optional(),
-      }, ['user', 'password']),
+      }, ["user", "password"]),
       shape({
         type: literal("internal-proxy"),
         user: string.optional(),
         password: string.optional(),
-      }, ['user', 'password'])
+      }, ["user", "password"]),
     ),
     rpc: shape({
       enabled: boolean,
@@ -47,13 +48,19 @@ export const setConfigMatcher = shape(
         clboss: shape({
           "min-onchain": number,
           "auto-close": boolean,
-          "zerobasefee": literals('default', 'required', 'allow', 'disallow'),
+          "zerobasefee": literals("default", "required", "allow", "disallow"),
           "min-channel": number,
           "max-channel": number,
-        }, ["min-onchain", "auto-close", "zerobasefee", "min-channel", "max-channel"]),
+        }, [
+          "min-onchain",
+          "auto-close",
+          "zerobasefee",
+          "min-channel",
+          "max-channel",
+        ]),
       }),
     }),
   },
-  ["alias", "peer-tor-address", 'rpc-tor-address']
+  ["alias", "peer-tor-address", "rpc-tor-address"],
 );
 export type SetConfig = typeof setConfigMatcher._TYPE;
