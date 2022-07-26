@@ -8,8 +8,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
       "0.11.1.1": {
         up: compat.migrations.updateConfig(
           (config, effects) => {
-            effects.warn(`Up 0.11.1.1 ${JSON.stringify(config)}`);
-            effects.warn("UP 0.11.1.1");
+            effects.error(`BLUJ Up 0.11.1.1 ${JSON.stringify(config)}`)
             if (
               matches.shape({
                 advanced: matches.shape({ plugins: matches.any }),
@@ -24,8 +23,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
         ),
         down: compat.migrations.updateConfig(
           (config, effects) => {
-            effects.warn(`Down 0.11.1.1 ${JSON.stringify(config)}`);
-            effects.warn("THIS IS A TEST OF THE EMERGENCY BROADCASTING SYSTEM");
+            effects.error(`BLUJ Down 0.11.1.1 ${JSON.stringify(config)}`)
             if (
               matches.shape({
                 advanced: matches.shape({
@@ -44,8 +42,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
       "0.11.2": {
         up: compat.migrations.updateConfig(
           (config, effects) => {
-            effects.warn(`Up 0.11.2 ${JSON.stringify(config)}`);
-            effects.warn("Migrating from version 0.11.1.1 to 0.11.2");
+            effects.error(`BLUJ Up 0.11.2 ${JSON.stringify(config)}`)
             if (
               matches.shape({
                 advanced: matches.shape({
@@ -73,7 +70,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
         ),
         down: compat.migrations.updateConfig(
           (config, effects) => {
-            effects.warn(`Down 0.11.2 ${JSON.stringify(config)}`);
+            effects.error(`BLUJ down 0.11.2 ${JSON.stringify(config)}`)
             if (
               matches.shape({
                 advanced: matches.shape({

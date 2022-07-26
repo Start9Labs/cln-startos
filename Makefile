@@ -5,6 +5,7 @@ C_LIGHTNING_REST_SRC := $(shell find ./c-lightning-REST)
 PLUGINS_SRC := $(shell find ./plugins)
 HTTP_PLUGIN_SRC := $(shell find ./c-lightning-http-plugin/src) c-lightning-http-plugin/Cargo.toml c-lightning-http-plugin/Cargo.lock
 VERSION := $(shell yq e ".version" manifest.yaml)
+TS_FILES := $(shell find ./**/*.ts)
 
 .DELETE_ON_ERROR:
 
@@ -26,5 +27,5 @@ c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-ht
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl cargo +beta build --release
 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl musl-strip target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin
 
-scripts/embassy.js: scripts/**/*.ts
+scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
