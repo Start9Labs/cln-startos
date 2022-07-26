@@ -273,11 +273,76 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
             "default": true
           },
           "clboss": {
-            "type": "boolean",
-            "name": "Enable CLBOSS Plugin",
-            "description": "CLBOSS is an automated manager for Core Lightning forwarding nodes.\n\nSource: https://github.com/ZmnSCPxj/clboss\n",
-            "default": false
-          }
+            "type": "union",
+            "name": "CLBOSS settings",
+            "description":
+              "CLBOSS is an automated manager for Core Lightning forwarding nodes.\n\nSource: https://github.com/ZmnSCPxj/clboss\n",
+            "warning":
+              "CLBOSS automatically manages your CLN node. It is experimental software and will probably not be profitable to run. It will automatically open channels, buy incoming liquidity, rebalance channels, and set forwarding fees. If you don't want this behavior or don't understand what this means, please keep this option disabled. For more info, see: Source: https://github.com/ZmnSCPxj/clboss#operating .",
+            "tag": {
+              "id": "enabled",
+              "name": "CLBOSS Enabled",
+              "description":
+                '- Disabled: Disable CLBOSS\n- Enabled: Enable CLBOSS',
+              "variant-names": {
+                "disabled": "Disabled",
+                "enabled": "Enabled",
+              },
+            },
+            "default": "disabled",
+            "variants": {
+              "disabled": {},
+              "enabled": {
+                "min-onchain": {
+                  "type": "number",
+                  "nullable": true,
+                  "name": "Minimum On-Chain",
+                  "description": "Pass this option to lightningd in order to specify a target amount that CLBOSS will leave onchain. The amount specified must be an ordinary number, and must be in satoshis unit, without any trailing units or other strings. The default is \"30000\", or about 0.0003 BTC. The intent is that this minimal amount will be used in the future, by Core Lightning, to manage anchor-commitment channels, or post-Taproot Decker-Russell-Osuntokun channels. These channel types need some small amount of onchain funds to unilaterally close, so it is not recommended to set it to 0. The amount specified is a ballpark figure, and CLBOSS may leave slightly lower or slightly higher than this amount.",
+                  "range": "[0,10000000000)",
+                  "integral": true,
+                  "units": "satoshis",
+                },
+                "auto-close": {
+                  "type": "boolean",
+                  "name": "Auto Close",
+                  "description": "Set to true if you want CLBOSS to close channels it deems unprofitable.",
+                  "default": false,
+                  "warning": "This feature is EXPERIMENTAL!",
+                },
+                "zerobasefee": {
+                  "type": "enum",
+                  "name": "Zero Base Fee",
+                  "values": [
+                    "default",
+                    "required",
+                    "allow",
+                    "disallow",
+                  ],
+                  "value-names": {},
+                  "description": "Pass this option to lightningd to specify how this node will advertise its base_fee. require - the base_fee must be always 0. allow - if the heuristics of CLBOSS think it might be a good idea to set base_fee to 0, let it be 0, but otherwise set it to whatever value the heuristics want. disallow - the base_fee must always be non-0. If the heuristics think it might be good to set it to 0, set it to 1 instead. On 0.11C and earlier, CLBOSS had the disallow behavior. In this version, the default is the allow behavior. Some pathfinding algorithms under development may strongly prefer 0 or low base fees, so you might want to set CLBOSS to 0 base fee, or to allow a 0 base fee.",
+                  "default": "default",
+                },
+                "min-channel": {
+                  "type": "number",
+                  "nullable": true,
+                  "name": "Max Chain Size",
+                  "description": "Sets the minimum channel sizes that CLBOSS will make.",
+                  "range": "[0,10000000000)",
+                  "integral": true,
+                  "units": "satoshis",
+                },
+                "max-channel": {
+                  "type": "number",
+                  "nullable": true,
+                  "name": "Max Chain Size",
+                  "description": "Sets the maximum channel sizes that CLBOSS will make.",
+                  "range": "[0,10000000000)",
+                  "integral": true,
+                  "units": "satoshis",
+                },
+              },
+            },
+          },
         }
       }
     }

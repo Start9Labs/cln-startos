@@ -1,4 +1,4 @@
-import { matches, YAML, types as T, exists } from "../deps.ts";
+import { matches, YAML, types as T, util } from "../deps.ts";
 import { lazy } from "../models/lazy.ts";
 import { setConfigMatcher } from "../models/setConfig.ts";
 import { getAlias } from "./getAlias.ts";
@@ -27,13 +27,13 @@ const noPropertiesFound: T.ResultType<T.Properties> = {
 } as const
 
 export const properties: T.ExpectedExports.properties = async (effects: T.Effects) => {
-  if (await exists(effects, {
+  if (await util.exists(effects, {
     volumeId: "main",
     path: "start9/lightningGetInfo",
   }) === false) {
     return noPropertiesFound;
   }
-  if (await exists(effects, {
+  if (await util.exists(effects, {
     volumeId: "main",
     path: "start9/peerTorAddress",
   }) === false) {

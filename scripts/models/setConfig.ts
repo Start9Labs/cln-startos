@@ -1,6 +1,6 @@
 import { matches } from "../deps.ts";
 
-const { literal, shape, number, string, some, boolean } = matches;
+const { literal, literals, shape, number, string, some, boolean, object } = matches;
 export const setConfigMatcher = shape(
   {
     "peer-tor-address": string,
@@ -44,7 +44,13 @@ export const setConfigMatcher = shape(
         rebalance: boolean,
         summary: boolean,
         rest: boolean,
-        clboss: boolean,
+        clboss: shape({
+          "min-onchain": number,
+          "auto-close": boolean,
+          "zerobasefee": literals('default', 'required', 'allow', 'disallow'),
+          "min-channel": number,
+          "max-channel": number,
+        }, ["min-onchain", "auto-close", "zerobasefee", "min-channel", "max-channel"]),
       }),
     }),
   },
