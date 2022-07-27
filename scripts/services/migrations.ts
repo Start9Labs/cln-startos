@@ -7,28 +7,24 @@ export const migration: T.ExpectedExports.migration = compat.migrations
       // 0.11.1: no migration needed
       "0.11.1.1": {
         up: compat.migrations.updateConfig(
-          (config, effects) => {
-            effects.error(`BLUJ Up 0.11.1.1 ${JSON.stringify(config)}`)
+          (config) => {
             if (
               matches.shape({
-                advanced: matches.shape({ plugins: matches.any }),
+                advanced: matches.shape({ plugins: matches.shape ({ clboss: matches.unknown }, ["clboss"]) }),
               }).test(config)
             ) {
               config.advanced.plugins.clboss = false;
             }
             return config;
           },
-          false, // want to kick user to needs config so they see the new clboss config option
+          true,
           { version: "0.11.1.1", type: "up" },
         ),
         down: compat.migrations.updateConfig(
-          (config, effects) => {
-            effects.error(`BLUJ Down 0.11.1.1 ${JSON.stringify(config)}`)
+          (config) => {
             if (
               matches.shape({
-                advanced: matches.shape({
-                  plugins: matches.shape({ clboss: matches.any }),
-                }),
+                advanced: matches.shape({ plugins: matches.shape ({ clboss: matches.unknown } ) }),
               }).test(config)
             ) {
               delete config.advanced.plugins.clboss;
@@ -41,12 +37,11 @@ export const migration: T.ExpectedExports.migration = compat.migrations
       },
       "0.11.2": {
         up: compat.migrations.updateConfig(
-          (config, effects) => {
-            effects.error(`BLUJ Up 0.11.2 ${JSON.stringify(config)}`)
+          (config) => {
             if (
               matches.shape({
                 advanced: matches.shape({
-                  plugins: matches.shape({ clboss: matches.any }),
+                  plugins: matches.shape({ clboss: matches.unknown }),
                 }),
               }).test(config)
             ) {
@@ -69,8 +64,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
           { version: "0.11.2", type: "up" },
         ),
         down: compat.migrations.updateConfig(
-          (config, effects) => {
-            effects.error(`BLUJ down 0.11.2 ${JSON.stringify(config)}`)
+          (config) => {
             if (
               matches.shape({
                 advanced: matches.shape({
@@ -78,11 +72,11 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 }),
               }).test(config)
             ) {
-              delete config.advanced.plugins.clboss;
-            }
+                config.advanced.plugins.clboss = config.advanced.plugins.clboss.enabled === "enabled";
+              }
             return config;
           },
-          false,
+          true,
           { version: "0.11.2", type: "down" },
         ),
       },
