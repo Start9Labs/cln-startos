@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.11.1.1
+version: 0.11.2
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,9 +7,8 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * New plugin: [CLBOSS Automated Node Manager](https://github.com/ZmnSCPxj/clboss) (see plugins section of config to enable)
-  * Fix `summary` and `rebalance` plugins
-  * Switch to using new eOS APIs for faster configuration and properties
+  * Update to [intermediate commit](https://github.com/ElementsProject/lightning/commit/b624c530515b3966ae08b740eac35bbec19da5de) on upstream in order to fix gossipd crashes. v0.11.2 didn't fix the crashes, but this slightly newer commit works great.
+  * Add more CLBOSS config options
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -169,28 +168,10 @@ backup:
       main: /root/.lightning
 migrations:
   from:
-    "<0.11.1.1":
-      type: docker
-      image: main
-      system: false
-      entrypoint: "/bin/echo"
-      args: ['{"configured": false}']
-      io-format: json
-      inject: false
-    "=0.11.1.1":
-      type: docker
-      image: main
-      system: false
-      entrypoint: "/bin/echo"
-      args: ['{"configured": true}']
-      io-format: json
-      inject: false
+    "*":
+      type: script
+      args: ["from"]
   to:
     "*":
-      type: docker
-      image: main
-      system: false
-      entrypoint: "/bin/echo"
-      args: ['{"configured": true}']
-      io-format: json
-      inject: false
+      type: script
+      args: ["to"]

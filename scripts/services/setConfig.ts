@@ -1,4 +1,4 @@
-import { YAML, matches, types as T, compat } from "../deps.ts";
+import { compat, matches, types as T, YAML } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "../models/setConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
@@ -15,10 +15,10 @@ const matchConfig = shape({
         {
           "onion-messages": boolean,
           offers: boolean,
-        }
-      )
+        },
+      ),
     },
-  )
+  ),
 });
 const configRules: Array<Check> = [
   {
@@ -27,7 +27,8 @@ const configRules: Array<Check> = [
         return "Config is not the correct shape";
       }
       const hasOffers = config.advanced.experimental.offers;
-      const hasOnionMessagesAndOffers = config.advanced.experimental["onion-messages"] && hasOffers;
+      const hasOnionMessagesAndOffers =
+        config.advanced.experimental["onion-messages"] && hasOffers;
       const doesntHaveOffers = !hasOffers;
       if (hasOnionMessagesAndOffers || doesntHaveOffers) return;
       return `You must enable 'Onion Messages' if you wish to enable 'Offers'`;
@@ -45,7 +46,7 @@ function checkConfigRules(config: T.Config): T.KnownError | void {
 }
 
 function urlParse(input: string) {
-  const url = new URL(input)
+  const url = new URL(input);
   const [, _protocol, host, port] = Array.from(regexUrl.exec(input) || []);
   return {
     host,
@@ -53,7 +54,12 @@ function urlParse(input: string) {
   };
 }
 async function createWaitForService(effects: T.Effects, config: SetConfig) {
-  const { bitcoin_rpc_host, bitcoin_rpc_pass, bitcoin_rpc_port, bitcoin_rpc_user } = userInformation(config);
+  const {
+    bitcoin_rpc_host,
+    bitcoin_rpc_pass,
+    bitcoin_rpc_port,
+    bitcoin_rpc_user,
+  } = userInformation(config);
   await effects.writeFile({
     path: "start9/waitForStart.sh",
     toWrite: `
@@ -126,17 +132,28 @@ function userInformation(config: SetConfig) {
 }
 
 function configMaker(alias: Alias, config: SetConfig) {
-  const { bitcoin_rpc_host, bitcoin_rpc_pass, bitcoin_rpc_port, bitcoin_rpc_user } = userInformation(config);
+  const {
+    bitcoin_rpc_host,
+    bitcoin_rpc_pass,
+    bitcoin_rpc_port,
+    bitcoin_rpc_user,
+  } = userInformation(config);
   const rpcBind = config.rpc.enabled ? "0.0.0.0:8080" : "127.0.0.1:8080";
   const enableWumbo = config.advanced["wumbo-channels"] ? "large-channels" : "";
-  const enableExperimentalDualFund = config.advanced.experimental["dual-fund"] ? "experimental-dual-fund" : "";
-  const enableExperimentalOnionMessages = config.advanced.experimental["onion-messages"]
-    ? "experimental-onion-messages"
+  const enableExperimentalDualFund = config.advanced.experimental["dual-fund"]
+    ? "experimental-dual-fund"
     : "";
-  const enableExperimentalOffers = config.advanced.experimental.offers ? "experimental-offers" : "";
-  const enableExperimentalShutdownWrongFunding = config.advanced.experimental["shutdown-wrong-funding"]
-    ? "experimental-shutdown-wrong-funding"
+  const enableExperimentalOnionMessages =
+    config.advanced.experimental["onion-messages"]
+      ? "experimental-onion-messages"
+      : "";
+  const enableExperimentalOffers = config.advanced.experimental.offers
+    ? "experimental-offers"
     : "";
+  const enableExperimentalShutdownWrongFunding =
+    config.advanced.experimental["shutdown-wrong-funding"]
+      ? "experimental-shutdown-wrong-funding"
+      : "";
   const enableHttpPlugin = config.advanced.plugins.http
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin"
     : "";
@@ -190,15 +207,18 @@ ${enableRestPlugin}
 ${enableClbossPlugin}`;
 }
 
-export const setConfig: T.ExpectedExports.setConfig = async (effects: T.Effects, input: T.Config) => {
+export const setConfig: T.ExpectedExports.setConfig = async (
+  effects: T.Effects,
+  input: T.Config,
+) => {
   const config = setConfigMatcher.unsafeCast(input);
   await checkConfigRules(config);
   const alias = await getAlias(effects, config);
 
   await effects.createDir({
-    path: 'start9',
-    volumeId: 'main'
-  })
+    path: "start9",
+    volumeId: "main",
+  });
 
   await effects.writeFile({
     path: "config.main",
@@ -207,5 +227,5 @@ export const setConfig: T.ExpectedExports.setConfig = async (effects: T.Effects,
   });
 
   await createWaitForService(effects, config);
-  return await compat.setConfig(effects, input)
-}
+  return await compat.setConfig(effects, input);
+};

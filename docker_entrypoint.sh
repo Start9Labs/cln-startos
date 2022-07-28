@@ -11,6 +11,41 @@ export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 
+if yq -e '.advanced.plugins.clboss.min-onchain' /root/.lightning/start9/config.yaml > /dev/null 2>&1; then
+  MIN_ONCHAIN_VALUE=$(yq e '.advanced.plugins.clboss.min-onchain' /root/.lightning/start9/config.yaml)
+  MIN_ONCHAIN=" --clboss-min-onchain=$MIN_ONCHAIN_VALUE"
+else
+  MIN_ONCHAIN=""
+fi
+
+if yq -e '.advanced.plugins.clboss.auto-close' /root/.lightning/start9/config.yaml > /dev/null 2>&1; then
+  AUTO_CLOSE_VALUE=$(yq e '.advanced.plugins.clboss.auto-close' /root/.lightning/start9/config.yaml)
+  AUTO_CLOSE=" --clboss-auto-close=$AUTO_CLOSE_VALUE"
+else
+  AUTO_CLOSE=""
+fi
+
+ZEROBASEFEE_VALUE=$(yq e '.advanced.plugins.clboss.zerobasefee' /root/.lightning/start9/config.yaml)
+if [ $ZEROBASEFEE_VALUE = "default" ]; then
+    ZEROBASEFEE=""
+else
+    ZEROBASEFEE=" --clboss-zerobasefee=$ZEROBASEFEE_VALUE"
+fi
+
+if yq -e '.advanced.plugins.clboss.min-channel' /root/.lightning/start9/config.yaml > /dev/null 2>&1; then
+  MIN_CHANNEL_VALUE=$(yq e '.advanced.plugins.clboss.min-channel' /root/.lightning/start9/config.yaml)
+  MIN_CHANNEL=" --clboss-min-channel=$MIN_CHANNEL_VALUE"
+else
+  MIN_CHANNEL=""
+fi
+
+if yq -e '.advanced.plugins.clboss.max-channel' /root/.lightning/start9/config.yaml > /dev/null 2>&1; then
+  MAX_CHANNEL_VALUE=$(yq e '.advanced.plugins.clboss.max-channel' /root/.lightning/start9/config.yaml)
+  MAX_CHANNEL=" --clboss-max-channel=$MAX_CHANNEL_VALUE"
+else
+  MAX_CHANNEL=""
+fi
+
 
 mkdir -p /root/.lightning/shared
 mkdir -p /root/.lightning/public
@@ -27,7 +62,7 @@ if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
 fi
 
 echo "Starting lightning"
-lightningd &
+lightningd$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
 lightningd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do

@@ -24,13 +24,37 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
     && rm $BITCOIN_TARBALL
 
+# clboss builder
+FROM debian:bullseye-slim as clboss
+
+RUN apt-get update -qq && \
+    apt-get install -qq -y --no-install-recommends \
+        # autoconf \
+        autoconf-archive \
+        automake \
+        build-essential \
+        git \
+        libcurl4-gnutls-dev \
+        libev-dev \
+        libsqlite3-dev \
+        libtool \
+        pkg-config
+
+COPY clboss/. /tmp/clboss
+WORKDIR /tmp/clboss
+RUN autoreconf -i
+RUN ./configure
+RUN make
+RUN make install
+RUN strip /usr/local/bin/clboss
+
+# lightningd builder
 FROM debian:bullseye-slim as builder
 
-ENV LIGHTNINGD_VERSION=master
+ENV LIGHTNINGD_VERSION=v0.11.2
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
         autoconf \
-        autoconf-archive \
         automake \
         build-essential \
         ca-certificates \
@@ -39,13 +63,9 @@ RUN apt-get update -qq && \
         gettext \
         git \
         gnupg \
-        libcurl4-gnutls-dev \
-        libev-dev \
         libpq-dev \
-        libsqlite3-dev \
         libtool \
         libffi-dev \
-        pkg-config \
         python3 \
         python3-dev \
         python3-mako \
@@ -53,14 +73,6 @@ RUN apt-get update -qq && \
         python3-venv \
         python3-setuptools \
         wget
-
-# CLBOSS
-COPY clboss/. /tmp/clboss
-WORKDIR /tmp/clboss
-RUN autoreconf -i
-RUN ./configure
-RUN make
-RUN make install
 
 # CLN
 RUN wget -q https://zlib.net/zlib-1.2.12.tar.gz \
@@ -91,9 +103,12 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 
 WORKDIR /opt/lightningd
-COPY lightning/. /tmp/lightning
-RUN git clone --recursive /tmp/lightning . && \
-    git checkout $(git --work-tree=/tmp/lightning --git-dir=/tmp/lightning/.git rev-parse HEAD)
+COPY ./.git /tmp/lightning-wrapper/.git
+COPY lightning/. /tmp/lightning-wrapper/lightning
+# COPY lightning/. /opt/lightningd
+RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
+    git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
+    # git checkout $(git --git-dir=/tmp/lightning-wrapper/.git rev-parse HEAD)
 ARG DEVELOPER=0
 ENV PYTHON_VERSION=3
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 - \
@@ -135,7 +150,7 @@ VOLUME [ "/root/.lightning" ]
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.12.2/yq_linux_arm.tar.gz -O - |\
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.26.1/yq_linux_arm.tar.gz -O - |\
     tar xz && mv yq_linux_arm /usr/bin/yq
 
 # PLUGINS
@@ -163,7 +178,7 @@ RUN npm install --only=production
 ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
 
 # CLBOSS
-COPY --from=builder /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
+COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
