@@ -46,7 +46,7 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
   "bitcoind": {
     "type": "union",
     "name": "Bitcoin Core",
-    "description": "The Bitcoin Core node to connect to:\n  - Bitcoin Core: The Bitcoin Core service installed to your Embassy\n  - Bitcoin Proxy: The Bitcoin RPC Proxy service installed to your Embassy\n",
+    "description": "The Bitcoin Core node to connect to",
     "tag": {
       "id": "type",
       "name": "Type",
@@ -54,7 +54,7 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
         "internal": "Bitcoin Core",
         "internal-proxy": "Bitcoin Proxy"
       },
-      "description": "The Bitcoin Core node to connect to:\n  - Bitcoin Core: The Bitcoin Core service installed to your Embassy\n  - Bitcoin Proxy: The Bitcoin RPC Proxy service installed to your Embassy\n"
+      "description": "Options<ul><li>Bitcoin Core: the Bitcoin Core node installed on your Embassy</li><li>Bitcoin Proxy: the Bitcoin Proxy service installed on your Embassy</li></ul>"
     },
     "default": "internal-proxy",
     "variants": {
