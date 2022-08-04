@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.11.2
+version: 0.12.0
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,7 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to [intermediate commit](https://github.com/ElementsProject/lightning/commit/b624c530515b3966ae08b740eac35bbec19da5de) on upstream in order to fix gossipd crashes. v0.11.2 didn't fix the crashes, but this slightly newer commit works great.
+  * Update to [v0.12.0rc1](https://github.com/ElementsProject/lightning/releases/tag/v0.12.0rc1) on upstream.
   * Add more CLBOSS config options
 build: ["make"]
 description:
