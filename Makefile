@@ -2,6 +2,7 @@ BITCOIN_VERSION := "22.0"
 C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
 C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
 C_LIGHTNING_REST_SRC := $(shell find ./c-lightning-REST)
+DOC_ASSETS := $(shell find ./docs/assets)
 PLUGINS_SRC := $(shell find ./plugins)
 HTTP_PLUGIN_SRC := $(shell find ./c-lightning-http-plugin/src) c-lightning-http-plugin/Cargo.toml c-lightning-http-plugin/Cargo.lock
 VERSION := $(shell yq e ".version" manifest.yaml)
@@ -15,7 +16,7 @@ verify: c-lightning.s9pk
 	embassy-sdk verify s9pk c-lightning.s9pk
 
 install: c-lightning.s9pk
-	embassy-cli package install c-lightning
+	embassy-cli package install c-lightning.s9pk
 
 c-lightning.s9pk: manifest.yaml image.tar instructions.md $(ASSET_PATHS)  scripts/embassy.js
 	embassy-sdk pack
@@ -29,3 +30,6 @@ c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-ht
 
 scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
+
+instructions.md: docs/instructions.md $(DOC_ASSETS)
+	cd docs && md-packer < instructions.md > ../instructions.md

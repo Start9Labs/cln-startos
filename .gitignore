@@ -3,3 +3,5 @@ c-lightning.s9pk
 image.tar
 scripts/embassy.js
 .vscode/*.log
+instructions.md
+.DS_Store
