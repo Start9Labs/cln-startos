@@ -6,7 +6,7 @@ DOC_ASSETS := $(shell find ./docs/assets)
 PLUGINS_SRC := $(shell find ./plugins)
 HTTP_PLUGIN_SRC := $(shell find ./c-lightning-http-plugin/src) c-lightning-http-plugin/Cargo.toml c-lightning-http-plugin/Cargo.lock
 VERSION := $(shell yq e ".version" manifest.yaml)
-TS_FILES := $(shell find ./**/*.ts)
+TS_FILES := $(shell find . -name \*.ts )
 
 .DELETE_ON_ERROR:
 

@@ -7,7 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to [v0.12.0rc1](https://github.com/ElementsProject/lightning/releases/tag/v0.12.0rc1) on upstream.
+  * Update to [v0.12.0rc2](https://github.com/ElementsProject/lightning/releases/tag/v0.12.0rc2) on upstream.
   * Add more CLBOSS config options
 build: ["make"]
 description:
