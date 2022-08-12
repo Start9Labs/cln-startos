@@ -46,6 +46,7 @@ export const setConfigMatcher = shape(
         summary: boolean,
         rest: boolean,
         clboss: shape({
+          "enabled": literals("enabled", "disabled"),
           "min-onchain": number,
           "auto-close": boolean,
           "zerobasefee": literals("default", "required", "allow", "disallow"),

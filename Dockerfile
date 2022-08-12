@@ -51,7 +51,7 @@ RUN strip /usr/local/bin/clboss
 # lightningd builder
 FROM debian:bullseye-slim as builder
 
-ENV LIGHTNINGD_VERSION=v0.11.2
+ENV LIGHTNINGD_VERSION=v0.12.0
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
         autoconf \
