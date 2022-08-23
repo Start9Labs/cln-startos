@@ -52,6 +52,12 @@ RUN strip /usr/local/bin/clboss
 FROM debian:bullseye-slim as builder
 
 ENV LIGHTNINGD_VERSION=v0.12.0
+ENV RUST_PROFILE=release
+ENV PATH=$PATH:/root/.cargo/bin/
+ARG DEVELOPER=1
+ENV PYTHON_VERSION=3
+
+
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
         autoconf \
@@ -97,8 +103,6 @@ RUN wget -q https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz \
 && make \
 && make install && cd .. && rm gmp-6.1.2.tar.xz && rm -rf gmp-6.1.2
 
-ENV RUST_PROFILE=release
-ENV PATH=$PATH:/root/.cargo/bin/
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 
@@ -109,8 +113,7 @@ COPY lightning/. /tmp/lightning-wrapper/lightning
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
     # git checkout $(git --git-dir=/tmp/lightning-wrapper/.git rev-parse HEAD)
-ARG DEVELOPER=0
-ENV PYTHON_VERSION=3
+
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 - \
     && pip3 install -U pip \
     && pip3 install -U wheel \
@@ -119,9 +122,18 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/inst
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
 
-FROM node:12-bullseye-slim as final
+FROM node:16-bullseye-slim as final
+
+ENV LIGHTNINGD_DATA=/root/.lightning
+ENV LIGHTNINGD_RPC_PORT=9835
+ENV LIGHTNINGD_PORT=9735
+ENV LIGHTNINGD_NETWORK=bitcoin
 
 COPY --from=downloader /opt/tini /usr/bin/tini
+
+# CLBOSS
+COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dnsutils \
     socat \
@@ -138,11 +150,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     xxd \
     && rm -rf /var/lib/apt/lists/*
-
-ENV LIGHTNINGD_DATA=/root/.lightning
-ENV LIGHTNINGD_RPC_PORT=9835
-ENV LIGHTNINGD_PORT=9735
-ENV LIGHTNINGD_NETWORK=bitcoin
 
 RUN mkdir $LIGHTNINGD_DATA && \
     touch $LIGHTNINGD_DATA/config
@@ -172,13 +179,10 @@ RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 # c-lightning-http-plugin
 ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
-
-# CLBOSS
-COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
