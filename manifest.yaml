@@ -7,8 +7,10 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to [v0.12.0rc2](https://github.com/ElementsProject/lightning/releases/tag/v0.12.0rc2) on upstream.
+  * Update to [v0.12.0](https://github.com/ElementsProject/lightning/releases/tag/v0.12.0) on upstream.
   * Add more CLBOSS config options
+  * Update c-lighting-REST plugin to [v0.9.0](https://github.com/Ride-The-Lightning/c-lightning-REST/releases/tag/v0.9.0)
+    * Enables liquidity ads inside the RTL interface
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

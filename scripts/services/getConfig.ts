@@ -352,7 +352,7 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
                 "min-channel": {
                   "type": "number",
                   "nullable": true,
-                  "name": "Max Chain Size",
+                  "name": "Min Channel Size",
                   "description":
                     "Sets the minimum channel sizes that CLBOSS will make.",
                   "range": "[0,10000000000)",
@@ -362,7 +362,7 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
                 "max-channel": {
                   "type": "number",
                   "nullable": true,
-                  "name": "Max Chain Size",
+                  "name": "Max Channel Size",
                   "description":
                     "Sets the maximum channel sizes that CLBOSS will make.",
                   "range": "[0,10000000000)",
