@@ -10,8 +10,13 @@ RUN wget -qO /opt/tini "https://github.com/krallin/tini/releases/download/v0.18.
     && echo "12d20136605531b09a2c2dac02ccee85e1b874eb322ef6baf7561cd93f93c855 /opt/tini" | sha256sum -c - \
     && chmod +x /opt/tini
 
+# arm64 or amd64
+ARG PLATFORM
+# aarch64 or x86_64
+ARG ARCH
+
 ARG BITCOIN_VERSION=22.0
-ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-aarch64-linux-gnu.tar.gz
+ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-${ARCH}-linux-gnu.tar.gz
 ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
 ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS
 
@@ -48,6 +53,30 @@ RUN make
 RUN make install
 RUN strip /usr/local/bin/clboss
 
+# # http plugin builder
+# FROM debian:bullseye-slim as http-plugin
+
+# RUN apt-get update -qq && \
+#     apt-get install -qq -y --no-install-recommends \
+#         # autoconf \
+#         autoconf-archive \
+#         automake \
+#         build-essential \
+#         git \
+#         libcurl4-gnutls-dev \
+#         libev-dev \
+#         libsqlite3-dev \
+#         libtool \
+#         pkg-config
+
+# COPY clboss/. /tmp/clboss
+# WORKDIR /tmp/clboss
+# RUN autoreconf -i
+# RUN ./configure
+# RUN make
+# RUN make install
+# RUN strip /usr/local/bin/clboss
+
 # lightningd builder
 FROM debian:bullseye-slim as builder
 
@@ -81,12 +110,12 @@ RUN apt-get update -qq && \
         wget
 
 # CLN
-RUN wget -q https://zlib.net/zlib-1.2.12.tar.gz \
-&& tar xvf zlib-1.2.12.tar.gz \
-&& cd zlib-1.2.12 \
+RUN wget -q https://zlib.net/zlib-1.2.13.tar.gz \
+&& tar xvf zlib-1.2.13.tar.gz \
+&& cd zlib-1.2.13 \
 && ./configure \
 && make \
-&& make install && cd .. && rm zlib-1.2.12.tar.gz && rm -rf zlib-1.2.12
+&& make install && cd .. && rm zlib-1.2.13.tar.gz && rm -rf zlib-1.2.13
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
 && wget -q https://www.sqlite.org/2019/sqlite-src-3290000.zip \
@@ -105,7 +134,14 @@ RUN wget -q https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz \
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
+RUN rustup toolchain install beta
 
+# build http plugin
+ARG ARCH
+COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
+WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
+RUN cargo update && cargo +beta build --release
+RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
 WORKDIR /opt/lightningd
 COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
@@ -119,6 +155,8 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/inst
     && pip3 install -U wheel \
     && /root/.local/bin/poetry config virtualenvs.create false \
     && /root/.local/bin/poetry install
+
+RUN pip3 install mako mistune==0.8.4 mrkd
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
 
@@ -157,8 +195,11 @@ VOLUME [ "/root/.lightning" ]
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.26.1/yq_linux_arm.tar.gz -O - |\
-    tar xz && mv yq_linux_arm /usr/bin/yq
+ARG PLATFORM
+
+RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /usr/local/bin/yq
+# RUN wget https://github.com/mikefarah/yq/releases/download/v4.26.1/yq_linux_arm.tar.gz -O - |\
+#     tar xz && mv yq_linux_arm /usr/bin/yq
 
 # PLUGINS
 WORKDIR /usr/local/libexec/c-lightning/plugins
@@ -181,8 +222,11 @@ ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 RUN npm install --omit=dev
 
+# aarch64 or x86_64
+ARG ARCH
+
 # c-lightning-http-plugin
-ADD ./c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
+COPY --from=builder /tmp/lightning-wrapper/c-lightning-http-plugin/target/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
