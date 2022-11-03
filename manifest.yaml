@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.12.0
+version: 0.12.0.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,10 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to [v0.12.0](https://github.com/ElementsProject/lightning/releases/tag/v0.12.0) on upstream.
-  * Add more CLBOSS config options
-  * Update c-lighting-REST plugin to [v0.9.0](https://github.com/Ride-The-Lightning/c-lightning-REST/releases/tag/v0.9.0)
-    * Enables liquidity ads inside the RTL interface
+  * Update to new eOS v0.3.3 APIs
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -19,10 +16,8 @@ assets:
   license: LICENSE
   icon: icon.png
   instructions: instructions.md
-  # docker-images: image.tar
 containers:
   main:
-    # type: docker
     image: main
     mounts:
       main: /root/.lightning
