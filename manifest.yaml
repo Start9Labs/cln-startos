@@ -20,37 +20,24 @@ assets:
   icon: icon.png
   instructions: instructions.md
   docker-images: image.tar
+containers:
+  main:
+    # type: docker
+    image: main
+    mounts:
+      main: /root/.lightning
+    shm-size-mb: 64
 main:
-  type: docker
-  image: main
-  entrypoint: "docker_entrypoint.sh"
-  args: []
-  mounts:
-    main: /root/.lightning
-  shm-size-mb: 64
+  type: script
 health-checks:
   rpc:
     name: RPC
     success-message: RPC server is alive and listening for commands
-    type: docker
-    image: main
-    system: false
-    entrypoint: check-rpc.sh
-    args: []
-    mounts: {}
-    io-format: json
-    inject: true
+    type: script
   synced:
     name: Synced
     success-message: Synced to chain and ready to perform on-chain operations
-    type: docker
-    image: main
-    system: false
-    entrypoint: check-synced.sh
-    args: []
-    mounts: {}
-    io-format: yaml
-    inject: true
+    type: script
 config:
   get:
     type: script
