@@ -5,3 +5,4 @@ scripts/embassy.js
 .vscode/*.log
 instructions.md
 .DS_Store
+docker-images
