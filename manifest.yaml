@@ -7,7 +7,8 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to new eOS v0.3.3 APIs
+  * Add x86 build
+  * Expand version boundaries for bitcoind dependency
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
