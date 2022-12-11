@@ -314,6 +314,9 @@ function configMaker(alias: Alias, config: SetConfig) {
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
+  const enableTeosPlugin = config.advanced.plugins.teos
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
+    : "";
 
   return `
 network=bitcoin
@@ -351,7 +354,8 @@ ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableRestPlugin}
-${enableClbossPlugin}`;
+${enableClbossPlugin}
+${enableTeosPlugin}`;
 }
 
 export const setConfig: T.ExpectedExports.setConfig = async (

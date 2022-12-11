@@ -622,6 +622,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
               },
             },
           },
+          "teos": {
+            "type": "boolean",
+            "name": "Enable The Eye of Satoshi Watchtower Plugin",
+            "description":
+              "The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.\n\nSource: https://github.com/talaia-labs/rust-teos\n",
+            "default": true,
+          },
         },
       },
     },
