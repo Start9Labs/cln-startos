@@ -142,6 +142,13 @@ COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
 WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
 RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
+
+# build rust-teos
+COPY ./rust-teos /tmp/rust-teos
+WORKDIR /tmp/rust-teos
+RUN cargo install --locked --path teos
+
+# build lightningd
 WORKDIR /opt/lightningd
 COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
@@ -227,6 +234,9 @@ ARG ARCH
 
 # c-lightning-http-plugin
 COPY --from=builder /tmp/lightning-wrapper/c-lightning-http-plugin/target/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
+
+# rust-teos
+COPY --from=builder /tmp/rust-teos/teos /usr/local/libexec/c-lightning/plugins/teos
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
