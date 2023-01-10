@@ -1,0 +1,4 @@
+c-lightning-http-plugin/target
+!c-lightning-http-plugin/target/**/release/c-lightning-http-plugin
+rust-teos/target
+!rust-teos/target/target/**/release/rust-teos

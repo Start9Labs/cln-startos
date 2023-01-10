@@ -164,7 +164,7 @@ function configMaker(alias: Alias, config: SetConfig) {
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
   const enableRestPlugin = config.advanced.plugins.rest
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\nrest-port=3001\nrest-protocol=https\n"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\nrest-port=3001\nrest-protocol=http\n"
     : "";
   const enableClbossPlugin = config.advanced.plugins.clboss.enabled === 'enabled'
     ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
