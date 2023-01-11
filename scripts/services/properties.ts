@@ -152,7 +152,7 @@ export const properties: T.ExpectedExports.properties = async (
       "REST API Quick Connect URL": {
         type: "string",
         value:
-          `c-lightning-rest://http://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
+          `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
         description:
           "A copyable string/scannable QR code you can import into wallet client applications such as Zeus",
         copyable: true,

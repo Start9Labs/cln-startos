@@ -24,6 +24,7 @@ main:
   args: []
   mounts:
     main: /root/.lightning
+    cert: /mnt/cert
   shm-size-mb: 64
 health-checks:
   rpc:
@@ -58,6 +59,9 @@ properties:
 volumes:
   main:
     type: data
+  cert:
+    type: certificate
+    interface-id: rest
 alerts:
   install: |
     READ CAREFULLY! Core Lightning and the Lightning Network are considered beta software. Please use with caution and do not

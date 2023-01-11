@@ -66,6 +66,31 @@ if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
     rm /root/.lightning/bitcoin/lightning-rpc
 fi
 
+# echo "Checking cert"
+echo "Fetching system cert for REST interface"
+# if ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/key.pem ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem ]; then
+  # echo "Cert missing, copying cert into c-lightning-REST dir"
+while ! [ -e /mnt/cert/rest.key.pem ]; do
+  echo "Waiting for system cert key file..."
+  sleep 1
+done
+mkdir -p /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs
+cp /mnt/cert/rest.key.pem /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/key.pem
+while ! [ -e /mnt/cert/rest.cert.pem ]; do
+  echo "Waiting for system cert..."
+  sleep 1
+done
+cp /mnt/cert/rest.cert.pem /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem
+# fi
+
+# use macaroon if exists
+if [ -e /root/.lightning/public/access.macaroon ] && [ -e /root/.lightning/public/rootKey.key ]; then
+  cp /root/.lightning/public/access.macaroon /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon
+  cp /root/.lightning/public/rootKey.key /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key
+else
+  echo "Macaroon not found, generating new one"
+fi
+
 echo "Starting lightning"
 lightningd$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
 lightningd_child=$!
@@ -86,16 +111,20 @@ fi
 ln /root/.lightning/bitcoin/lightning-rpc /root/.lightning/shared/lightning-rpc
 
 
-while ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon ];
-do
-    echo "Waiting for macaroon..."
-    sleep 1
-    if ! ps -p $lightningd_child > /dev/null; then
-        echo "lightningd has stopped, exiting container"
-        exit 1
-    fi
-done
-cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon /root/.lightning/public/access.macaroon
+if ! [ -e /root/.lightning/public/access.macaroon ] || ! [ -e /root/.lightning/public/rootKey.key ] ; then
+  while ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key ];
+  do
+      echo "Waiting for macaroon..."
+      sleep 1
+      if ! ps -p $lightningd_child > /dev/null; then
+          echo "lightningd has stopped, exiting container"
+          exit 1
+      fi
+  done
+  cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon /root/.lightning/public/access.macaroon
+  cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key /root/.lightning/public/rootKey.key
+fi
+
 cat /root/.lightning/public/access.macaroon | basenc --base64url -w0  > /root/.lightning/start9/access.macaroon.base64
 cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.lightning/start9/access.macaroon.hex
 
