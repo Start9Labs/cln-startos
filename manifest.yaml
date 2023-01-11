@@ -1,5 +1,5 @@
 id: c-lightning
-version: 0.12.0.1
+version: 0.12.0.2
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,8 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Add x86 build
-  * Expand version boundaries for bitcoind dependency
+  * Fix macaroon and cert. Zeus Wallet now works reliably, and RTL does not need a restart whenever CLN restarts.
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
