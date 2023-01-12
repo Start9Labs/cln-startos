@@ -153,7 +153,7 @@ RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 - \
     && pip3 install -U pip \
     && pip3 install -U wheel \
-    && /root/.local/bin/poetry config virtualenvs.create false \
+    # && /root/.local/bin/poetry config virtualenvs.create false \
     && /root/.local/bin/poetry install
 
 RUN pip3 install mako mistune==0.8.4 mrkd
