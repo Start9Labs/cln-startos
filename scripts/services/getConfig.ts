@@ -1,8 +1,4 @@
-import { compat, matches, types as T, YAML } from "../deps.ts";
-
-const { any, string, dictionary } = matches;
-
-const matchConfig = dictionary([string, any]);
+import { compat, types as T } from "../deps.ts";
 
 export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
   "peer-tor-address": {
@@ -22,6 +18,15 @@ export const getConfig: T.ExpectedExports.getConfig = compat.getConfig({
     "package-id": "c-lightning",
     "target": "tor-address",
     "interface": "rpc",
+  },
+  "rest-tor-address": {
+    "name": "C-Lightning-REST API Address",
+    "description": "The Tor address of the C-Lightning-REST API",
+    "type": "pointer",
+    "subtype": "package",
+    "package-id": "c-lightning",
+    "target": "tor-address",
+    "interface": "rest",
   },
   "alias": {
     "type": "string",

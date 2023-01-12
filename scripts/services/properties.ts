@@ -44,6 +44,14 @@ export const properties: T.ExpectedExports.properties = async (
   ) {
     return noPropertiesFound;
   }
+  if (
+    await util.exists(effects, {
+      volumeId: "main",
+      path: "start9/restTorAddress",
+    }) === false
+  ) {
+    return noPropertiesFound;
+  }
 
   const nodeInfo = nodeInfoMatcher.unsafeCast(
     await effects.readJsonFile({
@@ -55,6 +63,12 @@ export const properties: T.ExpectedExports.properties = async (
     .readFile({
       volumeId: "main",
       path: "start9/peerTorAddress",
+    })
+    .then((x) => x.trim());
+  const restTorAddress = await effects
+    .readFile({
+      volumeId: "main",
+      path: "start9/restTorAddress",
     })
     .then((x) => x.trim());
   const config = setConfigMatcher.unsafeCast(
@@ -133,6 +147,16 @@ export const properties: T.ExpectedExports.properties = async (
           "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
         copyable: true,
         qr: false,
+        masked: true,
+      },
+      "REST API Quick Connect URL": {
+        type: "string",
+        value:
+          `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
+        description:
+          "A copyable string/scannable QR code you can import into wallet client applications such as Zeus",
+        copyable: true,
+        qr: true,
         masked: true,
       },
     };
