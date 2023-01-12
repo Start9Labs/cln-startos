@@ -32,7 +32,8 @@ warning_lightningd_sync=$(echo "$c_gi_result" | yq e '.warning_lightningd_sync' 
 if [ "$warning_lightningd_sync" = "null" ]; then
     exit 0
 else
-    blockheight=$(echo "$c_gi_result" | yq e '.blockheight' -)
+    # blockheight=$(echo "$c_gi_result" | yq e '.blockheight' -)
+    blockheight=$(lightning-cli getlog debug | yq '.log[] | select (.log == "Adding block*")' - | tail -n1 | yq '.log' | cut -d " " -f 3 | tr -d ':')
     echo "Catching up to blocks from bitcoind. This may take several hours. Progress: $blockheight of $b_gbc_result blocks" >&2
     exit 61
 fi
