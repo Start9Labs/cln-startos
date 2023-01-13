@@ -1,5 +1,5 @@
 import { compat, matches, types as T, YAML } from "../deps.ts";
-import { SetConfig, setConfigMatcher } from "../models/setConfig.ts";
+import { SetConfig, setConfigMatcher } from "./getConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
 const { string, boolean, shape } = matches;

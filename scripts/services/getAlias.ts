@@ -1,5 +1,5 @@
 import { types as T } from "../deps.ts";
-import { SetConfig } from "../models/setConfig.ts";
+import { SetConfig } from "./getConfig.ts";
 
 export type Alias = string & { _type: "alias" };
 export async function getAlias(
