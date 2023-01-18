@@ -305,6 +305,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                               "range": "[0,200]",
                               "integral": true,
                               "units": "percent",
+                              "default": 100,
                             },
                           },
                           "available": {
@@ -355,15 +356,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                       },
                     },
                     "merchant": {
-                      "lease-fee-base-msat": {
+                      "lease-fee-base-sat": {
                         "type": "number",
                         "nullable": true,
-                        "name": "Fixed Lease Fee (Msats)",
+                        "name": "Fixed Lease Fee (Sats)",
                         "description":
                           "The flat fee for a channel lease. Node will receive this much extra added to their channel balance, paid by the opening node. Defaults to 2k sats. Note that the minimum is 1sat.",
-                        "range": "[0,10000000000000)",
+                        "range": "[0,10000000000)",
                         "integral": true,
-                        "units": "millisatoshis",
+                        "units": "satoshis",
                       },
                       "lease-fee-basis": {
                         "type": "number",
@@ -404,15 +405,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                         "range": "[0,1000]",
                         "integral": true,
                         "units": "percent",
-                      },
-                      "compact-lease": {
-                        "type": "string",
-                        "name": "Compact Lease",
-                        "description": "A compact description of the channel lease params. When opening a channel, passed in to fundchannel to indicate the terms we expect from the peer.",
-                        "nullable": true,
-                        "pattern": "[0-9a-fA-F]{0,100}",
-                        "pattern-description":
-                          "Must be a valid hexadecimal value",
                       },
                     },
                   },
