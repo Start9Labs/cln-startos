@@ -80,6 +80,48 @@ export const migration: T.ExpectedExports.migration = compat.migrations
           { version: "0.11.2", type: "down" },
         ),
       },
+      "22.11.1": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  experimental: matches.shape({ "dual-fund": matches.unknown }),
+                }),
+              }).test(config)
+            ) {
+              if (config.advanced.experimental["dual-fund"] === true) {
+                config.advanced.experimental["dual-fund"] = {
+                  enabled: "enabled",
+                  strategy: { mode: "incognito", policy: { "policy": "fixed" }},
+                  other: { },
+                };
+              } else {
+                config.advanced.experimental["dual-fund"] = { enabled: "disabled" };
+              }
+            }
+            return config;
+          },
+          true,
+          { version: "22.11.1", type: "up" },
+        ),
+        down: compat.migrations.updateConfig(
+          (config) => {
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  experimental: matches.shape({ "dual-fund": matches.any }),
+                }),
+              }).test(config)
+            ) {
+                config.advanced.experimental["dual-fund"] = config.advanced.experimental["dual-fund"].enabled === "enabled";
+              }
+            return config;
+          },
+          true,
+          { version: "22.11.1", type: "down" },
+        ),
+      },
     },
     "22.11.1",
   );
