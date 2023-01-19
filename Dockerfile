@@ -99,8 +99,10 @@ RUN apt-get update -qq && \
         git \
         gnupg \
         libpq-dev \
+        libssl-dev \
         libtool \
         libffi-dev \
+        pkg-config \
         python3 \
         python3-dev \
         python3-mako \
@@ -141,12 +143,12 @@ ARG ARCH
 COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
 WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
-RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
 
 # build rust-teos
 COPY ./rust-teos /tmp/rust-teos
 WORKDIR /tmp/rust-teos
 RUN cargo install --locked --path teos
+RUN cargo install --locked --path watchtower-plugin
 
 # build lightningd
 WORKDIR /opt/lightningd
@@ -235,8 +237,10 @@ ARG ARCH
 # c-lightning-http-plugin
 COPY --from=builder /tmp/lightning-wrapper/c-lightning-http-plugin/target/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
 
-# rust-teos
-COPY --from=builder /tmp/rust-teos/teos /usr/local/libexec/c-lightning/plugins/teos
+# teos (server) & watchtower-client
+COPY --from=builder /root/.cargo/bin/teosd /usr/local/bin/teosd
+COPY --from=builder /root/.cargo/bin/teos-cli /usr/local/bin/teos-cli
+COPY --from=builder /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/watchtower-client
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh

@@ -91,6 +91,9 @@ else
   echo "Macaroon not found, generating new one"
 fi
 
+export TOWERS_DATA_DIR=/root/.lightning/.watchtower
+mkdir -p $TOWERS_DATA_DIR
+
 echo "Starting lightning"
 lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
 lightningd_child=$!

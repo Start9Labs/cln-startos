@@ -315,7 +315,7 @@ function configMaker(alias: Alias, config: SetConfig) {
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
   const enableTeosPlugin = config.advanced.plugins.teos
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
     : "";
 
   return `
