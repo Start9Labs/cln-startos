@@ -122,6 +122,20 @@ interfaces:
     protocols:
       - tcp
       - http
+  watchtower:
+    name: TEOS Watchtower API
+    description: The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.
+    tor-config:
+      port-mapping:
+        9814: "9814"
+    lan-config:
+      9814:
+        ssl: true
+        internal: 9814
+    ui: false
+    protocols:
+      - tcp
+      - http
 dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"

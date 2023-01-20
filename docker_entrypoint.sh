@@ -5,12 +5,15 @@ set -ea
 _term() {
   echo "Caught SIGTERM signal!"
   kill -TERM "$lightningd_child" 2>/dev/null
+  kill -TERM "$teosd_child" 2>/dev/null
 }
 
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
+export TOWERS_DATA_DIR=/root/.lightning/.watchtower
+mkdir -p $TOWERS_DATA_DIR
 
 CLBOSS_ENABLED_VALUE=$(yq e '.advanced.plugins.clboss.enabled' /root/.lightning/start9/config.yaml)
 if [ $CLBOSS_ENABLED_VALUE = "enabled" ]; then
@@ -60,6 +63,7 @@ echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
 
 sh /root/.lightning/start9/waitForStart.sh
 sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /root/.lightning/config
+# cp /root/.lightning/config.main /root/.lightning/
 
 echo "Cleaning old lightning rpc"
 if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
@@ -91,12 +95,13 @@ else
   echo "Macaroon not found, generating new one"
 fi
 
-export TOWERS_DATA_DIR=/root/.lightning/.watchtower
-mkdir -p $TOWERS_DATA_DIR
-
-echo "Starting lightning"
+echo "Starting lightningd"
 lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
 lightningd_child=$!
+
+echo "Starting teosd"
+teosd --datadir=/root/.lightning/.teos &
+teosd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
@@ -137,4 +142,4 @@ echo "All configuration Done"
 
 trap _term TERM
 
-wait $lightningd_child
+wait $lightningd_child $teosd_child

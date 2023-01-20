@@ -271,6 +271,51 @@ ${reserveTankMsat}
   }
 }
 
+function getTeosConfig(config: SetConfig) {
+  const {
+    bitcoin_rpc_host,
+    bitcoin_rpc_pass,
+    bitcoin_rpc_port,
+    bitcoin_rpc_user,
+  } = userInformation(config);
+  return `
+# API
+api_bind = "0.0.0.0"
+api_port = 9814
+#tor_control_port = 9051
+#onion_hidden_service_port = 9814
+tor_support = false
+
+# RPC
+rpc_bind = "127.0.0.1"
+rpc_port = 8814
+
+# bitcoind
+btc_network = "mainnet"
+btc_rpc_user = "${bitcoin_rpc_user}"
+btc_rpc_password = "${bitcoin_rpc_pass}"
+btc_rpc_connect = "${bitcoin_rpc_host}"
+btc_rpc_port = ${bitcoin_rpc_port}
+
+# Flags
+debug = false
+deps_debug = false
+overwrite_key = false
+
+# General
+subscription_slots = 10000
+subscription_duration = 4320
+expiry_delta = 6
+min_to_self_delay = 20
+polling_delta = 60
+
+# Internal API
+internal_api_bind = "127.0.0.1"
+internal_api_port = 50051
+`
+}
+
+
 function configMaker(alias: Alias, config: SetConfig) {
   const {
     bitcoin_rpc_host,
@@ -374,6 +419,18 @@ export const setConfig: T.ExpectedExports.setConfig = async (
   await effects.writeFile({
     path: "config.main",
     toWrite: configMaker(alias, config),
+    volumeId: "main",
+  });
+
+
+  await effects.createDir({
+    path: ".teos",
+    volumeId: "main",
+  });
+
+  await effects.writeFile({
+    path: ".teos/teos.toml",
+    toWrite: getTeosConfig(config),
     volumeId: "main",
   });
 
