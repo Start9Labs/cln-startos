@@ -360,7 +360,7 @@ function configMaker(alias: Alias, config: SetConfig) {
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
   const enableTeosPlugin = config.advanced.plugins.teos
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client\nwatchtower-proxy=embassy:9050"
     : "";
 
   return `
