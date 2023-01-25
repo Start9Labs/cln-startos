@@ -112,6 +112,11 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 };
               }
             }
+            config.watchtowers = {
+              "wt-server": false,
+              "wt-client": false,
+              "add-watchtowers": [],
+            };
             return config;
           },
           true,
@@ -129,6 +134,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
               config.advanced.experimental["dual-fund"] =
                 config.advanced.experimental["dual-fund"].enabled === "enabled";
             }
+            delete config.watchtowers;
             return config;
           },
           true,
