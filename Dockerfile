@@ -186,6 +186,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     socat \
     inotify-tools \
     iproute2 \
+    jq \
     libcurl4-gnutls-dev \
     libev-dev \
     libsqlite3-dev \

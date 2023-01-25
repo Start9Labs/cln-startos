@@ -1,6 +1,5 @@
 import { compat, types as T } from "../deps.ts";
 
-
 export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
   "peer-tor-address": {
     "name": "Peer Tor Address",
@@ -147,6 +146,42 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         },
         "copyable": true,
         "masked": true,
+      },
+    },
+  },
+  "watchtowers": {
+    "type": "object",
+    "name": "Watchtowers",
+    "description": "Watchtower Settings",
+    "spec": {
+      "wt-server": {
+        "type": "boolean",
+        "name": "Enable Watchtower Server",
+        "description":
+          "Allow other nodes to find your watchtower server on the network.",
+        "nullable": true,
+        "default": false,
+      },
+      "wt-client": {
+        "type": "boolean",
+        "name": "Enable Watchtower Client",
+        "description": "Allow your node to find other watchtower servers on the network.",
+        "nullable": true,
+        "default": false,
+      },
+      "add-watchtowers": {
+        "type": "list",
+        "name": "Add Watchtowers",
+        "description": "Add URIs of Watchtowers to connect to.",
+        "range": "[0,*)",
+        "subtype": "string",
+        "spec": {
+          "masked": false,
+          "copyable": true,
+          "placeholder": "pubkey@host"
+        },
+        "nullable": true,
+        "default": Array<string>() // [] as string []
       },
     },
   },
