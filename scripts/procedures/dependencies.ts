@@ -66,6 +66,7 @@ const checks: Array<Check> = [
     "getblockhash",
     "getblock",
     "getblockcount",
+    "getblockheader",
     "estimatesmartfee",
     "getnetworkinfo",
   ].map(
