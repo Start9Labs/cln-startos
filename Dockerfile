@@ -181,6 +181,10 @@ COPY --from=downloader /opt/tini /usr/bin/tini
 # CLBOSS
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
+# lightningd
+COPY --from=builder /tmp/lightning_install/ /usr/local/
+COPY --from=downloader /opt/bitcoin/bin /usr/bin
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     dnsutils \
     socat \
@@ -202,8 +206,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir $LIGHTNINGD_DATA && \
     touch $LIGHTNINGD_DATA/config
 VOLUME [ "/root/.lightning" ]
-COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 ARG PLATFORM
 

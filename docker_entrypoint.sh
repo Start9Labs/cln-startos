@@ -12,6 +12,7 @@ export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
+export WATCHTOWER_TOR_ADDRESS=$(yq e '.watchtower-tor-address' /root/.lightning/start9/config.yaml)
 export TOWERS_DATA_DIR=/root/.lightning/.watchtower
 mkdir -p $TOWERS_DATA_DIR
 
@@ -59,6 +60,7 @@ mkdir -p /root/.lightning/public
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
+echo $WATCHTOWER_TOR_ADDRESS > /root/.lightning/start9/watchtowerTorAddress
 
 sh /root/.lightning/start9/waitForStart.sh
 sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /root/.lightning/config
@@ -97,9 +99,11 @@ echo "Starting lightningd"
 lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
 lightningd_child=$!
 
-echo "Starting teosd"
-teosd --datadir=/root/.lightning/.teos &
-teosd_child=$!
+if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
+  echo "Starting teosd"
+  teosd --datadir=/root/.lightning/.teos &
+  teosd_child=$!
+fi
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
@@ -140,11 +144,18 @@ if [ "$(yq ".watchtowers.wt-client" /root/.lightning/start9/config.yaml)" = "tru
   lightning-cli listtowers | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > .lightning/start9/wt_old
   cat .lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > .lightning/start9/wt_new
   echo "Abandoning old watchtowers"
-  grep -Fxvf .lightning/start9/wt_new .lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {}
+  grep -Fxvf .lightning/start9/wt_new .lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
   echo "Regsistering new watchtowers"
-  grep -Fxvf .lightning/start9/wt_old .lightning/start9/wt_new | xargs -I{} lightning-cli registertower {}
+  grep -Fxvf .lightning/start9/wt_old .lightning/start9/wt_new | xargs -I{} lightning-cli registertower {} 2>&1 || true
 fi
 
+if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
+  until teos-cli --datadir=/root/.lightning/.teos gettowerinfo > /root/.lightning/start9/teosTowerInfo
+  do
+    echo "TEOS watchtower still starting, retrying..."
+    sleep 5
+  done
+fi
 
 echo "All configuration Done"
 

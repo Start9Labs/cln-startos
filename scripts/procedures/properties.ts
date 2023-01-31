@@ -9,6 +9,10 @@ const nodeInfoMatcher = shape({
   alias: string,
 }, ["alias"]);
 
+const towerInfoMatcher = shape({
+  tower_id: string,
+});
+
 const noPropertiesFound: T.ResultType<T.Properties> = {
   result: {
     version: 2,
@@ -39,6 +43,14 @@ export const properties: T.ExpectedExports.properties = async (
   if (
     await util.exists(effects, {
       volumeId: "main",
+      path: "start9/teosTowerInfo",
+    }) === false
+  ) {
+    return noPropertiesFound;
+  }
+  if (
+    await util.exists(effects, {
+      volumeId: "main",
       path: "start9/peerTorAddress",
     }) === false
   ) {
@@ -52,11 +64,26 @@ export const properties: T.ExpectedExports.properties = async (
   ) {
     return noPropertiesFound;
   }
+  if (
+    await util.exists(effects, {
+      volumeId: "main",
+      path: "start9/watchtowerTorAddress",
+    }) === false
+  ) {
+    return noPropertiesFound;
+  }
 
   const nodeInfo = nodeInfoMatcher.unsafeCast(
     await effects.readJsonFile({
       volumeId: "main",
       path: "start9/lightningGetInfo",
+    }),
+  );
+
+  const towerInfo = towerInfoMatcher.unsafeCast(
+    await effects.readJsonFile({
+      volumeId: "main",
+      path: "start9/teosTowerInfo",
     }),
   );
   const peerTorAddress = await effects
@@ -69,6 +96,12 @@ export const properties: T.ExpectedExports.properties = async (
     .readFile({
       volumeId: "main",
       path: "start9/restTorAddress",
+    })
+    .then((x) => x.trim());
+  const watchtowerTorAddress = await effects
+    .readFile({
+      volumeId: "main",
+      path: "start9/watchtowerTorAddress",
     })
     .then((x) => x.trim());
   const config = setConfigMatcher.unsafeCast(
@@ -160,6 +193,19 @@ export const properties: T.ExpectedExports.properties = async (
         masked: true,
       },
     };
+
+  const watchtowerProperties: T.PackagePropertiesV2 = !config.watchtowers["wt-server"]
+    ? {}
+    : {
+    "Watchtower Server Uri": {
+        type: "string",
+        value: `${towerInfo.tower_id}@${watchtowerTorAddress}`,
+        description: "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
+        copyable: true,
+        qr: true,
+        masked: true,
+      },
+    };
   const alias = await getAlias(effects, config);
   const result: T.Properties = {
     version: 2,
@@ -191,6 +237,7 @@ export const properties: T.ExpectedExports.properties = async (
       },
       ...rpcProperties,
       ...restProperties,
+      ...watchtowerProperties,
     },
   };
   return { result };

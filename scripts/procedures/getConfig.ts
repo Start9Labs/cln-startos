@@ -28,6 +28,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     "target": "tor-address",
     "interface": "rest",
   },
+  "watchtower-tor-address": {
+    "name": "TEoS Watchtower API Address",
+    "description": "The Tor address of the TEoS Watchtower API",
+    "type": "pointer",
+    "subtype": "package",
+    "package-id": "c-lightning",
+    "target": "tor-address",
+    "interface": "watchtower",
+  },
   "alias": {
     "type": "string",
     "name": "Alias",
