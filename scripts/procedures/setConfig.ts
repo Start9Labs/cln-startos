@@ -312,9 +312,8 @@ polling_delta = 60
 # Internal API
 internal_api_bind = "127.0.0.1"
 internal_api_port = 50051
-`
+`;
 }
-
 
 function configMaker(alias: Alias, config: SetConfig) {
   const {
@@ -359,7 +358,7 @@ function configMaker(alias: Alias, config: SetConfig) {
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
-  const enableTeosPlugin = config.advanced.plugins.teos
+  const enableWatchtowerClientPlugin = config.watchtowers["wt-client"]
     ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client\nwatchtower-proxy=embassy:9050"
     : "";
 
@@ -400,7 +399,7 @@ ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableRestPlugin}
 ${enableClbossPlugin}
-${enableTeosPlugin}`;
+${enableWatchtowerClientPlugin}`;
 }
 
 export const setConfig: T.ExpectedExports.setConfig = async (
@@ -421,7 +420,6 @@ export const setConfig: T.ExpectedExports.setConfig = async (
     toWrite: configMaker(alias, config),
     volumeId: "main",
   });
-
 
   await effects.createDir({
     path: ".teos",
