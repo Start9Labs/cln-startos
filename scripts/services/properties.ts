@@ -1,6 +1,6 @@
 import { matches, types as T, util, YAML } from "../deps.ts";
 import { lazy } from "../models/lazy.ts";
-import { setConfigMatcher } from "../models/setConfig.ts";
+import { setConfigMatcher } from "./getConfig.ts";
 import { getAlias } from "./getAlias.ts";
 const { shape, string } = matches;
 
