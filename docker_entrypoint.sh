@@ -8,6 +8,12 @@ _term() {
   kill -TERM "$teosd_child" 2>/dev/null
 }
 
+_chld() {
+  echo "Caught SIGCHLD signal!"
+  kill -TERM "$lightningd_child" 2>/dev/null
+  kill -TERM "$teosd_child" 2>/dev/null
+}
+
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
@@ -160,5 +166,6 @@ fi
 echo "All configuration Done"
 
 trap _term TERM
+trap _chld CHLD
 
 wait $lightningd_child $teosd_child
