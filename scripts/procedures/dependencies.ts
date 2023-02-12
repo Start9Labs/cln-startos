@@ -60,15 +60,16 @@ const checks: Array<Check> = [
   },
   ...[
     "echo",
-    "gettxout",
-    "getblockchaininfo",
-    "sendrawtransaction",
-    "getblockhash",
-    "getblock",
-    "getblockcount",
-    "getblockheader",
     "estimatesmartfee",
+    "getblock",
+    "getblockchaininfo",
+    "getblockcount",
+    "getblockhash",
+    "getblockheader",
     "getnetworkinfo",
+    "getrawtransaction",
+    "gettxout",
+    "sendrawtransaction",
   ].map(
     (operator): Check => ({
       currentError(config) {

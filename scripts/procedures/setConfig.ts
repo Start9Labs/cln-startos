@@ -359,7 +359,7 @@ function configMaker(alias: Alias, config: SetConfig) {
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
   const enableWatchtowerClientPlugin = config.watchtowers["wt-client"]
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client\nwatchtower-proxy=embassy:9050"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
     : "";
 
   return `
