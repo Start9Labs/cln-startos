@@ -131,11 +131,17 @@ function userInformation(config: SetConfig) {
   }
 }
 
-function getDualFundStrategyConfig(strategy: (SetConfig ["advanced"]["experimental"]["dual-fund"] & {enabled: 'enabled'})['strategy']) {
-  if(strategy.mode === 'incognito') {
+function getDualFundStrategyConfig(
+  strategy: (SetConfig["advanced"]["experimental"]["dual-fund"] & {
+    enabled: "enabled";
+  })["strategy"],
+) {
+  if (strategy.mode === "incognito") {
     return {
       policy: strategy.policy.policy ? strategy.policy.policy : "match",
-      policy_mod: "policy-mod" in strategy.policy ? strategy.policy["policy-mod"] : "100",
+      policy_mod: "policy-mod" in strategy.policy
+        ? strategy.policy["policy-mod"]
+        : "100",
       leases_only: false,
 
       fuzz_percent: strategy["fuzz-percent"],
@@ -146,7 +152,7 @@ function getDualFundStrategyConfig(strategy: (SetConfig ["advanced"]["experiment
       funding_weight: null,
       channel_fee_max_base_msat: null,
       channel_fee_max_proportional_thousandths: null,
-    }
+    };
   } else {
     const configReturn = {
       policy: "match",
@@ -157,42 +163,87 @@ function getDualFundStrategyConfig(strategy: (SetConfig ["advanced"]["experiment
       lease_fee_basis: strategy["lease-fee-basis"],
       funding_weight: strategy["funding-weight"],
       channel_fee_max_base_msat: strategy["channel-fee-max-base-msat"],
-      channel_fee_max_proportional_thousandths: strategy["channel-fee-max-proportional-thousandths"],
+      channel_fee_max_proportional_thousandths:
+        strategy["channel-fee-max-proportional-thousandths"],
 
       fuzz_percent: null,
       fund_probability: null,
-    }
-    if (configReturn.lease_fee_base_sat == null && configReturn.lease_fee_basis == null && configReturn.funding_weight == null && configReturn.channel_fee_max_base_msat == null && configReturn.channel_fee_max_proportional_thousandths == null) {
+    };
+    if (
+      configReturn.lease_fee_base_sat == null &&
+      configReturn.lease_fee_basis == null &&
+      configReturn.funding_weight == null &&
+      configReturn.channel_fee_max_base_msat == null &&
+      configReturn.channel_fee_max_proportional_thousandths == null
+    ) {
       configReturn.lease_fee_basis = 65;
     }
-    return configReturn
+    return configReturn;
   }
 }
 
 function getDualFundConfig(config: SetConfig) {
   const dualFundConfigInput = config.advanced.experimental["dual-fund"];
-  if (dualFundConfigInput.enabled === 'enabled') {
-    const strategyConfig = getDualFundStrategyConfig(dualFundConfigInput.strategy);
+  if (dualFundConfigInput.enabled === "enabled") {
+    const strategyConfig = getDualFundStrategyConfig(
+      dualFundConfigInput.strategy,
+    );
 
     // merchant
-    const leaseFeeBaseMsat = strategyConfig.lease_fee_base_sat ? `lease-fee-base-sat=${strategyConfig.lease_fee_base_sat}` : "";
-    const leaseFeeBasis = strategyConfig.lease_fee_basis ? `lease-fee-basis=${strategyConfig.lease_fee_basis}` : "";
-    const fundingWeight = strategyConfig.funding_weight ? `lease-funding-weight=${strategyConfig.funding_weight}` : "";
-    const channelFeeMaxBaseMsat = strategyConfig.channel_fee_max_base_msat ? `channel-fee-max-base-msat=${strategyConfig.channel_fee_max_base_msat}` : "";
-    const channelFeeMaxProportionalThousandths = strategyConfig.channel_fee_max_proportional_thousandths ? `channel-fee-max-proportional-thousandths=${strategyConfig.channel_fee_max_proportional_thousandths}` : "";
+    const leaseFeeBaseMsat = strategyConfig.lease_fee_base_sat
+      ? `lease-fee-base-sat=${strategyConfig.lease_fee_base_sat}`
+      : "";
+    const leaseFeeBasis = strategyConfig.lease_fee_basis
+      ? `lease-fee-basis=${strategyConfig.lease_fee_basis}`
+      : "";
+    const fundingWeight = strategyConfig.funding_weight
+      ? `lease-funding-weight=${strategyConfig.funding_weight}`
+      : "";
+    const channelFeeMaxBaseMsat = strategyConfig.channel_fee_max_base_msat
+      ? `channel-fee-max-base-msat=${strategyConfig.channel_fee_max_base_msat}`
+      : "";
+    const channelFeeMaxProportionalThousandths =
+      strategyConfig.channel_fee_max_proportional_thousandths
+        ? `channel-fee-max-proportional-thousandths=${strategyConfig.channel_fee_max_proportional_thousandths}`
+        : "";
 
     // incognito
-    const fuzzPercent = strategyConfig.fuzz_percent ? `funder-fuzz-percent=${strategyConfig.fuzz_percent}` : "";
-    const fundProbability = strategyConfig.fund_probability ? `funder-fund-probability=${strategyConfig.fund_probability}` : "";
+    const fuzzPercent = strategyConfig.fuzz_percent
+      ? `funder-fuzz-percent=${strategyConfig.fuzz_percent}`
+      : "";
+    const fundProbability = strategyConfig.fund_probability
+      ? `funder-fund-probability=${strategyConfig.fund_probability}`
+      : "";
 
     // both
-    const policyMod = strategyConfig.policy_mod ? `funder-policy-mod=${strategyConfig.policy_mod}` : "";
-    const minTheirFundingMsat = dualFundConfigInput.other["min-their-funding-msat"] ? `funder-min-their-funding=${dualFundConfigInput.other["min-their-funding-msat"]}` : "";
-    const maxTheirFundingMsat = dualFundConfigInput.other["max-their-funding-msat"] ? `funder-max-their-funding=${dualFundConfigInput.other["max-their-funding-msat"]}` : "";
-    const perChannelMinMsat = dualFundConfigInput.other["per-channel-min-msat"] ? `funder-per-channel-min=${dualFundConfigInput.other["per-channel-min-msat"]}` : "";
-    const perChannelMaxMsat = dualFundConfigInput.other["per-channel-max-msat"] ? `funder-per-channel-max=${dualFundConfigInput.other["per-channel-max-msat"]}` : "";
-    const reserveTankMsat = dualFundConfigInput.other["reserve-tank-msat"] ? `funder-reserve-tank=${dualFundConfigInput.other["reserve-tank-msat"]}` : "";
-
+    const policyMod = strategyConfig.policy_mod
+      ? `funder-policy-mod=${strategyConfig.policy_mod}`
+      : "";
+    const minTheirFundingMsat =
+      dualFundConfigInput.other["min-their-funding-msat"]
+        ? `funder-min-their-funding=${
+          dualFundConfigInput.other["min-their-funding-msat"]
+        }`
+        : "";
+    const maxTheirFundingMsat =
+      dualFundConfigInput.other["max-their-funding-msat"]
+        ? `funder-max-their-funding=${
+          dualFundConfigInput.other["max-their-funding-msat"]
+        }`
+        : "";
+    const perChannelMinMsat = dualFundConfigInput.other["per-channel-min-msat"]
+      ? `funder-per-channel-min=${
+        dualFundConfigInput.other["per-channel-min-msat"]
+      }`
+      : "";
+    const perChannelMaxMsat = dualFundConfigInput.other["per-channel-max-msat"]
+      ? `funder-per-channel-max=${
+        dualFundConfigInput.other["per-channel-max-msat"]
+      }`
+      : "";
+    const reserveTankMsat = dualFundConfigInput.other["reserve-tank-msat"]
+      ? `funder-reserve-tank=${dualFundConfigInput.other["reserve-tank-msat"]}`
+      : "";
 
     return `
 experimental-dual-fund
@@ -216,7 +267,7 @@ ${perChannelMaxMsat}
 ${reserveTankMsat}
 `;
   } else {
-    return ""
+    return "";
   }
 }
 
@@ -229,6 +280,12 @@ function configMaker(alias: Alias, config: SetConfig) {
   } = userInformation(config);
   const rpcBind = config.rpc.enabled ? "0.0.0.0:8080" : "127.0.0.1:8080";
   const enableWumbo = config.advanced["wumbo-channels"] ? "large-channels" : "";
+  const minHtlcMsat = config.advanced["htlc-minimum-msat"] !== null
+    ? `htlc-minimum-msat=${config.advanced["htlc-minimum-msat"]}`
+    : "";
+  const maxHtlcMsat = config.advanced["htlc-maximum-msat"] !== null
+    ? `htlc-maximum-msat=${config.advanced["htlc-maximum-msat"]}`
+    : "";
   const enableExperimentalDualFund = getDualFundConfig(config);
   const enableExperimentalOnionMessages =
     config.advanced.experimental["onion-messages"]
@@ -253,9 +310,10 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/plugin.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
-  const enableClbossPlugin = config.advanced.plugins.clboss.enabled === 'enabled'
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
-    : "";
+  const enableClbossPlugin =
+    config.advanced.plugins.clboss.enabled === "enabled"
+      ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
+      : "";
 
   return `
 network=bitcoin
@@ -281,6 +339,8 @@ min-capacity-sat=${config.advanced["min-capacity"]}
 ignore-fee-limits=${config.advanced["ignore-fee-limits"]}
 funding-confirms=${config.advanced["funding-confirms"]}
 cltv-delta=${config.advanced["cltv-delta"]}
+${minHtlcMsat}
+${maxHtlcMsat}
 ${enableWumbo}
 ${enableExperimentalDualFund}
 ${enableExperimentalOnionMessages}

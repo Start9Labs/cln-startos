@@ -223,6 +223,26 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         "default": 40,
         "units": "blocks",
       },
+      "htlc-minimum-msat": {
+        "type": "number",
+        "name": "HTLC Minimum Size (Msat)",
+        "description":
+          "Default: 0. Sets the minimal allowed HTLC value for newly created channels. If you want to change the htlc_minimum_msat for existing channels, use the RPC call lightning-setchannel(7).",
+        "nullable": true,
+        "range": "[0,*)",
+        "integral": true,
+        "units": "millisatoshis",
+      },
+      "htlc-maximum-msat": {
+        "type": "number",
+        "name": "HTLC Maximum Size (Msat)",
+        "description":
+          "Default: unset (no limit). Sets the maximum allowed HTLC value for newly created channels. If you want to change the htlc_maximum_msat for existing channels, use the RPC call lightning-setchannel(7).",
+        "nullable": true,
+        "range": "[0,*)",
+        "integral": true,
+        "units": "millisatoshis",
+      },
       "wumbo-channels": {
         "type": "boolean",
         "name": "Enable Wumbo Channels",
