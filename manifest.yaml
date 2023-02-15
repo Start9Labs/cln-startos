@@ -7,7 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update upstream to [v22.11](https://github.com/ElementsProject/lightning/releases/tag/v22.11.1)
+  * Update upstream to [v22.11.1](https://github.com/ElementsProject/lightning/releases/tag/v22.11.1)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
