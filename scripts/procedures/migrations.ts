@@ -10,7 +10,11 @@ export const migration: T.ExpectedExports.migration = compat.migrations
           (config) => {
             if (
               matches.shape({
-                advanced: matches.shape({ plugins: matches.shape ({ clboss: matches.unknown }, ["clboss"]) }),
+                advanced: matches.shape({
+                  plugins: matches.shape({ clboss: matches.unknown }, [
+                    "clboss",
+                  ]),
+                }),
               }).test(config)
             ) {
               config.advanced.plugins.clboss = false;
@@ -24,7 +28,9 @@ export const migration: T.ExpectedExports.migration = compat.migrations
           (config) => {
             if (
               matches.shape({
-                advanced: matches.shape({ plugins: matches.shape ({ clboss: matches.unknown } ) }),
+                advanced: matches.shape({
+                  plugins: matches.shape({ clboss: matches.unknown }),
+                }),
               }).test(config)
             ) {
               delete config.advanced.plugins.clboss;
@@ -72,8 +78,9 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 }),
               }).test(config)
             ) {
-                config.advanced.plugins.clboss = config.advanced.plugins.clboss.enabled === "enabled";
-              }
+              config.advanced.plugins.clboss =
+                config.advanced.plugins.clboss.enabled === "enabled";
+            }
             return config;
           },
           true,
@@ -93,11 +100,16 @@ export const migration: T.ExpectedExports.migration = compat.migrations
               if (config.advanced.experimental["dual-fund"] === true) {
                 config.advanced.experimental["dual-fund"] = {
                   enabled: "enabled",
-                  strategy: { mode: "incognito", policy: { "policy": "fixed" }},
-                  other: { },
+                  strategy: {
+                    mode: "incognito",
+                    policy: { "policy": "fixed" },
+                  },
+                  other: {},
                 };
               } else {
-                config.advanced.experimental["dual-fund"] = { enabled: "disabled" };
+                config.advanced.experimental["dual-fund"] = {
+                  enabled: "disabled",
+                };
               }
             }
             return config;
@@ -114,8 +126,9 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 }),
               }).test(config)
             ) {
-                config.advanced.experimental["dual-fund"] = config.advanced.experimental["dual-fund"].enabled === "enabled";
-              }
+              config.advanced.experimental["dual-fund"] =
+                config.advanced.experimental["dual-fund"].enabled === "enabled";
+            }
             return config;
           },
           true,
@@ -123,5 +136,5 @@ export const migration: T.ExpectedExports.migration = compat.migrations
         ),
       },
     },
-    "22.11.1.1",
+    "22.11.1.2",
   );
