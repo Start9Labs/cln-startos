@@ -1,5 +1,5 @@
 id: c-lightning
-version: 22.11.1.2
+version: 22.11.1.3
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,11 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update upstream to [v22.11.1](https://github.com/ElementsProject/lightning/releases/tag/v22.11.1)
-  * Fix sync health check so it accurately reports the current block height instead of just 0 of [tip]
-  * Add dual funding and liquidity ads to config so the funder will continue working after a restart
-  * Update clboss, c-lightning-REST, and plugins submodules to latest upstream code
-  * New config options: `htlc-minimum-msat` and `htlc-maximum-msat`
+  * Add The Eye of Satoshi watchtower server and client plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

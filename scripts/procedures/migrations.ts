@@ -112,11 +112,6 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 };
               }
             }
-            config.watchtowers = {
-              "wt-server": false,
-              "wt-client": false,
-              "add-watchtowers": [],
-            };
             return config;
           },
           true,
@@ -134,13 +129,34 @@ export const migration: T.ExpectedExports.migration = compat.migrations
               config.advanced.experimental["dual-fund"] =
                 config.advanced.experimental["dual-fund"].enabled === "enabled";
             }
-            delete config.watchtowers;
             return config;
           },
           true,
           { version: "22.11.1", type: "down" },
         ),
       },
+      "22.11.1.3": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            config.watchtowers = {
+              "wt-server": false,
+              "wt-client": false,
+              "add-watchtowers": [],
+            };
+            return config;
+          },
+          true,
+          { version: "22.11.1.3", type: "up" },
+        ),
+        down: compat.migrations.updateConfig(
+          (config) => {
+            delete config.watchtowers;
+            return config;
+          },
+          true,
+          { version: "22.11.1.3", type: "down" },
+        ),
+      },
     },
-    "22.11.1.2",
+    "22.11.1.3",
   );
