@@ -65,7 +65,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       "description":
         "Options<ul><li>Bitcoin Core: the Bitcoin Core node installed on your Embassy</li><li>Bitcoin Proxy: the Bitcoin Proxy service installed on your Embassy</li></ul>",
     },
-    "default": "internal-proxy",
+    "default": "internal",
     "variants": {
       "internal": {
         "user": {
