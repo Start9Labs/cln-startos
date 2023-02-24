@@ -29,6 +29,18 @@ const noPropertiesFound: T.ResultType<T.Properties> = {
   },
 } as const;
 
+const noTeosInfoFound: T.PackagePropertiesV2 = {
+  "Watchtower Server Uri": {
+    type: "string",
+    value: "Waiting for watchtower to start...",
+    description:
+      "Once your watchtower server has started and synced to the blockchain, this field will contain its shareable URI",
+    copyable: false,
+    qr: false,
+    masked: false,
+  },
+} as const;
+
 export const properties: T.ExpectedExports.properties = async (
   effects: T.Effects,
 ) => {
@@ -36,14 +48,6 @@ export const properties: T.ExpectedExports.properties = async (
     await util.exists(effects, {
       volumeId: "main",
       path: "start9/lightningGetInfo",
-    }) === false
-  ) {
-    return noPropertiesFound;
-  }
-  if (
-    await util.exists(effects, {
-      volumeId: "main",
-      path: "start9/teosTowerInfo",
     }) === false
   ) {
     return noPropertiesFound;
@@ -77,13 +81,6 @@ export const properties: T.ExpectedExports.properties = async (
     await effects.readJsonFile({
       volumeId: "main",
       path: "start9/lightningGetInfo",
-    }),
-  );
-
-  const towerInfo = towerInfoMatcher.unsafeCast(
-    await effects.readJsonFile({
-      volumeId: "main",
-      path: "start9/teosTowerInfo",
     }),
   );
   const peerTorAddress = await effects
@@ -185,7 +182,8 @@ export const properties: T.ExpectedExports.properties = async (
       "REST API Quick Connect URL": {
         type: "string",
         value:
-          `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
+          `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon
+            .val()}`,
         description:
           "A copyable string/scannable QR code you can import into wallet client applications such as Zeus",
         copyable: true,
@@ -194,18 +192,42 @@ export const properties: T.ExpectedExports.properties = async (
       },
     };
 
-  const watchtowerProperties: T.PackagePropertiesV2 = !config.watchtowers["wt-server"]
-    ? {}
-    : {
-    "Watchtower Server Uri": {
-        type: "string",
-        value: `${towerInfo.tower_id}@${watchtowerTorAddress}`,
-        description: "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
-        copyable: true,
-        qr: true,
-        masked: true,
-      },
-    };
+  let watchtowerProperties: T.PackagePropertiesV2 = {};
+  if (config.watchtowers["wt-server"]) {
+    if (
+      await util.exists(effects, {
+        volumeId: "main",
+        path: "start9/teosTowerInfo",
+      }) === false
+    ) {
+      watchtowerProperties = noTeosInfoFound;
+    } else {
+      const teosTowerInfoFile = await effects.readFile({
+        volumeId: "main",
+        path: "start9/teosTowerInfo",
+      });
+      // file will exist but be empty while teos is syncing for the first time
+      if (teosTowerInfoFile === "") {
+        watchtowerProperties = noTeosInfoFound;
+      } else {
+        const towerInfo = towerInfoMatcher.unsafeCast(
+          JSON.parse(teosTowerInfoFile),
+        );
+        watchtowerProperties = {
+          "Watchtower Server Uri": {
+            type: "string",
+            value: `${towerInfo.tower_id}@${watchtowerTorAddress}`,
+            description:
+              "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
+            copyable: true,
+            qr: true,
+            masked: true,
+          },
+        };
+      }
+    }
+  }
+
   const alias = await getAlias(effects, config);
   const result: T.Properties = {
     version: 2,

@@ -156,9 +156,9 @@ if [ "$(yq ".watchtowers.wt-client" /root/.lightning/start9/config.yaml)" = "tru
 fi
 
 if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
-  until teos-cli --datadir=/root/.lightning/.teos gettowerinfo > /root/.lightning/start9/teosTowerInfo
+  until teos-cli --datadir=/root/.lightning/.teos gettowerinfo > /root/.lightning/start9/teosTowerInfo 2>/dev/null
   do
-    echo "TEOS watchtower still starting, retrying..."
+    echo "Cannot retreive watchtower info, TEOS still starting, retrying in 5 seconds..."
     sleep 5
   done
 fi
