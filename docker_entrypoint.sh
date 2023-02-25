@@ -147,7 +147,8 @@ cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.ligh
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
 if [ "$(yq ".watchtowers.wt-client" /root/.lightning/start9/config.yaml)" = "true" ]; then
-  lightning-cli listtowers | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > .lightning/start9/wt_old
+  lightning-cli listtowers > .lightning/start9/wtClientInfo
+  cat .lightning/start9/wtClientInfo | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > .lightning/start9/wt_old
   cat .lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > .lightning/start9/wt_new
   echo "Abandoning old watchtowers"
   grep -Fxvf .lightning/start9/wt_new .lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true

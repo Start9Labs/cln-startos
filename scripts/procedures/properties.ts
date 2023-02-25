@@ -41,6 +41,18 @@ const noTeosInfoFound: T.PackagePropertiesV2 = {
   },
 } as const;
 
+const noWtClientInfoFound: T.PackagePropertiesV2 = {
+  "Watchtower Client Data": {
+    type: "string",
+    value: "Waiting for watchtower client data to load...",
+    description:
+      "Once your watchtower client data has loaded, this field will contain its shareable URI",
+    copyable: false,
+    qr: false,
+    masked: false,
+  },
+} as const;
+
 export const properties: T.ExpectedExports.properties = async (
   effects: T.Effects,
 ) => {
@@ -204,7 +216,7 @@ export const properties: T.ExpectedExports.properties = async (
       .then((towerInfo) => ({
         "Watchtower Server Uri": {
           type: "string",
-          value: `${towerInfo.tower_id}@${watchtowerTorAddress}`,
+          value: `${towerInfo.tower_id}@${watchtowerTorAddress}:9814`,
           description:
             "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
           copyable: true,
@@ -213,6 +225,71 @@ export const properties: T.ExpectedExports.properties = async (
         },
       } as const))
       .catch(() => noTeosInfoFound);
+  }
+
+  let wtClientProperties: T.PackagePropertiesV2 = {};
+  if (config.watchtowers["wt-client"]) {
+    wtClientProperties = await effects
+      .readFile({
+        volumeId: "main",
+        path: "start9/wtClientInfo",
+      })
+      .then(JSON.parse)
+      .then(Object.entries)
+      .then((xs) =>
+        xs.map(([key, value], i) => [
+          `Watchtower ${i + 1}: ${key}`,
+          {
+            type: "object",
+            value: {
+              "Network Address": {
+                type: "string",
+                value: value.net_addr,
+                description: "Network address the tower is listening on",
+                copyable: true,
+                qr: false,
+                masked: false,
+              },
+              "Available Slots": {
+                type: "string",
+                value: value.available_slots,
+                description: "Number of slots the tower has available",
+                copyable: false,
+                qr: false,
+                masked: false,
+              },
+              "Subscription Start": {
+                type: "string",
+                value: value.subscription_start,
+                description: "Block height when the subscription started",
+                copyable: false,
+                qr: false,
+                masked: false,
+              },
+              "Subscription Expiry": {
+                type: "string",
+                value: value.subscription_expiry,
+                description: "Block height when the subscription will expire",
+                copyable: false,
+                qr: false,
+                masked: false,
+              },
+              "Status": {
+                type: "string",
+                value: value.status,
+                description: "Whether the tower is reachable",
+                copyable: false,
+                qr: false,
+                masked: false,
+              },
+            },
+            description:
+              "Details for each watchtower with which your client plugin has registered",
+          },
+        ])
+      )
+      .then(Object.fromEntries)
+      .catch(() => noWtClientInfoFound);
   }
 
   const alias = await getAlias(effects, config);
@@ -247,6 +324,12 @@ export const properties: T.ExpectedExports.properties = async (
       ...rpcProperties,
       ...restProperties,
       ...watchtowerProperties,
+      "Registered Watchtowers": {
+        type: "object",
+        value: wtClientProperties,
+        description:
+          "Status of watchtowers registered with the watchtower client plugin. Configure these in the watchtower section of your CLN configuration settings.",
+      },
     },
   };
   return { result };

@@ -6,3 +6,7 @@ scripts/embassy.js
 instructions.md
 .DS_Store
 docker-images
+node_modules/
+package-lock.json
+package.json
+scripts/test.ts
