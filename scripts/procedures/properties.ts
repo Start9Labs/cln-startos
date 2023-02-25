@@ -194,38 +194,25 @@ export const properties: T.ExpectedExports.properties = async (
 
   let watchtowerProperties: T.PackagePropertiesV2 = {};
   if (config.watchtowers["wt-server"]) {
-    if (
-      await util.exists(effects, {
+    watchtowerProperties = await effects
+      .readFile({
         volumeId: "main",
         path: "start9/teosTowerInfo",
-      }) === false
-    ) {
-      watchtowerProperties = noTeosInfoFound;
-    } else {
-      const teosTowerInfoFile = await effects.readFile({
-        volumeId: "main",
-        path: "start9/teosTowerInfo",
-      });
-      // file will exist but be empty while teos is syncing for the first time
-      if (teosTowerInfoFile === "") {
-        watchtowerProperties = noTeosInfoFound;
-      } else {
-        const towerInfo = towerInfoMatcher.unsafeCast(
-          JSON.parse(teosTowerInfoFile),
-        );
-        watchtowerProperties = {
-          "Watchtower Server Uri": {
-            type: "string",
-            value: `${towerInfo.tower_id}@${watchtowerTorAddress}`,
-            description:
-              "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
-            copyable: true,
-            qr: true,
-            masked: true,
-          },
-        };
-      }
-    }
+      })
+      .then(JSON.parse)
+      .then((x) => towerInfoMatcher.unsafeCast(x))
+      .then((towerInfo) => ({
+        "Watchtower Server Uri": {
+          type: "string",
+          value: `${towerInfo.tower_id}@${watchtowerTorAddress}`,
+          description:
+            "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
+          copyable: true,
+          qr: true,
+          masked: true,
+        },
+      } as const))
+      .catch(() => noTeosInfoFound);
   }
 
   const alias = await getAlias(effects, config);
