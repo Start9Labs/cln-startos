@@ -2,7 +2,7 @@ import { matches, types as T, util, YAML } from "../deps.ts";
 import { lazy } from "../models/lazy.ts";
 import { setConfigMatcher } from "./getConfig.ts";
 import { getAlias } from "./getAlias.ts";
-const { shape, string } = matches;
+const { shape, string, number, boolean } = matches;
 
 const nodeInfoMatcher = shape({
   id: string,
@@ -11,6 +11,10 @@ const nodeInfoMatcher = shape({
 
 const towerInfoMatcher = shape({
   tower_id: string,
+  n_registered_users: number,
+  n_watcher_appointments: number,
+  n_responder_trackers: number,
+  bitcoind_reachable: boolean,
 });
 
 const noPropertiesFound: T.ResultType<T.Properties> = {
@@ -214,7 +218,7 @@ export const properties: T.ExpectedExports.properties = async (
       .then(JSON.parse)
       .then((x) => towerInfoMatcher.unsafeCast(x))
       .then((towerInfo) => ({
-        "Watchtower Server Uri": {
+        "Watchtower Server URI": {
           type: "string",
           value: `${towerInfo.tower_id}@${watchtowerTorAddress}:9814`,
           description:
@@ -222,6 +226,41 @@ export const properties: T.ExpectedExports.properties = async (
           copyable: true,
           qr: true,
           masked: true,
+        },
+        "Number of Registered Users": {
+          type: "string",
+          value: `${towerInfo.n_registered_users}`,
+          description: "Number of users registered with your tower",
+          copyable: false,
+          qr: false,
+          masked: false,
+        },
+        "Number of Watcher Appointments": {
+          type: "string",
+          value: `${towerInfo.n_watcher_appointments}`,
+          description:
+            "Number of channel states being watched, ready to submit the justice transaction should a breach be detected. There should be at most one of these per channel being watched.",
+          copyable: false,
+          qr: false,
+          masked: false,
+        },
+        "Number of Responder Trackers": {
+          type: "string",
+          value: `${towerInfo.n_responder_trackers}`,
+          description:
+            "Number of active breaches in the process of being resolved. See for more info: https://github.com/talaia-labs/rust-teos/blob/43f99713159a63884e9c851134d126ca1ec48f7e/teos/src/responder.rs#L134-L136",
+          copyable: false,
+          qr: false,
+          masked: false,
+        },
+        "Bitcoind Reachable": {
+          type: "string",
+          value: `${towerInfo.bitcoind_reachable}`,
+          description:
+            "Whether your tower has an active connection to the blockchain backend.",
+          copyable: false,
+          qr: false,
+          masked: false,
         },
       } as const))
       .catch(() => noTeosInfoFound);
@@ -323,8 +362,12 @@ export const properties: T.ExpectedExports.properties = async (
       },
       ...rpcProperties,
       ...restProperties,
-      ...watchtowerProperties,
-      "Registered Watchtowers": {
+      "Watchtower Server Properties": {
+        type: "object",
+        value: watchtowerProperties,
+        description: "Properties of your The Eye of Satoshi watchtower server",
+      },
+      "Watchtower Client Properties": {
         type: "object",
         value: wtClientProperties,
         description:
