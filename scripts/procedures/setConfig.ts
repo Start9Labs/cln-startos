@@ -414,7 +414,7 @@ ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;
 }
 // 02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814
-const validURI = /^(.+@)?([^:]+?)(:\d{1,5})?$/m;
+const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
 export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
   input: T.Config,
