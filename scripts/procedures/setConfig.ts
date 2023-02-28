@@ -414,20 +414,19 @@ ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;
 }
 // 02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814
-const validPlaceholder = /^(.+@)?([^:]+?)(:\d{1,5})?$/m;
+const validURI = /^(.+@)?([^:]+?)(:\d{1,5})?$/m;
 export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
   input: T.Config,
 ) => {
-  // let config = setConfigMatcher.unsafeCast(input);
   let config = setConfigMatcher.unsafeCast(input);
   try {
     const watchTowers = config
       .watchtowers["add-watchtowers"]
       .map((x) => {
-        const matched = x.match(validPlaceholder);
+        const matched = x.match(validURI);
         if (matched === null) {
-          throw `Invalid placeholder: ${x} doesn't match the regex ${validPlaceholder}`;
+          throw `Invalid watchtower URI: ${x} doesn't match the form pubkey@host:port`;
         }
         if (matched[3] == null) {
           return `${matched[1]}${matched[2]}:9814`;
