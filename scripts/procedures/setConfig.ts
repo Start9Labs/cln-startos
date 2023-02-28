@@ -444,7 +444,6 @@ export const setConfig: T.ExpectedExports.setConfig = async (
     return util.error(e);
   }
 
-  // config = fixWatchtowerPorts(config);
   await checkConfigRules(config);
   const alias = await getAlias(effects, config);
 
