@@ -1,8 +1,8 @@
-import { compat, matches, types as T, YAML } from "../deps.ts";
+import { compat, matches, set, types as T, util } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "./getConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
-const { string, boolean, shape } = matches;
+const { string, boolean, shape, arrayOf } = matches;
 
 const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
 type Check = {
@@ -17,6 +17,10 @@ const matchConfig = shape({
           offers: boolean,
         },
       ),
+      watchtower: shape({
+        "wt-client": boolean,
+        "add-watchtowers": arrayOf(string),
+      }),
     },
   ),
 });
@@ -44,6 +48,14 @@ function checkConfigRules(config: T.Config): T.KnownError | void {
     }
   }
 }
+
+// function fixWatchtowerPorts(config: T.Config): T.Config {
+//   const configWithFixedPorts = setConfigMatcher.unsafeCast(config);
+//   for (const towerUrl of configWithFixedPorts.watchtowers["add-watchtowers"]) {
+
+//   }
+//   return config;
+// }
 
 function urlParse(input: string) {
   const url = new URL(input);
@@ -401,12 +413,35 @@ ${enableRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;
 }
-
+// 02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814
+const validPlaceholder = /^(.+@)?([^:]+?)(:\d{1,5})?$/m;
 export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
   input: T.Config,
 ) => {
-  const config = setConfigMatcher.unsafeCast(input);
+  // let config = setConfigMatcher.unsafeCast(input);
+  let config = setConfigMatcher.unsafeCast(input);
+  try {
+    config = set(
+      'watchtowers["add-watchtowers"]',
+      config
+        .watchtowers["add-watchtowers"]
+        .map((x) => {
+          const matched = x.match(validPlaceholder);
+          if (matched === null) {
+            throw `Invalid placeholder: ${x} doesn't match the regex ${validPlaceholder}`;
+          }
+          if (matched[3] == null) {
+            return `${matched[1]}${matched[2]}:9814`;
+          }
+          return x;
+        }),
+    );
+  } catch (e) {
+    return util.error(e);
+  }
+
+  // config = fixWatchtowerPorts(config);
   await checkConfigRules(config);
   const alias = await getAlias(effects, config);
 
@@ -433,5 +468,5 @@ export const setConfig: T.ExpectedExports.setConfig = async (
   });
 
   await createWaitForService(effects, config);
-  return await compat.setConfig(effects, input);
+  return await compat.setConfig(effects, config);
 };
