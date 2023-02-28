@@ -1,4 +1,4 @@
-import { compat, matches, set, types as T, util } from "../deps.ts";
+import { compat, matches, types as T, util } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "./getConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
@@ -422,21 +422,25 @@ export const setConfig: T.ExpectedExports.setConfig = async (
   // let config = setConfigMatcher.unsafeCast(input);
   let config = setConfigMatcher.unsafeCast(input);
   try {
-    config = set(
-      'watchtowers["add-watchtowers"]',
-      config
-        .watchtowers["add-watchtowers"]
-        .map((x) => {
-          const matched = x.match(validPlaceholder);
-          if (matched === null) {
-            throw `Invalid placeholder: ${x} doesn't match the regex ${validPlaceholder}`;
-          }
-          if (matched[3] == null) {
-            return `${matched[1]}${matched[2]}:9814`;
-          }
-          return x;
-        }),
-    );
+    const watchTowers = config
+      .watchtowers["add-watchtowers"]
+      .map((x) => {
+        const matched = x.match(validPlaceholder);
+        if (matched === null) {
+          throw `Invalid placeholder: ${x} doesn't match the regex ${validPlaceholder}`;
+        }
+        if (matched[3] == null) {
+          return `${matched[1]}${matched[2]}:9814`;
+        }
+        return x;
+      });
+    config = {
+      ...config,
+      watchtowers: {
+        ...config.watchtowers,
+        "add-watchtowers": watchTowers,
+      },
+    };
   } catch (e) {
     return util.error(e);
   }
