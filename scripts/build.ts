@@ -3,5 +3,7 @@ await esbuild.build({
   bundle: true,
   outfile: "./scripts/embassy.js",
   entryPoints: ["./scripts/embassy.ts"],
+  format: "esm",
+  target: "es2020",
 });
 esbuild.stop();

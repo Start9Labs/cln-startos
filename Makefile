@@ -63,6 +63,7 @@ docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-syn
 #	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -v "$(shell pwd)"/clboss/target/clboss:/usr/local/bin/clboss --platform=linux/arm64/v8 clboss.dockerfile
 
 scripts/embassy.js: $(TS_FILES)
+	deno check scripts/embassy.ts 
 	deno run --allow-all scripts/build.ts
 
 instructions.md: docs/instructions.md $(DOC_ASSETS)
