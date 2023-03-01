@@ -6,12 +6,16 @@ _term() {
   echo "Caught SIGTERM signal!"
   kill -TERM "$lightningd_child" 2>/dev/null
   kill -TERM "$teosd_child" 2>/dev/null
+  kill -TERM "$wtclient_child" 2>/dev/null
+  kill -TERM "$wtserver_child" 2>/dev/null
 }
 
 _chld() {
   echo "Caught SIGCHLD signal!"
   kill -TERM "$lightningd_child" 2>/dev/null
   kill -TERM "$teosd_child" 2>/dev/null
+  kill -TERM "$wtclient_child" 2>/dev/null
+  kill -TERM "$wtserver_child" 2>/dev/null
 }
 
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
@@ -154,14 +158,14 @@ if [ "$(yq ".watchtowers.wt-client" /root/.lightning/start9/config.yaml)" = "tru
   grep -Fxvf .lightning/start9/wt_new .lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
   echo "Regsistering new watchtowers"
   grep -Fxvf .lightning/start9/wt_old .lightning/start9/wt_new | xargs -I{} lightning-cli registertower {} 2>&1 || true
+
+  while true; do lightning-cli listtowers > .lightning/start9/wtClientInfo || echo 'Failed to fetch towers from client endpoint.'; sleep 60; done &
+  wtclient_child=$!
 fi
 
 if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
-  until teos-cli --datadir=/root/.lightning/.teos gettowerinfo > /root/.lightning/start9/teosTowerInfo 2>/dev/null
-  do
-    echo "Cannot retreive watchtower info, TEOS still starting, retrying in 30 seconds..."
-    sleep 30
-  done
+  while true; do teos-cli --datadir=/root/.lightning/.teos gettowerinfo > /root/.lightning/start9/teosTowerInfo 2>/dev/null || echo 'Failed to fetch tower properties, tower still starting.'; sleep 30; done &
+  wtserver_child=$!
 fi
 
 echo "All configuration Done"
@@ -169,4 +173,4 @@ echo "All configuration Done"
 trap _term TERM
 trap _chld CHLD
 
-wait $lightningd_child $teosd_child
+wait $lightningd_child $teosd_child $wtclient_child $wtserver_child
