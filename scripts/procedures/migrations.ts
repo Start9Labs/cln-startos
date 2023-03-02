@@ -157,6 +157,37 @@ export const migration: T.ExpectedExports.migration = compat.migrations
           { version: "22.11.1.3", type: "down" },
         ),
       },
+      "22.11.1.4": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  experimental: matches.shape({
+                    "onion-messages": matches.boolean,
+                    "offers": matches.boolean,
+                  }),
+                }),
+              }).test(config)
+            ) {
+              // this was a config rule for a while, but then was quietly broken for an unknown number of versions. set it back so install succeeds.
+              if (config.advanced.experimental.offers) {
+                config.advanced.experimental["onion-messages"] = true;
+              }
+            }
+            return config;
+          },
+          true,
+          { version: "22.11.1.4", type: "up" },
+        ),
+        down: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          true,
+          { version: "22.11.1.4", type: "down" },
+        ),
+      },
     },
-    "22.11.1.3",
+    "22.11.1.4",
   );
