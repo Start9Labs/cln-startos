@@ -17,12 +17,12 @@ const matchConfig = shape({
           offers: boolean,
         },
       ),
-      watchtower: shape({
-        "wt-client": boolean,
-        "add-watchtowers": arrayOf(string),
-      }),
     },
   ),
+  watchtowers: shape({
+    "wt-client": boolean,
+    "add-watchtowers": arrayOf(string),
+  }),
 });
 const configRules: Array<Check> = [
   {
@@ -38,6 +38,27 @@ const configRules: Array<Check> = [
       return `You must enable 'Onion Messages' if you wish to enable 'Offers'`;
     },
   },
+  {
+    currentError(config) {
+      if (!matchConfig.test(config)) {
+        return "Config is not the correct shape";
+      }
+      for (const outerIndex in config.watchtowers["add-watchtowers"]) {
+        const outerTowerUri = config.watchtowers["add-watchtowers"][outerIndex];
+        for (const innerIndex in config.watchtowers["add-watchtowers"]) {
+          const innerTowerUri =
+            config.watchtowers["add-watchtowers"][innerIndex];
+          if (outerIndex != innerIndex) {
+            if (
+              outerTowerUri.split("@")[0] == innerTowerUri.split("@")[0]
+            ) {
+              return `Cannot add multiple watchtowers with the same pubkey`;
+            }
+          }
+        }
+      }
+    },
+  },
 ];
 
 function checkConfigRules(config: T.Config): T.KnownError | void {
@@ -48,14 +69,6 @@ function checkConfigRules(config: T.Config): T.KnownError | void {
     }
   }
 }
-
-// function fixWatchtowerPorts(config: T.Config): T.Config {
-//   const configWithFixedPorts = setConfigMatcher.unsafeCast(config);
-//   for (const towerUrl of configWithFixedPorts.watchtowers["add-watchtowers"]) {
-
-//   }
-//   return config;
-// }
 
 function urlParse(input: string) {
   const url = new URL(input);
@@ -444,7 +457,8 @@ export const setConfig: T.ExpectedExports.setConfig = async (
     return util.error(e);
   }
 
-  await checkConfigRules(config);
+  const error = checkConfigRules(config);
+  if (error) return error;
   const alias = await getAlias(effects, config);
 
   await effects.createDir({
