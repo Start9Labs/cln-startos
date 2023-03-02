@@ -274,6 +274,23 @@ export const properties: T.ExpectedExports.properties = async (
         path: "start9/wtClientInfo",
       })
       .then(JSON.parse)
+      .then((dataIn) => {
+        for (const tower of config.watchtowers["add-watchtowers"]) {
+          const [pubkey, url] = tower.split("@");
+          if (!(pubkey in dataIn)) {
+            dataIn[pubkey] = {
+              net_addr: url,
+              available_slots: 0,
+              subscription_start: 0,
+              subscription_expiry: 0,
+              status: "unreachable",
+              pending_appointments: [],
+              invalid_appointments: [],
+            };
+          }
+        }
+        return dataIn;
+      })
       .then(Object.entries)
       .then((xs) =>
         xs.map(([key, value], i) => [
