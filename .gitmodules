@@ -13,3 +13,12 @@
 [submodule "clboss"]
 	path = clboss
 	url = https://github.com/ZmnSCPxj/clboss
+[submodule "reckless"]
+	path = reckless
+	url = https://github.com/darosior/reckless
+[submodule "circular"]
+	path = circular
+	url = https://github.com/giovannizotta/circular
+[submodule "nostril"]
+	path = nostril
+	url = https://github.com/jb55/nostril

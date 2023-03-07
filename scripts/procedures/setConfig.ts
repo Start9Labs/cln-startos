@@ -307,6 +307,24 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableSummaryPlugin = config.advanced.plugins.summary
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
+  const enableRecklessPlugin = config.advanced.plugins.reckless
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/reckless/reckless.py"
+    : "";
+  const enableSauronPlugin = config.advanced.plugins.sauron
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py"
+    : "";
+  const enableCircularPlugin = config.advanced.plugins.circular
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/circular"
+    : "";
+  const enableSparkoPlugin = config.advanced.plugins.sparko
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/sparko"
+    : "";
+  const enableNoisePlugin = config.advanced.plugins.noise
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/noise/noise.py"
+    : "";
+  const enableNostrifyPlugin = config.advanced.plugins.nostrify
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/nostrify/nostrify.py"
+    : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
@@ -350,6 +368,12 @@ ${enableExperimentalShutdownWrongFunding}
 ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
+${enableRecklessPlugin}
+${enableSauronPlugin}
+${enableCircularPlugin}
+${enableSparkoPlugin}
+${enableNoisePlugin}
+${enableNostrifyPlugin}
 ${enableRestPlugin}
 ${enableClbossPlugin}`;
 }

@@ -135,6 +135,50 @@ export const migration: T.ExpectedExports.migration = compat.migrations
           { version: "22.11.1", type: "down" },
         ),
       },
+      "23.2.0": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  plugins: matches.any,
+                }),
+              }).test(config)
+            ) {
+              config.advanced.plugins.reckless = false;
+              config.advanced.plugins.sauron = false;
+              config.advanced.plugins.circular = false;
+              config.advanced.plugins.sparko = false;
+              config.advanced.plugins.noise = false;
+              config.advanced.plugins.nostrify = false;
+            }
+            return config;
+          },
+          true,
+          { version: "23.2.0", type: "up" },
+        ),
+        down: compat.migrations.updateConfig(
+          (config) => {
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  plugins: matches.any,
+                }),
+              }).test(config)
+            ) {
+              delete config.advanced.plugins.reckless;
+              delete config.advanced.plugins.sauron;
+              delete config.advanced.plugins.circular;
+              delete config.advanced.plugins.sparko;
+              delete config.advanced.plugins.noise;
+              delete config.advanced.plugins.nostrify;
+            }
+            return config;
+          },
+          true,
+          { version: "23.2.0", type: "down" },
+        ),
+      },
     },
-    "22.11.1.2",
+    "23.2.0",
   );

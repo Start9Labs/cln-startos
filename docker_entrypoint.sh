@@ -92,7 +92,7 @@ else
 fi
 
 echo "Starting lightning"
-lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
+lightningd$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
 lightningd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do

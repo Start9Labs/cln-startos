@@ -53,30 +53,6 @@ RUN make
 RUN make install
 RUN strip /usr/local/bin/clboss
 
-# # http plugin builder
-# FROM debian:bullseye-slim as http-plugin
-
-# RUN apt-get update -qq && \
-#     apt-get install -qq -y --no-install-recommends \
-#         # autoconf \
-#         autoconf-archive \
-#         automake \
-#         build-essential \
-#         git \
-#         libcurl4-gnutls-dev \
-#         libev-dev \
-#         libsqlite3-dev \
-#         libtool \
-#         pkg-config
-
-# COPY clboss/. /tmp/clboss
-# WORKDIR /tmp/clboss
-# RUN autoreconf -i
-# RUN ./configure
-# RUN make
-# RUN make install
-# RUN strip /usr/local/bin/clboss
-
 # lightningd builder
 FROM debian:bullseye-slim as builder
 
@@ -101,6 +77,7 @@ RUN apt-get update -qq && \
         libpq-dev \
         libtool \
         libffi-dev \
+        protobuf-compiler \
         python3 \
         python3-dev \
         python3-mako \
@@ -141,19 +118,22 @@ ARG ARCH
 COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
 WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
-RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
+
+# build nostril
+COPY nostril /tmp/lightning-wrapper/nostril
+WORKDIR /tmp/lightning-wrapper/nostril
+RUN make install
+
 WORKDIR /opt/lightningd
 COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
-# COPY lightning/. /opt/lightningd
+
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
-    # git checkout $(git --git-dir=/tmp/lightning-wrapper/.git rev-parse HEAD)
 
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 - \
     && pip3 install -U pip \
     && pip3 install -U wheel \
-    # && /root/.local/bin/poetry config virtualenvs.create false \
     && /root/.local/bin/poetry install
 
 RUN pip3 install mako mistune==0.8.4 mrkd
@@ -196,8 +176,10 @@ COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 ARG PLATFORM
+ARG ARCH
 
 RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /usr/local/bin/yq
+RUN wget -qO /usr/local/bin/websocat https://github.com/vi/websocat/releases/download/v1.11.0/websocat.${ARCH}-unknown-linux-musl && chmod +x /usr/local/bin/websocat
 # RUN wget https://github.com/mikefarah/yq/releases/download/v4.26.1/yq_linux_arm.tar.gz -O - |\
 #     tar xz && mv yq_linux_arm /usr/bin/yq
 
@@ -216,6 +198,34 @@ RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
 ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
 RUN pip install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
+
+# reckless
+ADD ./reckless /usr/local/libexec/c-lightning/plugins/reckless
+RUN pip install -r /usr/local/libexec/c-lightning/plugins/reckless/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/reckless/reckless.py
+
+# sauron
+ADD ./plugins/sauron /usr/local/libexec/c-lightning/plugins/sauron
+RUN pip install -r /usr/local/libexec/c-lightning/plugins/sauron/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/sauron/sauron.py
+
+# # circular
+RUN wget -qO /usr/local/libexec/c-lightning/plugins/circular https://github.com/giovannizotta/circular/releases/download/v1.1.1/circular-v1.1.1-linux-${PLATFORM}.tar.gz && chmod +x /usr/local/libexec/c-lightning/plugins/circular
+
+# sparko
+RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko
+
+# noise
+ADD ./plugins/noise /usr/local/libexec/c-lightning/plugins/noise
+# RUN pip install -r /usr/local/libexec/c-lightning/plugins/noise/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/noise/noise.py
+
+# nostrify
+ADD ./plugins/nostrify /usr/local/libexec/c-lightning/plugins/nostrify
+RUN pip install -r /usr/local/libexec/c-lightning/plugins/nostrify/requirements.txt
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/nostrify/nostrify.py
+COPY --from=builder /usr/local/bin/nostril* /usr/local/bin/
+RUN chmod a+x /usr/local/bin/nostril*
 
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
