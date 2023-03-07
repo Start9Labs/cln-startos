@@ -210,7 +210,8 @@ RUN pip install -r /usr/local/libexec/c-lightning/plugins/sauron/requirements.tx
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/sauron/sauron.py
 
 # # circular
-RUN wget -qO /usr/local/libexec/c-lightning/plugins/circular https://github.com/giovannizotta/circular/releases/download/v1.1.1/circular-v1.1.1-linux-${PLATFORM}.tar.gz && chmod +x /usr/local/libexec/c-lightning/plugins/circular
+RUN wget https://github.com/giovannizotta/circular/releases/download/v1.1.1/circular-v1.1.1-linux-${PLATFORM}.tar.gz -O - |\
+    tar xz --directory=/usr/local/libexec/c-lightning/plugins/ && chmod +x /usr/local/libexec/c-lightning/plugins/circular
 
 # sparko
 RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko

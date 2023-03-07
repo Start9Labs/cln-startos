@@ -310,14 +310,15 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableRecklessPlugin = config.advanced.plugins.reckless
     ? "plugin=/usr/local/libexec/c-lightning/plugins/reckless/reckless.py"
     : "";
-  const enableSauronPlugin = config.advanced.plugins.sauron
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py"
-    : "";
+  const bitcoinBackend = config.advanced.plugins.sauron
+    // ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/\nsauron-tor-proxy=embassy:9050"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/"
+    : `bitcoin-rpcuser=${bitcoin_rpc_user}\nbitcoin-rpcpassword=${bitcoin_rpc_pass}\nbitcoin-rpcconnect=${bitcoin_rpc_host}\nbitcoin-rpcport=${bitcoin_rpc_port}`;
   const enableCircularPlugin = config.advanced.plugins.circular
     ? "plugin=/usr/local/libexec/c-lightning/plugins/circular"
     : "";
   const enableSparkoPlugin = config.advanced.plugins.sparko
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/sparko"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0"
     : "";
   const enableNoisePlugin = config.advanced.plugins.noise
     ? "plugin=/usr/local/libexec/c-lightning/plugins/noise/noise.py"
@@ -335,10 +336,8 @@ function configMaker(alias: Alias, config: SetConfig) {
 
   return `
 network=bitcoin
-bitcoin-rpcuser=${bitcoin_rpc_user}
-bitcoin-rpcpassword=${bitcoin_rpc_pass}
-bitcoin-rpcconnect=${bitcoin_rpc_host}
-bitcoin-rpcport=${bitcoin_rpc_port}
+
+${bitcoinBackend}
 
 http-user=${config.rpc.user}
 http-pass=${config.rpc.password}
@@ -369,7 +368,6 @@ ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableRecklessPlugin}
-${enableSauronPlugin}
 ${enableCircularPlugin}
 ${enableSparkoPlugin}
 ${enableNoisePlugin}
