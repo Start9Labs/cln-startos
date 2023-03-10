@@ -549,6 +549,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher(
                 "Enables the `reckless` rpc command, which allows the user to install Python plugins on the fly. Please don't use this unless you really, really know what you're doing.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/darosior/reckless\n",
               "default": false,
             },
+            // "coffee": {
+            //   "type": "boolean",
+            //   "name": "Enable Coffee Plugin",
+            //   "description":
+            //     "Enables the `reckless` rpc command, which allows the user to install Python plugins on the fly. Please don't use this unless you really, really know what you're doing.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/darosior/reckless\n",
+            //   "default": false,
+            // },
             "sauron": {
               "type": "boolean",
               "name": "Enable Sauron Plugin",

@@ -75,8 +75,10 @@ RUN apt-get update -qq && \
         git \
         gnupg \
         libpq-dev \
+        libssl-dev \
         libtool \
         libffi-dev \
+        pkg-config \
         protobuf-compiler \
         python3 \
         python3-dev \
@@ -114,10 +116,14 @@ RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 RUN rustup toolchain install beta
 
 # build http plugin
-ARG ARCH
 COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
 WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
+
+# build coffee plugin
+COPY coffee /tmp/lightning-wrapper/coffee
+WORKDIR /tmp/lightning-wrapper/coffee
+RUN cargo update && cargo build --release
 
 # build nostril
 COPY nostril /tmp/lightning-wrapper/nostril
@@ -203,6 +209,9 @@ RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 ADD ./reckless /usr/local/libexec/c-lightning/plugins/reckless
 RUN pip install -r /usr/local/libexec/c-lightning/plugins/reckless/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/reckless/reckless.py
+
+# coffee
+COPY --from=builder /tmp/lightning-wrapper/coffee/target/release/coffee_cmd /usr/local/bin/coffee_cmd
 
 # sauron
 ADD ./plugins/sauron /usr/local/libexec/c-lightning/plugins/sauron

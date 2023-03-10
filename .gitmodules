@@ -22,3 +22,6 @@
 [submodule "nostril"]
 	path = nostril
 	url = https://github.com/jb55/nostril
+[submodule "coffee"]
+	path = coffee
+	url = https://github.com/coffee-tools/coffee
