@@ -1,6 +1,6 @@
 id: c-lightning
 version: 23.2.0
-title: Core Lightning
+title: Core Lightning (CLN)
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
 upstream-repo: https://github.com/ElementsProject/lightning

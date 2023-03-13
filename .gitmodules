@@ -22,3 +22,6 @@
 [submodule "nostril"]
 	path = nostril
 	url = https://github.com/jb55/nostril
+[submodule "nostrify"]
+	path = nostrify
+	url = https://github.com/joelklabo/nostrify

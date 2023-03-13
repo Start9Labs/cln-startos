@@ -153,18 +153,20 @@ COPY --from=downloader /opt/tini /usr/bin/tini
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     dnsutils \
-    socat \
     inotify-tools \
     iproute2 \
     libcurl4-gnutls-dev \
     libev-dev \
+    libpq5 \
     libsqlite3-dev \
     procps \
     python3 \
+    python3-dev \
     python3-gdbm \
     python3-pip \
-    libpq5 \
+    socat \
     wget \
     xxd \
     && rm -rf /var/lib/apt/lists/*
@@ -222,9 +224,9 @@ ADD ./plugins/noise /usr/local/libexec/c-lightning/plugins/noise
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/noise/noise.py
 
 # nostrify
-ADD ./plugins/nostrify /usr/local/libexec/c-lightning/plugins/nostrify
+ADD ./nostrify /usr/local/libexec/c-lightning/plugins/nostrify
 RUN pip install -r /usr/local/libexec/c-lightning/plugins/nostrify/requirements.txt
-RUN chmod a+x /usr/local/libexec/c-lightning/plugins/nostrify/nostrify.py
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/nostrify/src/nostrify.py
 COPY --from=builder /usr/local/bin/nostril* /usr/local/bin/
 RUN chmod a+x /usr/local/bin/nostril*
 

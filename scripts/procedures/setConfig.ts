@@ -324,7 +324,7 @@ function configMaker(alias: Alias, config: SetConfig) {
     ? "plugin=/usr/local/libexec/c-lightning/plugins/noise/noise.py"
     : "";
   const enableNostrifyPlugin = config.advanced.plugins.nostrify
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/nostrify/nostrify.py"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/nostrify/src/nostrify.py"
     : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"

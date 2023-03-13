@@ -145,7 +145,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 }),
               }).test(config)
             ) {
-              config.advanced.plugins.reckless = false;
+              config.advanced.plugins.coffee = false;
               config.advanced.plugins.sauron = false;
               config.advanced.plugins.circular = false;
               config.advanced.plugins.sparko = false;
@@ -166,7 +166,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 }),
               }).test(config)
             ) {
-              delete config.advanced.plugins.reckless;
+              delete config.advanced.plugins.coffee;
               delete config.advanced.plugins.sauron;
               delete config.advanced.plugins.circular;
               delete config.advanced.plugins.sparko;
