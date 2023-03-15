@@ -153,7 +153,7 @@ COPY --from=downloader /opt/tini /usr/bin/tini
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+    # build-essential \
     dnsutils \
     inotify-tools \
     iproute2 \
@@ -163,7 +163,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-dev \
     procps \
     python3 \
-    python3-dev \
+    # python3-dev \
     python3-gdbm \
     python3-pip \
     socat \
@@ -220,12 +220,14 @@ RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fi
 
 # noise
 ADD ./plugins/noise /usr/local/libexec/c-lightning/plugins/noise
+# requirements file is missing
 # RUN pip install -r /usr/local/libexec/c-lightning/plugins/noise/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/noise/noise.py
 
 # nostrify
 ADD ./nostrify /usr/local/libexec/c-lightning/plugins/nostrify
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/nostrify/requirements.txt
+# requirements file is wrong; contains dev-only dependencies that balloon container size. only true requirement is pyln-client, which is already installed above
+# RUN pip install -r /usr/local/libexec/c-lightning/plugins/nostrify/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/nostrify/src/nostrify.py
 COPY --from=builder /usr/local/bin/nostril* /usr/local/bin/
 RUN chmod a+x /usr/local/bin/nostril*
