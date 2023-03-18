@@ -125,8 +125,9 @@ WORKDIR /tmp/lightning-wrapper/nostril
 RUN make install
 
 WORKDIR /opt/lightningd
-COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
+# RUN /tmp/lightning-wrapper/lightning/.git
+COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)

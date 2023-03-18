@@ -61,9 +61,10 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher(
         "variant-names": {
           "internal": "Bitcoin Core",
           "internal-proxy": "Bitcoin Proxy",
+          "none": "None (Trusted Esplora API) (TESTING ONLY)",
         },
         "description":
-          "Options<ul><li>Bitcoin Core: the Bitcoin Core node installed on your Embassy</li><li>Bitcoin Proxy: the Bitcoin Proxy service installed on your Embassy</li></ul>",
+          "Options<ul><li>Bitcoin Core: the Bitcoin Core node installed on your Embassy</li><li>Bitcoin Proxy: the Bitcoin Proxy service installed on your Embassy</li><li>Replaces your bitcoin backend with an esplora API. Only use for testing and dev, do not use for production systems.\n\nSource: https://github.com/lightningd/plugins/tree/master/sauron\n</li></ul>",
       },
       "default": "internal",
       "variants": {
@@ -111,6 +112,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher(
             "target": "config",
             "selector": '$.users[?(@.name == "c-lightning")].password',
             "multi": false,
+          },
+        },
+        "none": {
+          "url": {
+            "type": "string",
+            "name": "Esplora API URL",
+            "description":
+              "The username for the RPC user allocated to Core Lightning",
+            "nullable": false,
           },
         },
       },
@@ -547,13 +557,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher(
               "name": "Enable Reckless Plugin",
               "description":
                 "Enables the `reckless` rpc command, which allows the user to install Python plugins on the fly. Please don't use this unless you really, really know what you're doing.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/darosior/reckless\n",
-              "default": false,
-            },
-            "sauron": {
-              "type": "boolean",
-              "name": "Enable Sauron Plugin",
-              "description":
-                "Replaces your bitcoin backend with an esplora API. Only use for testing and dev, do not use for production systems.\n\nSource: https://github.com/lightningd/plugins/tree/master/sauron\n",
               "default": false,
             },
             "circular": {

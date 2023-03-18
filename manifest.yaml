@@ -137,7 +137,7 @@ dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
     requirement:
-      type: "opt-out"
+      type: "opt-in"
       how: Can alternatively configure a direct connection to the internal Bitcoin Core.
     description: Used to fetch validated blocks.
     config:
@@ -148,8 +148,8 @@ dependencies:
   bitcoind:
     version: ">=0.21.1.2 <26.0.0"
     requirement:
-      type: "opt-in"
-      how: Can alternatively configure the internal Bitcoin Proxy service.
+      type: "opt-out"
+      how: Can alternatively configure the internal Bitcoin Proxy service or use an external Esplora backend
     description: Used as a blockchain backend.
     config:
       check:

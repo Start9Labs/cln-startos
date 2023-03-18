@@ -22,22 +22,35 @@ clean:
 	rm -f scripts/*.js
 
 # for rebuilding just the arm image. will include docker-images/x86_64.tar into the s9pk if it exists
-arm: docker-images/aarch64.tar scripts/embassy.js
-	embassy-sdk pack
+arm: verify-arm
 
 # for rebuilding just the x86 image. will include docker-images/aarch64.tar into the s9pk if it exists
-x86: docker-images/x86_64.tar scripts/embassy.js
-	embassy-sdk pack
+x86: verify-x86
 
 verify: $(PKG_ID).s9pk
 	embassy-sdk verify s9pk $(PKG_ID).s9pk
+
+verify-arm: $(PKG_ID)-arm.s9pk
+	embassy-sdk verify s9pk $(PKG_ID)-arm.s9pk
+	mv $(PKG_ID)-arm.s9pk $(PKG_ID).s9pk
+
+verify-x86: $(PKG_ID)-x86.s9pk
+	embassy-sdk verify s9pk $(PKG_ID)-x86.s9pk
+	mv $(PKG_ID)-x86.s9pk $(PKG_ID).s9pk
 
 install: $(PKG_ID).s9pk
 	embassy-cli package install $(PKG_ID).s9pk
 
 $(PKG_ID).s9pk: manifest.yaml docker-images/aarch64.tar docker-images/x86_64.tar instructions.md $(ASSET_PATHS) scripts/embassy.js
-	if ! [ -z "$(ARCH)" ]; then cp docker-images/$(ARCH).tar image.tar; fi
 	embassy-sdk pack
+
+$(PKG_ID)-arm.s9pk: manifest.yaml docker-images/aarch64.tar instructions.md $(ASSET_PATHS) scripts/embassy.js
+	embassy-sdk pack
+	mv $(PKG_ID).s9pk $(PKG_ID)-arm.s9pk
+
+$(PKG_ID)-x86.s9pk: manifest.yaml docker-images/x86_64.tar instructions.md $(ASSET_PATHS) scripts/embassy.js
+	embassy-sdk pack
+	mv $(PKG_ID).s9pk $(PKG_ID)-x86.s9pk
 
 docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(C_LIGHTNING_REST_SRC) manifest.yaml
 	mkdir -p docker-images
