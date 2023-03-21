@@ -125,8 +125,9 @@ WORKDIR /tmp/lightning-wrapper/nostril
 RUN make install
 
 WORKDIR /opt/lightningd
-COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
+# RUN /tmp/lightning-wrapper/lightning/.git
+COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
@@ -153,7 +154,7 @@ COPY --from=downloader /opt/tini /usr/bin/tini
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # build-essential \
+    curl \
     dnsutils \
     inotify-tools \
     iproute2 \
@@ -163,7 +164,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-dev \
     procps \
     python3 \
-    # python3-dev \
     python3-gdbm \
     python3-pip \
     socat \
@@ -182,8 +182,6 @@ ARG ARCH
 
 RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /usr/local/bin/yq
 RUN wget -qO /usr/local/bin/websocat https://github.com/vi/websocat/releases/download/v1.11.0/websocat.${ARCH}-unknown-linux-musl && chmod +x /usr/local/bin/websocat
-# RUN wget https://github.com/mikefarah/yq/releases/download/v4.26.1/yq_linux_arm.tar.gz -O - |\
-#     tar xz && mv yq_linux_arm /usr/bin/yq
 
 # PLUGINS
 WORKDIR /usr/local/libexec/c-lightning/plugins

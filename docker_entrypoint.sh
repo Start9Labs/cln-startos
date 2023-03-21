@@ -57,8 +57,10 @@ echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
 
+if ! [ "$(yq ".bitcoind.type" /root/.lightning/start9/config.yaml)" = "none" ]; then
+  sh /root/.lightning/start9/waitForStart.sh
+fi
 
-sh /root/.lightning/start9/waitForStart.sh
 sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /root/.lightning/config
 
 echo "Cleaning old lightning rpc"
@@ -68,8 +70,6 @@ fi
 
 # echo "Checking cert"
 echo "Fetching system cert for REST interface"
-# if ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/key.pem ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem ]; then
-  # echo "Cert missing, copying cert into c-lightning-REST dir"
 while ! [ -e /mnt/cert/rest.key.pem ]; do
   echo "Waiting for system cert key file..."
   sleep 1
@@ -97,7 +97,7 @@ lightningd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
-    sleep 1
+    sleep 10
     if ! ps -p $lightningd_child > /dev/null; then
         echo "lightningd has stopped, exiting container"
         exit 1

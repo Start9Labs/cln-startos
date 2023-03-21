@@ -54,6 +54,7 @@ function urlParse(input: string) {
   };
 }
 async function createWaitForService(effects: T.Effects, config: SetConfig) {
+  if (config.bitcoind.type === "none") return;
   const {
     bitcoin_rpc_host,
     bitcoin_rpc_pass,
@@ -115,20 +116,21 @@ function userInformation(config: SetConfig) {
   switch (config.bitcoind.type) {
     case "internal":
       return {
-        bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.password,
+        bitcoin_rpc_user: String(config.bitcoind.user),
+        bitcoin_rpc_pass: String(config.bitcoind.password),
         bitcoin_rpc_host: "bitcoind.embassy",
         bitcoin_rpc_port: 8332,
       };
 
     case "internal-proxy":
       return {
-        bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.password,
+        bitcoin_rpc_user: String(config.bitcoind.user),
+        bitcoin_rpc_pass: String(config.bitcoind.password),
         bitcoin_rpc_host: "btc-rpc-proxy.embassy",
         bitcoin_rpc_port: 8332,
       };
   }
+  throw new Error("Type should be either internal or interal-proxy");
 }
 
 function getDualFundStrategyConfig(
@@ -272,14 +274,37 @@ ${reserveTankMsat}
 }
 
 function configMaker(alias: Alias, config: SetConfig) {
-  const {
-    bitcoin_rpc_host,
-    bitcoin_rpc_pass,
-    bitcoin_rpc_port,
-    bitcoin_rpc_user,
-  } = userInformation(config);
+  // if (config.bitcoind.type === "internal") {
+  //   config.bitcoind;
+  // }
+
+  // const value = object({someKey1: unknown}).test(value.somewhere) ? doA() : doB()
+
+  let bitcoinBackend;
+
+  if (
+    config.bitcoind.type !== "none"
+    // shape({ bitcoind: shape({ user: string, password: string }) }).test(config)
+  ) {
+    const {
+      bitcoin_rpc_host,
+      bitcoin_rpc_pass,
+      bitcoin_rpc_port,
+      bitcoin_rpc_user,
+    } = userInformation(config);
+    bitcoinBackend =
+      `bitcoin-rpcuser=${bitcoin_rpc_user}\nbitcoin-rpcpassword=${bitcoin_rpc_pass}\nbitcoin-rpcconnect=${bitcoin_rpc_host}\nbitcoin-rpcport=${bitcoin_rpc_port}`;
+  } else {
+    bitcoinBackend =
+      `plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=${config.bitcoind.url}`;
+    if (config.bitcoind.url?.includes(".onion")) {
+      bitcoinBackend = bitcoinBackend + "\nsauron-tor-proxy=embassy:9050";
+    }
+  }
+
   const rpcBind = config.rpc.enabled ? "0.0.0.0:8080" : "127.0.0.1:8080";
   const enableWumbo = config.advanced["wumbo-channels"] ? "large-channels" : "";
+
   const minHtlcMsat = config.advanced["htlc-minimum-msat"] !== null
     ? `htlc-minimum-msat=${config.advanced["htlc-minimum-msat"]}`
     : "";
@@ -310,10 +335,10 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableRecklessPlugin = config.advanced.plugins.reckless
     ? "plugin=/usr/local/libexec/c-lightning/plugins/reckless/reckless.py"
     : "";
-  const bitcoinBackend = config.advanced.plugins.sauron
-    // ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/\nsauron-tor-proxy=embassy:9050"
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/"
-    : `bitcoin-rpcuser=${bitcoin_rpc_user}\nbitcoin-rpcpassword=${bitcoin_rpc_pass}\nbitcoin-rpcconnect=${bitcoin_rpc_host}\nbitcoin-rpcport=${bitcoin_rpc_port}`;
+  // const bitcoinBackend = config.advanced.plugins.sauron
+  //   // ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/\nsauron-tor-proxy=embassy:9050"
+  //   ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/"
+  //   : `bitcoin-rpcuser=${bitcoin_rpc_user}\nbitcoin-rpcpassword=${bitcoin_rpc_pass}\nbitcoin-rpcconnect=${bitcoin_rpc_host}\nbitcoin-rpcport=${bitcoin_rpc_port}`;
   const enableCircularPlugin = config.advanced.plugins.circular
     ? "plugin=/usr/local/libexec/c-lightning/plugins/circular"
     : "";
