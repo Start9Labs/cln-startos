@@ -3,7 +3,12 @@
 b_type=$(yq e '.bitcoind.type' /root/.lightning/start9/config.yaml)
 if [ "$b_type" = "none" ]; then
     b_host=$(yq e '.bitcoind.url' /root/.lightning/start9/config.yaml)
-    b_tip_height_result=$(wget -q -O- $b_host/blocks/tip/height)
+    if [[ "$b_host" == *".onion"* ]]; then
+        socks5_proxy="-x socks5h://embassy:9050 "
+    else
+        socks5_proxy=""
+    fi
+    b_tip_height_result=$(curl -sS $socks5_proxy$b_host/blocks/tip/height)
     error_code=$?
     if [ $error_code -ne 0 ]; then
         echo $b_tip_height_result >&2

@@ -60,6 +60,7 @@ echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
 if ! [ "$(yq ".bitcoind.type" /root/.lightning/start9/config.yaml)" = "none" ]; then
   sh /root/.lightning/start9/waitForStart.sh
 fi
+
 sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /root/.lightning/config
 
 echo "Cleaning old lightning rpc"
@@ -96,7 +97,7 @@ lightningd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
-    sleep 1
+    sleep 10
     if ! ps -p $lightningd_child > /dev/null; then
         echo "lightningd has stopped, exiting container"
         exit 1

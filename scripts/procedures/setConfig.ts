@@ -297,6 +297,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   } else {
     bitcoinBackend =
       `plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=${config.bitcoind.url}`;
+    if (config.bitcoind.url?.includes(".onion")) {
+      bitcoinBackend = bitcoinBackend + "\nsauron-tor-proxy=embassy:9050";
+    }
   }
 
   const rpcBind = config.rpc.enabled ? "0.0.0.0:8080" : "127.0.0.1:8080";
