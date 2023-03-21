@@ -64,7 +64,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher(
           "none": "None (Trusted Esplora API) (TESTING ONLY)",
         },
         "description":
-          "Options<ul><li>Bitcoin Core: the Bitcoin Core node installed on your Embassy</li><li>Bitcoin Proxy: the Bitcoin Proxy service installed on your Embassy</li><li>Replaces your bitcoin backend with an esplora API. Only use for testing and dev, do not use for production systems.\n\nSource: https://github.com/lightningd/plugins/tree/master/sauron\n</li></ul>",
+          "Options<ul><li>Bitcoin Core: the Bitcoin Core node installed on your Embassy</li><li>Bitcoin Proxy: the Bitcoin Proxy service installed on your Embassy</li><li>Replaces your bitcoin backend with an Esplora API. Only use for testing and dev, do not use for production systems.\n\nSource: https://github.com/lightningd/plugins/tree/master/sauron\n</li></ul>",
       },
       "default": "internal",
       "variants": {
