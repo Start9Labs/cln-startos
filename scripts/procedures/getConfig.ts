@@ -552,13 +552,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher(
                 "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/lightningd/plugins/tree/master/summary\n",
               "default": false,
             },
-            "reckless": {
-              "type": "boolean",
-              "name": "Enable Reckless Plugin",
-              "description":
-                "Enables the `reckless` rpc command, which allows the user to install Python plugins on the fly. Please don't use this unless you really, really know what you're doing.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/darosior/reckless\n",
-              "default": false,
-            },
             "circular": {
               "type": "boolean",
               "name": "Enable Circular Plugin",

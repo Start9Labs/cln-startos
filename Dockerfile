@@ -201,10 +201,6 @@ RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
 ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
-# reckless
-ADD ./reckless /usr/local/libexec/c-lightning/plugins/reckless
-RUN chmod a+x /usr/local/libexec/c-lightning/plugins/reckless/reckless.py
-
 # sauron
 ADD ./plugins/sauron /usr/local/libexec/c-lightning/plugins/sauron
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/sauron/sauron.py
@@ -230,7 +226,6 @@ RUN chmod a+x /usr/local/libexec/c-lightning/plugins/noise/noise.py
 RUN pip install \
     -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt \
     -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt \
-    -r /usr/local/libexec/c-lightning/plugins/reckless/requirements.txt \
     -r /usr/local/libexec/c-lightning/plugins/sauron/requirements.txt
 
 # c-lightning-REST

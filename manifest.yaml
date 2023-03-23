@@ -8,7 +8,7 @@ support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update upstream to [v23.02](https://github.com/ElementsProject/lightning/releases/tag/v23.02)
-  * Add reckless, sauron, circular, sparko, noise, and nostrify plugins
+  * Add sauron, circular, sparko, and noise plugins
   * Add no-bitcoind mode using trusted Esplora backend (FOR TESTING ONLY)
 build: ["make"]
 description:

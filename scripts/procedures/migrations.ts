@@ -145,11 +145,9 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 }),
               }).test(config)
             ) {
-              config.advanced.plugins.reckless = false;
               config.advanced.plugins.circular = false;
               config.advanced.plugins.sparko = false;
               config.advanced.plugins.noise = false;
-              // config.advanced.plugins.nostrify = false;
             }
             return config;
           },
@@ -165,11 +163,9 @@ export const migration: T.ExpectedExports.migration = compat.migrations
                 }),
               }).test(config)
             ) {
-              delete config.advanced.plugins.reckless;
               delete config.advanced.plugins.circular;
               delete config.advanced.plugins.sparko;
               delete config.advanced.plugins.noise;
-              // delete config.advanced.plugins.nostrify;
             }
             return config;
           },

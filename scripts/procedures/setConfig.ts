@@ -332,9 +332,6 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableSummaryPlugin = config.advanced.plugins.summary
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
-  const enableRecklessPlugin = config.advanced.plugins.reckless
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/reckless/reckless.py"
-    : "";
   // const bitcoinBackend = config.advanced.plugins.sauron
   //   // ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/\nsauron-tor-proxy=embassy:9050"
   //   ? "plugin=/usr/local/libexec/c-lightning/plugins/sauron/sauron.py\ndisable-plugin=bcli\nsauron-api-endpoint=https://blockstream.info/api/"
@@ -392,7 +389,6 @@ ${enableExperimentalShutdownWrongFunding}
 ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
-${enableRecklessPlugin}
 ${enableCircularPlugin}
 ${enableSparkoPlugin}
 ${enableNoisePlugin}
