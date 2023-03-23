@@ -4,6 +4,7 @@ C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,
 C_LIGHTNING_REST_SRC := $(shell find ./c-lightning-REST)
 CLBOSS_SRC := $(shell find ./clboss)
 DOC_ASSETS := $(shell find ./docs/assets)
+# NOSTRIFY_SRC := $(shell find ./nostrify -name \*.py )
 PKG_VERSION := $(shell yq e ".version" manifest.yaml)
 PKG_ID := $(shell yq e ".id" manifest.yaml)
 PLUGINS_SRC := $(shell find ./plugins)

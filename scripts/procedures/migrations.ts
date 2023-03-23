@@ -149,7 +149,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
               config.advanced.plugins.circular = false;
               config.advanced.plugins.sparko = false;
               config.advanced.plugins.noise = false;
-              config.advanced.plugins.nostrify = false;
+              // config.advanced.plugins.nostrify = false;
             }
             return config;
           },
@@ -169,7 +169,7 @@ export const migration: T.ExpectedExports.migration = compat.migrations
               delete config.advanced.plugins.circular;
               delete config.advanced.plugins.sparko;
               delete config.advanced.plugins.noise;
-              delete config.advanced.plugins.nostrify;
+              // delete config.advanced.plugins.nostrify;
             }
             return config;
           },

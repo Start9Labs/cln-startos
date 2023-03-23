@@ -119,10 +119,10 @@ COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
 WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
 
-# build nostril
-COPY nostril /tmp/lightning-wrapper/nostril
-WORKDIR /tmp/lightning-wrapper/nostril
-RUN make install
+# # build nostril
+# COPY nostril /tmp/lightning-wrapper/nostril
+# WORKDIR /tmp/lightning-wrapper/nostril
+# RUN make install
 
 WORKDIR /opt/lightningd
 COPY lightning/. /tmp/lightning-wrapper/lightning
@@ -154,16 +154,20 @@ COPY --from=downloader /opt/tini /usr/bin/tini
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    # build-essential \
     curl \
     dnsutils \
+    # git \
     inotify-tools \
     iproute2 \
     libcurl4-gnutls-dev \
     libev-dev \
     libpq5 \
     libsqlite3-dev \
+    # pkg-config \
     procps \
     python3 \
+    # python3-dev \
     python3-gdbm \
     python3-pip \
     socat \
@@ -181,7 +185,7 @@ ARG PLATFORM
 ARG ARCH
 
 RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /usr/local/bin/yq
-RUN wget -qO /usr/local/bin/websocat https://github.com/vi/websocat/releases/download/v1.11.0/websocat.${ARCH}-unknown-linux-musl && chmod +x /usr/local/bin/websocat
+# RUN wget -qO /usr/local/bin/websocat https://github.com/vi/websocat/releases/download/v1.11.0/websocat.${ARCH}-unknown-linux-musl && chmod +x /usr/local/bin/websocat
 
 # PLUGINS
 WORKDIR /usr/local/libexec/c-lightning/plugins
@@ -191,22 +195,18 @@ RUN pip install -U pyln-proto pyln-bolt7
 
 # rebalance
 ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
 
 # summary
 ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
 # reckless
 ADD ./reckless /usr/local/libexec/c-lightning/plugins/reckless
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/reckless/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/reckless/reckless.py
 
 # sauron
 ADD ./plugins/sauron /usr/local/libexec/c-lightning/plugins/sauron
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/sauron/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/sauron/sauron.py
 
 # # circular
@@ -218,17 +218,20 @@ RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fi
 
 # noise
 ADD ./plugins/noise /usr/local/libexec/c-lightning/plugins/noise
-# requirements file is missing
-# RUN pip install -r /usr/local/libexec/c-lightning/plugins/noise/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/noise/noise.py
 
-# nostrify
-ADD ./nostrify /usr/local/libexec/c-lightning/plugins/nostrify
-# requirements file is wrong; contains dev-only dependencies that balloon container size. only true requirement is pyln-client, which is already installed above
-# RUN pip install -r /usr/local/libexec/c-lightning/plugins/nostrify/requirements.txt
-RUN chmod a+x /usr/local/libexec/c-lightning/plugins/nostrify/src/nostrify.py
-COPY --from=builder /usr/local/bin/nostril* /usr/local/bin/
-RUN chmod a+x /usr/local/bin/nostril*
+# # nostrify
+# ADD ./nostrify /usr/local/libexec/c-lightning/plugins/nostrify
+# RUN chmod a+x /usr/local/libexec/c-lightning/plugins/nostrify/nostrify.py
+# COPY --from=builder /usr/local/bin/nostril* /usr/local/bin/
+# RUN chmod a+x /usr/local/bin/nostril*
+
+# all python plugins
+RUN pip install \
+    -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt \
+    -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt \
+    -r /usr/local/libexec/c-lightning/plugins/reckless/requirements.txt \
+    -r /usr/local/libexec/c-lightning/plugins/sauron/requirements.txt
 
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST

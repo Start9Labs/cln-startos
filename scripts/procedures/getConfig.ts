@@ -580,14 +580,14 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher(
                 "The Noise plugin allows sending and receiving private messages through the Lightning Network. It is implemented on top to Core-Lightning's createonion and sendonion RPC methods that allow delivering custom payloads to a specific node, as well as the htlc_accepted hook which can be used to extract the message from the onion payload.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/lightningd/plugins/tree/master/noise\n",
               "default": false,
             },
-            "nostrify": {
-              "type": "boolean",
-              "name": "Enable Nostrify Plugin",
-              "description":
-                "Core Lightning plugin that sends events to Nostr\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/joelklabo/nostrify\n",
-              "default": false,
-              "nullable": true,
-            },
+            // "nostrify": {
+            //   "type": "boolean",
+            //   "name": "Enable Nostrify Plugin",
+            //   "description":
+            //     "Core Lightning plugin that sends events to Nostr\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/joelklabo/nostrify\n",
+            //   "default": false,
+            //   "nullable": true,
+            // },
             "rest": {
               "type": "boolean",
               "name": "Enable C-Lightning-REST Plugin",

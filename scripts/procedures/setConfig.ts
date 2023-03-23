@@ -348,9 +348,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableNoisePlugin = config.advanced.plugins.noise
     ? "plugin=/usr/local/libexec/c-lightning/plugins/noise/noise.py"
     : "";
-  const enableNostrifyPlugin = config.advanced.plugins.nostrify
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/nostrify/src/nostrify.py"
-    : "";
+  // const enableNostrifyPlugin = config.advanced.plugins.nostrify
+  //   ? "plugin=/usr/local/libexec/c-lightning/plugins/nostrify/nostrify.py"
+  //   : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
@@ -396,7 +396,6 @@ ${enableRecklessPlugin}
 ${enableCircularPlugin}
 ${enableSparkoPlugin}
 ${enableNoisePlugin}
-${enableNostrifyPlugin}
 ${enableRestPlugin}
 ${enableClbossPlugin}`;
 }
