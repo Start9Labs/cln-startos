@@ -120,8 +120,8 @@ WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
 RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
 WORKDIR /opt/lightningd
-COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
+COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 # COPY lightning/. /opt/lightningd
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
@@ -150,6 +150,7 @@ COPY --from=downloader /opt/tini /usr/bin/tini
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
     dnsutils \
     socat \
     inotify-tools \
