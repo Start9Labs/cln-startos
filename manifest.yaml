@@ -6,7 +6,9 @@ wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
 upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
-release-notes: Update upstream to [v23.02.2](https://github.com/ElementsProject/lightning/releases/tag/v23.02.2)
+release-notes: |-
+  * Update upstream to [v23.02.2](https://github.com/ElementsProject/lightning/releases/tag/v23.02.2)
+  * Default config to Bitcoin Core rather than Proxy
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
