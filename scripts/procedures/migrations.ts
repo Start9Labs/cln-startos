@@ -136,5 +136,5 @@ export const migration: T.ExpectedExports.migration = compat.migrations
         ),
       },
     },
-    "22.11.1.2",
+    "23.02.2",
   );

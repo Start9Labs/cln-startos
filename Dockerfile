@@ -53,30 +53,6 @@ RUN make
 RUN make install
 RUN strip /usr/local/bin/clboss
 
-# # http plugin builder
-# FROM debian:bullseye-slim as http-plugin
-
-# RUN apt-get update -qq && \
-#     apt-get install -qq -y --no-install-recommends \
-#         # autoconf \
-#         autoconf-archive \
-#         automake \
-#         build-essential \
-#         git \
-#         libcurl4-gnutls-dev \
-#         libev-dev \
-#         libsqlite3-dev \
-#         libtool \
-#         pkg-config
-
-# COPY clboss/. /tmp/clboss
-# WORKDIR /tmp/clboss
-# RUN autoreconf -i
-# RUN ./configure
-# RUN make
-# RUN make install
-# RUN strip /usr/local/bin/clboss
-
 # lightningd builder
 FROM debian:bullseye-slim as builder
 
@@ -99,6 +75,7 @@ RUN apt-get update -qq && \
         git \
         gnupg \
         libpq-dev \
+        protobuf-compiler \
         libtool \
         libffi-dev \
         python3 \
