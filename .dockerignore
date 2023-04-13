@@ -3,3 +3,4 @@ c-lightning-http-plugin/target
 rust-teos/target
 !rust-teos/target/**/release/rust-teos
 lightning/target
+lightning/.git

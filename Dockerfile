@@ -53,30 +53,6 @@ RUN make
 RUN make install
 RUN strip /usr/local/bin/clboss
 
-# # http plugin builder
-# FROM debian:bullseye-slim as http-plugin
-
-# RUN apt-get update -qq && \
-#     apt-get install -qq -y --no-install-recommends \
-#         # autoconf \
-#         autoconf-archive \
-#         automake \
-#         build-essential \
-#         git \
-#         libcurl4-gnutls-dev \
-#         libev-dev \
-#         libsqlite3-dev \
-#         libtool \
-#         pkg-config
-
-# COPY clboss/. /tmp/clboss
-# WORKDIR /tmp/clboss
-# RUN autoreconf -i
-# RUN ./configure
-# RUN make
-# RUN make install
-# RUN strip /usr/local/bin/clboss
-
 # lightningd builder
 FROM debian:bullseye-slim as builder
 
@@ -99,6 +75,7 @@ RUN apt-get update -qq && \
         git \
         gnupg \
         libpq-dev \
+        protobuf-compiler \
         libtool \
         libffi-dev \
         python3 \
@@ -143,8 +120,8 @@ WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
 RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
 WORKDIR /opt/lightningd
-COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
+COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 # COPY lightning/. /opt/lightningd
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
@@ -173,6 +150,7 @@ COPY --from=downloader /opt/tini /usr/bin/tini
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
     dnsutils \
     socat \
     inotify-tools \
