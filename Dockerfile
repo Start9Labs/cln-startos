@@ -11,7 +11,7 @@ RUN npm install
 RUN npm run build
 RUN npm prune --omit=dev
 
-FROM debian:bullseye-slim as downloader
+FROM debian:buster-slim as downloader
 
 RUN set -ex \
 	&& apt-get update \
@@ -43,7 +43,7 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && rm $BITCOIN_TARBALL
 
 # clboss builder
-FROM debian:bullseye-slim as clboss
+FROM debian:buster-slim as clboss
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
@@ -67,7 +67,7 @@ RUN make install
 RUN strip /usr/local/bin/clboss
 
 # lightningd builder
-FROM debian:bullseye-slim as builder
+FROM debian:buster-slim as builder
 
 ENV LIGHTNINGD_VERSION=v0.12.0
 ENV RUST_PROFILE=release
