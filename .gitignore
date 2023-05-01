@@ -1,6 +1,5 @@
 **/*.rs.bk
-c-lightning.s9pk
-image.tar
+*.s9pk
 scripts/embassy.js
 .vscode/*.log
 instructions.md
