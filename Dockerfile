@@ -1,3 +1,16 @@
+FROM node:18-buster as ui
+
+WORKDIR /app
+
+COPY ui/apps/backend ./apps/backend
+COPY ui/apps/frontend ./apps/frontend
+COPY ui/package.json ./
+COPY ui/package-lock.json ./
+
+RUN npm install
+RUN npm run build
+RUN npm prune --omit=dev
+
 FROM debian:bullseye-slim as downloader
 
 RUN set -ex \
@@ -137,7 +150,7 @@ RUN pip3 install mako mistune==0.8.4 mrkd
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
 
-FROM node:16-bullseye-slim as final
+FROM node:18-buster-slim as final
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
@@ -155,6 +168,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     socat \
     inotify-tools \
     iproute2 \
+    jq \
     libcurl4-gnutls-dev \
     libev-dev \
     libsqlite3-dev \
@@ -181,18 +195,18 @@ RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/d
 
 # PLUGINS
 WORKDIR /usr/local/libexec/c-lightning/plugins
-RUN pip install -U pip
-RUN pip install wheel
-RUN pip install -U pyln-proto pyln-bolt7
+RUN pip3 install -U pip
+RUN pip3 install wheel
+RUN pip3 install -U pyln-proto pyln-bolt7
 
 # rebalance
 ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
 
 # summary
 ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
 # c-lightning-REST
@@ -214,8 +228,13 @@ RUN chmod a+x /usr/local/bin/check-rpc.sh
 ADD ./check-synced.sh /usr/local/bin/check-synced.sh
 RUN chmod a+x /usr/local/bin/check-synced.sh
 
-WORKDIR /root
+# UI
+COPY --from=ui /app/apps/frontend/build /app/apps/frontend/build
+COPY --from=ui /app/apps/frontend/public /app/apps/frontend/public
+COPY --from=ui /app/apps/frontend/package.json /app/apps/frontend/package.json
+COPY --from=ui /app/apps/backend/dist /app/apps/backend/dist
+COPY --from=ui /app/apps/backend/package.json /app/apps/backend/package.json
+COPY --from=ui /app/package.json /app/package.json
+COPY --from=ui /app/node_modules /app/node_modules
 
-EXPOSE 9735 8080
-
-ENTRYPOINT ["/usr/local/bin/docker_entrypoint.sh"]
+WORKDIR /app
