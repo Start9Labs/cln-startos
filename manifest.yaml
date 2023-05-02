@@ -80,7 +80,7 @@ alerts:
     since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
     closed and their funds returned to your wallet, assuming your peers choose to cooperate.
 interfaces:
-  web_ui:
+  web-ui:
     name: Web User Interface
     description: A web user interface for CLN
     tor-config:
