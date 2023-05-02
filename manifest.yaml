@@ -85,11 +85,11 @@ interfaces:
     description: A web user interface for CLN
     tor-config:
       port-mapping:
-        80: "80"
+        80: "4300"
     lan-config:
       443:
         ssl: true
-        internal: 80
+        internal: 4300
     ui: true
     protocols:
       - tcp
