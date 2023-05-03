@@ -1,4 +1,4 @@
-FROM node:18-buster as ui
+FROM node:18-bullseye as ui
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ RUN npm install
 RUN npm run build
 RUN npm prune --omit=dev
 
-FROM debian:buster-slim as downloader
+FROM debian:bullseye-slim as downloader
 
 RUN set -ex \
 	&& apt-get update \
@@ -43,7 +43,7 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && rm $BITCOIN_TARBALL
 
 # clboss builder
-FROM debian:buster-slim as clboss
+FROM debian:bullseye-slim as clboss
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
@@ -67,7 +67,7 @@ RUN make install
 RUN strip /usr/local/bin/clboss
 
 # lightningd builder
-FROM debian:buster-slim as builder
+FROM debian:bullseye-slim as builder
 
 ENV LIGHTNINGD_VERSION=v0.12.0
 ENV RUST_PROFILE=release
@@ -150,7 +150,7 @@ RUN pip3 install mako mistune==0.8.4 mrkd
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
 
-FROM node:18-buster-slim as final
+FROM node:18-bullseye-slim as final
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
