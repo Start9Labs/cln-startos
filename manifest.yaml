@@ -86,6 +86,7 @@ interfaces:
     tor-config:
       port-mapping:
         80: "4300"
+        4300: "4300"
     lan-config:
       443:
         ssl: true

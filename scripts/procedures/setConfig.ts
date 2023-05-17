@@ -346,7 +346,7 @@ ${enableExperimentalDualFund}
 ${enableExperimentalOnionMessages}
 ${enableExperimentalOffers}
 ${enableExperimentalShutdownWrongFunding}
-
+experimental-websocket-port=4269
 ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
