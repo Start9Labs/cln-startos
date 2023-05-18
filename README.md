@@ -13,6 +13,8 @@ implementation of the [Lightning Network](https://lightning.network/) protocol.
 - [embassy-sdk](https://github.com/Start9Labs/embassy-os/tree/master/backend)
 - [make](https://www.gnu.org/software/make/)
 - [deno](https://deno.land/)
+- [md-packer](https://github.com/Start9Labs/md-packer)
+
 
 ## Cloning
 
