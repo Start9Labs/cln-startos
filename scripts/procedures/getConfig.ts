@@ -495,14 +495,14 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             "name": "Onion Messages",
             "description":
               "Enable the sending, receiving, and relay of onion messages\n",
-            "default": false,
+            "default": true,
           },
           "offers": {
             "type": "boolean",
             "name": "Offers",
             "description":
               "Enable the sending and receiving of offers (this requires Onion Messages to be enabled as well)\n",
-            "default": false,
+            "default": true,
           },
           "shutdown-wrong-funding": {
             "type": "boolean",
