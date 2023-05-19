@@ -11,6 +11,7 @@ _term() {
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
+export RPC_LAN_ADDRESS="${RPC_TOR_ADDRESS/.onion/.local}"
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
 
 CLBOSS_ENABLED_VALUE=$(yq e '.advanced.plugins.clboss.enabled' /root/.lightning/start9/config.yaml)
@@ -131,13 +132,17 @@ cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.ligh
 
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
-# UI WIP
+# User Interface
 export APP_CORE_LIGHTNING_DAEMON_IP="localhost"
 export LIGHTNING_REST_IP="localhost"
 export APP_CORE_LIGHTNING_IP="0.0.0.0"
 export APP_CONFIG_DIR="$/root/.lightning/data/app"
+export APP_CORE_LIGHTNING_REST_PORT=3001
 export APP_CORE_LIGHTNING_REST_CERT_DIR="/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs"
+export DEVICE_DOMAIN_NAME=$RPC_LAN_ADDRESS
+export LOCAL_HOST="https://""$RPC_LAN_ADDRESS"
 export APP_CORE_LIGHTNING_COMMANDO_ENV_DIR="/root/.lightning"
+export APP_CORE_LIGHTNING_REST_HIDDEN_SERVICE=$REST_TOR_ADDRESS
 export APP_CORE_LIGHTNING_WEBSOCKET_PORT=4269
 export COMMANDO_CONFIG="/root/.lightning/.commando-env"
 export APP_CORE_LIGHTNING_PORT=4500
