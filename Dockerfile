@@ -148,7 +148,7 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/inst
 
 RUN pip3 install mako mistune==0.8.4 mrkd
 
-RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
+RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j$(($(nproc) - 1)) DEVELOPER=${DEVELOPER} && make install
 
 FROM node:18-bullseye-slim as final
 
