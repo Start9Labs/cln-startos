@@ -5,6 +5,7 @@ set -ea
 _term() {
   echo "Caught SIGTERM signal!"
   kill -TERM "$lightningd_child" 2>/dev/null
+  kill -TERM "$ui_child" 2>/dev/null
 }
 
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
@@ -130,8 +131,104 @@ cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.ligh
 
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
+# UI WIP
+export APP_CORE_LIGHTNING_DAEMON_IP="localhost"
+export LIGHTNING_REST_IP="localhost"
+export APP_CORE_LIGHTNING_IP="0.0.0.0"
+export APP_CONFIG_DIR="$/root/.lightning/data/app"
+export APP_CORE_LIGHTNING_REST_CERT_DIR="/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs"
+export APP_CORE_LIGHTNING_COMMANDO_ENV_DIR="/root/.lightning"
+export APP_CORE_LIGHTNING_WEBSOCKET_PORT=4269
+export COMMANDO_CONFIG="/root/.lightning/.commando-env"
+export APP_CORE_LIGHTNING_PORT=4500
+export APP_MODE=production
+
+EXISTING_PUBKEY=""
+GETINFO_RESPONSE=""
+LIGHTNINGD_PATH=$APP_CORE_LIGHTNING_COMMANDO_ENV_DIR"/"
+LIGHTNING_RPC="/root/.lightning/bitcoin/lightning-rpc"
+ENV_FILE_PATH="$LIGHTNINGD_PATH"".commando-env"
+
+echo "$LIGHTNING_RPC"
+
+getinfo_request() {
+  cat <<EOF
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getinfo",
+  "params": []
+}
+EOF
+}
+
+commando_rune_request() {
+  cat <<EOF
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "commando-rune",
+  "params": [null, [["For Application#"]]]
+}
+EOF
+}
+
+commando_datastore_request() {
+  cat <<EOF
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "datastore",
+  "params": [["commando", "runes", "$UNIQUE_ID"], "$RUNE"]
+}
+EOF
+}
+
+generate_new_rune() {
+  # Send 'commando-rune' request
+  RUNE_RESPONSE=$( (echo "$(commando_rune_request)"; sleep 1) | socat - UNIX-CONNECT:"$LIGHTNING_RPC")
+  RUNE=$(echo "$RUNE_RESPONSE" | jq -r '.result.rune')
+  UNIQUE_ID=$(echo "$RUNE_RESPONSE" | jq -r '.result.unique_id')
+  # Save rune in env file
+  echo "LIGHTNING_RUNE=\"$RUNE\"" >> $COMMANDO_CONFIG
+  echo "$RUNE"
+  # This will fail for v>23.05
+  DATASTORE_RESPONSE=$( (echo "$(commando_datastore_request)"; sleep 1) | socat - UNIX-CONNECT:"$LIGHTNING_RPC") > /dev/null
+}
+
+# Read existing pubkey
+if [ -f "$COMMANDO_CONFIG" ]; then
+  EXISTING_PUBKEY=$(head -n1 $COMMANDO_CONFIG)
+fi
+
+# Getinfo from CLN
+until [ "$GETINFO_RESPONSE" != "" ]
+do
+  echo "Waiting for lightningd"
+  # Send 'getinfo' request
+  GETINFO_RESPONSE=$( (echo "$(getinfo_request)"; sleep 1) | socat - UNIX-CONNECT:"$LIGHTNING_RPC")
+  echo "$GETINFO_RESPONSE"
+done
+# Write 'id' from the response as pubkey
+LIGHTNING_PUBKEY="$(jq -n "$GETINFO_RESPONSE" | jq -r '.result.id')"
+echo "$LIGHTNING_PUBKEY"
+
+# Compare existing pubkey with current
+if [ "$EXISTING_PUBKEY" != "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" ]; then
+  # Pubkey changed; rewrite new data on the file.
+  echo "Pubkey mismatched; Rewriting the data."
+  cat /dev/null > $COMMANDO_CONFIG
+  echo "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" >> $COMMANDO_CONFIG
+  generate_new_rune
+else
+  echo "Pubkey matches with existing pubkey."
+fi
+
+npm run start &
+ui_child=$!
+
 echo "All configuration Done"
 
 trap _term TERM
 
-wait $lightningd_child
+wait $lightningd_child $ui_child

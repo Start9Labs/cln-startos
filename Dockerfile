@@ -1,4 +1,4 @@
-FROM node:18-buster as ui
+FROM node:18-bullseye as ui
 
 WORKDIR /app
 
@@ -150,7 +150,7 @@ RUN pip3 install mako mistune==0.8.4 mrkd
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
 
-FROM node:18-buster-slim as final
+FROM node:18-bullseye-slim as final
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835

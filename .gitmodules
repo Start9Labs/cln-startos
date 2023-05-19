@@ -15,4 +15,4 @@
 	url = https://github.com/ZmnSCPxj/clboss
 [submodule "ui"]
 	path = ui
-	url = https://github.com/ElementsProject/umbrel-core-lightning.git
+	url = https://github.com/ElementsProject/cln-application.git
