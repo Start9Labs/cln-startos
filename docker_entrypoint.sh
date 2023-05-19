@@ -11,7 +11,7 @@ _term() {
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
-export RPC_LAN_ADDRESS="${RPC_TOR_ADDRESS/.onion/.local}"
+export RPC_LAN_ADDRESS=$(echo "$RPC_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
 
 CLBOSS_ENABLED_VALUE=$(yq e '.advanced.plugins.clboss.enabled' /root/.lightning/start9/config.yaml)
