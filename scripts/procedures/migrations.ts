@@ -166,7 +166,7 @@ export const migration: T.ExpectedExports.migration =
           (config) => {
             return config;
           },
-          true,
+          false,
           { version: "23.02.2.1", type: "up" }
         ),
         down: () => {
