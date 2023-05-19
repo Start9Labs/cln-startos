@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.02.2
+version: 23.02.2.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,8 +7,8 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update upstream to [v23.02.2](https://github.com/ElementsProject/lightning/releases/tag/v23.02.2)
-  * Default config to Bitcoin Core rather than Proxy
+  * New user interface!
+  * Require offers and onion-messages enabled
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
