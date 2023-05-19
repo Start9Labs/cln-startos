@@ -67,7 +67,7 @@ RUN make install
 RUN strip /usr/local/bin/clboss
 
 # lightningd builder
-FROM debian:buster-slim as builder
+FROM debian:bullseye-slim as builder
 
 ENV LIGHTNINGD_VERSION=v0.12.0
 ENV RUST_PROFILE=release
