@@ -1,58 +1,7 @@
-import { compat, matches, types as T, YAML } from "../deps.ts";
+import { compat, types as T } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "./getConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
-const { string, boolean, shape } = matches;
-
-const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
-type Check = {
-  currentError(config: T.Config): string | void;
-};
-const matchConfig = shape({
-  advanced: shape(
-    {
-      experimental: shape(
-        {
-          "onion-messages": boolean,
-          offers: boolean,
-        },
-      ),
-    },
-  ),
-});
-const configRules: Array<Check> = [
-  {
-    currentError(config) {
-      if (!matchConfig.test(config)) {
-        return "Config is not the correct shape";
-      }
-      const hasOffers = config.advanced.experimental.offers;
-      const hasOnionMessagesAndOffers =
-        config.advanced.experimental["onion-messages"] && hasOffers;
-      const doesntHaveOffers = !hasOffers;
-      if (hasOnionMessagesAndOffers || doesntHaveOffers) return;
-      return `You must enable 'Onion Messages' if you wish to enable 'Offers'`;
-    },
-  },
-];
-
-function checkConfigRules(config: T.Config): T.KnownError | void {
-  for (const checker of configRules) {
-    const error = checker.currentError(config);
-    if (error) {
-      return { error: error };
-    }
-  }
-}
-
-function urlParse(input: string) {
-  const url = new URL(input);
-  const [, _protocol, host, port] = Array.from(regexUrl.exec(input) || []);
-  return {
-    host,
-    port,
-  };
-}
 async function createWaitForService(effects: T.Effects, config: SetConfig) {
   const {
     bitcoin_rpc_host,
@@ -80,37 +29,6 @@ done
   });
 }
 
-function parseQuickCOnnectUrl(url: string): {
-  bitcoin_rpc_user: string;
-  bitcoin_rpc_pass: string;
-  bitcoin_rpc_host: string;
-  bitcoin_rpc_port: number;
-} {
-  const { host, port } = urlParse(url);
-  const portNumber = port == null ? null : Number(port);
-
-  if (!string.test(host)) {
-    throw new Error(`Expecting '${url}' to have a host`);
-  }
-  const [auth, bitcoin_rpc_host] = host.split("@");
-  if (!string.test(bitcoin_rpc_host)) {
-    throw new Error(`Expecting '${url}' to have a host with auth`);
-  }
-  const [user, pass] = auth.split(":");
-
-  if (!string.test(user)) {
-    throw new Error(`Expecting '${url}' to have a username`);
-  }
-  if (!string.test(pass)) {
-    throw new Error(`Expecting '${url}' to have a password`);
-  }
-  return {
-    bitcoin_rpc_user: user,
-    bitcoin_rpc_pass: pass,
-    bitcoin_rpc_host,
-    bitcoin_rpc_port: portNumber ?? 8332,
-  };
-}
 function userInformation(config: SetConfig) {
   switch (config.bitcoind.type) {
     case "internal":
@@ -134,14 +52,13 @@ function userInformation(config: SetConfig) {
 function getDualFundStrategyConfig(
   strategy: (SetConfig["advanced"]["experimental"]["dual-fund"] & {
     enabled: "enabled";
-  })["strategy"],
+  })["strategy"]
 ) {
   if (strategy.mode === "incognito") {
     return {
       policy: strategy.policy.policy ? strategy.policy.policy : "match",
-      policy_mod: "policy-mod" in strategy.policy
-        ? strategy.policy["policy-mod"]
-        : "100",
+      policy_mod:
+        "policy-mod" in strategy.policy ? strategy.policy["policy-mod"] : "100",
       leases_only: false,
 
       fuzz_percent: strategy["fuzz-percent"],
@@ -186,7 +103,7 @@ function getDualFundConfig(config: SetConfig) {
   const dualFundConfigInput = config.advanced.experimental["dual-fund"];
   if (dualFundConfigInput.enabled === "enabled") {
     const strategyConfig = getDualFundStrategyConfig(
-      dualFundConfigInput.strategy,
+      dualFundConfigInput.strategy
     );
 
     // merchant
@@ -219,27 +136,21 @@ function getDualFundConfig(config: SetConfig) {
     const policyMod = strategyConfig.policy_mod
       ? `funder-policy-mod=${strategyConfig.policy_mod}`
       : "";
-    const minTheirFundingMsat =
-      dualFundConfigInput.other["min-their-funding-msat"]
-        ? `funder-min-their-funding=${
-          dualFundConfigInput.other["min-their-funding-msat"]
-        }`
-        : "";
-    const maxTheirFundingMsat =
-      dualFundConfigInput.other["max-their-funding-msat"]
-        ? `funder-max-their-funding=${
-          dualFundConfigInput.other["max-their-funding-msat"]
-        }`
-        : "";
+    const minTheirFundingMsat = dualFundConfigInput.other[
+      "min-their-funding-msat"
+    ]
+      ? `funder-min-their-funding=${dualFundConfigInput.other["min-their-funding-msat"]}`
+      : "";
+    const maxTheirFundingMsat = dualFundConfigInput.other[
+      "max-their-funding-msat"
+    ]
+      ? `funder-max-their-funding=${dualFundConfigInput.other["max-their-funding-msat"]}`
+      : "";
     const perChannelMinMsat = dualFundConfigInput.other["per-channel-min-msat"]
-      ? `funder-per-channel-min=${
-        dualFundConfigInput.other["per-channel-min-msat"]
-      }`
+      ? `funder-per-channel-min=${dualFundConfigInput.other["per-channel-min-msat"]}`
       : "";
     const perChannelMaxMsat = dualFundConfigInput.other["per-channel-max-msat"]
-      ? `funder-per-channel-max=${
-        dualFundConfigInput.other["per-channel-max-msat"]
-      }`
+      ? `funder-per-channel-max=${dualFundConfigInput.other["per-channel-max-msat"]}`
       : "";
     const reserveTankMsat = dualFundConfigInput.other["reserve-tank-msat"]
       ? `funder-reserve-tank=${dualFundConfigInput.other["reserve-tank-msat"]}`
@@ -280,24 +191,20 @@ function configMaker(alias: Alias, config: SetConfig) {
   } = userInformation(config);
   const rpcBind = config.rpc.enabled ? "0.0.0.0:8080" : "127.0.0.1:8080";
   const enableWumbo = config.advanced["wumbo-channels"] ? "large-channels" : "";
-  const minHtlcMsat = config.advanced["htlc-minimum-msat"] !== null
-    ? `htlc-minimum-msat=${config.advanced["htlc-minimum-msat"]}`
-    : "";
-  const maxHtlcMsat = config.advanced["htlc-maximum-msat"] !== null
-    ? `htlc-maximum-msat=${config.advanced["htlc-maximum-msat"]}`
-    : "";
+  const minHtlcMsat =
+    config.advanced["htlc-minimum-msat"] !== null
+      ? `htlc-minimum-msat=${config.advanced["htlc-minimum-msat"]}`
+      : "";
+  const maxHtlcMsat =
+    config.advanced["htlc-maximum-msat"] !== null
+      ? `htlc-maximum-msat=${config.advanced["htlc-maximum-msat"]}`
+      : "";
   const enableExperimentalDualFund = getDualFundConfig(config);
-  const enableExperimentalOnionMessages =
-    config.advanced.experimental["onion-messages"]
-      ? "experimental-onion-messages"
-      : "";
-  const enableExperimentalOffers = config.advanced.experimental.offers
-    ? "experimental-offers"
+  const enableExperimentalShutdownWrongFunding = config.advanced.experimental[
+    "shutdown-wrong-funding"
+  ]
+    ? "experimental-shutdown-wrong-funding"
     : "";
-  const enableExperimentalShutdownWrongFunding =
-    config.advanced.experimental["shutdown-wrong-funding"]
-      ? "experimental-shutdown-wrong-funding"
-      : "";
   const enableHttpPlugin = config.advanced.plugins.http
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin"
     : "";
@@ -343,8 +250,8 @@ ${minHtlcMsat}
 ${maxHtlcMsat}
 ${enableWumbo}
 ${enableExperimentalDualFund}
-${enableExperimentalOnionMessages}
-${enableExperimentalOffers}
+experimental-onion-messages
+experimental-offers
 ${enableExperimentalShutdownWrongFunding}
 experimental-websocket-port=4269
 ${enableHttpPlugin}
@@ -356,10 +263,9 @@ ${enableClbossPlugin}`;
 
 export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
-  input: T.Config,
+  input: T.Config
 ) => {
   const config = setConfigMatcher.unsafeCast(input);
-  await checkConfigRules(config);
   const alias = await getAlias(effects, config);
 
   await effects.createDir({
