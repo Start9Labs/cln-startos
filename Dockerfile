@@ -11,7 +11,7 @@ RUN npm install
 RUN npm run build
 RUN npm prune --omit=dev
 
-FROM debian:buster-slim as downloader
+FROM debian:bullseye-slim as downloader
 
 RUN set -ex \
 	&& apt-get update \
@@ -39,7 +39,7 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && rm $BITCOIN_TARBALL
 
 # clboss builder
-FROM debian:buster-slim as clboss
+FROM debian:bullseye-slim as clboss
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
