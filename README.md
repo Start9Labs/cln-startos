@@ -1,7 +1,7 @@
 # Wrapper for Core Lightning (CLN)
 
 This project wraps
-[Core Lightning](https://github.com/ElementsProject/lightning) for EmbassyOS.
+[Core Lightning](https://github.com/ElementsProject/lightning) for StartOS.
 Core Lightning is a lightweight, highly customizable and standard compliant
 implementation of the [Lightning Network](https://lightning.network/) protocol.
 
@@ -35,9 +35,9 @@ git submodule update --init --recursive
 make
 ```
 
-## Installing (on Embassy)
+## Installing (on Start9 server)
 
-SSH into an Embassy device. `scp` the `.s9pk` to any directory from your local
+SSH into your Start9 device. `scp` the `.s9pk` to any directory from your local
 machine. Then install:
 
 ```

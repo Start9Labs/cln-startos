@@ -2,8 +2,8 @@
 
 ## Dependencies
 
-Core Lightning on the Embassy requires a full archival Bitcoin node to function.
-If your Embassy Bitcoin node is pruned, an additional service, Bitcoin Proxy, is
+Core Lightning on the StartOS requires a full archival Bitcoin node to function.
+If your Bitcoin node is pruned, an additional service, Bitcoin Proxy, is
 also required.
 
 ## Core Lightning (CLN) Config
@@ -56,10 +56,10 @@ To this end, here are some of the things CLBOSS can do automatically:
 # CLBOSS Operation **(advanced users only)**
 
 In order to control CLBOSS, you will use several commands and config options. If
-you have SSH access to your Embassy, the commands can be entered on the command
+you have SSH access to your StartOS, the commands can be entered on the command
 line using `docker exec -ti c-lightning.embassy lightning-cli <command>`. If you
 don't have SSH access, you can use the Console interface inside Spark Wallet (a
-frontend for CLN, offered as a separate service on the Embassy Marketplace, see
+frontend for CLN, offered as a separate service on the Start9 Registry, see
 below for more on Spark Console).
 
 The commands are:
@@ -85,7 +85,7 @@ If you have any questions about CLBOSS, don't hesitate to reach out to
 # Spark Console
 
 In order to access Spark Console, first install, configure, and start Spark
-Wallet from the Embassy Marketplace. Then open the UI and scroll to the bottom
+Wallet from the Start9 Registry. Then open the UI and scroll to the bottom
 of the page. Click the version number at the bottom left of the Spark UI:
 
 <!-- MD_PACKER_INLINE BEGIN -->
