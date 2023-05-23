@@ -11,8 +11,8 @@ _term() {
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
-export RPC_LAN_ADDRESS=$(echo "$RPC_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
+export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 
 CLBOSS_ENABLED_VALUE=$(yq e '.advanced.plugins.clboss.enabled' /root/.lightning/start9/config.yaml)
 if [ $CLBOSS_ENABLED_VALUE = "enabled" ]; then
@@ -140,7 +140,7 @@ export APP_CONFIG_DIR="$/root/.lightning/data/app"
 export APP_CORE_LIGHTNING_REST_PORT=3001
 export APP_CORE_LIGHTNING_REST_CERT_DIR="/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs"
 export DEVICE_DOMAIN_NAME=$RPC_LAN_ADDRESS
-export LOCAL_HOST=$RPC_LAN_ADDRESS
+export LOCAL_HOST=$REST_LAN_ADDRESS
 export APP_CORE_LIGHTNING_COMMANDO_ENV_DIR="/root/.lightning"
 export APP_CORE_LIGHTNING_REST_HIDDEN_SERVICE=$REST_TOR_ADDRESS
 export APP_CORE_LIGHTNING_WEBSOCKET_PORT=4269
