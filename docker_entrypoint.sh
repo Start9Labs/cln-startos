@@ -5,12 +5,14 @@ set -ea
 _term() {
   echo "Caught SIGTERM signal!"
   kill -TERM "$lightningd_child" 2>/dev/null
+  kill -TERM "$ui_child" 2>/dev/null
 }
 
 export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
+export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 
 CLBOSS_ENABLED_VALUE=$(yq e '.advanced.plugins.clboss.enabled' /root/.lightning/start9/config.yaml)
 if [ $CLBOSS_ENABLED_VALUE = "enabled" ]; then
@@ -130,8 +132,136 @@ cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.ligh
 
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
+# User Interface
+export APP_CORE_LIGHTNING_DAEMON_IP="localhost"
+export LIGHTNING_REST_IP="localhost"
+export APP_CORE_LIGHTNING_IP="0.0.0.0"
+export APP_CONFIG_DIR="$/root/.lightning/data/app"
+export APP_CORE_LIGHTNING_REST_PORT=3001
+export APP_CORE_LIGHTNING_REST_CERT_DIR="/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs"
+export DEVICE_DOMAIN_NAME=$RPC_LAN_ADDRESS
+export LOCAL_HOST=$REST_LAN_ADDRESS
+export APP_CORE_LIGHTNING_COMMANDO_ENV_DIR="/root/.lightning"
+export APP_CORE_LIGHTNING_REST_HIDDEN_SERVICE=$REST_TOR_ADDRESS
+export APP_CORE_LIGHTNING_WEBSOCKET_PORT=4269
+export COMMANDO_CONFIG="/root/.lightning/.commando-env"
+export APP_CORE_LIGHTNING_PORT=4500
+export APP_MODE=production
+
+EXISTING_PUBKEY=""
+GETINFO_RESPONSE=""
+LIGHTNINGD_PATH=$APP_CORE_LIGHTNING_COMMANDO_ENV_DIR"/"
+LIGHTNING_RPC="/root/.lightning/bitcoin/lightning-rpc"
+ENV_FILE_PATH="$LIGHTNINGD_PATH"".commando-env"
+
+echo "$LIGHTNING_RPC"
+
+getinfo_request() {
+  cat <<EOF
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getinfo",
+  "params": []
+}
+EOF
+}
+
+commando_rune_request() {
+  cat <<EOF
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "commando-rune",
+  "params": [null, [["For Application#"]]]
+}
+EOF
+}
+
+commando_datastore_request() {
+  cat <<EOF
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "datastore",
+  "params": [["commando", "runes", "$UNIQUE_ID"], "$RUNE"]
+}
+EOF
+}
+
+generate_new_rune() {
+  COUNTER=0
+  RUNE=""
+  while { [ "$RUNE" = "" ] || [ "$RUNE" = "null" ]; } && [ $COUNTER -lt 10 ]; do
+    # Send 'commando-rune' request
+    echo "Generating rune attempt: $COUNTER"
+    COUNTER=$((COUNTER+1))
+
+    RUNE_RESPONSE=$( (echo "$(commando_rune_request)"; sleep 2) | socat - UNIX-CONNECT:"$LIGHTNING_RPC")
+
+    RUNE=$(echo "$RUNE_RESPONSE" | jq -r '.result.rune')
+    UNIQUE_ID=$(echo "$RUNE_RESPONSE" | jq -r '.result.unique_id')
+    echo "RUNE_RESPONSE"
+    echo "$RUNE_RESPONSE"
+    echo "RUNE"
+    echo "$RUNE"
+
+    if [ "$RUNE" != "" ] && [ "$RUNE" != "null" ]; then
+      # Save rune in env file
+      echo "LIGHTNING_RUNE=\"$RUNE\"" >> "$COMMANDO_CONFIG"
+    fi
+
+    if [ "$UNIQUE_ID" != "" ] &&  [ "$UNIQUE_ID" != "null" ]; then
+      # This will fail for v>23.05
+      DATASTORE_RESPONSE=$( (echo "$(commando_datastore_request)"; sleep 1) | socat - UNIX-CONNECT:"$LIGHTNING_RPC") > /dev/null
+    fi
+  done
+  if [ $COUNTER -eq 10 ] && [ "$RUNE" = "" ]; then
+    echo "Error: Unable to generate rune for application authentication!"
+  fi
+}
+
+# Read existing pubkey
+if [ -f "$COMMANDO_CONFIG" ]; then
+  EXISTING_PUBKEY=$(head -n1 "$COMMANDO_CONFIG")
+  EXISTING_RUNE=$(sed -n "2p" "$COMMANDO_CONFIG")
+  echo "EXISTING_PUBKEY"
+  echo "$EXISTING_PUBKEY"
+  echo "EXISTING_RUNE"
+  echo "$EXISTING_RUNE"
+fi
+
+# Getinfo from CLN
+until [ "$GETINFO_RESPONSE" != "" ]
+do
+  echo "Waiting for lightningd"
+  # Send 'getinfo' request
+  GETINFO_RESPONSE=$( (echo "$(getinfo_request)"; sleep 1) | socat - UNIX-CONNECT:"$LIGHTNING_RPC")
+  echo "$GETINFO_RESPONSE"
+done
+# Write 'id' from the response as pubkey
+LIGHTNING_PUBKEY="$(jq -n "$GETINFO_RESPONSE" | jq -r '.result.id')"
+echo "$LIGHTNING_PUBKEY"
+
+# Compare existing pubkey with current
+if [ "$EXISTING_PUBKEY" != "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" ] ||
+  [ "$EXISTING_RUNE" = "" ] || 
+  [ "$EXISTING_RUNE" = "LIGHTNING_RUNE=\"\"" ] ||
+  [ "$EXISTING_RUNE" = "LIGHTNING_RUNE=\"null\"" ]; then
+  # Pubkey changed or missing rune; rewrite new data on the file.
+  echo "Pubkey mismatched or missing rune; Rewriting the data."
+  cat /dev/null > "$COMMANDO_CONFIG"
+  echo "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" >> "$COMMANDO_CONFIG"
+  generate_new_rune
+else
+  echo "Pubkey matches with existing pubkey."
+fi
+
+npm run start &
+ui_child=$!
+
 echo "All configuration Done"
 
 trap _term TERM
 
-wait $lightningd_child
+wait $lightningd_child $ui_child

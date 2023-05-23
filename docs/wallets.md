@@ -3,7 +3,7 @@
 ## Spark Wallet
 Spark wallet is a "remote control" interface for a remote Core Lightning node intended for advanced users. If you experience issues with the mobile or desktop applications, please reach out to the [Spark team](https://github.com/shesek/spark-wallet/issues) for support. 
 ### Available for
-- Embassy
+- StartOS
 - [Desktop](https://github.com/shesek/spark-wallet#desktop-apps)
     - Linux
     - macOS
@@ -15,7 +15,7 @@ Spark wallet is a "remote control" interface for a remote Core Lightning node in
     - Desktop
 
 ### Instructions
-1. For use with the Embassy, download Spark Wallet from the Start9 Service Marketplace and follow instructions.
+1. For use with the StartOS, download Spark Wallet from the Start9 Service Marketplace and follow instructions.
 1. For mobile app integrations, view the [tutorial](/docs/integrations/spark.md).
 
 ## [Fully Noded](https://github.com/Fonta1n3/FullyNoded)

@@ -2,8 +2,8 @@
 
 ## Dependencies
 
-Core Lightning on the Embassy requires a full archival Bitcoin node to function.
-If your Embassy Bitcoin node is pruned, an additional service, Bitcoin Proxy, is
+Core Lightning on StartOS requires a full archival Bitcoin node to function.
+If your Bitcoin node is pruned, an additional service, Bitcoin Proxy, is
 also required.
 
 ## Core Lightning (CLN) Config
@@ -21,10 +21,14 @@ Proxy to satisfy Core Lightning.
 
 ## Using a Wallet
 
-Enter your QuickConnect QR code **OR** your raw credentials (both located in
+Scan your QuickConnect QR code **OR** enter your raw credentials (both located in
 `Properties`) into any wallet that supports connecting to a remote Core
-Lightning node over Tor. For a list of compatible wallets, see
+Lightning node over Tor. A wallet can also be connected by scanning the `REST (Tor)` QR code in the default UI under Settings > Connect Wallet. If connecting via the UI QR code, be sure to select `REST (Tor)` as the Network. For a list of compatible wallets, see
 <a href="https://github.com/start9labs/c-lightning-wrapper/blob/master/docs/wallets.md" target="_blank">https://github.com/start9labs/c-lightning-wrapper/blob/master/docs/wallets.md</a>.
+
+## User Interface
+
+Your Core Lightning service comes with a featureful built in [UI](https://github.com/ElementsProject/cln-application/tree/d53e19548939641e7e12c756f43ef5fcf164225d). This interface can be used to deposit and withdraw bitcoin on chain, send and receive bitcoin over the lightning network, and even open or close channels!
 
 ## CLBOSS
 
@@ -41,7 +45,7 @@ _CLBOSS is not designed to make your node profitable_. It will, however, attempt
 to place your node in an advantageous position in the network graph, in order
 that your node can always send, receive, and forward as many payments as
 possible. This makes it an excellent feature for a node that is expecting to be
-receiving lots of payments, such as node connected to BTCPay Server or some
+receiving lots of payments, such as a node connected to BTCPay Server or some
 other merchant software.
 
 To this end, here are some of the things CLBOSS can do automatically:
@@ -56,10 +60,10 @@ To this end, here are some of the things CLBOSS can do automatically:
 # CLBOSS Operation **(advanced users only)**
 
 In order to control CLBOSS, you will use several commands and config options. If
-you have SSH access to your Embassy, the commands can be entered on the command
+you have SSH access to your Start9 server, the commands can be entered on the command
 line using `docker exec -ti c-lightning.embassy lightning-cli <command>`. If you
 don't have SSH access, you can use the Console interface inside Spark Wallet (a
-frontend for CLN, offered as a separate service on the Embassy Marketplace, see
+frontend for CLN, offered as a separate service on the Start9 Registry, see
 below for more on Spark Console).
 
 The commands are:
@@ -85,7 +89,7 @@ If you have any questions about CLBOSS, don't hesitate to reach out to
 # Spark Console
 
 In order to access Spark Console, first install, configure, and start Spark
-Wallet from the Embassy Marketplace. Then open the UI and scroll to the bottom
+Wallet from the Start9 Registry. Then open the UI and scroll to the bottom
 of the page. Click the version number at the bottom left of the Spark UI:
 
 <!-- MD_PACKER_INLINE BEGIN -->

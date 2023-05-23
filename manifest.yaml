@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.02.2
+version: 23.02.2.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,8 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update upstream to [v23.02.2](https://github.com/ElementsProject/lightning/releases/tag/v23.02.2)
-  * Default config to Bitcoin Core rather than Proxy
+  * New user interface!
+  * Require offers and onion-messages enabled
+  * Updated c-lightning-REST to v0.10.2
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -36,6 +37,15 @@ health-checks:
     entrypoint: check-rpc.sh
     args: []
     mounts: {}
+    io-format: json
+    inject: true
+  web-ui:
+    name: Web UI
+    success-message: The Web-UI is ready to be visited in your browser.
+    type: docker
+    image: main
+    entrypoint: check-web-ui.sh
+    args: []
     io-format: json
     inject: true
   synced:
@@ -80,6 +90,20 @@ alerts:
     since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
     closed and their funds returned to your wallet, assuming your peers choose to cooperate.
 interfaces:
+  web-ui:
+    name: Web User Interface
+    description: A web user interface for CLN
+    tor-config:
+      port-mapping:
+        80: "4500"
+    lan-config:
+      443:
+        ssl: true
+        internal: 4500
+    ui: true
+    protocols:
+      - tcp
+      - http
   rpc:
     name: RPC Interface
     description: Listens for JSON-RPC commands over HTTP.
@@ -123,7 +147,7 @@ dependencies:
   btc-rpc-proxy:
     version: ">=0.2.4 <0.4.0"
     requirement:
-      type: "opt-out"
+      type: "opt-in"
       how: Can alternatively configure a direct connection to the internal Bitcoin Core.
     description: Used to fetch validated blocks.
     config:
@@ -134,7 +158,7 @@ dependencies:
   bitcoind:
     version: ">=0.21.1.2 <26.0.0"
     requirement:
-      type: "opt-in"
+      type: "opt-out"
       how: Can alternatively configure the internal Bitcoin Proxy service.
     description: Used as a blockchain backend.
     config:

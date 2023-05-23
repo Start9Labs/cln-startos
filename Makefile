@@ -1,4 +1,4 @@
-BITCOIN_VERSION := "23.0"
+BITCOIN_VERSION := "24.0.1"
 C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
 C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
 C_LIGHTNING_REST_SRC := $(shell find ./c-lightning-REST)
@@ -13,40 +13,64 @@ TS_FILES := $(shell find . -name \*.ts )
 
 .DELETE_ON_ERROR:
 
-all: verify
+all: submodule-update instructions.md verify
 
 clean:
 	rm -rf docker-images
-	rm -f  $(PKG_ID).s9pk
-	rm -f image.tar
+	rm -f $(PKG_ID).s9pk
 	rm -f scripts/*.js
 
-# for rebuilding just the arm image. will include docker-images/x86_64.tar into the s9pk if it exists
-arm: docker-images/aarch64.tar scripts/embassy.js
-	embassy-sdk pack
+submodule-update:
+	@if [ -z "$(shell git submodule status | egrep -v '^ '|awk '{print $2}')" ]; then \
+		echo "\nAll submodules ready for build.\n"; \
+	else \
+		echo "\nPulling submodules...\n"; \
+		git submodule update --init --progress; \
+	fi
 
-# for rebuilding just the x86 image. will include docker-images/aarch64.tar into the s9pk if it exists
-x86: docker-images/x86_64.tar scripts/embassy.js
-	embassy-sdk pack
+arm:
+	@rm -f docker-images/x86_64.tar
+	@ARCH=aarch64 $(MAKE)
+
+x86:
+	@rm -f docker-images/aarch64.tar
+	@ARCH=x86_64 $(MAKE)
 
 verify: $(PKG_ID).s9pk
-	embassy-sdk verify s9pk $(PKG_ID).s9pk
+	@embassy-sdk verify s9pk $(PKG_ID).s9pk
+	@echo " Done!"
+	@echo "   Filesize: $(shell du -h $(PKG_ID).s9pk) is ready"
 
-install: $(PKG_ID).s9pk
+install:
+ifeq (,$(wildcard ~/.embassy/config.yaml))
+	@echo; echo "You must define \"host: http://embassy-server-name.local\" in ~/.embassy/config.yaml config file first"; echo
+else
 	embassy-cli package install $(PKG_ID).s9pk
+endif
 
 $(PKG_ID).s9pk: manifest.yaml docker-images/aarch64.tar docker-images/x86_64.tar instructions.md $(ASSET_PATHS) scripts/embassy.js
-	if ! [ -z "$(ARCH)" ]; then cp docker-images/$(ARCH).tar image.tar; fi
-	embassy-sdk pack
+ifeq ($(ARCH),aarch64)
+	@echo "embassy-sdk: Preparing aarch64 package ..."
+else ifeq ($(ARCH),x86_64)
+	@echo "embassy-sdk: Preparing x86_64 package ..."
+else
+	@echo "embassy-sdk: Preparing Universal Package ..."
+endif
+	@embassy-sdk pack
 
 docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(C_LIGHTNING_REST_SRC) manifest.yaml
+ifeq ($(ARCH),x86_64)
+else
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=aarch64 --build-arg PLATFORM=arm64 --platform=linux/arm64/v8 -o type=docker,dest=docker-images/aarch64.tar .
+endif
 
 docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(C_LIGHTNING_REST_SRC) manifest.yaml
+ifeq ($(ARCH),aarch64)
+else
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=x86_64 --build-arg PLATFORM=amd64 --platform=linux/amd64 -o type=docker,dest=docker-images/x86_64.tar .
-
+endif
 # c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin: $(HTTP_PLUGIN_SRC)
 # 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl cargo +beta build --release
 # 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl musl-strip target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin
@@ -65,4 +89,5 @@ scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
 
 instructions.md: docs/instructions.md $(DOC_ASSETS)
-	cd docs && md-packer < instructions.md > ../instructions.md
+	@echo "Generating instructions.md\n"
+	@cd docs && md-packer < instructions.md > ../instructions.md
