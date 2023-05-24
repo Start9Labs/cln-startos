@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.02.2.1
+version: 23.02.2.2
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -10,6 +10,7 @@ release-notes: |-
   * New user interface!
   * Require offers and onion-messages enabled
   * Updated c-lightning-REST to v0.10.2
+  * Add support for more fiat currency conversion
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
