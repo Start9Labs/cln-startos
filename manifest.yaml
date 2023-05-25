@@ -36,15 +36,15 @@ health-checks:
     mounts: {}
     io-format: json
     inject: true
-  web-ui:
-    name: Web UI
-    success-message: The Web-UI is ready to be visited in your browser.
-    type: docker
-    image: main
-    entrypoint: check-web-ui.sh
-    args: []
-    io-format: json
-    inject: true
+  # web-ui:
+  #   name: Web UI
+  #   success-message: The Web-UI is ready to be visited in your browser.
+  #   type: docker
+  #   image: main
+  #   entrypoint: check-web-ui.sh
+  #   args: []
+  #   io-format: json
+  #   inject: true
   synced:
     name: Synced
     success-message: Synced to chain and ready to perform on-chain operations
