@@ -99,7 +99,7 @@ lightningd_child=$!
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
-    sleep 1
+    sleep 30
     if ! ps -p $lightningd_child > /dev/null; then
         echo "lightningd has stopped, exiting container"
         exit 1

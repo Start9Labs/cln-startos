@@ -1,16 +1,12 @@
 id: c-lightning
-version: 23.02.2.2
+version: 23.02.2.3
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
 upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
-release-notes: |-
-  * New user interface!
-  * Require offers and onion-messages enabled
-  * Updated c-lightning-REST to v0.10.2
-  * Add support for more fiat currency conversion
+release-notes: Remove UI
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -40,15 +36,15 @@ health-checks:
     mounts: {}
     io-format: json
     inject: true
-  web-ui:
-    name: Web UI
-    success-message: The Web-UI is ready to be visited in your browser.
-    type: docker
-    image: main
-    entrypoint: check-web-ui.sh
-    args: []
-    io-format: json
-    inject: true
+  # web-ui:
+  #   name: Web UI
+  #   success-message: The Web-UI is ready to be visited in your browser.
+  #   type: docker
+  #   image: main
+  #   entrypoint: check-web-ui.sh
+  #   args: []
+  #   io-format: json
+  #   inject: true
   synced:
     name: Synced
     success-message: Synced to chain and ready to perform on-chain operations
@@ -91,20 +87,20 @@ alerts:
     since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
     closed and their funds returned to your wallet, assuming your peers choose to cooperate.
 interfaces:
-  web-ui:
-    name: Web User Interface
-    description: A web user interface for CLN
-    tor-config:
-      port-mapping:
-        80: "4500"
-    lan-config:
-      443:
-        ssl: true
-        internal: 4500
-    ui: true
-    protocols:
-      - tcp
-      - http
+  # web-ui:
+  #   name: Web User Interface
+  #   description: A web user interface for CLN
+  #   tor-config:
+  #     port-mapping:
+  #       80: "4500"
+  #   lan-config:
+  #     443:
+  #       ssl: true
+  #       internal: 4500
+  #   ui: true
+  #   protocols:
+  #     - tcp
+  #     - http
   rpc:
     name: RPC Interface
     description: Listens for JSON-RPC commands over HTTP.
