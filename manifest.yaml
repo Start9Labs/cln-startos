@@ -6,11 +6,7 @@ wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
 upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
-release-notes: |-
-  * New user interface!
-  * Require offers and onion-messages enabled
-  * Updated c-lightning-REST to v0.10.2
-  * Add support for more fiat currency conversion
+release-notes: Remove UI
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
