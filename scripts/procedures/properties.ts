@@ -1,7 +1,6 @@
 import { matches, types as T, util, YAML } from "../deps.ts";
 import { lazy } from "../models/lazy.ts";
 import { setConfigMatcher } from "./getConfig.ts";
-import { getAlias } from "./getAlias.ts";
 const { shape, string } = matches;
 
 const nodeInfoMatcher = shape({
@@ -102,53 +101,11 @@ export const properties: T.ExpectedExports.properties = async (
       qr: true,
       masked: true,
     },
-    "RPC Username": {
-      type: "string",
-      value: config.rpc.user,
-      description: "Username for RPC connections",
-      copyable: true,
-      qr: false,
-      masked: true,
-    },
-    "RPC Password": {
-      type: "string",
-      value: config.rpc.password,
-      description: "Password for RPC connections",
-      copyable: true,
-      qr: false,
-      masked: true,
-    },
   };
 
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
     : {
-      "Rest API Port": {
-        type: "string",
-        value: "3001",
-        description: "The port your c-lightning-REST API is listening on",
-        copyable: true,
-        qr: false,
-        masked: false,
-      },
-      "Rest API Macaroon": {
-        type: "string",
-        value: await macaroonBase64.val(),
-        description:
-          "The macaroon that grants access to your node's REST API plugin",
-        copyable: true,
-        qr: false,
-        masked: true,
-      },
-      "Rest API Macaroon (Hex)": {
-        type: "string",
-        value: await hexMacaroon.val(),
-        description:
-          "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
-        copyable: true,
-        qr: false,
-        masked: true,
-      },
       "REST API Quick Connect URL": {
         type: "string",
         value:
@@ -160,19 +117,9 @@ export const properties: T.ExpectedExports.properties = async (
         masked: true,
       },
     };
-  const alias = await getAlias(effects, config);
   const result: T.Properties = {
     version: 2,
     data: {
-      "Node Id": {
-        type: "string",
-        value: nodeInfo.id,
-        description:
-          "The node identifier that can be used for connecting to other nodes",
-        copyable: true,
-        qr: false,
-        masked: false,
-      },
       "Node Uri": {
         type: "string",
         value: `${nodeInfo.id}@${peerTorAddress}`,
@@ -180,14 +127,6 @@ export const properties: T.ExpectedExports.properties = async (
         copyable: true,
         qr: true,
         masked: true,
-      },
-      "Node Alias": {
-        type: "string",
-        value: alias,
-        description: "The friendly identifier for your node",
-        copyable: true,
-        qr: false,
-        masked: false,
       },
       ...rpcProperties,
       ...restProperties,
