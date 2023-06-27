@@ -1,3 +1,16 @@
+FROM node:18-bullseye as ui
+
+WORKDIR /app
+
+COPY ui/apps/backend ./apps/backend
+COPY ui/apps/frontend ./apps/frontend
+COPY ui/package.json ./
+COPY ui/package-lock.json ./
+
+RUN npm install
+RUN npm run build
+RUN npm prune --omit=dev
+
 FROM debian:bullseye-slim as downloader
 
 #Ensure we fetch from https:// apt repos
@@ -5,21 +18,17 @@ RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
 
 RUN set -ex \
 	&& apt-get update \
-	&& apt-get install -qq --no-install-recommends ca-certificates dirmngr wget torsocks \
+	&& apt-get install -qq --no-install-recommends ca-certificates dirmngr wget \
     && apt -y upgrade
 
 WORKDIR /opt
-
-RUN wget -qO /opt/tini "https://github.com/krallin/tini/releases/download/v0.18.0/tini" \
-    && echo "12d20136605531b09a2c2dac02ccee85e1b874eb322ef6baf7561cd93f93c855 /opt/tini" | sha256sum -c - \
-    && chmod +x /opt/tini
 
 # arm64 or amd64
 ARG PLATFORM
 # aarch64 or x86_64
 ARG ARCH
 
-ARG BITCOIN_VERSION=22.0
+ARG BITCOIN_VERSION
 ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-${ARCH}-linux-gnu.tar.gz
 ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
 ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS
@@ -36,6 +45,9 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
 # clboss builder
 FROM debian:bullseye-slim as clboss
 
+#Ensure we fetch from https:// apt repos
+RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
+
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
         # autoconf \
@@ -47,7 +59,8 @@ RUN apt-get update -qq && \
         libev-dev \
         libsqlite3-dev \
         libtool \
-        pkg-config
+        pkg-config \
+    && apt -y upgrade
 
 COPY clboss/. /tmp/clboss
 WORKDIR /tmp/clboss
@@ -57,39 +70,17 @@ RUN make
 RUN make install
 RUN strip /usr/local/bin/clboss
 
-# # http plugin builder
-# FROM debian:bullseye-slim as http-plugin
-
-# RUN apt-get update -qq && \
-#     apt-get install -qq -y --no-install-recommends \
-#         # autoconf \
-#         autoconf-archive \
-#         automake \
-#         build-essential \
-#         git \
-#         libcurl4-gnutls-dev \
-#         libev-dev \
-#         libsqlite3-dev \
-#         libtool \
-#         pkg-config
-
-# COPY clboss/. /tmp/clboss
-# WORKDIR /tmp/clboss
-# RUN autoreconf -i
-# RUN ./configure
-# RUN make
-# RUN make install
-# RUN strip /usr/local/bin/clboss
-
 # lightningd builder
 FROM debian:bullseye-slim as builder
 
-ENV LIGHTNINGD_VERSION=v0.12.0
+ENV LIGHTNINGD_VERSION=master
 ENV RUST_PROFILE=release
 ENV PATH=$PATH:/root/.cargo/bin/
 ARG DEVELOPER=1
 ENV PYTHON_VERSION=3
 
+#Ensure we fetch from https:// apt repos
+RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
@@ -103,6 +94,7 @@ RUN apt-get update -qq && \
         git \
         gnupg \
         libpq-dev \
+        protobuf-compiler \
         libtool \
         libffi-dev \
         python3 \
@@ -111,7 +103,8 @@ RUN apt-get update -qq && \
         python3-pip \
         python3-venv \
         python3-setuptools \
-        wget
+        wget \
+    && apt -y  upgrade
 
 # CLN
 RUN wget -q https://zlib.net/zlib-1.2.13.tar.gz \
@@ -122,19 +115,19 @@ RUN wget -q https://zlib.net/zlib-1.2.13.tar.gz \
 && make install && cd .. && rm zlib-1.2.13.tar.gz && rm -rf zlib-1.2.13
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
-&& wget -q https://www.sqlite.org/2019/sqlite-src-3290000.zip \
-&& unzip sqlite-src-3290000.zip \
-&& cd sqlite-src-3290000 \
+&& wget -q https://www.sqlite.org/2023/sqlite-src-3420000.zip \
+&& unzip sqlite-src-3420000.zip \
+&& cd sqlite-src-3420000 \
 && ./configure --enable-static --disable-readline --disable-threadsafe --disable-load-extension \
 && make \
-&& make install && cd .. && rm sqlite-src-3290000.zip && rm -rf sqlite-src-3290000
+&& make install && cd .. && rm sqlite-src-3420000.zip && rm -rf sqlite-src-3420000
 
-RUN wget -q https://gmplib.org/download/gmp/gmp-6.1.2.tar.xz \
-&& tar xvf gmp-6.1.2.tar.xz \
-&& cd gmp-6.1.2 \
+RUN wget -q https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz \
+&& tar xvf gmp-6.2.1.tar.xz \
+&& cd gmp-6.2.1 \
 && ./configure --disable-assembly \
 && make \
-&& make install && cd .. && rm gmp-6.1.2.tar.xz && rm -rf gmp-6.1.2
+&& make install && cd .. && rm gmp-6.2.1.tar.xz && rm -rf gmp-6.2.1
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
@@ -147,8 +140,8 @@ WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
 RUN cargo update && cargo +beta build --release
 RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
 WORKDIR /opt/lightningd
-COPY ./.git /tmp/lightning-wrapper/.git
 COPY lightning/. /tmp/lightning-wrapper/lightning
+COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 # COPY lightning/. /opt/lightningd
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
@@ -162,28 +155,28 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/inst
 
 RUN pip3 install mako mistune==0.8.4 mrkd
 
-RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j7 DEVELOPER=${DEVELOPER} && make install
+RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j$(($(nproc) - 1)) DEVELOPER=${DEVELOPER} && make install
 
-FROM node:16-bullseye-slim as final
+FROM node:18-bullseye-slim as final
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
 ENV LIGHTNINGD_PORT=9735
 ENV LIGHTNINGD_NETWORK=bitcoin
 
-COPY --from=downloader /opt/tini /usr/bin/tini
-
 # CLBOSS
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
-# Make sure "final" image is updated from https sources and has some needed utilities:
+#Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
     dnsutils \
     socat \
     inotify-tools \
     iproute2 \
+    jq \
     libcurl4-gnutls-dev \
     libev-dev \
     libsqlite3-dev \
@@ -208,23 +201,21 @@ COPY --from=downloader /opt/bitcoin/bin /usr/bin
 ARG PLATFORM
 
 RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /usr/local/bin/yq
-# RUN wget https://github.com/mikefarah/yq/releases/download/v4.26.1/yq_linux_arm.tar.gz -O - |\
-#     tar xz && mv yq_linux_arm /usr/bin/yq
 
 # PLUGINS
 WORKDIR /usr/local/libexec/c-lightning/plugins
-RUN pip install -U pip
-RUN pip install wheel
-RUN pip install -U pyln-proto pyln-bolt7
+RUN pip3 install -U pip
+RUN pip3 install wheel
+RUN pip3 install -U pyln-proto pyln-bolt7
 
 # rebalance
 ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
 
 # summary
 ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
-RUN pip install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
+RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
 # c-lightning-REST
@@ -243,11 +234,18 @@ ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
 RUN chmod a+x /usr/local/bin/docker_entrypoint.sh
 ADD ./check-rpc.sh /usr/local/bin/check-rpc.sh
 RUN chmod a+x /usr/local/bin/check-rpc.sh
+ADD ./check-web-ui.sh /usr/local/bin/check-web-ui.sh
+RUN chmod a+x /usr/local/bin/check-web-ui.sh
 ADD ./check-synced.sh /usr/local/bin/check-synced.sh
 RUN chmod a+x /usr/local/bin/check-synced.sh
 
-WORKDIR /root
+# UI
+COPY --from=ui /app/apps/frontend/build /app/apps/frontend/build
+COPY --from=ui /app/apps/frontend/public /app/apps/frontend/public
+COPY --from=ui /app/apps/frontend/package.json /app/apps/frontend/package.json
+COPY --from=ui /app/apps/backend/dist /app/apps/backend/dist
+COPY --from=ui /app/apps/backend/package.json /app/apps/backend/package.json
+COPY --from=ui /app/package.json /app/package.json
+COPY --from=ui /app/node_modules /app/node_modules
 
-EXPOSE 9735 8080
-
-ENTRYPOINT ["/usr/local/bin/docker_entrypoint.sh"]
+WORKDIR /app
