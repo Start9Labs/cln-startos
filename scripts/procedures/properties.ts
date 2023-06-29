@@ -78,12 +78,6 @@ export const properties: T.ExpectedExports.properties = async (
       }),
     ),
   );
-  const macaroonBase64 = lazy(() =>
-    effects.readFile({
-      path: "start9/access.macaroon.base64",
-      volumeId: "main",
-    })
-  );
   const hexMacaroon = lazy(() =>
     effects.readFile({
       path: "start9/access.macaroon.hex",
@@ -102,6 +96,18 @@ export const properties: T.ExpectedExports.properties = async (
       masked: true,
     },
   };
+
+  // const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled ? {} : {
+  //   "Sparko Quick Connect URL": {
+  //     type: "string",
+  //     value:
+  //       `clightning-rpc://${config.advanced.plugins.sparko.user}:${config.advanced.plugins.sparko.password}@${peerTorAddress}:9737`,
+  //     description: "A convenient way to connect a wallet to a remote node",
+  //     copyable: true,
+  //     qr: true,
+  //     masked: true,
+  //   },
+  // };
 
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
@@ -129,6 +135,7 @@ export const properties: T.ExpectedExports.properties = async (
         masked: true,
       },
       ...rpcProperties,
+      // ...sparkoProperties,
       ...restProperties,
     },
   };

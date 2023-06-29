@@ -1,12 +1,15 @@
 id: c-lightning
-version: 23.02.2.3
+version: 23.05.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
 upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
-release-notes: Remove UI
+release-notes: |-
+  * Update upstream to 23.05.1 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.1).
+  * Remove duplicated and unnecessary information from properties.
+  * Remove Proxy as a dependency option.
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -140,23 +143,25 @@ interfaces:
     protocols:
       - tcp
       - http
+  # sparko:
+  #   name: Sparko API
+  #   description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
+  #   tor-config:
+  #     port-mapping:
+  #       9737: "9737"
+  #   lan-config:
+  #     9737:
+  #       ssl: true
+  #       internal: 9737
+  #   ui: false
+  #   protocols:
+  #     - tcp
+  #     - http
 dependencies:
-  btc-rpc-proxy:
-    version: ">=0.2.4 <0.4.0"
-    requirement:
-      type: "opt-in"
-      how: Can alternatively configure a direct connection to the internal Bitcoin Core.
-    description: Used to fetch validated blocks.
-    config:
-      check:
-        type: script
-      auto-configure:
-        type: script
   bitcoind:
-    version: ">=0.21.1.2 <26.0.0"
+    version: ">=0.21.1.2 <27.0.0"
     requirement:
-      type: "opt-out"
-      how: Can alternatively configure the internal Bitcoin Proxy service.
+      type: required
     description: Used as a blockchain backend.
     config:
       check:
@@ -199,3 +204,26 @@ migrations:
     "*":
       type: script
       args: ["to"]
+# actions:
+#   rescan-blockchain:
+#     name: "Rescan Blockchain"
+#     description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
+#     allowed-statuses:
+#       - running
+#     implementation:
+#       type: docker
+#       image: main
+#       system: false
+#       entrypoint: rescan-blockchain.sh
+#       args: []
+#       io-format: json
+#       mounts:
+#         main: /root/.lightning
+#     input-spec:
+#       blockheight-or-depth:
+#         type: string
+#         name: Depth (or Blockheight if prefixed with a hyphen)
+#         description: Depth expressed as a positive number or blockheight prefixed with a hyphen.
+#         masked: false
+#         placeholder: "-600000"
+#         nullable: false

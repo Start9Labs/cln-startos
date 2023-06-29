@@ -30,23 +30,12 @@ done
 }
 
 function userInformation(config: SetConfig) {
-  switch (config.bitcoind.type) {
-    case "internal":
-      return {
-        bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.password,
-        bitcoin_rpc_host: "bitcoind.embassy",
-        bitcoin_rpc_port: 8332,
-      };
-
-    case "internal-proxy":
-      return {
-        bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.password,
-        bitcoin_rpc_host: "btc-rpc-proxy.embassy",
-        bitcoin_rpc_port: 8332,
-      };
-  }
+  return {
+    bitcoin_rpc_user: config["bitcoin-user"],
+    bitcoin_rpc_pass: config["bitcoin-password"],
+    bitcoin_rpc_host: "bitcoind.embassy",
+    bitcoin_rpc_port: 8332,
+  };
 }
 
 function getDualFundStrategyConfig(
@@ -214,6 +203,10 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableSummaryPlugin = config.advanced.plugins.summary
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
+  // const sparkoPassword = config.advanced.plugins.sparko.password;
+  // const enableSparkoPlugin = config.advanced.plugins.sparko.enabled
+  //   ? `plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0\nsparko-port=9737\nsparko-login=sparko:${sparkoPassword}`
+  //   : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";

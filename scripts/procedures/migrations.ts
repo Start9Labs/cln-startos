@@ -1,3 +1,4 @@
+import { literal, literals } from "https://deno.land/x/ts_matches@v5.2.0/mod.ts";
 import { compat, matches, types as T } from "../deps.ts";
 
 export const migration: T.ExpectedExports.migration =
@@ -185,6 +186,27 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "23.05.1": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (
+              matches.shape({
+                bitcoind: matches.shape({
+                  variants: literal("internal-proxy"),
+                },['variants'])
+              }).test(config)
+            ) {
+              delete config.bitcoind.variants;
+            }
+            return config;
+          },
+          false,
+          { version: "23.05.1", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
     },
-    "23.02.2.3"
+    "23.05.1",
   );
