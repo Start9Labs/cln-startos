@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.05.1
+version: 23.02.3.4
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,7 +7,6 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update upstream to 23.05.1 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.1).
   * Remove duplicated and unnecessary information from properties.
   * Remove Proxy as a dependency option.
 build: ["make"]

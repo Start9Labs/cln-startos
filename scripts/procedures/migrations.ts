@@ -186,27 +186,18 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
-      "23.05.1": {
+      "23.02.3.4": {
         up: compat.migrations.updateConfig(
           (config) => {
-            if (
-              matches.shape({
-                bitcoind: matches.shape({
-                  variants: literal("internal-proxy"),
-                },['variants'])
-              }).test(config)
-            ) {
-              delete config.bitcoind.variants;
-            }
             return config;
           },
           false,
-          { version: "23.05.1", type: "up"},
+          { version: "23.02.3.4", type: "up"},
         ),
         down: () => {
           throw new Error("Cannot downgrade");
         },
       },
     },
-    "23.05.1",
+    "23.02.3.4",
   );
