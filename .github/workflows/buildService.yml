@@ -51,6 +51,7 @@ jobs:
           export RUSTFLAGS="";
           export OS_ARCH=$(uname -m);
           ./install-sdk.sh;
+          cargo install --git=https://github.com/Start9Labs/md-packer.git --branch=main;
       - name: Build the service package
         run: |
           git submodule update --init --recursive
