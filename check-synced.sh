@@ -2,8 +2,8 @@
 
 b_type=$(yq e '.bitcoind.type' /root/.lightning/start9/config.yaml)
 b_host="bitcoind.embassy"
-b_username=$(yq e '.bitcoind.user' /root/.lightning/start9/config.yaml)
-b_password=$(yq e '.bitcoind.password' /root/.lightning/start9/config.yaml)
+b_username=$(yq e '.bitcoin-user' /root/.lightning/start9/config.yaml)
+b_password=$(yq e '.bitcoin-password' /root/.lightning/start9/config.yaml)
 c_username=$(yq e '.rpc.user' /root/.lightning/start9/config.yaml)
 c_password=$(yq e '.rpc.password' /root/.lightning/start9/config.yaml)
 b_gbc_result=$(bitcoin-cli -rpcconnect=$b_host -rpcuser=$b_username -rpcpassword=$b_password getblockcount)
