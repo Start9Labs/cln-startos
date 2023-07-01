@@ -50,69 +50,25 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       len: 6,
     },
   },
-  bitcoind: {
-    type: "union",
-    name: "Bitcoin Core",
-    description: "The Bitcoin Core node to connect to",
-    tag: {
-      id: "type",
-      name: "Type",
-      "variant-names": {
-        internal: "Bitcoin Core",
-        "internal-proxy": "Bitcoin Proxy",
-      },
-      description:
-        "Options<ul><li>Bitcoin Core: the Bitcoin Core node installed on your Embassy</li><li>Bitcoin Proxy: the Bitcoin Proxy service installed on your Embassy</li></ul>",
-    },
-    default: "internal",
-    variants: {
-      internal: {
-        user: {
-          type: "pointer",
-          name: "RPC Username",
-          description: "The username for Bitcoin Core's RPC interface",
-          subtype: "package",
-          "package-id": "bitcoind",
-          target: "config",
-          multi: false,
-          selector: "$.rpc.username",
-        },
-        password: {
-          type: "pointer",
-          name: "RPC Password",
-          description: "The password for Bitcoin Core's RPC interface",
-          subtype: "package",
-          "package-id": "bitcoind",
-          target: "config",
-          multi: false,
-          selector: "$.rpc.password",
-        },
-      },
-      "internal-proxy": {
-        user: {
-          type: "pointer",
-          name: "RPC Username",
-          description:
-            "The username for the RPC user allocated to Core Lightning",
-          subtype: "package",
-          "package-id": "btc-rpc-proxy",
-          target: "config",
-          selector: '$.users[?(@.name == "c-lightning")].name',
-          multi: false,
-        },
-        password: {
-          type: "pointer",
-          name: "RPC Password",
-          description:
-            "The password for the RPC user allocated to Core Lightning",
-          subtype: "package",
-          "package-id": "btc-rpc-proxy",
-          target: "config",
-          selector: '$.users[?(@.name == "c-lightning")].password',
-          multi: false,
-        },
-      },
-    },
+  "bitcoin-user": {
+    type: "pointer",
+    name: "RPC Username",
+    description: "The username for Bitcoin Core's RPC interface",
+    subtype: "package",
+    "package-id": "bitcoind",
+    target: "config",
+    multi: false,
+    selector: "$.rpc.username",
+  },
+  "bitcoin-password": {
+    type: "pointer",
+    name: "RPC Password",
+    description: "The password for Bitcoin Core's RPC interface",
+    subtype: "package",
+    "package-id": "bitcoind",
+    target: "config",
+    multi: false,
+    selector: "$.rpc.password",
   },
   rpc: {
     type: "object",
@@ -524,6 +480,42 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
               "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/lightningd/plugins/tree/master/summary\n",
             default: false,
           },
+          // "sparko": {
+          //   type: "object",
+          //   name: "Spark Options",
+          //   description: "Options for Sparko Plugin",
+          //   spec: {
+          //     enabled: {
+          //       "type": "boolean",
+          //       "name": "Enable Sparko Plugin",
+          //       "description":
+          //         "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
+          //       "default": true,
+          //     },
+          //     user: {
+          //       type: "string",
+          //       name: "Sparko Username",
+          //       description:
+          //         "The username for the Sparko user on your Core Lightning node",
+          //       nullable: false,
+          //       default: "sparko",
+          //       copyable: true,
+          //     },
+          //     password: {
+          //       type: "string",
+          //       name: "Sparko Password",
+          //       description:
+          //         "The password for the Sparko user on your Core Lightning node",
+          //       nullable: false,
+          //       default: {
+          //         charset: "a-z,A-Z,0-9",
+          //         len: 22,
+          //       },
+          //       copyable: true,
+          //       masked: true,
+          //     },
+          //   },
+          // },
           rest: {
             type: "boolean",
             name: "Enable C-Lightning-REST Plugin",
