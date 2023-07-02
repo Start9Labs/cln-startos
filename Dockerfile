@@ -13,12 +13,15 @@ RUN npm prune --omit=dev
 
 FROM debian:bullseye-slim as downloader
 
+RUN apt update \
+    && apt install ca-certificates
+
 #Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
 
 RUN set -ex \
 	&& apt-get update \
-	&& apt-get install -qq --no-install-recommends ca-certificates dirmngr wget
+	&& apt-get install -qq --no-install-recommends dirmngr wget
 
 WORKDIR /opt
 
