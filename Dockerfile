@@ -92,8 +92,7 @@ RUN apt-get update -qq && \
         python3-pip \
         python3-venv \
         python3-setuptools \
-        wget \
-    && apt -y  upgrade
+        wget
 
 # CLN
 RUN wget -q https://zlib.net/zlib-1.2.13.tar.gz \
