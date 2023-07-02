@@ -1,4 +1,4 @@
-BITCOIN_VERSION := "25.0.0"
+BITCOIN_VERSION := "25.0"
 C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
 C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
 C_LIGHTNING_REST_SRC := $(shell find ./c-lightning-REST)
