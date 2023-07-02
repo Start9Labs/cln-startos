@@ -85,6 +85,10 @@ ENV PATH=$PATH:/root/.cargo/bin/
 ARG DEVELOPER=1
 ENV PYTHON_VERSION=3
 
+#First install ca-certificates so our apt update will trust the cert from the https:// connection
+RUN apt update -qq \
+    && apt install -qq ca-certificates
+
 #Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
 
@@ -93,7 +97,6 @@ RUN apt-get update -qq && \
         autoconf \
         automake \
         build-essential \
-        ca-certificates \
         curl \
         dirmngr \
         gettext \
