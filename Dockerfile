@@ -135,7 +135,7 @@ RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
     # git checkout $(git --git-dir=/tmp/lightning-wrapper/.git rev-parse HEAD)
 
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python3 - \
+RUN curl -sSL https://install.python-poetry.org | python3 - \
     && pip3 install -U pip \
     && pip3 install -U wheel \
     # && /root/.local/bin/poetry config virtualenvs.create false \
