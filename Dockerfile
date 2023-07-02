@@ -15,7 +15,7 @@ FROM debian:bullseye-slim as downloader
 
 #First install ca-certificates so our apt update will trust the cert from the https:// connection
 RUN apt update -qq \
-    && apt install -qq -y ca-certificates
+    && apt install -qq --no-install-recommends ca-certificates
 
 #Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
@@ -50,7 +50,7 @@ FROM debian:bullseye-slim as clboss
 
 #First install ca-certificates so our apt update will trust the cert from the https:// connection
 RUN apt update -qq \
-    && apt install -qq -y ca-certificates
+    && apt install -qq --no-install-recommends ca-certificates
 
 #Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
@@ -87,7 +87,7 @@ ENV PYTHON_VERSION=3
 
 #First install ca-certificates so our apt update will trust the cert from the https:// connection
 RUN apt update -qq \
-    && apt install -qq -y ca-certificates
+    && apt install -qq --no-install-recommends ca-certificates
 
 #Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
