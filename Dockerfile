@@ -18,8 +18,7 @@ RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
 
 RUN set -ex \
 	&& apt-get update \
-	&& apt-get install -qq --no-install-recommends ca-certificates dirmngr wget \
-    && apt -y upgrade
+	&& apt-get install -qq --no-install-recommends ca-certificates dirmngr wget
 
 WORKDIR /opt
 
@@ -59,8 +58,7 @@ RUN apt-get update -qq && \
         libev-dev \
         libsqlite3-dev \
         libtool \
-        pkg-config \
-    && apt -y upgrade
+        pkg-config
 
 COPY clboss/. /tmp/clboss
 WORKDIR /tmp/clboss
@@ -189,7 +187,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xxd \
     ca-certificates \
     torsocks \
-    && apt -y upgrade \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir $LIGHTNINGD_DATA && \
