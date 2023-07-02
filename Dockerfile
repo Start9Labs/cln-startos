@@ -13,8 +13,9 @@ RUN npm prune --omit=dev
 
 FROM debian:bullseye-slim as downloader
 
-RUN apt update \
-    && apt install ca-certificates
+#First install ca-certificates so our apt update will trust the cert from the https:// connection
+RUN apt update -qq \
+    && apt install -qq ca-certificates
 
 #Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
@@ -46,6 +47,10 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
 
 # clboss builder
 FROM debian:bullseye-slim as clboss
+
+#First install ca-certificates so our apt update will trust the cert from the https:// connection
+RUN apt update -qq \
+    && apt install -qq ca-certificates
 
 #Ensure we fetch from https:// apt repos
 RUN sed -i "s/http:\/\//https:\/\//g" /etc/apt/sources.list
