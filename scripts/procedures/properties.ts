@@ -85,17 +85,17 @@ export const properties: T.ExpectedExports.properties = async (
     })
   );
 
-  const rpcProperties: T.PackagePropertiesV2 = !config.rpc.enabled ? {} : {
-    "Quick Connect URL": {
-      type: "string",
-      value:
-        `clightning-rpc://${config.rpc.user}:${config.rpc.password}@${peerTorAddress}:8080`,
-      description: "A convenient way to connect a wallet to a remote node",
-      copyable: true,
-      qr: true,
-      masked: true,
-    },
-  };
+  // const rpcProperties: T.PackagePropertiesV2 = !config.rpc.enabled ? {} : {
+  //   "RPC Quick Connect": {
+  //     type: "string",
+  //     value:
+  //       `clightning-rpc://${config.rpc.user}:${config.rpc.password}@${peerTorAddress}:8080`,
+  //     description: "A convenient way to connect a wallet to a remote node",
+  //     copyable: true,
+  //     qr: true,
+  //     masked: true,
+  //   },
+  // };
 
   // const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled ? {} : {
   //   "Sparko Quick Connect URL": {
@@ -112,7 +112,7 @@ export const properties: T.ExpectedExports.properties = async (
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
     : {
-      "REST API Quick Connect URL": {
+      "REST Quick Connect": {
         type: "string",
         value:
           `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
@@ -129,12 +129,12 @@ export const properties: T.ExpectedExports.properties = async (
       "Node Uri": {
         type: "string",
         value: `${nodeInfo.id}@${peerTorAddress}`,
-        description: "Enables connecting to another remote node",
+        description: "Share this Uri with others so they can add your CLN node as a peer",
         copyable: true,
         qr: true,
         masked: true,
       },
-      ...rpcProperties,
+      // ...rpcProperties,
       // ...sparkoProperties,
       ...restProperties,
     },
