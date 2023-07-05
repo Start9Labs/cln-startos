@@ -85,18 +85,6 @@ export const properties: T.ExpectedExports.properties = async (
     })
   );
 
-  // const rpcProperties: T.PackagePropertiesV2 = !config.rpc.enabled ? {} : {
-  //   "RPC Quick Connect": {
-  //     type: "string",
-  //     value:
-  //       `clightning-rpc://${config.rpc.user}:${config.rpc.password}@${peerTorAddress}:8080`,
-  //     description: "A convenient way to connect a wallet to a remote node",
-  //     copyable: true,
-  //     qr: true,
-  //     masked: true,
-  //   },
-  // };
-
   // const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled ? {} : {
   //   "Sparko Quick Connect URL": {
   //     type: "string",
@@ -134,7 +122,6 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      // ...rpcProperties,
       // ...sparkoProperties,
       ...restProperties,
     },
