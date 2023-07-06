@@ -126,7 +126,7 @@ export const properties: T.ExpectedExports.properties = async (
         qr: false,
         masked: false,
       },
-      "Rest Macaroon (Hex)": {
+      "REST Macaroon (Hex)": {
         type: "string",
         value: await hexMacaroon.val(),
         description:
