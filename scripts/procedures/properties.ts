@@ -110,6 +110,14 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
+      "Rest Host": {
+        type: "string",
+        value: `${restTorAddress}`,
+        description: "The host of your c-lightning-REST API",
+        copyable: true,
+        qr: false,
+        masked: false,
+      },
       "Rest Port": {
         type: "string",
         value: "3001",
@@ -141,11 +149,6 @@ export const properties: T.ExpectedExports.properties = async (
       },
       // ...sparkoProperties,
       ...restProperties,
-      "REST hostname": {
-        type: "string",
-        value: `${hexMacaroon.val()}`,
-        description: "The RE"
-      }
     },
   };
   return { result };
