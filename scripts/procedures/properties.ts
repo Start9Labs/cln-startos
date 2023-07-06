@@ -110,6 +110,23 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
+      "Rest Port": {
+        type: "string",
+        value: "3001",
+        description: "The port your c-lightning-REST API is listening on",
+        copyable: true,
+        qr: false,
+        masked: false,
+      },
+      "Rest Macaroon (Hex)": {
+        type: "string",
+        value: await hexMacaroon.val(),
+        description:
+          "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
+        copyable: true,
+        qr: false,
+        masked: true,
+      },
     };
   const result: T.Properties = {
     version: 2,
@@ -124,6 +141,11 @@ export const properties: T.ExpectedExports.properties = async (
       },
       // ...sparkoProperties,
       ...restProperties,
+      "REST hostname": {
+        type: "string",
+        value: `${hexMacaroon.val()}`,
+        description: "The RE"
+      }
     },
   };
   return { result };

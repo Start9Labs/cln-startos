@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.02.2.4
+version: 23.02.2.5
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,8 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Remove duplicated and unnecessary information from properties.
-  * Remove Proxy as a dependency option.
+  * Add REST Quick Connect individual components to properties.
+  * Remove Proxy references from instructions.
+  * Update wallets.md to remove FN and add Zeus.
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
