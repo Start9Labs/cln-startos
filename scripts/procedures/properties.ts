@@ -110,15 +110,15 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      "Rest Host": {
+      "REST Host": {
         type: "string",
         value: `${restTorAddress}`,
         description: "The host of your c-lightning-REST API",
         copyable: true,
         qr: false,
-        masked: false,
+        masked: true,
       },
-      "Rest Port": {
+      "REST Port": {
         type: "string",
         value: "3001",
         description: "The port your c-lightning-REST API is listening on",
