@@ -3,8 +3,6 @@
 ## Dependencies
 
 Core Lightning on StartOS requires a full archival Bitcoin node to function.
-If your Bitcoin node is pruned, an additional service, Bitcoin Proxy, is
-also required.
 
 ## Core Lightning (CLN) Config
 
@@ -12,12 +10,6 @@ Your Core Lightning node is highly configurable. Many settings are considered
 _advanced_ and should be used with caution. For the vast majority of users and
 use-cases, we recommend using the defaults. You can change credentials from the
 `Config` menu at any time. Once configured, you may start your node!
-
-## Bitcoin Proxy Configs
-
-On the Core Lightning service details page, scroll down to find the Bitcoin
-Proxy dependency. Click `Configure`. This will automatically configure Bitcoin
-Proxy to satisfy Core Lightning.
 
 ## Using a Wallet
 

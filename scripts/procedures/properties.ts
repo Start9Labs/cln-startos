@@ -85,18 +85,6 @@ export const properties: T.ExpectedExports.properties = async (
     })
   );
 
-  const rpcProperties: T.PackagePropertiesV2 = !config.rpc.enabled ? {} : {
-    "Quick Connect URL": {
-      type: "string",
-      value:
-        `clightning-rpc://${config.rpc.user}:${config.rpc.password}@${peerTorAddress}:8080`,
-      description: "A convenient way to connect a wallet to a remote node",
-      copyable: true,
-      qr: true,
-      masked: true,
-    },
-  };
-
   // const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled ? {} : {
   //   "Sparko Quick Connect URL": {
   //     type: "string",
@@ -112,7 +100,7 @@ export const properties: T.ExpectedExports.properties = async (
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
     : {
-      "REST API Quick Connect URL": {
+      "REST Quick Connect": {
         type: "string",
         value:
           `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
@@ -122,6 +110,31 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
+      "REST Host": {
+        type: "string",
+        value: `${restTorAddress}`,
+        description: "The host of your c-lightning-REST API",
+        copyable: true,
+        qr: false,
+        masked: true,
+      },
+      "REST Port": {
+        type: "string",
+        value: "3001",
+        description: "The port your c-lightning-REST API is listening on",
+        copyable: true,
+        qr: false,
+        masked: false,
+      },
+      "REST Macaroon (Hex)": {
+        type: "string",
+        value: await hexMacaroon.val(),
+        description:
+          "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
+        copyable: true,
+        qr: false,
+        masked: true,
+      },
     };
   const result: T.Properties = {
     version: 2,
@@ -129,12 +142,11 @@ export const properties: T.ExpectedExports.properties = async (
       "Node Uri": {
         type: "string",
         value: `${nodeInfo.id}@${peerTorAddress}`,
-        description: "Enables connecting to another remote node",
+        description: "Share this Uri with others so they can add your CLN node as a peer",
         copyable: true,
         qr: true,
         masked: true,
       },
-      ...rpcProperties,
       // ...sparkoProperties,
       ...restProperties,
     },

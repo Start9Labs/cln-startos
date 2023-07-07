@@ -18,15 +18,13 @@ Spark wallet is a "remote control" interface for a remote Core Lightning node in
 1. For use with the StartOS, download Spark Wallet from the Start9 Service Marketplace and follow instructions.
 1. For mobile app integrations, view the [tutorial](/docs/integrations/spark.md).
 
-## [Fully Noded](https://github.com/Fonta1n3/FullyNoded)
+## [Zeus](https://github.com/ZeusLN/zeus)
 
 ### Available for
 - iOS
-- MacOS
+- Android
 
 ### Instructions
-1. In Fully Noded, click the lightning bolt icon at the top of the screen.
-1. Click "add a node"
-1. Enter your Core Lightning credentials. You can do this in one of two ways:
-    1. Use Fully Noded to scan your QuickConnect QR code (located in `Services > Core Lightning > Properties`)
-    1. Copy/paste your Core Lightning Tor Address (located in `Services > Core Lightning`) _with :8080 appended_ (eg. sometoraddress.onion:8080), as well as you RPC username and password (located in `Services > Core Lightning > Properties`).
+1. In Zeus, click `scan node config`.
+1. Scan the `REST Quick Connect` QR code from CLN Properties (`Services > Core Lightning > Properties`).
+    1. Alternatively, you can individually copy and paste the hostname, port, and macaroon from `Services > Core Lightning > Properties` in the respective fields within the Zeus app. Make sure to select `Core Lightning (c-lightning-REST)` as the `Node interface` and toggle `Use Tor` on.
