@@ -70,6 +70,12 @@ export const properties: T.ExpectedExports.properties = async (
       path: "start9/restTorAddress",
     })
     .then((x) => x.trim());
+  const sparkoTorAddress = await effects
+    .readFile({
+      volumeId: "main",
+      path: "start9/sparkoTorAddress",
+    })
+    .then((x) => x.trim());
   const config = setConfigMatcher.unsafeCast(
     YAML.parse(
       await effects.readFile({
@@ -85,17 +91,19 @@ export const properties: T.ExpectedExports.properties = async (
     })
   );
 
-  // const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled ? {} : {
-  //   "Sparko Quick Connect URL": {
-  //     type: "string",
-  //     value:
-  //       `clightning-rpc://${config.advanced.plugins.sparko.user}:${config.advanced.plugins.sparko.password}@${peerTorAddress}:9737`,
-  //     description: "A convenient way to connect a wallet to a remote node",
-  //     copyable: true,
-  //     qr: true,
-  //     masked: true,
-  //   },
-  // };
+  const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled
+  ? {}
+  : {
+    "Sparko Quick Connect URL": {
+      type: "string",
+      value:
+        `http://${sparkoTorAddress}:9737?access-key=${config.advanced.plugins.sparko.password}`,
+      description: "A convenient way to connect a wallet to the Sparko interface",
+      copyable: true,
+      qr: true,
+      masked: true,
+    },
+  };
 
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
@@ -147,7 +155,7 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      // ...sparkoProperties,
+      ...sparkoProperties,
       ...restProperties,
     },
   };

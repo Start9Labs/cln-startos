@@ -12,6 +12,7 @@ export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
+export SPARKO_TOR_ADDRESS=$(yq e '.sparko-tor-address' /root/.lightning/start9/config.yaml)
 export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 
 CLBOSS_ENABLED_VALUE=$(yq e '.advanced.plugins.clboss.enabled' /root/.lightning/start9/config.yaml)
@@ -58,6 +59,7 @@ mkdir -p /root/.lightning/public
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
+echo $SPARKO_TOR_ADDRESS > /root/.lightning/start9/sparkoTorAddress
 
 
 sh /root/.lightning/start9/waitForStart.sh

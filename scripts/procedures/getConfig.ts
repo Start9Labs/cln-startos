@@ -28,6 +28,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "rest",
   },
+  "sparko-tor-address": {
+    name: "Sparko Tor Address",
+    description: "The Tor address of the Sparko Tor",
+    type: "pointer",
+    subtype: "package",
+    "package-id": "c-lightning",
+    target: "tor-address",
+    interface: "sparko",
+  },
   alias: {
     type: "string",
     name: "Alias",
@@ -480,42 +489,42 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
               "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/lightningd/plugins/tree/master/summary\n",
             default: false,
           },
-          // "sparko": {
-          //   type: "object",
-          //   name: "Spark Options",
-          //   description: "Options for Sparko Plugin",
-          //   spec: {
-          //     enabled: {
-          //       "type": "boolean",
-          //       "name": "Enable Sparko Plugin",
-          //       "description":
-          //         "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
-          //       "default": true,
-          //     },
-          //     user: {
-          //       type: "string",
-          //       name: "Sparko Username",
-          //       description:
-          //         "The username for the Sparko user on your Core Lightning node",
-          //       nullable: false,
-          //       default: "sparko",
-          //       copyable: true,
-          //     },
-          //     password: {
-          //       type: "string",
-          //       name: "Sparko Password",
-          //       description:
-          //         "The password for the Sparko user on your Core Lightning node",
-          //       nullable: false,
-          //       default: {
-          //         charset: "a-z,A-Z,0-9",
-          //         len: 22,
-          //       },
-          //       copyable: true,
-          //       masked: true,
-          //     },
-          //   },
-          // },
+          "sparko": {
+            type: "object",
+            name: "Sparko Options",
+            description: "Options for Sparko Plugin",
+            spec: {
+              enabled: {
+                "type": "boolean",
+                "name": "Enable Sparko Plugin",
+                "description":
+                  "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
+                "default": true,
+              },
+              user: {
+                type: "string",
+                name: "Sparko Username",
+                description:
+                  "The username for the Sparko user on your Core Lightning node",
+                nullable: false,
+                default: "sparko",
+                copyable: true,
+              },
+              password: {
+                type: "string",
+                name: "Sparko Password",
+                description:
+                  "The password for the Sparko user on your Core Lightning node",
+                nullable: false,
+                default: {
+                  charset: "a-z,A-Z,0-9",
+                  len: 22,
+                },
+                copyable: true,
+                masked: true,
+              },
+            },
+          },
           rest: {
             type: "boolean",
             name: "Enable C-Lightning-REST Plugin",
