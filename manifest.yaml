@@ -7,7 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Fix dependency error and autoconfigure for different bitcoin versions.
+  * Add Sparko plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

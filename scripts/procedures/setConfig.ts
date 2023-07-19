@@ -204,9 +204,8 @@ function configMaker(alias: Alias, config: SetConfig) {
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
   const sparkoPassword = config.advanced.plugins.sparko.password;
-  const sparkoUsername = config.advanced.plugins.sparko.user;
   const enableSparkoPlugin = config.advanced.plugins.sparko.enabled
-    ? `plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0\nsparko-port=9737\nsparko-login=${sparkoUsername}:${sparkoPassword}`
+    ? `plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0\nsparko-port=9737\nsparko-keys=${sparkoPassword}`
     : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"

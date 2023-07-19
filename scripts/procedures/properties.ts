@@ -94,11 +94,26 @@ export const properties: T.ExpectedExports.properties = async (
   const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled
   ? {}
   : {
-    "Sparko Quick Connect URL": {
+    "Sparko Address": {
       type: "string",
-      value:
-        `http://${sparkoTorAddress}:9737?access-key=${config.advanced.plugins.sparko.password}`,
-      description: "A convenient way to connect a wallet to the Sparko interface",
+      value: `${sparkoTorAddress}`,
+      description: "The tor address of the Sparko interface",
+      copyable: true,
+      qr: true,
+      masked: true,
+    },
+    "Sparko Port": {
+      type: "string",
+      value: `9737`,
+      description: "The port of the Sparko interface",
+      copyable: true,
+      qr: false,
+      masked: false,
+    },
+    "Sparko key": {
+      type: "string",
+      value: `${config.advanced.plugins.sparko.password}`,
+      description: "The master key to authenticate a wallet to access your CLN node via the Sparko interface",
       copyable: true,
       qr: true,
       masked: true,

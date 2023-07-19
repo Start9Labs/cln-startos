@@ -498,23 +498,14 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                 "type": "boolean",
                 "name": "Enable Sparko Plugin",
                 "description":
-                  "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
+                  "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
                 "default": true,
-              },
-              user: {
-                type: "string",
-                name: "Sparko Username",
-                description:
-                  "The username for the Sparko user on your Core Lightning node",
-                nullable: false,
-                default: "sparko",
-                copyable: true,
               },
               password: {
                 type: "string",
-                name: "Sparko Password",
+                name: "Sparko Master Key",
                 description:
-                  "The password for the Sparko user on your Core Lightning node",
+                  "The master key to authenticate a wallet to access your CLN node via the Sparko interface.",
                 nullable: false,
                 default: {
                   charset: "a-z,A-Z,0-9",
