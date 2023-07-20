@@ -224,7 +224,7 @@ export const migration: T.ExpectedExports.migration =
             return config;
           },
           true,
-          { version: "22.11.1.3", type: "up" },
+          { version: "23.02.2.7", type: "up" },
         ),
         down: compat.migrations.updateConfig(
           (config) => {
@@ -232,7 +232,7 @@ export const migration: T.ExpectedExports.migration =
             return config;
           },
           true,
-          { version: "22.11.1.3", type: "down" },
+          { version: "23.02.2.7", type: "down" },
         ),
       }
     },

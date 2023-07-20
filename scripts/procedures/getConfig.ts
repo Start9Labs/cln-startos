@@ -662,7 +662,8 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         },
       },
     },
-  } as const,
+  },
+} as const,
 );
 
 export type SetConfig = typeof setConfigMatcher._TYPE;

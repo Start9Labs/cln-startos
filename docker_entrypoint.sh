@@ -154,15 +154,15 @@ cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.ligh
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
 if [ "$(yq ".watchtowers.wt-client" /root/.lightning/start9/config.yaml)" = "true" ]; then
-  lightning-cli listtowers > .lightning/start9/wtClientInfo
-  cat .lightning/start9/wtClientInfo | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > .lightning/start9/wt_old
-  cat .lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > .lightning/start9/wt_new
+  lightning-cli listtowers > /root/.lightning/start9/wtClientInfo
+  cat /root/.lightning/start9/wtClientInfo | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > /root/.lightning/start9/wt_old
+  cat /root/.lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
   echo "Abandoning old watchtowers"
-  grep -Fxvf .lightning/start9/wt_new .lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
+  grep -Fxvf /root/.lightning/start9/wt_new /root/.lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
   echo "Regsistering new watchtowers"
-  grep -Fxvf .lightning/start9/wt_old .lightning/start9/wt_new | xargs -I{} lightning-cli registertower {} 2>&1 || true
+  grep -Fxvf /root/.lightning/start9/wt_old /root/.lightning/start9/wt_new | xargs -I{} lightning-cli registertower {} 2>&1 || true
 
-  while true; do lightning-cli listtowers > .lightning/start9/wtClientInfo || echo 'Failed to fetch towers from client endpoint.'; sleep 60; done &
+  while true; do lightning-cli listtowers > /root/.lightning/start9/wtClientInfo || echo 'Failed to fetch towers from client endpoint.'; sleep 60; done &
   wtclient_child=$!
 fi
 
