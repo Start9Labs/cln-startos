@@ -1,12 +1,11 @@
 **/*.rs.bk
-c-lightning.s9pk
-image.tar
+*.s9pk
 scripts/embassy.js
 .vscode/*.log
 instructions.md
 .DS_Store
 docker-images
-node_modules/
 package-lock.json
 package.json
 scripts/test.ts
+node_modules

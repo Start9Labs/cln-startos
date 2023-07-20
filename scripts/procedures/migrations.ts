@@ -1,7 +1,8 @@
+import { literal, literals } from "https://deno.land/x/ts_matches@v5.2.0/mod.ts";
 import { compat, matches, types as T } from "../deps.ts";
 
-export const migration: T.ExpectedExports.migration = compat.migrations
-  .fromMapping(
+export const migration: T.ExpectedExports.migration =
+  compat.migrations.fromMapping(
     {
       // 0.10.2.1: initial version
       // 0.11.1: no migration needed
@@ -9,47 +10,53 @@ export const migration: T.ExpectedExports.migration = compat.migrations
         up: compat.migrations.updateConfig(
           (config) => {
             if (
-              matches.shape({
-                advanced: matches.shape({
-                  plugins: matches.shape({ clboss: matches.unknown }, [
-                    "clboss",
-                  ]),
-                }),
-              }).test(config)
+              matches
+                .shape({
+                  advanced: matches.shape({
+                    plugins: matches.shape({ clboss: matches.unknown }, [
+                      "clboss",
+                    ]),
+                  }),
+                })
+                .test(config)
             ) {
               config.advanced.plugins.clboss = false;
             }
             return config;
           },
           true,
-          { version: "0.11.1.1", type: "up" },
+          { version: "0.11.1.1", type: "up" }
         ),
         down: compat.migrations.updateConfig(
           (config) => {
             if (
-              matches.shape({
-                advanced: matches.shape({
-                  plugins: matches.shape({ clboss: matches.unknown }),
-                }),
-              }).test(config)
+              matches
+                .shape({
+                  advanced: matches.shape({
+                    plugins: matches.shape({ clboss: matches.unknown }),
+                  }),
+                })
+                .test(config)
             ) {
               delete config.advanced.plugins.clboss;
             }
             return config;
           },
           false,
-          { version: "0.11.1.1", type: "down" },
+          { version: "0.11.1.1", type: "down" }
         ),
       },
       "0.11.2": {
         up: compat.migrations.updateConfig(
           (config) => {
             if (
-              matches.shape({
-                advanced: matches.shape({
-                  plugins: matches.shape({ clboss: matches.unknown }),
-                }),
-              }).test(config)
+              matches
+                .shape({
+                  advanced: matches.shape({
+                    plugins: matches.shape({ clboss: matches.unknown }),
+                  }),
+                })
+                .test(config)
             ) {
               if (config.advanced.plugins.clboss === true) {
                 config.advanced.plugins.clboss = {
@@ -67,16 +74,18 @@ export const migration: T.ExpectedExports.migration = compat.migrations
             return config;
           },
           true,
-          { version: "0.11.2", type: "up" },
+          { version: "0.11.2", type: "up" }
         ),
         down: compat.migrations.updateConfig(
           (config) => {
             if (
-              matches.shape({
-                advanced: matches.shape({
-                  plugins: matches.shape({ clboss: matches.any }),
-                }),
-              }).test(config)
+              matches
+                .shape({
+                  advanced: matches.shape({
+                    plugins: matches.shape({ clboss: matches.any }),
+                  }),
+                })
+                .test(config)
             ) {
               config.advanced.plugins.clboss =
                 config.advanced.plugins.clboss.enabled === "enabled";
@@ -84,25 +93,29 @@ export const migration: T.ExpectedExports.migration = compat.migrations
             return config;
           },
           true,
-          { version: "0.11.2", type: "down" },
+          { version: "0.11.2", type: "down" }
         ),
       },
       "22.11.1": {
         up: compat.migrations.updateConfig(
           (config) => {
             if (
-              matches.shape({
-                advanced: matches.shape({
-                  experimental: matches.shape({ "dual-fund": matches.unknown }),
-                }),
-              }).test(config)
+              matches
+                .shape({
+                  advanced: matches.shape({
+                    experimental: matches.shape({
+                      "dual-fund": matches.unknown,
+                    }),
+                  }),
+                })
+                .test(config)
             ) {
               if (config.advanced.experimental["dual-fund"] === true) {
                 config.advanced.experimental["dual-fund"] = {
                   enabled: "enabled",
                   strategy: {
                     mode: "incognito",
-                    policy: { "policy": "fixed" },
+                    policy: { policy: "fixed" },
                   },
                   other: {},
                 };
@@ -115,16 +128,18 @@ export const migration: T.ExpectedExports.migration = compat.migrations
             return config;
           },
           true,
-          { version: "22.11.1", type: "up" },
+          { version: "22.11.1", type: "up" }
         ),
         down: compat.migrations.updateConfig(
           (config) => {
             if (
-              matches.shape({
-                advanced: matches.shape({
-                  experimental: matches.shape({ "dual-fund": matches.any }),
-                }),
-              }).test(config)
+              matches
+                .shape({
+                  advanced: matches.shape({
+                    experimental: matches.shape({ "dual-fund": matches.any }),
+                  }),
+                })
+                .test(config)
             ) {
               config.advanced.experimental["dual-fund"] =
                 config.advanced.experimental["dual-fund"].enabled === "enabled";
@@ -132,10 +147,58 @@ export const migration: T.ExpectedExports.migration = compat.migrations
             return config;
           },
           true,
-          { version: "22.11.1", type: "down" },
+          { version: "22.11.1", type: "down" }
         ),
       },
-      "22.11.1.3": {
+      "23.02.2": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          true,
+          { version: "23.02.2", type: "up" }
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
+      "23.02.2.1": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          false,
+          { version: "23.02.2.1", type: "up" }
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
+      "23.02.2.2": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          false,
+          { version: "23.02.2.2", type: "up" }
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
+      "23.02.2.4": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          false,
+          { version: "23.02.2.4", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
+      "23.02.2.7": {
         up: compat.migrations.updateConfig(
           (config) => {
             config.watchtowers = {
@@ -143,23 +206,6 @@ export const migration: T.ExpectedExports.migration = compat.migrations
               "wt-client": false,
               "add-watchtowers": [],
             };
-            return config;
-          },
-          true,
-          { version: "22.11.1.3", type: "up" },
-        ),
-        down: compat.migrations.updateConfig(
-          (config) => {
-            delete config.watchtowers;
-            return config;
-          },
-          true,
-          { version: "22.11.1.3", type: "down" },
-        ),
-      },
-      "22.11.1.4": {
-        up: compat.migrations.updateConfig(
-          (config) => {
             if (
               matches.shape({
                 advanced: matches.shape({
@@ -178,16 +224,17 @@ export const migration: T.ExpectedExports.migration = compat.migrations
             return config;
           },
           true,
-          { version: "22.11.1.4", type: "up" },
+          { version: "22.11.1.3", type: "up" },
         ),
         down: compat.migrations.updateConfig(
           (config) => {
+            delete config.watchtowers;
             return config;
           },
           true,
-          { version: "22.11.1.4", type: "down" },
+          { version: "22.11.1.3", type: "down" },
         ),
-      },
+      }
     },
-    "22.11.1.4",
+    "23.02.2.7",
   );

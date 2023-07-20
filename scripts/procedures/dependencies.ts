@@ -1,126 +1,19 @@
 import { matches, types as T } from "../deps.ts";
 
-const { shape, arrayOf, string, boolean } = matches;
+const { shape, string } = matches;
 
-const matchProxyConfig = shape({
-  users: arrayOf(
-    shape(
-      {
-        name: string,
-        "allowed-calls": arrayOf(string),
-        password: string,
-        "fetch-blocks": boolean,
-      },
-      ["fetch-blocks"],
-    ),
-  ),
-});
-
-function times<T>(fn: (i: number) => T, amount: number): T[] {
-  const answer = new Array(amount);
-  for (let i = 0; i < amount; i++) {
-    answer[i] = fn(i);
-  }
-  return answer;
-}
-
-function randomItemString(input: string) {
-  return input[Math.floor(Math.random() * input.length)];
-}
-
-const serviceName = "c-lightning";
-const fullChars =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-type Check = {
-  currentError(config: T.Config): string | void;
-  fix(config: T.Config): void;
-};
-
-const checks: Array<Check> = [
-  {
-    currentError(config) {
-      if (!matchProxyConfig.test(config)) {
-        return "Config is not the correct shape";
-      }
-      if (config.users.some((x) => x.name === serviceName)) {
-        return;
-      }
-      return `Must have an RPC user named "${serviceName}"`;
-    },
-    fix(config) {
-      if (!matchProxyConfig.test(config)) {
-        return;
-      }
-      config.users.push({
-        name: serviceName,
-        "allowed-calls": [],
-        password: times(() => randomItemString(fullChars), 22).join(""),
-      });
-    },
-  },
-  ...[
-    "echo",
-    "estimatesmartfee",
-    "getblock",
-    "getblockchaininfo",
-    "getblockcount",
-    "getblockhash",
-    "getblockheader",
-    "getnetworkinfo",
-    "getrawtransaction",
-    "gettxout",
-    "sendrawtransaction",
-  ].map(
-    (operator): Check => ({
-      currentError(config) {
-        if (!matchProxyConfig.test(config)) {
-          return "Config is not the correct shape";
-        }
-        if (
-          config.users.find((x) => x.name === serviceName)?.["allowed-calls"]
-            ?.some((x) => x === operator) ?? false
-        ) {
-          return;
-        }
-        return `RPC user "c-lightning" must have "${operator}" enabled`;
-      },
-      fix(config) {
-        if (!matchProxyConfig.test(config)) {
-          throw new Error("Config is not the correct shape");
-        }
-        const found = config.users.find((x) => x.name === serviceName);
-        if (!found) {
-          throw new Error("Users for c-lightning should exist");
-        }
-        found["allowed-calls"] = [...(found["allowed-calls"] ?? []), operator];
-      },
+const matchOldBitcoindConfig = shape({
+  rpc: shape({
+    advanced: shape({
+      serialversion: matches.any
     }),
-  ),
-  {
-    currentError(config) {
-      if (!matchProxyConfig.test(config)) {
-        return "Config is not the correct shape";
-      }
-      if (
-        config.users.find((x) => x.name === serviceName)?.["fetch-blocks"] ??
-          false
-      ) {
-        return;
-      }
-      return `RPC user "c-lightning" must have "Fetch Blocks" enabled`;
-    },
-    fix(config) {
-      if (!matchProxyConfig.test(config)) {
-        throw new Error("Config is not the correct shape");
-      }
-      const found = config.users.find((x) => x.name === serviceName);
-      if (!found) {
-        throw new Error("Users for c-lightning should exist");
-      }
-      found["fetch-blocks"] = true;
-    },
-  },
-];
+  }),
+  advanced: shape({
+    pruning: shape({
+      mode: string,
+    }),
+  }),
+})
 
 const matchBitcoindConfig = shape({
   advanced: shape({
@@ -131,50 +24,28 @@ const matchBitcoindConfig = shape({
 });
 
 export const dependencies: T.ExpectedExports.dependencies = {
-  "btc-rpc-proxy": {
-    // deno-lint-ignore require-await
-    async check(effects, configInput) {
-      effects.info("check btc-rpc-proxy");
-      for (const checker of checks) {
-        const error = checker.currentError(configInput);
-        if (error) {
-          effects.error(`throwing error: ${error}`);
-          return { error };
-        }
-      }
-      return { result: null };
-    },
-    // deno-lint-ignore require-await
-    async autoConfigure(effects, configInput) {
-      effects.info("autoconfigure btc-rpc-proxy");
-      for (const checker of checks) {
-        const error = checker.currentError(configInput);
-        if (error) {
-          checker.fix(configInput);
-        }
-      }
-      return { result: configInput };
-    },
-  },
   bitcoind: {
     // deno-lint-ignore require-await
     async check(effects, configInput) {
       effects.info("check bitcoind");
-      const config = matchBitcoindConfig.unsafeCast(configInput);
-      if (config.advanced.pruning.mode !== "disabled") {
+      if (matchOldBitcoindConfig.test(configInput) && configInput.advanced.pruning.mode !== "disabled") {
         return {
           error:
-            'Pruning must be disabled to use Bitcoin Core directly. To use with a pruned node, set Bitcoin Core to "Internal (Bitcoin Proxy)" instead.',
+            'Pruning must be disabled to use CLN with <= 24.0.1 of Bitcoin Core. To use CLN with a pruned node, update Bitcoin Core to >= 25.0.0~2.',
         };
       }
-      return { result: null };
-    },
+        return { result: null };
+      },
     // deno-lint-ignore require-await
     async autoConfigure(effects, configInput) {
       effects.info("autoconfigure bitcoind");
-      const config = matchBitcoindConfig.unsafeCast(configInput);
-      config.advanced.pruning.mode = "disabled";
-      return { result: config };
+      if (matchOldBitcoindConfig.test(configInput)) {
+        configInput.advanced.pruning.mode = "disabled"
+        return { result: configInput}
+      } else {
+        const config = matchBitcoindConfig.unsafeCast(configInput);
+        return { result: config };
+      }
     },
   },
 };

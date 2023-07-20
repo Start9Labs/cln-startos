@@ -105,68 +105,25 @@ done
   });
 }
 
-function parseQuickCOnnectUrl(url: string): {
-  bitcoin_rpc_user: string;
-  bitcoin_rpc_pass: string;
-  bitcoin_rpc_host: string;
-  bitcoin_rpc_port: number;
-} {
-  const { host, port } = urlParse(url);
-  const portNumber = port == null ? null : Number(port);
-
-  if (!string.test(host)) {
-    throw new Error(`Expecting '${url}' to have a host`);
-  }
-  const [auth, bitcoin_rpc_host] = host.split("@");
-  if (!string.test(bitcoin_rpc_host)) {
-    throw new Error(`Expecting '${url}' to have a host with auth`);
-  }
-  const [user, pass] = auth.split(":");
-
-  if (!string.test(user)) {
-    throw new Error(`Expecting '${url}' to have a username`);
-  }
-  if (!string.test(pass)) {
-    throw new Error(`Expecting '${url}' to have a password`);
-  }
-  return {
-    bitcoin_rpc_user: user,
-    bitcoin_rpc_pass: pass,
-    bitcoin_rpc_host,
-    bitcoin_rpc_port: portNumber ?? 8332,
-  };
-}
 function userInformation(config: SetConfig) {
-  switch (config.bitcoind.type) {
-    case "internal":
-      return {
-        bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.password,
-        bitcoin_rpc_host: "bitcoind.embassy",
-        bitcoin_rpc_port: 8332,
-      };
-
-    case "internal-proxy":
-      return {
-        bitcoin_rpc_user: config.bitcoind.user,
-        bitcoin_rpc_pass: config.bitcoind.password,
-        bitcoin_rpc_host: "btc-rpc-proxy.embassy",
-        bitcoin_rpc_port: 8332,
-      };
-  }
+  return {
+    bitcoin_rpc_user: config["bitcoin-user"],
+    bitcoin_rpc_pass: config["bitcoin-password"],
+    bitcoin_rpc_host: "bitcoind.embassy",
+    bitcoin_rpc_port: 8332,
+  };
 }
 
 function getDualFundStrategyConfig(
   strategy: (SetConfig["advanced"]["experimental"]["dual-fund"] & {
     enabled: "enabled";
-  })["strategy"],
+  })["strategy"]
 ) {
   if (strategy.mode === "incognito") {
     return {
       policy: strategy.policy.policy ? strategy.policy.policy : "match",
-      policy_mod: "policy-mod" in strategy.policy
-        ? strategy.policy["policy-mod"]
-        : "100",
+      policy_mod:
+        "policy-mod" in strategy.policy ? strategy.policy["policy-mod"] : "100",
       leases_only: false,
 
       fuzz_percent: strategy["fuzz-percent"],
@@ -211,7 +168,7 @@ function getDualFundConfig(config: SetConfig) {
   const dualFundConfigInput = config.advanced.experimental["dual-fund"];
   if (dualFundConfigInput.enabled === "enabled") {
     const strategyConfig = getDualFundStrategyConfig(
-      dualFundConfigInput.strategy,
+      dualFundConfigInput.strategy
     );
 
     // merchant
@@ -244,27 +201,21 @@ function getDualFundConfig(config: SetConfig) {
     const policyMod = strategyConfig.policy_mod
       ? `funder-policy-mod=${strategyConfig.policy_mod}`
       : "";
-    const minTheirFundingMsat =
-      dualFundConfigInput.other["min-their-funding-msat"]
-        ? `funder-min-their-funding=${
-          dualFundConfigInput.other["min-their-funding-msat"]
-        }`
-        : "";
-    const maxTheirFundingMsat =
-      dualFundConfigInput.other["max-their-funding-msat"]
-        ? `funder-max-their-funding=${
-          dualFundConfigInput.other["max-their-funding-msat"]
-        }`
-        : "";
+    const minTheirFundingMsat = dualFundConfigInput.other[
+      "min-their-funding-msat"
+    ]
+      ? `funder-min-their-funding=${dualFundConfigInput.other["min-their-funding-msat"]}`
+      : "";
+    const maxTheirFundingMsat = dualFundConfigInput.other[
+      "max-their-funding-msat"
+    ]
+      ? `funder-max-their-funding=${dualFundConfigInput.other["max-their-funding-msat"]}`
+      : "";
     const perChannelMinMsat = dualFundConfigInput.other["per-channel-min-msat"]
-      ? `funder-per-channel-min=${
-        dualFundConfigInput.other["per-channel-min-msat"]
-      }`
+      ? `funder-per-channel-min=${dualFundConfigInput.other["per-channel-min-msat"]}`
       : "";
     const perChannelMaxMsat = dualFundConfigInput.other["per-channel-max-msat"]
-      ? `funder-per-channel-max=${
-        dualFundConfigInput.other["per-channel-max-msat"]
-      }`
+      ? `funder-per-channel-max=${dualFundConfigInput.other["per-channel-max-msat"]}`
       : "";
     const reserveTankMsat = dualFundConfigInput.other["reserve-tank-msat"]
       ? `funder-reserve-tank=${dualFundConfigInput.other["reserve-tank-msat"]}`
@@ -349,24 +300,20 @@ function configMaker(alias: Alias, config: SetConfig) {
   } = userInformation(config);
   const rpcBind = config.rpc.enabled ? "0.0.0.0:8080" : "127.0.0.1:8080";
   const enableWumbo = config.advanced["wumbo-channels"] ? "large-channels" : "";
-  const minHtlcMsat = config.advanced["htlc-minimum-msat"] !== null
-    ? `htlc-minimum-msat=${config.advanced["htlc-minimum-msat"]}`
-    : "";
-  const maxHtlcMsat = config.advanced["htlc-maximum-msat"] !== null
-    ? `htlc-maximum-msat=${config.advanced["htlc-maximum-msat"]}`
-    : "";
+  const minHtlcMsat =
+    config.advanced["htlc-minimum-msat"] !== null
+      ? `htlc-minimum-msat=${config.advanced["htlc-minimum-msat"]}`
+      : "";
+  const maxHtlcMsat =
+    config.advanced["htlc-maximum-msat"] !== null
+      ? `htlc-maximum-msat=${config.advanced["htlc-maximum-msat"]}`
+      : "";
   const enableExperimentalDualFund = getDualFundConfig(config);
-  const enableExperimentalOnionMessages =
-    config.advanced.experimental["onion-messages"]
-      ? "experimental-onion-messages"
-      : "";
-  const enableExperimentalOffers = config.advanced.experimental.offers
-    ? "experimental-offers"
+  const enableExperimentalShutdownWrongFunding = config.advanced.experimental[
+    "shutdown-wrong-funding"
+  ]
+    ? "experimental-shutdown-wrong-funding"
     : "";
-  const enableExperimentalShutdownWrongFunding =
-    config.advanced.experimental["shutdown-wrong-funding"]
-      ? "experimental-shutdown-wrong-funding"
-      : "";
   const enableHttpPlugin = config.advanced.plugins.http
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin"
     : "";
@@ -376,6 +323,10 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableSummaryPlugin = config.advanced.plugins.summary
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
+  // const sparkoPassword = config.advanced.plugins.sparko.password;
+  // const enableSparkoPlugin = config.advanced.plugins.sparko.enabled
+  //   ? `plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0\nsparko-port=9737\nsparko-login=sparko:${sparkoPassword}`
+  //   : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
@@ -415,10 +366,10 @@ ${minHtlcMsat}
 ${maxHtlcMsat}
 ${enableWumbo}
 ${enableExperimentalDualFund}
-${enableExperimentalOnionMessages}
-${enableExperimentalOffers}
+experimental-onion-messages
+experimental-offers
 ${enableExperimentalShutdownWrongFunding}
-
+experimental-websocket-port=4269
 ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
@@ -430,7 +381,7 @@ ${enableWatchtowerClientPlugin}`;
 const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
 export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
-  input: T.Config,
+  input: T.Config
 ) => {
   let config = setConfigMatcher.unsafeCast(input);
   try {
