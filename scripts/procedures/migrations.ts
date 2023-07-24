@@ -198,7 +198,7 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
-      "23.02.2.7": {
+      "23.05.2": {
         up: compat.migrations.updateConfig(
           (config) => {
             config.watchtowers = {
@@ -224,7 +224,7 @@ export const migration: T.ExpectedExports.migration =
             return config;
           },
           true,
-          { version: "23.02.2.7", type: "up" },
+          { version: "23.05.2", type: "up" },
         ),
         down: compat.migrations.updateConfig(
           (config) => {
@@ -232,9 +232,9 @@ export const migration: T.ExpectedExports.migration =
             return config;
           },
           true,
-          { version: "23.02.2.7", type: "down" },
+          { version: "23.05.2", type: "down" },
         ),
       }
     },
-    "23.02.2.7",
+    "23.05.2",
   );

@@ -124,19 +124,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 RUN rustup toolchain install beta
 
-# build http plugin
-ARG ARCH
-COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
-WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
-RUN cargo update && cargo +beta build --release
-
-# build rust-teos
-COPY ./rust-teos /tmp/rust-teos
-WORKDIR /tmp/rust-teos
-RUN cargo install --locked --path teos
-RUN cargo install --locked --path watchtower-plugin
-
-# build lightningd
 WORKDIR /opt/lightningd
 COPY lightning/. /tmp/lightning-wrapper/lightning
 COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
@@ -213,7 +200,7 @@ RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
 # sparko
-# RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko
+RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko
 
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
@@ -222,14 +209,6 @@ RUN npm install --omit=dev
 
 # aarch64 or x86_64
 ARG ARCH
-
-# c-lightning-http-plugin
-COPY --from=builder /tmp/lightning-wrapper/c-lightning-http-plugin/target/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
-
-# teos (server) & watchtower-client
-COPY --from=builder /root/.cargo/bin/teosd /usr/local/bin/teosd
-COPY --from=builder /root/.cargo/bin/teos-cli /usr/local/bin/teos-cli
-COPY --from=builder /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/watchtower-client
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
