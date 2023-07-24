@@ -122,12 +122,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 RUN rustup toolchain install beta
 
-# build http plugin
-ARG ARCH
-COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
-WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
-RUN cargo update && cargo +beta build --release
-RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
 WORKDIR /opt/lightningd
 COPY lightning/. /tmp/lightning-wrapper/lightning
 COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
@@ -211,9 +205,6 @@ RUN npm install --omit=dev
 
 # aarch64 or x86_64
 ARG ARCH
-
-# c-lightning-http-plugin
-COPY --from=builder /tmp/lightning-wrapper/c-lightning-http-plugin/target/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
