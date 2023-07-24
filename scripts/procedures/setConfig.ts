@@ -178,7 +178,6 @@ function configMaker(alias: Alias, config: SetConfig) {
     bitcoin_rpc_port,
     bitcoin_rpc_user,
   } = userInformation(config);
-  const rpcBind = config.rpc.enabled ? "0.0.0.0:8080" : "127.0.0.1:8080";
   const enableWumbo = config.advanced["wumbo-channels"] ? "large-channels" : "";
   const minHtlcMsat =
     config.advanced["htlc-minimum-msat"] !== null
@@ -193,9 +192,6 @@ function configMaker(alias: Alias, config: SetConfig) {
     "shutdown-wrong-funding"
   ]
     ? "experimental-shutdown-wrong-funding"
-    : "";
-  const enableHttpPlugin = config.advanced.plugins.http
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin"
     : "";
   const enableRebalancePlugin = config.advanced.plugins.rebalance
     ? "plugin=/usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py"
@@ -222,9 +218,6 @@ bitcoin-rpcpassword=${bitcoin_rpc_pass}
 bitcoin-rpcconnect=${bitcoin_rpc_host}
 bitcoin-rpcport=${bitcoin_rpc_port}
 
-http-user=${config.rpc.user}
-http-pass=${config.rpc.password}
-http-bind=${rpcBind}
 bind-addr=0.0.0.0:9735
 announce-addr=${config["peer-tor-address"]}:9735
 proxy={proxy}
@@ -247,7 +240,6 @@ experimental-onion-messages
 experimental-offers
 ${enableExperimentalShutdownWrongFunding}
 experimental-websocket-port=4269
-${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableSparkoPlugin}
