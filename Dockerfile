@@ -84,9 +84,11 @@ RUN apt-get update -qq && \
         git \
         gnupg \
         libpq-dev \
+        libssl-dev \
         protobuf-compiler \
         libtool \
         libffi-dev \
+        pkg-config \
         python3 \
         python3-dev \
         python3-mako \
@@ -156,6 +158,10 @@ ENV LIGHTNINGD_NETWORK=bitcoin
 # CLBOSS
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
+# lightningd
+COPY --from=builder /tmp/lightning_install/ /usr/local/
+COPY --from=downloader /opt/bitcoin/bin /usr/bin
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     dnsutils \
@@ -178,8 +184,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir $LIGHTNINGD_DATA && \
     touch $LIGHTNINGD_DATA/config
 VOLUME [ "/root/.lightning" ]
-COPY --from=builder /tmp/lightning_install/ /usr/local/
-COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 ARG PLATFORM
 

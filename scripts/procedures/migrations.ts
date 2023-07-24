@@ -198,6 +198,43 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "23.05.2": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            config.watchtowers = {
+              "wt-server": false,
+              "wt-client": false,
+              "add-watchtowers": [],
+            };
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  experimental: matches.shape({
+                    "onion-messages": matches.boolean,
+                    "offers": matches.boolean,
+                  }),
+                }),
+              }).test(config)
+            ) {
+              // this was a config rule for a while, but then was quietly broken for an unknown number of versions. set it back so install succeeds.
+              if (config.advanced.experimental.offers) {
+                config.advanced.experimental["onion-messages"] = true;
+              }
+            }
+            return config;
+          },
+          true,
+          { version: "23.05.2", type: "up" },
+        ),
+        down: compat.migrations.updateConfig(
+          (config) => {
+            delete config.watchtowers;
+            return config;
+          },
+          true,
+          { version: "23.05.2", type: "down" },
+        ),
+      }
     },
     "23.02.2.6",
   );

@@ -1,7 +1,83 @@
-import { compat, types as T } from "../deps.ts";
+import { compat, matches, types as T, util } from "../deps.ts";
 import { SetConfig, setConfigMatcher } from "./getConfig.ts";
 import { Alias, getAlias } from "./getAlias.ts";
 
+const { string, boolean, shape, arrayOf } = matches;
+
+const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
+type Check = {
+  currentError(config: T.Config): string | void;
+};
+const matchConfig = shape({
+  advanced: shape(
+    {
+      experimental: shape(
+        {
+          "onion-messages": boolean,
+          offers: boolean,
+        },
+      ),
+    },
+  ),
+  watchtowers: shape({
+    "wt-client": boolean,
+    "add-watchtowers": arrayOf(string),
+  }),
+});
+const configRules: Array<Check> = [
+  {
+    currentError(config) {
+      if (!matchConfig.test(config)) {
+        return "Config is not the correct shape";
+      }
+      const hasOffers = config.advanced.experimental.offers;
+      const hasOnionMessagesAndOffers =
+        config.advanced.experimental["onion-messages"] && hasOffers;
+      const doesntHaveOffers = !hasOffers;
+      if (hasOnionMessagesAndOffers || doesntHaveOffers) return;
+      return `You must enable 'Onion Messages' if you wish to enable 'Offers'`;
+    },
+  },
+  {
+    currentError(config) {
+      if (!matchConfig.test(config)) {
+        return "Config is not the correct shape";
+      }
+      for (const outerIndex in config.watchtowers["add-watchtowers"]) {
+        const outerTowerUri = config.watchtowers["add-watchtowers"][outerIndex];
+        for (const innerIndex in config.watchtowers["add-watchtowers"]) {
+          const innerTowerUri =
+            config.watchtowers["add-watchtowers"][innerIndex];
+          if (outerIndex != innerIndex) {
+            if (
+              outerTowerUri.split("@")[0] == innerTowerUri.split("@")[0]
+            ) {
+              return `Cannot add multiple watchtowers with the same pubkey`;
+            }
+          }
+        }
+      }
+    },
+  },
+];
+
+function checkConfigRules(config: T.Config): T.KnownError | void {
+  for (const checker of configRules) {
+    const error = checker.currentError(config);
+    if (error) {
+      return { error: error };
+    }
+  }
+}
+
+function urlParse(input: string) {
+  const url = new URL(input);
+  const [, _protocol, host, port] = Array.from(regexUrl.exec(input) || []);
+  return {
+    host,
+    port,
+  };
+}
 async function createWaitForService(effects: T.Effects, config: SetConfig) {
   const {
     bitcoin_rpc_host,
@@ -171,6 +247,50 @@ ${reserveTankMsat}
   }
 }
 
+function getTeosConfig(config: SetConfig) {
+  const {
+    bitcoin_rpc_host,
+    bitcoin_rpc_pass,
+    bitcoin_rpc_port,
+    bitcoin_rpc_user,
+  } = userInformation(config);
+  return `
+# API
+api_bind = "0.0.0.0"
+api_port = 9814
+#tor_control_port = 9051
+#onion_hidden_service_port = 9814
+tor_support = false
+
+# RPC
+rpc_bind = "127.0.0.1"
+rpc_port = 8814
+
+# bitcoind
+btc_network = "mainnet"
+btc_rpc_user = "${bitcoin_rpc_user}"
+btc_rpc_password = "${bitcoin_rpc_pass}"
+btc_rpc_connect = "${bitcoin_rpc_host}"
+btc_rpc_port = ${bitcoin_rpc_port}
+
+# Flags
+debug = false
+deps_debug = false
+overwrite_key = false
+
+# General
+subscription_slots = 10000
+subscription_duration = 4320
+expiry_delta = 6
+min_to_self_delay = 20
+polling_delta = 60
+
+# Internal API
+internal_api_bind = "127.0.0.1"
+internal_api_port = 50051
+`;
+}
+
 function configMaker(alias: Alias, config: SetConfig) {
   const {
     bitcoin_rpc_host,
@@ -214,6 +334,9 @@ function configMaker(alias: Alias, config: SetConfig) {
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
+  const enableWatchtowerClientPlugin = config.watchtowers["wt-client"]
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
+    : "";
 
   return `
 network=bitcoin
@@ -251,14 +374,42 @@ ${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableRestPlugin}
-${enableClbossPlugin}`;
+${enableClbossPlugin}
+${enableWatchtowerClientPlugin}`;
 }
-
+// 02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814
+const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
 export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
   input: T.Config
 ) => {
-  const config = setConfigMatcher.unsafeCast(input);
+  let config = setConfigMatcher.unsafeCast(input);
+  try {
+    const watchTowers = config
+      .watchtowers["add-watchtowers"]
+      .map((x) => {
+        const matched = x.match(validURI);
+        if (matched === null) {
+          throw `Invalid watchtower URI: ${x} doesn't match the form pubkey@host:port`;
+        }
+        if (matched[3] == null) {
+          return `${matched[1]}${matched[2]}:9814`;
+        }
+        return x;
+      });
+    config = {
+      ...config,
+      watchtowers: {
+        ...config.watchtowers,
+        "add-watchtowers": watchTowers,
+      },
+    };
+  } catch (e) {
+    return util.error(e);
+  }
+
+  const error = checkConfigRules(config);
+  if (error) return error;
   const alias = await getAlias(effects, config);
 
   await effects.createDir({
@@ -272,6 +423,17 @@ export const setConfig: T.ExpectedExports.setConfig = async (
     volumeId: "main",
   });
 
+  await effects.createDir({
+    path: ".teos",
+    volumeId: "main",
+  });
+
+  await effects.writeFile({
+    path: ".teos/teos.toml",
+    toWrite: getTeosConfig(config),
+    volumeId: "main",
+  });
+
   await createWaitForService(effects, config);
-  return await compat.setConfig(effects, input);
+  return await compat.setConfig(effects, config);
 };

@@ -7,7 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Fix dependency error and autoconfigure for different bitcoin versions.
+  * Update upstream to v23.05.2 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.2)
+  * Add Sparko plugin
+  * Add The Eye of Satoshi watchtower server and client plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -141,6 +143,7 @@ interfaces:
     protocols:
       - tcp
       - http
+<<<<<<< HEAD
   # sparko:
   #   name: Sparko API
   #   description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
@@ -155,6 +158,32 @@ interfaces:
   #   protocols:
   #     - tcp
   #     - http
+=======
+  watchtower:
+    name: TEOS Watchtower API
+    description: The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.
+    tor-config:
+      port-mapping:
+        9814: "9814"
+    lan-config:
+      9814:
+        ssl: true
+        internal: 9814
+  sparko:
+    name: Sparko API
+    description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
+    tor-config:
+      port-mapping:
+        9737: "9737"
+    lan-config:
+      9737:
+        ssl: true
+        internal: 9737
+    ui: false
+    protocols:
+      - tcp
+      - http
+>>>>>>> 2d15185 (Feat/teos (#72))
 dependencies:
   bitcoind:
     version: ">=0.21.1.2 <27.0.0"
