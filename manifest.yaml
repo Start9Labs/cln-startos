@@ -8,6 +8,7 @@ support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update upstream to v23.05.2 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.2)
+  * Add Sparko plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -141,20 +142,20 @@ interfaces:
     protocols:
       - tcp
       - http
-  # sparko:
-  #   name: Sparko API
-  #   description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
-  #   tor-config:
-  #     port-mapping:
-  #       9737: "9737"
-  #   lan-config:
-  #     9737:
-  #       ssl: true
-  #       internal: 9737
-  #   ui: false
-  #   protocols:
-  #     - tcp
-  #     - http
+  sparko:
+    name: Sparko API
+    description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
+    tor-config:
+      port-mapping:
+        9737: "9737"
+    lan-config:
+      9737:
+        ssl: true
+        internal: 9737
+    ui: false
+    protocols:
+      - tcp
+      - http
 dependencies:
   bitcoind:
     version: ">=0.21.1.2 <27.0.0"

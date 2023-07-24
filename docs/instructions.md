@@ -13,9 +13,8 @@ use-cases, we recommend using the defaults. You can change credentials from the
 
 ## Using a Wallet
 
-Scan your QuickConnect QR code **OR** enter your raw credentials (both located in
-`Properties`) into any wallet that supports connecting to a remote Core
-Lightning node over Tor. A wallet can also be connected by scanning the `REST (Tor)` QR code in the default UI under Settings > Connect Wallet. If connecting via the UI QR code, be sure to select `REST (Tor)` as the Network. For a list of compatible wallets, see
+CLN can be connected to wallets supporting connecting over tor to the Sparko interface or the REST inferface (credentials for both are located in
+`Properties`). For a list of compatible wallets, see
 <a href="https://github.com/start9labs/c-lightning-wrapper/blob/master/docs/wallets.md" target="_blank">https://github.com/start9labs/c-lightning-wrapper/blob/master/docs/wallets.md</a>.
 
 ## User Interface
