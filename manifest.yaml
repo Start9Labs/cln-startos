@@ -9,6 +9,7 @@ marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update upstream to v23.05.2 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.2)
   * Add Sparko plugin
+  * Add The Eye of Satoshi watchtower server and client plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -142,6 +143,16 @@ interfaces:
     protocols:
       - tcp
       - http
+  watchtower:
+    name: TEOS Watchtower API
+    description: The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.
+    tor-config:
+      port-mapping:
+        9814: "9814"
+    lan-config:
+      9814:
+        ssl: true
+        internal: 9814
   sparko:
     name: Sparko API
     description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.

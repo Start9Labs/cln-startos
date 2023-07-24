@@ -28,6 +28,14 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "rest",
   },
+  "watchtower-tor-address": {
+    "name": "TEoS Watchtower API Address",
+    "description": "The Tor address of the TEoS Watchtower API",
+    "type": "pointer",
+    "subtype": "package",
+    "package-id": "c-lightning",
+    "target": "tor-address",
+    "interface": "watchtower",
   "sparko-tor-address": {
     name: "Sparko Tor Address",
     description: "The Tor address of the Sparko Tor",
@@ -111,6 +119,48 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         },
         copyable: true,
         masked: true,
+      },
+    },
+  },
+  "watchtowers": {
+    "type": "object",
+    "name": "Watchtowers",
+    "description": "Watchtower Settings",
+    "spec": {
+      "wt-server": {
+        "type": "boolean",
+        "name": "Enable Watchtower Server",
+        "description":
+          "Allow other nodes to find your watchtower server on the network.",
+        "nullable": true,
+        "default": false,
+      },
+      "wt-client": {
+        "type": "boolean",
+        "name": "Enable Watchtower Client",
+        "description":
+          "Allow your node to subscribe to external watchtowers, which provides protection against misbehvaing channel peers",
+        "nullable": true,
+        "default": false,
+      },
+      "add-watchtowers": {
+        "type": "list",
+        "name": "Add Watchtowers",
+        "description":
+          "Add URIs of Watchtowers to connect to. Here's a list of altruistic public watchtowers, if you need some ideas: https://github.com/talaia-labs/rust-teos/discussions/158",
+        "range": "[0,*)",
+        "subtype": "string",
+        "spec": {
+          "masked": false,
+          "copyable": true,
+          "placeholder":
+            "02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814",
+          // "pattern": "(\\w+:\\/\\/)?(.*?)(:\\d{0,4})?",
+          // "pattern-description": "Must be of the form pubkey@host:port",
+          // spec: {},
+        },
+        "nullable": true,
+        "default": Array<string>(), // [] as string []
       },
     },
   },
@@ -454,6 +504,20 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
               },
             },
           },
+          "onion-messages": {
+            "type": "boolean",
+            "name": "Onion Messages",
+            "description":
+              "Enable the sending, receiving, and relay of onion messages\n",
+            "default": false,
+          },
+          "offers": {
+            "type": "boolean",
+            "name": "Offers",
+            "description":
+              "Enable the sending and receiving of offers (this requires Onion Messages to be enabled as well)\n",
+            "default": false,
+          },
           "shutdown-wrong-funding": {
             type: "boolean",
             name: "Shutdown Wrong Funding",
@@ -598,6 +662,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
     },
   },
-} as const);
+} as const,
+);
 
 export type SetConfig = typeof setConfigMatcher._TYPE;

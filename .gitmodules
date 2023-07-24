@@ -10,6 +10,9 @@
 [submodule "clboss"]
 	path = clboss
 	url = https://github.com/ZmnSCPxj/clboss
+[submodule "rust-teos"]
+	path = rust-teos
+	url = https://github.com/talaia-labs/rust-teos
 [submodule "ui"]
 	path = ui
 	url = https://github.com/ElementsProject/cln-application.git
