@@ -337,17 +337,25 @@ export const properties: T.ExpectedExports.properties = async (
       },
       // ...sparkoProperties,
       ...restProperties,
-      "Watchtower Server Properties": {
-        type: "object",
-        value: watchtowerProperties,
-        description: "Properties of your The Eye of Satoshi watchtower server",
-      },
-      "Watchtower Client Properties": {
-        type: "object",
-        value: wtClientProperties,
-        description:
-          "Status of watchtowers registered with the watchtower client plugin. Configure these in the watchtower section of your CLN configuration settings.",
-      },
+      ...(config.watchtowers['wt-server']
+      ? {
+        "Watchtower Server Properties": {
+          type: "object",
+          value: watchtowerProperties,
+          description: "Properties of your The Eye of Satoshi watchtower server",
+        },
+      }
+      : {}),
+      ...(config.watchtowers['wt-client']
+      ? {
+        "Watchtower Client Properties": {
+          type: "object",
+          value: wtClientProperties,
+          description:
+            "Status of watchtowers registered with the watchtower client plugin. Configure these in the watchtower section of your CLN configuration settings.",
+        },
+      }
+      : {}),
     },
   };
   return { result };
