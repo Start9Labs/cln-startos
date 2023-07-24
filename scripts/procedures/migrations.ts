@@ -199,5 +199,5 @@ export const migration: T.ExpectedExports.migration =
         },
       },
     },
-    "23.02.2.6",
+    "23.05.2",
   );
