@@ -7,7 +7,6 @@ DOC_ASSETS := $(shell find ./docs/assets)
 PKG_VERSION := $(shell yq e ".version" manifest.yaml)
 PKG_ID := $(shell yq e ".id" manifest.yaml)
 PLUGINS_SRC := $(shell find ./plugins)
-HTTP_PLUGIN_SRC := $(shell find ./c-lightning-http-plugin/src) c-lightning-http-plugin/Cargo.toml c-lightning-http-plugin/Cargo.lock
 VERSION := $(shell yq e ".version" manifest.yaml)
 TEOS_SRC := $(shell find rust-teos -name '*.rs')
 TS_FILES := $(shell find . -name \*.ts )
@@ -72,14 +71,6 @@ else
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=x86_64 --build-arg PLATFORM=amd64 --platform=linux/amd64 -o type=docker,dest=docker-images/x86_64.tar .
 endif
-# c-lightning-http-plugin/target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin: $(HTTP_PLUGIN_SRC)
-# 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl cargo +beta build --release
-# 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl musl-strip target/aarch64-unknown-linux-musl/release/c-lightning-http-plugin
-
-# c-lightning-http-plugin/target/x86_64-unknown-linux-musl/release/c-lightning-http-plugin: $(HTTP_PLUGIN_SRC)
-# # cargo +beta build --release --target=x86_64-unknown-linux-gnu --manifest-path=c-lightning-http-plugin/Cargo.toml
-# 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:aarch64-musl cargo +beta build --release
-# 	docker run --rm -it -v ~/.cargo/registry:/root/.cargo/registry -v "$(shell pwd)"/c-lightning-http-plugin:/home/rust/src start9/rust-musl-cross:x86_64-musl musl-strip target/x86_64-unknown-linux-musl/release/c-lightning-http-plugin
 
 #clboss/target/clboss: $(CLBOSS_SRC)
 # mkdir -p clboss/target/

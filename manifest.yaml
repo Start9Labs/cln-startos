@@ -153,6 +153,10 @@ interfaces:
       9814:
         ssl: true
         internal: 9814
+    ui: false
+    protocols:
+      - tcp
+      - http
   sparko:
     name: Sparko API
     description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.

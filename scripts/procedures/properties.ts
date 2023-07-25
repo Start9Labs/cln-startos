@@ -114,6 +114,8 @@ export const properties: T.ExpectedExports.properties = async (
     .readFile({
       volumeId: "main",
       path: "start9/watchtowerTorAddress",
+    })
+    .then((x) => x.trim());
   const sparkoTorAddress = await effects
     .readFile({
       volumeId: "main",

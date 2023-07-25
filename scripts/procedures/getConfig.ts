@@ -36,6 +36,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     "package-id": "c-lightning",
     "target": "tor-address",
     "interface": "watchtower",
+  },
   "sparko-tor-address": {
     name: "Sparko Tor Address",
     description: "The Tor address of the Sparko Tor",
@@ -532,13 +533,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         description:
           "Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside \nthe main Core Lightning container in order to communicate directly with it.\nTheir source is maintained separately from that of Core Lightning itself.\n",
         spec: {
-          http: {
-            type: "boolean",
-            name: "Enable C-Lightning-HTTP-Plugin",
-            description:
-              "This plugin is a direct proxy for the unix domain socket from the HTTP interface. \nIt is required for Spark Wallet to connect to Core Lightning.\n\nSource: https://github.com/Start9Labs/c-lightning-http-plugin\n",
-            default: true,
-          },
           rebalance: {
             type: "boolean",
             name: "Enable Rebalance Plugin",
