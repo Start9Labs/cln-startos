@@ -3,10 +3,13 @@ import { lazy } from "../models/lazy.ts";
 import { setConfigMatcher } from "./getConfig.ts";
 const { shape, string, number, boolean } = matches;
 
-const nodeInfoMatcher = shape({
-  id: string,
-  alias: string,
-}, ["alias"]);
+const nodeInfoMatcher = shape(
+  {
+    id: string,
+    alias: string,
+  },
+  ["alias"]
+);
 
 const towerInfoMatcher = shape({
   tower_id: string,
@@ -57,37 +60,37 @@ const noWtClientInfoFound: T.PackagePropertiesV2 = {
 } as const;
 
 export const properties: T.ExpectedExports.properties = async (
-  effects: T.Effects,
+  effects: T.Effects
 ) => {
   if (
-    await util.exists(effects, {
+    (await util.exists(effects, {
       volumeId: "main",
       path: "start9/lightningGetInfo",
-    }) === false
+    })) === false
   ) {
     return noPropertiesFound;
   }
   if (
-    await util.exists(effects, {
+    (await util.exists(effects, {
       volumeId: "main",
       path: "start9/peerTorAddress",
-    }) === false
+    })) === false
   ) {
     return noPropertiesFound;
   }
   if (
-    await util.exists(effects, {
+    (await util.exists(effects, {
       volumeId: "main",
       path: "start9/restTorAddress",
-    }) === false
+    })) === false
   ) {
     return noPropertiesFound;
   }
   if (
-    await util.exists(effects, {
+    (await util.exists(effects, {
       volumeId: "main",
       path: "start9/watchtowerTorAddress",
-    }) === false
+    })) === false
   ) {
     return noPropertiesFound;
   }
@@ -96,7 +99,7 @@ export const properties: T.ExpectedExports.properties = async (
     await effects.readJsonFile({
       volumeId: "main",
       path: "start9/lightningGetInfo",
-    }),
+    })
   );
   const peerTorAddress = await effects
     .readFile({
@@ -127,8 +130,8 @@ export const properties: T.ExpectedExports.properties = async (
       await effects.readFile({
         path: "start9/config.yaml",
         volumeId: "main",
-      }),
-    ),
+      })
+    )
   );
   const hexMacaroon = lazy(() =>
     effects.readFile({
@@ -137,75 +140,75 @@ export const properties: T.ExpectedExports.properties = async (
     })
   );
 
-  const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins.sparko.enabled
-  ? {}
-  : {
-    "Sparko Address": {
-      type: "string",
-      value: `${sparkoTorAddress}`,
-      description: "The tor address of the Sparko interface",
-      copyable: true,
-      qr: true,
-      masked: true,
-    },
-    "Sparko Port": {
-      type: "string",
-      value: `9737`,
-      description: "The port of the Sparko interface",
-      copyable: true,
-      qr: false,
-      masked: false,
-    },
-    "Sparko key": {
-      type: "string",
-      value: `${config.advanced.plugins.sparko.password}`,
-      description: "The master key to authenticate a wallet to access your CLN node via the Sparko interface",
-      copyable: true,
-      qr: true,
-      masked: true,
-    },
-  };
+  const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins
+    .sparko.enabled
+    ? {}
+    : {
+        "Sparko Address": {
+          type: "string",
+          value: `${sparkoTorAddress}`,
+          description: "The tor address of the Sparko interface",
+          copyable: true,
+          qr: true,
+          masked: true,
+        },
+        "Sparko Port": {
+          type: "string",
+          value: `9737`,
+          description: "The port of the Sparko interface",
+          copyable: true,
+          qr: false,
+          masked: false,
+        },
+        "Sparko key": {
+          type: "string",
+          value: `${config.advanced.plugins.sparko.password}`,
+          description:
+            "The master key to authenticate a wallet to access your CLN node via the Sparko interface",
+          copyable: true,
+          qr: true,
+          masked: true,
+        },
+      };
 
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
     : {
-      "REST Quick Connect": {
-        type: "string",
-        value:
-          `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon
-            .val()}`,
-        description:
-          "A copyable string/scannable QR code you can import into wallet client applications such as Zeus",
-        copyable: true,
-        qr: true,
-        masked: true,
-      },
-      "REST Host": {
-        type: "string",
-        value: `${restTorAddress}`,
-        description: "The host of your c-lightning-REST API",
-        copyable: true,
-        qr: false,
-        masked: true,
-      },
-      "REST Port": {
-        type: "string",
-        value: "3001",
-        description: "The port your c-lightning-REST API is listening on",
-        copyable: true,
-        qr: false,
-        masked: false,
-      },
-      "REST Macaroon (Hex)": {
-        type: "string",
-        value: await hexMacaroon.val(),
-        description:
-          "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
-        copyable: true,
-        qr: false,
-        masked: true,
-      },
-    };
+        "REST Quick Connect": {
+          type: "string",
+          value: `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
+          description:
+            "A copyable string/scannable QR code you can import into wallet client applications such as Zeus",
+          copyable: true,
+          qr: true,
+          masked: true,
+        },
+        "REST Host": {
+          type: "string",
+          value: `${restTorAddress}`,
+          description: "The host of your c-lightning-REST API",
+          copyable: true,
+          qr: false,
+          masked: true,
+        },
+        "REST Port": {
+          type: "string",
+          value: "3001",
+          description: "The port your c-lightning-REST API is listening on",
+          copyable: true,
+          qr: false,
+          masked: false,
+        },
+        "REST Macaroon (Hex)": {
+          type: "string",
+          value: await hexMacaroon.val(),
+          description:
+            "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
+          copyable: true,
+          qr: false,
+          masked: true,
+        },
+      };
 
   let watchtowerProperties: T.PackagePropertiesV2 = {};
   if (config.watchtowers["wt-server"]) {
@@ -216,52 +219,55 @@ export const properties: T.ExpectedExports.properties = async (
       })
       .then(JSON.parse)
       .then((x) => towerInfoMatcher.unsafeCast(x))
-      .then((towerInfo) => ({
-        "Watchtower Server URI": {
-          type: "string",
-          value: `${towerInfo.tower_id}@${watchtowerTorAddress}:9814`,
-          description:
-            "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
-          copyable: true,
-          qr: true,
-          masked: true,
-        },
-        "Number of Registered Users": {
-          type: "string",
-          value: `${towerInfo.n_registered_users}`,
-          description: "Number of users registered with your tower",
-          copyable: false,
-          qr: false,
-          masked: false,
-        },
-        "Number of Watcher Appointments": {
-          type: "string",
-          value: `${towerInfo.n_watcher_appointments}`,
-          description:
-            "Number of channel states being watched, ready to submit the justice transaction should a breach be detected. There should be at most one of these per channel being watched.",
-          copyable: false,
-          qr: false,
-          masked: false,
-        },
-        "Number of Responder Trackers": {
-          type: "string",
-          value: `${towerInfo.n_responder_trackers}`,
-          description:
-            "Number of active breaches in the process of being resolved. See for more info: https://github.com/talaia-labs/rust-teos/blob/43f99713159a63884e9c851134d126ca1ec48f7e/teos/src/responder.rs#L134-L136",
-          copyable: false,
-          qr: false,
-          masked: false,
-        },
-        "Bitcoind Reachable": {
-          type: "string",
-          value: `${towerInfo.bitcoind_reachable}`,
-          description:
-            "Whether your tower has an active connection to the blockchain backend.",
-          copyable: false,
-          qr: false,
-          masked: false,
-        },
-      } as const))
+      .then(
+        (towerInfo) =>
+          ({
+            "Watchtower Server URI": {
+              type: "string",
+              value: `${towerInfo.tower_id}@${watchtowerTorAddress}:9814`,
+              description:
+                "Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower",
+              copyable: true,
+              qr: true,
+              masked: true,
+            },
+            "Number of Registered Users": {
+              type: "string",
+              value: `${towerInfo.n_registered_users}`,
+              description: "Number of users registered with your tower",
+              copyable: false,
+              qr: false,
+              masked: false,
+            },
+            "Number of Watcher Appointments": {
+              type: "string",
+              value: `${towerInfo.n_watcher_appointments}`,
+              description:
+                "Number of channel states being watched, ready to submit the justice transaction should a breach be detected. There should be at most one of these per channel being watched.",
+              copyable: false,
+              qr: false,
+              masked: false,
+            },
+            "Number of Responder Trackers": {
+              type: "string",
+              value: `${towerInfo.n_responder_trackers}`,
+              description:
+                "Number of active breaches in the process of being resolved. See for more info: https://github.com/talaia-labs/rust-teos/blob/43f99713159a63884e9c851134d126ca1ec48f7e/teos/src/responder.rs#L134-L136",
+              copyable: false,
+              qr: false,
+              masked: false,
+            },
+            "Bitcoind Reachable": {
+              type: "string",
+              value: `${towerInfo.bitcoind_reachable}`,
+              description:
+                "Whether your tower has an active connection to the blockchain backend.",
+              copyable: false,
+              qr: false,
+              masked: false,
+            },
+          } as const)
+      )
       .catch(() => noTeosInfoFound);
   }
 
@@ -329,7 +335,7 @@ export const properties: T.ExpectedExports.properties = async (
                 qr: false,
                 masked: false,
               },
-              "Status": {
+              Status: {
                 type: "string",
                 value: value.status,
                 description: "Whether the tower is reachable",
@@ -350,35 +356,46 @@ export const properties: T.ExpectedExports.properties = async (
   const result: T.Properties = {
     version: 2,
     data: {
-      "Node Uri": {
+      "Node ID": {
+        type: "string",
+        value: nodeInfo.id,
+        description:
+          "The node identifier that can be used for connecting to other nodes",
+        copyable: true,
+        qr: false,
+        masked: false,
+      },
+      "Node URI": {
         type: "string",
         value: `${nodeInfo.id}@${peerTorAddress}`,
-        description: "Share this Uri with others so they can add your CLN node as a peer",
+        description:
+          "Share this URI with others so they can add your CLN node as a peer",
         copyable: true,
         qr: true,
         masked: true,
       },
       ...sparkoProperties,
       ...restProperties,
-      ...(config.watchtowers['wt-server']
-      ? {
-        "Watchtower Server Properties": {
-          type: "object",
-          value: watchtowerProperties,
-          description: "Properties of your The Eye of Satoshi watchtower server",
-        },
-      }
-      : {}),
-      ...(config.watchtowers['wt-client']
-      ? {
-        "Watchtower Client Properties": {
-          type: "object",
-          value: wtClientProperties,
-          description:
-            "Status of watchtowers registered with the watchtower client plugin. Configure these in the watchtower section of your CLN configuration settings.",
-        },
-      }
-      : {}),
+      ...(config.watchtowers["wt-server"]
+        ? {
+            "Watchtower Server Properties": {
+              type: "object",
+              value: watchtowerProperties,
+              description:
+                "Properties of your The Eye of Satoshi watchtower server",
+            },
+          }
+        : {}),
+      ...(config.watchtowers["wt-client"]
+        ? {
+            "Watchtower Client Properties": {
+              type: "object",
+              value: wtClientProperties,
+              description:
+                "Status of watchtowers registered with the watchtower client plugin. Configure these in the watchtower section of your CLN configuration settings.",
+            },
+          }
+        : {}),
     },
   };
   return { result };
