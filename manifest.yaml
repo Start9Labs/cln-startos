@@ -90,20 +90,20 @@ alerts:
     since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
     closed and their funds returned to your wallet, assuming your peers choose to cooperate.
 interfaces:
-  # web-ui:
-  #   name: Web User Interface
-  #   description: A web user interface for CLN
-  #   tor-config:
-  #     port-mapping:
-  #       80: "4500"
-  #   lan-config:
-  #     443:
-  #       ssl: true
-  #       internal: 4500
-  #   ui: true
-  #   protocols:
-  #     - tcp
-  #     - http
+  web-ui:
+    name: Web User Interface
+    description: A web user interface for CLN
+    tor-config:
+      port-mapping:
+        80: "4500"
+    lan-config:
+      443:
+        ssl: true
+        internal: 4500
+    ui: true
+    protocols:
+      - tcp
+      - http
   rpc:
     name: RPC Interface
     description: Listens for JSON-RPC commands over HTTP.
