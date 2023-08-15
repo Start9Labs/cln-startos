@@ -9,35 +9,12 @@ type Check = {
   currentError(config: T.Config): string | void;
 };
 const matchConfig = shape({
-  advanced: shape(
-    {
-      experimental: shape(
-        {
-          "onion-messages": boolean,
-          offers: boolean,
-        },
-      ),
-    },
-  ),
   watchtowers: shape({
     "wt-client": boolean,
     "add-watchtowers": arrayOf(string),
   }),
 });
 const configRules: Array<Check> = [
-  {
-    currentError(config) {
-      if (!matchConfig.test(config)) {
-        return "Config is not the correct shape";
-      }
-      const hasOffers = config.advanced.experimental.offers;
-      const hasOnionMessagesAndOffers =
-        config.advanced.experimental["onion-messages"] && hasOffers;
-      const doesntHaveOffers = !hasOffers;
-      if (hasOnionMessagesAndOffers || doesntHaveOffers) return;
-      return `You must enable 'Onion Messages' if you wish to enable 'Offers'`;
-    },
-  },
   {
     currentError(config) {
       if (!matchConfig.test(config)) {
@@ -370,7 +347,6 @@ ${enableRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;
 }
-// 02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814
 const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
 export const setConfig: T.ExpectedExports.setConfig = async (
   effects: T.Effects,
