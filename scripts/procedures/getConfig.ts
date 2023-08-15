@@ -504,20 +504,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
               },
             },
           },
-          "onion-messages": {
-            "type": "boolean",
-            "name": "Onion Messages",
-            "description":
-              "Enable the sending, receiving, and relay of onion messages\n",
-            "default": false,
-          },
-          "offers": {
-            "type": "boolean",
-            "name": "Offers",
-            "description":
-              "Enable the sending and receiving of offers (this requires Onion Messages to be enabled as well)\n",
-            "default": false,
-          },
           "shutdown-wrong-funding": {
             type: "boolean",
             name: "Shutdown Wrong Funding",
