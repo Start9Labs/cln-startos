@@ -2,7 +2,6 @@ BITCOIN_VERSION := "24.0.1"
 C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
 C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
 C_LIGHTNING_REST_SRC := $(shell find ./c-lightning-REST)
-CLBOSS_SRC := $(shell find ./clboss)
 DOC_ASSETS := $(shell find ./docs/assets)
 PKG_VERSION := $(shell yq e ".version" manifest.yaml)
 PKG_ID := $(shell yq e ".id" manifest.yaml)
@@ -71,11 +70,6 @@ else
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=x86_64 --build-arg PLATFORM=amd64 --platform=linux/amd64 -o type=docker,dest=docker-images/x86_64.tar .
 endif
-
-#clboss/target/clboss: $(CLBOSS_SRC)
-# mkdir -p clboss/target/
-# docker run --rm -it -v "$(shell pwd)"/clboss/target/clboss:/usr/local/bin/clboss start9/rust-musl-cross:aarch64-musl cargo +beta build --release
-#	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build -v "$(shell pwd)"/clboss/target/clboss:/usr/local/bin/clboss --platform=linux/arm64/v8 clboss.dockerfile
 
 scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js

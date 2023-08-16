@@ -38,30 +38,6 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && tar -xzvf $BITCOIN_TARBALL $BD/bitcoin-cli --strip-components=1 \
     && rm $BITCOIN_TARBALL
 
-# clboss builder
-FROM debian:bullseye-slim as clboss
-
-RUN apt-get update -qq && \
-    apt-get install -qq -y --no-install-recommends \
-        # autoconf \
-        autoconf-archive \
-        automake \
-        build-essential \
-        git \
-        libcurl4-gnutls-dev \
-        libev-dev \
-        libsqlite3-dev \
-        libtool \
-        pkg-config
-
-COPY clboss/. /tmp/clboss
-WORKDIR /tmp/clboss
-RUN autoreconf -i
-RUN ./configure
-RUN make
-RUN make install
-RUN strip /usr/local/bin/clboss
-
 # lightningd builder
 FROM debian:bullseye-slim as builder
 
@@ -148,9 +124,6 @@ ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
 ENV LIGHTNINGD_PORT=9735
 ENV LIGHTNINGD_NETWORK=bitcoin
-
-# CLBOSS
-COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/clboss
 
 # lightningd
 COPY --from=builder /tmp/lightning_install/ /usr/local/

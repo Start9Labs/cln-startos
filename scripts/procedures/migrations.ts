@@ -208,7 +208,7 @@ export const migration: T.ExpectedExports.migration =
             };
             return config;
           },
-          false,
+          true,
           { version: "23.05.2", type: "up" },
         ),
         down: compat.migrations.updateConfig(

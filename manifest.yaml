@@ -10,6 +10,7 @@ release-notes: |-
   * Update upstream to v23.05.2 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.2)
   * Add Sparko plugin
   * Add The Eye of Satoshi watchtower server and client plugin
+  * Remove CLBOSS
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

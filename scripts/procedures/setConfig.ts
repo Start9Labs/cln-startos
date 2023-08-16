@@ -303,10 +303,6 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
-  const enableClbossPlugin =
-    config.advanced.plugins.clboss.enabled === "enabled"
-      ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
-      : "";
   const enableWatchtowerClientPlugin = config.watchtowers["wt-client"]
     ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
     : "";
@@ -344,7 +340,6 @@ ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableSparkoPlugin}
 ${enableRestPlugin}
-${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;
 }
 const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
