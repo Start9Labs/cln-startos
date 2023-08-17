@@ -100,18 +100,22 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 RUN rustup toolchain install beta
 
+# build rust-teos
+COPY ./rust-teos /tmp/rust-teos
+WORKDIR /tmp/rust-teos
+RUN cargo install --locked --path teos
+RUN cargo install --locked --path watchtower-plugin
+
+# build lightningd
 WORKDIR /opt/lightningd
 COPY lightning/. /tmp/lightning-wrapper/lightning
 COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
-# COPY lightning/. /opt/lightningd
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
-    # git checkout $(git --git-dir=/tmp/lightning-wrapper/.git rev-parse HEAD)
 
 RUN curl -sSL https://install.python-poetry.org | python3 - \
     && pip3 install -U pip \
     && pip3 install -U wheel \
-    # && /root/.local/bin/poetry config virtualenvs.create false \
     && /root/.local/bin/poetry install
 
 RUN pip3 install mako mistune==0.8.4 mrkd
@@ -182,6 +186,11 @@ RUN npm install --omit=dev
 
 # aarch64 or x86_64
 ARG ARCH
+
+# teos (server) & watchtower-client
+COPY --from=builder /root/.cargo/bin/teosd /usr/local/bin/teosd
+COPY --from=builder /root/.cargo/bin/teos-cli /usr/local/bin/teos-cli
+COPY --from=builder /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/watchtower-client
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
