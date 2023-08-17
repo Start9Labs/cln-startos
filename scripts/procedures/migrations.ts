@@ -200,12 +200,25 @@ export const migration: T.ExpectedExports.migration =
       },
       "23.05.2": {
         up: compat.migrations.updateConfig(
-          (config) => {
+            (config) => {
             config.watchtowers = {
               "wt-server": false,
               "wt-client": false,
               "add-watchtowers": [],
             };
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  plugins: matches.shape({sparko: matches.unknown}, [ "sparko", ]
+                  )
+                })
+              }).test(config)
+              ) {
+                config.advanced.plugins.sparko = {
+                  "enabled": false,
+                  "password": "test",
+                }
+            }
             return config;
           },
           false,
