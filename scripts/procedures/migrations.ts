@@ -201,37 +201,24 @@ export const migration: T.ExpectedExports.migration =
       "23.05.2": {
         up: compat.migrations.updateConfig(
             (config) => {
-            config.watchtowers = {
-              "wt-server": false,
-              "wt-client": false,
-              "add-watchtowers": [],
-            };
             if (
               matches.shape({
                 advanced: matches.shape({
-                  plugins: matches.shape({sparko: matches.unknown}, [ "sparko", ]
+                  plugins: matches.shape({http: matches.any}, [ "http", ]
                   )
                 })
               }).test(config)
               ) {
-                config.advanced.plugins.sparko = {
-                  "enabled": false,
-                  "password": "test",
-                }
+                delete config.advanced.plugins.http
             }
             return config;
           },
           false,
           { version: "23.05.2", type: "up" },
         ),
-        down: compat.migrations.updateConfig(
-          (config) => {
-            delete config.watchtowers;
-            return config;
-          },
-          true,
-          { version: "23.05.2", type: "down" },
-        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
       }
     },
     "23.02.2.6",
