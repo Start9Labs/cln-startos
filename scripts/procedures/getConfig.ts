@@ -10,15 +10,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "peer",
   },
-  "rpc-tor-address": {
-    name: "RPC Tor Address",
-    description: "The Tor address of the RPC interface",
-    type: "pointer",
-    subtype: "package",
-    "package-id": "c-lightning",
-    target: "tor-address",
-    interface: "rpc",
-  },
   "rest-tor-address": {
     name: "C-Lightning-REST API Address",
     description: "The Tor address of the C-Lightning-REST API",
@@ -87,41 +78,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "config",
     multi: false,
     selector: "$.rpc.password",
-  },
-  rpc: {
-    type: "object",
-    name: "RPC Options",
-    description: "Options for the HTTP RPC interface",
-    spec: {
-      enabled: {
-        type: "boolean",
-        name: "Enable",
-        description: "Whether to enable the RPC webserver",
-        default: true,
-      },
-      user: {
-        type: "string",
-        name: "RPC Username",
-        description:
-          "The username for the RPC user on your Core Lightning node",
-        nullable: false,
-        default: "lightning",
-        copyable: true,
-      },
-      password: {
-        type: "string",
-        name: "RPC Password",
-        description:
-          "The password for the RPC user on your Core Lightning node",
-        nullable: false,
-        default: {
-          charset: "a-z,A-Z,0-9",
-          len: 22,
-        },
-        copyable: true,
-        masked: true,
-      },
-    },
   },
   "watchtowers": {
     "type": "object",
@@ -567,6 +523,18 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         },
       },
     },
+  },
+  "ui-password": {
+    "type": "string",
+    "name": "Password",
+    "description": "The password for your CLN UI",
+    "nullable": false,
+    "copyable": true,
+    "masked": true,
+    "default": {
+      "charset": "a-z,A-Z,0-9",
+      "len": 22
+    }
   },
 } as const,
 );
