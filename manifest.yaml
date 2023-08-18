@@ -8,7 +8,8 @@ support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update upstream to v23.05.2 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.2)
-  * Add Sparko plugin
+  * Expose UI with authentication
+  * Replace HTTP plugin with Sparko
   * Add The Eye of Satoshi watchtower server and client plugin
 build: ["make"]
 description:
@@ -104,21 +105,6 @@ interfaces:
     protocols:
       - tcp
       - http
-  rpc:
-    name: RPC Interface
-    description: Listens for JSON-RPC commands over HTTP.
-    tor-config:
-      port-mapping:
-        8080: "8080"
-    lan-config:
-      8080:
-        ssl: false
-        internal: 8080
-    ui: false
-    protocols:
-      - tcp
-      - http
-      - json-rpc
   peer:
     name: Peer Interface
     description: Listens for incoming connections from lightning peers.
