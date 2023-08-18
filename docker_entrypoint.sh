@@ -157,6 +157,27 @@ LIGHTNINGD_PATH=$APP_CORE_LIGHTNING_COMMANDO_ENV_DIR"/"
 LIGHTNING_RPC="/root/.lightning/bitcoin/lightning-rpc"
 ENV_FILE_PATH="$LIGHTNINGD_PATH"".commando-env"
 
+UI_PASSWORD=$(yq e '.ui-password' /root/.lightning/start9/config.yaml)
+UI_PASSWORD_HASH=$(echo -n "$UI_PASSWORD" | sha256sum | awk '{print $1}')
+UI_CONFIG='{
+  "unit": "SATS",
+  "fiatUnit": "USD",
+  "appMode": "DARK",
+  "isLoading": false,
+  "error": null,
+  "singleSignOn": false,
+  "password": "'"$UI_PASSWORD_HASH"'"
+  }'
+
+if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json ]; then
+  echo "config.json already exists."
+else
+  mkdir -p /app/apps/backend/$/root/.lightning/data/app
+  touch /app/apps/backend/$/root/.lightning/data/app/config.json
+  echo "$UI_CONFIG" > /app/apps/backend/$/root/.lightning/data/app/config.json
+  echo "UI Password hash saved to config.json"
+fi
+
 echo "$LIGHTNING_RPC"
 
 getinfo_request() {
