@@ -2,7 +2,9 @@
 
 ## Dependencies
 
-Core Lightning on StartOS requires a full archival Bitcoin node to function.
+When running Core Lightning on StartOS it is recommended to use a full archival Bitcion Core node. However, CLN can be run with a pruned node provided Bitcoin Core's version is >= 25.0.0~2.
+
+**Note: If using a pruned node and bitcoind prunes a block that Core Lightning has not processed yet, e.g., Core Lightning was not running for a prolonged period, then bitcoind will not be able to serve the missing block(s), hence Core Lightning will not be able to synchronize anymore and will be stuck.**
 
 ## Core Lightning (CLN) Config
 
@@ -15,11 +17,13 @@ use-cases, we recommend using the defaults. You can change credentials from the
 
 CLN can be connected to wallets supporting connecting over tor to the Sparko interface or the REST inferface (credentials for both are located in
 `Properties`). For a list of compatible wallets, see
-<a href="https://github.com/start9labs/c-lightning-wrapper/blob/master/docs/wallets.md" target="_blank">https://github.com/start9labs/c-lightning-wrapper/blob/master/docs/wallets.md</a>.
+<a href="https://docs.start9.com/latest/guides/service-guides/lightning/index" target="_blank">https://docs.start9.com/latest/guides/service-guides/lightning/index</a>.
 
 ## User Interface
 
-Your Core Lightning service comes with a featureful built in [UI](https://github.com/ElementsProject/cln-application/tree/d53e19548939641e7e12c756f43ef5fcf164225d). This interface can be used to deposit and withdraw bitcoin on chain, send and receive bitcoin over the lightning network, and even open or close channels!
+Your Core Lightning service comes with a featureful built in [UI](https://github.com/ElementsProject/cln-application/tree/d53e19548939641e7e12c756f43ef5fcf164225d). This interface can be used to deposit and withdraw bitcoin on chain, send and receive bitcoin over the lightning network, and even open or close channels! The password for your CLN UI can be found in the the `Config` menu.
+
+**Note: If the password for the CLN UI is changed outside of the `Config` menu i.e. within the CLN UI, the password in your `Config` will not be updated!**
 
 ## CLBOSS
 
@@ -52,10 +56,7 @@ To this end, here are some of the things CLBOSS can do automatically:
 
 In order to control CLBOSS, you will use several commands and config options. If
 you have SSH access to your Start9 server, the commands can be entered on the command
-line using `docker exec -ti c-lightning.embassy lightning-cli <command>`. If you
-don't have SSH access, you can use the Console interface inside Spark Wallet (a
-frontend for CLN, offered as a separate service on the Start9 Registry, see
-below for more on Spark Console).
+line using `docker exec -ti c-lightning.embassy lightning-cli <command>`.
 
 The commands are:
 
@@ -76,30 +77,3 @@ To read more about operating CLBOSS, see
 
 If you have any questions about CLBOSS, don't hesitate to reach out to
 [Start9 support](https://start9.com/latest/support/contact).
-
-# Spark Console
-
-In order to access Spark Console, first install, configure, and start Spark
-Wallet from the Start9 Registry. Then open the UI and scroll to the bottom
-of the page. Click the version number at the bottom left of the Spark UI:
-
-<!-- MD_PACKER_INLINE BEGIN -->
-![spark console access](./assets/spark-console-access.png)
-<!-- MD_PACKER_INLINE END -->
-
-A wrench will appear next to the version number to indicate that advanced mode
-is active. Then click the "Console" button that has just appeared at the top of
-the page:
-
-<!-- MD_PACKER_INLINE BEGIN -->
-![spark console button](./assets/spark-console-button.png)
-<!-- MD_PACKER_INLINE END -->
-
-Then enter any of the commands listed above, and hit "Execute" (or the ENTER
-key) to see the result:
-
-<!-- MD_PACKER_INLINE BEGIN -->
-![spark console command](./assets/spark-console-command.png)
-<!-- MD_PACKER_INLINE END -->
-
-Enjoy!
