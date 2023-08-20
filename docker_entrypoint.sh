@@ -216,6 +216,12 @@ else
   echo "UI Password hash saved to config.json"
 fi
 
+SAVED_UI_PW_HASH=$(jq '.password' /app/apps/backend/$/root/.lightning/data/app/config.json)
+if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json && $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
+  jq ".password = $UI_PASSWORD" /app/apps/backend/$/root/.lightning/data/app/config.json
+  echo "updated password hash saved to config.json"
+fi
+
 echo "$LIGHTNING_RPC"
 
 getinfo_request() {
