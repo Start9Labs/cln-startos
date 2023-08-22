@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.02.2.6
+version: 23.02.2.7
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,7 +7,6 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update upstream to v23.05.2 [release notes](https://github.com/ElementsProject/lightning/releases/tag/v23.05.2)
   * Expose UI with authentication
   * Replace HTTP plugin with Sparko
   * Add The Eye of Satoshi watchtower server and client plugin
@@ -91,6 +90,21 @@ alerts:
     since the last backup will be forgotten and may linger indefinitely, and channels contained in the backup will be
     closed and their funds returned to your wallet, assuming your peers choose to cooperate.
 interfaces:
+  rpc:
+    name: RPC Interface
+    description: Listens for JSON-RPC commands over HTTP.
+    tor-config:
+      port-mapping:
+        8080: "8080"
+    lan-config:
+      8080:
+        ssl: false
+        internal: 8080
+    ui: false
+    protocols:
+      - tcp
+      - http
+      - json-rpc
   web-ui:
     name: Web User Interface
     description: A web user interface for CLN
@@ -129,22 +143,6 @@ interfaces:
     protocols:
       - tcp
       - http
-<<<<<<< HEAD
-  # sparko:
-  #   name: Sparko API
-  #   description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
-  #   tor-config:
-  #     port-mapping:
-  #       9737: "9737"
-  #   lan-config:
-  #     9737:
-  #       ssl: true
-  #       internal: 9737
-  #   ui: false
-  #   protocols:
-  #     - tcp
-  #     - http
-=======
   watchtower:
     name: TEOS Watchtower API
     description: The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.
@@ -155,9 +153,13 @@ interfaces:
       9814:
         ssl: true
         internal: 9814
+    ui: false
+    protocols:
+      - tcp
+      - http
   sparko:
     name: Sparko API
-    description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
+    description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
     tor-config:
       port-mapping:
         9737: "9737"
@@ -169,7 +171,6 @@ interfaces:
     protocols:
       - tcp
       - http
->>>>>>> 2d15185 (Feat/teos (#72))
 dependencies:
   bitcoind:
     version: ">=0.21.1.2 <27.0.0"

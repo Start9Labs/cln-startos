@@ -98,12 +98,12 @@ RUN apt-get update -qq && \
         wget
 
 # CLN
-RUN wget -q https://zlib.net/zlib-1.2.13.tar.gz \
-&& tar xvf zlib-1.2.13.tar.gz \
-&& cd zlib-1.2.13 \
+RUN wget -q https://zlib.net/zlib-1.3.tar.gz \
+&& tar xvf zlib-1.3.tar.gz \
+&& cd zlib-1.3 \
 && ./configure \
 && make \
-&& make install && cd .. && rm zlib-1.2.13.tar.gz && rm -rf zlib-1.2.13
+&& make install && cd .. && rm zlib-1.3.tar.gz && rm -rf zlib-1.3
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
 && wget -q https://www.sqlite.org/2023/sqlite-src-3420000.zip \
@@ -123,6 +123,12 @@ RUN wget -q https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 RUN rustup toolchain install beta
+
+# build rust-teos
+COPY ./rust-teos /tmp/rust-teos
+WORKDIR /tmp/rust-teos
+RUN cargo install --locked --path teos
+RUN cargo install --locked --path watchtower-plugin
 
 # build http plugin
 ARG ARCH
@@ -206,7 +212,7 @@ RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
 # sparko
-# RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko
+RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko
 
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
@@ -218,6 +224,11 @@ ARG ARCH
 
 # c-lightning-http-plugin
 COPY --from=builder /tmp/lightning-wrapper/c-lightning-http-plugin/target/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
+
+# teos (server) & watchtower-client
+COPY --from=builder /root/.cargo/bin/teosd /usr/local/bin/teosd
+COPY --from=builder /root/.cargo/bin/teos-cli /usr/local/bin/teos-cli
+COPY --from=builder /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/watchtower-client
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
