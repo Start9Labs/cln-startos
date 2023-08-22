@@ -484,13 +484,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         description:
           "Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside \nthe main Core Lightning container in order to communicate directly with it.\nTheir source is maintained separately from that of Core Lightning itself.\n",
         spec: {
-          http: {
-            type: "boolean",
-            name: "Enable C-Lightning-HTTP-Plugin",
-            description:
-              "This plugin is a direct proxy for the unix domain socket from the HTTP interface. \nIt is required for Spark Wallet to connect to Core Lightning.\n\nSource: https://github.com/Start9Labs/c-lightning-http-plugin\n",
-            default: true,
-          },
           rebalance: {
             type: "boolean",
             name: "Enable Rebalance Plugin",
@@ -505,9 +498,16 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
               "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/lightningd/plugins/tree/master/summary\n",
             default: false,
           },
+          rest: {
+            type: "boolean",
+            name: "Enable C-Lightning-REST Plugin",
+            description:
+            "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
+            default: true,
+          },
           "sparko": {
             type: "object",
-            name: "Spark Options",
+            name: "Sparko Options",
             description: "Options for Sparko Plugin",
             spec: {
               enabled: {
@@ -540,13 +540,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                 masked: true,
               },
             },
-          },
-          rest: {
-            type: "boolean",
-            name: "Enable C-Lightning-REST Plugin",
-            description:
-              "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
-            default: true,
           },
           clboss: {
             type: "union",

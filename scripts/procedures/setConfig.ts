@@ -290,9 +290,6 @@ function configMaker(alias: Alias, config: SetConfig) {
   ]
     ? "experimental-shutdown-wrong-funding"
     : "";
-  const enableHttpPlugin = config.advanced.plugins.http
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin"
-    : "";
   const enableRebalancePlugin = config.advanced.plugins.rebalance
     ? "plugin=/usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py"
     : "";
@@ -343,7 +340,6 @@ experimental-onion-messages
 experimental-offers
 ${enableExperimentalShutdownWrongFunding}
 experimental-websocket-port=4269
-${enableHttpPlugin}
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableSparkoPlugin}
