@@ -374,7 +374,7 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      // ...sparkoProperties,
+      ...sparkoProperties,
       ...restProperties,
       ...(config.watchtowers["wt-server"]
         ? {
