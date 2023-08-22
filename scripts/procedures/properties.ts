@@ -374,8 +374,24 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      ...sparkoProperties,
-      ...restProperties,
+      ...(sparkoProperties
+      ? {
+        "Sparko Properties": {
+          type: "object",
+          value: sparkoProperties,
+          description: "Properties of the Sparko interface",
+        }
+      }
+      : {}),
+      ...(restProperties
+      ? {
+        "REST Properties": {
+          type: "object",
+          value: restProperties,
+          description: "Properties of the CLN REST interface",
+        }
+      }
+      : {}),
       ...(config.watchtowers["wt-server"]
         ? {
             "Watchtower Server Properties": {
