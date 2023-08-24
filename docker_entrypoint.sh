@@ -5,6 +5,17 @@ set -ea
 _term() {
   echo "Caught SIGTERM signal!"
   kill -TERM "$lightningd_child" 2>/dev/null
+  kill -TERM "$teosd_child" 2>/dev/null
+  kill -TERM "$wtclient_child" 2>/dev/null
+  kill -TERM "$wtserver_child" 2>/dev/null
+}
+
+_chld() {
+  echo "Caught SIGCHLD signal!"
+  kill -TERM "$lightningd_child" 2>/dev/null
+  kill -TERM "$teosd_child" 2>/dev/null
+  kill -TERM "$wtclient_child" 2>/dev/null
+  kill -TERM "$wtserver_child" 2>/dev/null
   kill -TERM "$ui_child" 2>/dev/null
 }
 
@@ -12,7 +23,12 @@ export EMBASSY_IP=$(ip -4 route list match 0/0 | awk '{print $3}')
 export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/config.yaml)
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
+export WATCHTOWER_TOR_ADDRESS=$(yq e '.watchtower-tor-address' /root/.lightning/start9/config.yaml)
+export TOWERS_DATA_DIR=/root/.lightning/.watchtower
+export SPARKO_TOR_ADDRESS=$(yq e '.sparko-tor-address' /root/.lightning/start9/config.yaml)
 export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
+
+mkdir -p $TOWERS_DATA_DIR
 
 CLBOSS_ENABLED_VALUE=$(yq e '.advanced.plugins.clboss.enabled' /root/.lightning/start9/config.yaml)
 if [ $CLBOSS_ENABLED_VALUE = "enabled" ]; then
@@ -58,7 +74,8 @@ mkdir -p /root/.lightning/public
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
-
+echo $WATCHTOWER_TOR_ADDRESS > /root/.lightning/start9/watchtowerTorAddress
+echo $SPARKO_TOR_ADDRESS > /root/.lightning/start9/sparkoTorAddress
 
 sh /root/.lightning/start9/waitForStart.sh
 sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /root/.lightning/config
@@ -93,9 +110,15 @@ else
   echo "Macaroon not found, generating new one"
 fi
 
-echo "Starting lightning"
+echo "Starting lightningd"
 lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
 lightningd_child=$!
+
+if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
+  echo "Starting teosd"
+  teosd --datadir=/root/.lightning/.teos &
+  teosd_child=$!
+fi
 
 while ! [ -e /root/.lightning/bitcoin/lightning-rpc ]; do
     echo "Waiting for lightning rpc to start..."
@@ -132,6 +155,24 @@ cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.ligh
 
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
+if [ "$(yq ".watchtowers.wt-client" /root/.lightning/start9/config.yaml)" = "true" ]; then
+  lightning-cli listtowers > /root/.lightning/start9/wtClientInfo
+  cat /root/.lightning/start9/wtClientInfo | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > /root/.lightning/start9/wt_old
+  cat /root/.lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
+  echo "Abandoning old watchtowers"
+  grep -Fxvf /root/.lightning/start9/wt_new /root/.lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
+  echo "Regsistering new watchtowers"
+  grep -Fxvf /root/.lightning/start9/wt_old /root/.lightning/start9/wt_new | xargs -I{} lightning-cli registertower {} 2>&1 || true
+
+  while true; do lightning-cli listtowers > /root/.lightning/start9/wtClientInfo || echo 'Failed to fetch towers from client endpoint.'; sleep 60; done &
+  wtclient_child=$!
+fi
+
+if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
+  while true; do teos-cli --datadir=/root/.lightning/.teos gettowerinfo > /root/.lightning/start9/teosTowerInfo 2>/dev/null || echo 'Failed to fetch tower properties, tower still starting.'; sleep 30; done &
+  wtserver_child=$!
+fi
+
 # User Interface
 export APP_CORE_LIGHTNING_DAEMON_IP="localhost"
 export LIGHTNING_REST_IP="localhost"
@@ -153,6 +194,33 @@ GETINFO_RESPONSE=""
 LIGHTNINGD_PATH=$APP_CORE_LIGHTNING_COMMANDO_ENV_DIR"/"
 LIGHTNING_RPC="/root/.lightning/bitcoin/lightning-rpc"
 ENV_FILE_PATH="$LIGHTNINGD_PATH"".commando-env"
+
+UI_PASSWORD=$(yq e '.ui-password' /root/.lightning/start9/config.yaml)
+UI_PASSWORD_HASH=$(echo -n "$UI_PASSWORD" | sha256sum | awk '{print $1}')
+UI_CONFIG='{
+  "unit": "SATS",
+  "fiatUnit": "USD",
+  "appMode": "DARK",
+  "isLoading": false,
+  "error": null,
+  "singleSignOn": false,
+  "password": "'"$UI_PASSWORD_HASH"'"
+  }'
+
+if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json ]; then
+  echo "config.json already exists."
+else
+  mkdir -p /app/apps/backend/$/root/.lightning/data/app
+  touch /app/apps/backend/$/root/.lightning/data/app/config.json
+  echo "$UI_CONFIG" > /app/apps/backend/$/root/.lightning/data/app/config.json
+  echo "UI Password hash saved to config.json"
+fi
+
+SAVED_UI_PW_HASH=$(jq '.password' /app/apps/backend/$/root/.lightning/data/app/config.json)
+if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json && $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
+  jq ".password = $UI_PASSWORD" /app/apps/backend/$/root/.lightning/data/app/config.json
+  echo "updated password hash saved to config.json"
+fi
 
 echo "$LIGHTNING_RPC"
 
@@ -263,5 +331,6 @@ ui_child=$!
 echo "All configuration Done"
 
 trap _term TERM
+trap _chld CHLD
 
-wait $lightningd_child $ui_child
+wait $lightningd_child $teosd_child $wtclient_child $wtserver_child $ui_child

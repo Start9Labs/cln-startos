@@ -28,6 +28,24 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "rest",
   },
+  "watchtower-tor-address": {
+    "name": "TEoS Watchtower API Address",
+    "description": "The Tor address of the TEoS Watchtower API",
+    "type": "pointer",
+    "subtype": "package",
+    "package-id": "c-lightning",
+    "target": "tor-address",
+    "interface": "watchtower",
+  },
+  "sparko-tor-address": {
+    name: "Sparko Tor Address",
+    description: "The Tor address of the Sparko Tor",
+    type: "pointer",
+    subtype: "package",
+    "package-id": "c-lightning",
+    target: "tor-address",
+    interface: "sparko",
+  },
   alias: {
     type: "string",
     name: "Alias",
@@ -70,38 +88,42 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     multi: false,
     selector: "$.rpc.password",
   },
-  rpc: {
-    type: "object",
-    name: "RPC Options",
-    description: "Options for the HTTP RPC interface",
-    spec: {
-      enabled: {
-        type: "boolean",
-        name: "Enable",
-        description: "Whether to enable the RPC webserver",
-        default: true,
+  "watchtowers": {
+    "type": "object",
+    "name": "Watchtowers",
+    "description": "Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family.",
+    "spec": {
+      "wt-server": {
+        "type": "boolean",
+        "name": "Enable Watchtower Server",
+        "description":
+          "Allow other nodes to find your watchtower server on the network.",
+        "nullable": true,
+        "default": false,
       },
-      user: {
-        type: "string",
-        name: "RPC Username",
-        description:
-          "The username for the RPC user on your Core Lightning node",
-        nullable: false,
-        default: "lightning",
-        copyable: true,
+      "wt-client": {
+        "type": "boolean",
+        "name": "Enable Watchtower Client",
+        "description":
+          "Allow your node to subscribe to external watchtowers, which provides protection against misbehvaing channel peers",
+        "nullable": true,
+        "default": false,
       },
-      password: {
-        type: "string",
-        name: "RPC Password",
-        description:
-          "The password for the RPC user on your Core Lightning node",
-        nullable: false,
-        default: {
-          charset: "a-z,A-Z,0-9",
-          len: 22,
+      "add-watchtowers": {
+        "type": "list",
+        "name": "Add Watchtowers",
+        "description":
+          "Add URIs of Watchtowers to connect to. Here's a list of altruistic public watchtowers, if you need some ideas: https://github.com/talaia-labs/rust-teos/discussions/158",
+        "range": "[0,*)",
+        "subtype": "string",
+        "spec": {
+          "masked": false,
+          "copyable": true,
+          "placeholder":
+            "02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814",
         },
-        copyable: true,
-        masked: true,
+        "nullable": true,
+        "default": Array<string>(),
       },
     },
   },
@@ -237,8 +259,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                   name: "Dual-Funding Channel Acceptance Strategy",
                   description:
                     "Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings",
-                  // "warning":
-                  // "Liquidity Ads are an experimental feature which can cause your node automatically to commit on-chain funds into channels that may not be profitable. Use at your own risk.",
                   tag: {
                     id: "mode",
                     name: "Operating Mode",
@@ -459,13 +479,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         description:
           "Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside \nthe main Core Lightning container in order to communicate directly with it.\nTheir source is maintained separately from that of Core Lightning itself.\n",
         spec: {
-          http: {
-            type: "boolean",
-            name: "Enable C-Lightning-HTTP-Plugin",
-            description:
-              "This plugin is a direct proxy for the unix domain socket from the HTTP interface. \nIt is required for Spark Wallet to connect to Core Lightning.\n\nSource: https://github.com/Start9Labs/c-lightning-http-plugin\n",
-            default: true,
-          },
           rebalance: {
             type: "boolean",
             name: "Enable Rebalance Plugin",
@@ -480,48 +493,48 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
               "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/lightningd/plugins/tree/master/summary\n",
             default: false,
           },
-          // "sparko": {
-          //   type: "object",
-          //   name: "Spark Options",
-          //   description: "Options for Sparko Plugin",
-          //   spec: {
-          //     enabled: {
-          //       "type": "boolean",
-          //       "name": "Enable Sparko Plugin",
-          //       "description":
-          //         "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
-          //       "default": true,
-          //     },
-          //     user: {
-          //       type: "string",
-          //       name: "Sparko Username",
-          //       description:
-          //         "The username for the Sparko user on your Core Lightning node",
-          //       nullable: false,
-          //       default: "sparko",
-          //       copyable: true,
-          //     },
-          //     password: {
-          //       type: "string",
-          //       name: "Sparko Password",
-          //       description:
-          //         "The password for the Sparko user on your Core Lightning node",
-          //       nullable: false,
-          //       default: {
-          //         charset: "a-z,A-Z,0-9",
-          //         len: 22,
-          //       },
-          //       copyable: true,
-          //       masked: true,
-          //     },
-          //   },
-          // },
           rest: {
             type: "boolean",
             name: "Enable C-Lightning-REST Plugin",
             description:
-              "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
+            "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
             default: true,
+          },
+          "sparko": {
+            type: "object",
+            name: "Sparko Options",
+            description: "The Sparko plugin allows your node to connect to wallets that support the Sparko HTTP-RPC interface.",
+            spec: {
+              enabled: {
+                "type": "boolean",
+                "name": "Enable Sparko Plugin",
+                "description":
+                  "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
+                "default": true,
+              },
+              user: {
+                type: "string",
+                name: "Sparko Username",
+                description:
+                  "The username for the Sparko user on your Core Lightning node",
+                nullable: false,
+                default: "sparko",
+                copyable: true,
+              },
+              password: {
+                type: "string",
+                name: "Sparko Password",
+                description:
+                  "The password for the Sparko user on your Core Lightning node",
+                nullable: false,
+                default: {
+                  charset: "a-z,A-Z,0-9",
+                  len: 22,
+                },
+                copyable: true,
+                masked: true,
+              },
+            },
           },
           clboss: {
             type: "union",
@@ -598,6 +611,19 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
     },
   },
-} as const);
+  "ui-password": {
+    "type": "string",
+    "name": "UI Password",
+    "description": "The password for your CLN UI",
+    "nullable": false,
+    "copyable": true,
+    "masked": true,
+    "default": {
+      "charset": "a-z,A-Z,0-9",
+      "len": 22
+    }
+  },
+} as const,
+);
 
 export type SetConfig = typeof setConfigMatcher._TYPE;

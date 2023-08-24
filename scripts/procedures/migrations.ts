@@ -198,6 +198,28 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "23.02.2.7": {
+        up: compat.migrations.updateConfig(
+            (config) => {
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  plugins: matches.shape({http: matches.any}, [ "http", ]
+                  )
+                })
+              }).test(config)
+              ) {
+                delete config.advanced.plugins.http
+            }
+            return config;
+          },
+          false,
+          { version: "23.02.2.7", type: "up" },
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      }
     },
-    "23.02.2.6",
+    "23.02.2.7",
   );
