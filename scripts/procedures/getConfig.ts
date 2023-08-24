@@ -91,7 +91,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
   "watchtowers": {
     "type": "object",
     "name": "Watchtowers",
-    "description": "Watchtower Settings",
+    "description": "Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family.",
     "spec": {
       "wt-server": {
         "type": "boolean",
@@ -121,12 +121,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
           "copyable": true,
           "placeholder":
             "02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814",
-          // "pattern": "(\\w+:\\/\\/)?(.*?)(:\\d{0,4})?",
-          // "pattern-description": "Must be of the form pubkey@host:port",
-          // spec: {},
         },
         "nullable": true,
-        "default": Array<string>(), // [] as string []
+        "default": Array<string>(),
       },
     },
   },
@@ -262,8 +259,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                   name: "Dual-Funding Channel Acceptance Strategy",
                   description:
                     "Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings",
-                  // "warning":
-                  // "Liquidity Ads are an experimental feature which can cause your node automatically to commit on-chain funds into channels that may not be profitable. Use at your own risk.",
                   tag: {
                     id: "mode",
                     name: "Operating Mode",
@@ -508,13 +503,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
           "sparko": {
             type: "object",
             name: "Sparko Options",
-            description: "Options for Sparko Plugin",
+            description: "The Sparko plugin allows your node to connect to wallets that support the Sparko HTTP-RPC interface.",
             spec: {
               enabled: {
                 "type": "boolean",
                 "name": "Enable Sparko Plugin",
                 "description":
-                  "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a personal wallet with a nice UI or as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
+                  "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
                 "default": true,
               },
               user: {
@@ -618,7 +613,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
   },
   "ui-password": {
     "type": "string",
-    "name": "Password",
+    "name": "UI Password",
     "description": "The password for your CLN UI",
     "nullable": false,
     "copyable": true,

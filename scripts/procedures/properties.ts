@@ -374,6 +374,14 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
+      "UI Password": {
+        type: "string",
+        value: config["ui-password"],
+        description: "The password for your CLN UI",
+        copyable: true,
+        qr: true,
+        masked: true,
+      },
       ...(sparkoProperties
       ? {
         "Sparko Properties": {
