@@ -291,7 +291,7 @@ function configMaker(alias: Alias, config: SetConfig) {
     : "";
   const sparkoPassword = config.advanced.plugins.sparko.password;
   const enableSparkoPlugin = config.advanced.plugins.sparko.enabled
-    ? `plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0\nsparko-port=9737\nsparko-login=sparko:${sparkoPassword}`
+    ? `plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0\nsparko-port=9737\nsparko-login=sparko:${sparkoPassword}\nsparko-keys=${sparkoPassword};`
     : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
@@ -348,7 +348,7 @@ export const setConfig: T.ExpectedExports.setConfig = async (
   let config = setConfigMatcher.unsafeCast(input);
   try {
     if (config.watchtowers["wt-client"].enabled == "enabled") {
-      const watchTowers = config
+      const _watchTowers = config
         .watchtowers["wt-client"]["add-watchtowers"]
         .map((x) => {
           const matched = x.match(validURI);
@@ -364,7 +364,6 @@ export const setConfig: T.ExpectedExports.setConfig = async (
         ...config,
         watchtowers: {
           ...config.watchtowers,
-          // "add-watchtowers": watchTowers,
         },
       };
     }
