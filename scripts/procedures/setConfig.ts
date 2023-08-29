@@ -4,32 +4,33 @@ import { Alias, getAlias } from "./getAlias.ts";
 
 const { string, boolean, shape, arrayOf } = matches;
 
-const regexUrl = /^(\w+:\/\/)?(.*?)(:\d{0,4})?$/m;
 type Check = {
   currentError(config: T.Config): string | void;
 };
-const matchConfig = shape({
+const matchWTtEnabledConfig = shape({
   watchtowers: shape({
-    "wt-client": boolean,
-    "add-watchtowers": arrayOf(string),
+    "wt-server": boolean,
+    "wt-client": shape({
+      "enabled": string,
+      "add-watchtowers": arrayOf(string),
+    })
   }),
 });
 const configRules: Array<Check> = [
   {
     currentError(config) {
-      if (!matchConfig.test(config)) {
-        return "Config is not the correct shape";
-      }
-      for (const outerIndex in config.watchtowers["add-watchtowers"]) {
-        const outerTowerUri = config.watchtowers["add-watchtowers"][outerIndex];
-        for (const innerIndex in config.watchtowers["add-watchtowers"]) {
-          const innerTowerUri =
-            config.watchtowers["add-watchtowers"][innerIndex];
-          if (outerIndex != innerIndex) {
-            if (
-              outerTowerUri.split("@")[0] == innerTowerUri.split("@")[0]
-            ) {
-              return `Cannot add multiple watchtowers with the same pubkey`;
+      if (matchWTtEnabledConfig.test(config)) {
+        for (const outerIndex in config.watchtowers["wt-client"]["add-watchtowers"]) {
+          const outerTowerUri = config.watchtowers["wt-client"]["add-watchtowers"][outerIndex];
+          for (const innerIndex in config.watchtowers["wt-client"]["add-watchtowers"]) {
+            const innerTowerUri =
+              config.watchtowers["wt-client"]["add-watchtowers"][innerIndex];
+            if (outerIndex != innerIndex) {
+              if (
+                outerTowerUri.split("@")[0] == innerTowerUri.split("@")[0]
+              ) {
+                return `Cannot add multiple watchtowers with the same pubkey`;
+              }
             }
           }
         }
@@ -47,14 +48,6 @@ function checkConfigRules(config: T.Config): T.KnownError | void {
   }
 }
 
-function urlParse(input: string) {
-  const url = new URL(input);
-  const [, _protocol, host, port] = Array.from(regexUrl.exec(input) || []);
-  return {
-    host,
-    port,
-  };
-}
 async function createWaitForService(effects: T.Effects, config: SetConfig) {
   const {
     bitcoin_rpc_host,
@@ -354,25 +347,27 @@ export const setConfig: T.ExpectedExports.setConfig = async (
 ) => {
   let config = setConfigMatcher.unsafeCast(input);
   try {
-    const watchTowers = config
-      .watchtowers["add-watchtowers"]
-      .map((x) => {
-        const matched = x.match(validURI);
-        if (matched === null) {
-          throw `Invalid watchtower URI: ${x} doesn't match the form pubkey@host:port`;
-        }
-        if (matched[3] == null) {
-          return `${matched[1]}${matched[2]}:9814`;
-        }
-        return x;
-      });
-    config = {
-      ...config,
-      watchtowers: {
-        ...config.watchtowers,
-        "add-watchtowers": watchTowers,
-      },
-    };
+    if (config.watchtowers["wt-client"].enabled == "enabled") {
+      const watchTowers = config
+        .watchtowers["wt-client"]["add-watchtowers"]
+        .map((x) => {
+          const matched = x.match(validURI);
+          if (matched === null) {
+            throw `Invalid watchtower URI: ${x} doesn't match the form pubkey@host:port`;
+          }
+          if (matched[3] == null) {
+            return `${matched[1]}${matched[2]}:9814`;
+          }
+          return x;
+        });
+      config = {
+        ...config,
+        watchtowers: {
+          ...config.watchtowers,
+          // "add-watchtowers": watchTowers,
+        },
+      };
+    }
   } catch (e) {
     return util.error(e);
   }

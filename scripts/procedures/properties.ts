@@ -272,7 +272,7 @@ export const properties: T.ExpectedExports.properties = async (
   }
 
   let wtClientProperties: T.PackagePropertiesV2 = {};
-  if (config.watchtowers["wt-client"]) {
+  if (config.watchtowers["wt-client"].enabled == "enabled") {
     wtClientProperties = await effects
       .readFile({
         volumeId: "main",
@@ -280,21 +280,23 @@ export const properties: T.ExpectedExports.properties = async (
       })
       .then(JSON.parse)
       .then((dataIn) => {
-        for (const tower of config.watchtowers["add-watchtowers"]) {
-          const [pubkey, url] = tower.split("@");
-          if (!(pubkey in dataIn)) {
-            dataIn[pubkey] = {
-              net_addr: url,
-              available_slots: 0,
-              subscription_start: 0,
-              subscription_expiry: 0,
-              status: "unreachable",
-              pending_appointments: [],
-              invalid_appointments: [],
-            };
+        if (config.watchtowers["wt-client"].enabled == "enabled" ) {
+          for (const tower of config.watchtowers["wt-client"]["add-watchtowers"]) {
+            const [pubkey, url] = tower.split("@");
+            if (!(pubkey in dataIn)) {
+              dataIn[pubkey] = {
+                net_addr: url,
+                available_slots: 0,
+                subscription_start: 0,
+                subscription_expiry: 0,
+                status: "unreachable",
+                pending_appointments: [],
+                invalid_appointments: [],
+              };
+            }
           }
+          return dataIn;
         }
-        return dataIn;
       })
       .then(Object.entries)
       .then((xs) =>
@@ -382,7 +384,7 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      ...(sparkoProperties
+      ...(config.advanced.plugins.sparko.enabled
       ? {
         "Sparko Properties": {
           type: "object",
@@ -391,7 +393,7 @@ export const properties: T.ExpectedExports.properties = async (
         }
       }
       : {}),
-      ...(restProperties
+      ...(config.advanced.plugins.rest
       ? {
         "REST Properties": {
           type: "object",
@@ -410,7 +412,7 @@ export const properties: T.ExpectedExports.properties = async (
             },
           }
         : {}),
-      ...(config.watchtowers["wt-client"]
+      ...(config.watchtowers["wt-client"].enabled == "enabled"
         ? {
             "Watchtower Client Properties": {
               type: "object",
