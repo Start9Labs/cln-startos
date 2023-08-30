@@ -155,7 +155,7 @@ cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.ligh
 
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
-if [ "$(yq ".watchtowers.wt-client" /root/.lightning/start9/config.yaml)" = "true" ]; then
+if [ "$(yq ".watchtowers.wt-client.enabled" /root/.lightning/start9/config.yaml)" = "enabled" ]; then
   lightning-cli listtowers > /root/.lightning/start9/wtClientInfo
   cat /root/.lightning/start9/wtClientInfo | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > /root/.lightning/start9/wt_old
   cat /root/.lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
@@ -216,9 +216,9 @@ else
   echo "UI Password hash saved to config.json"
 fi
 
-SAVED_UI_PW_HASH=$(jq '.password' /app/apps/backend/$/root/.lightning/data/app/config.json)
-if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json && $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
-  jq ".password = $UI_PASSWORD" /app/apps/backend/$/root/.lightning/data/app/config.json
+SAVED_UI_PW_HASH=$(cat /app/apps/backend/$/root/.lightning/data/app/config.json | jq -r '.password')
+if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json ] && [ $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
+  jq ".password = $UI_PASSWORD_HASH" /app/apps/backend/$/root/.lightning/data/app/config.json
   echo "updated password hash saved to config.json"
 fi
 

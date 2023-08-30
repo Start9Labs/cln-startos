@@ -88,6 +88,18 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     multi: false,
     selector: "$.rpc.password",
   },
+  "ui-password": {
+    "type": "string",
+    "name": "UI Password",
+    "description": "The password for your CLN UI",
+    "nullable": false,
+    "copyable": true,
+    "masked": true,
+    "default": {
+      "charset": "a-z,A-Z,0-9",
+      "len": 22
+    }
+  },
   "watchtowers": {
     "type": "object",
     "name": "Watchtowers",
@@ -102,28 +114,41 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         "default": false,
       },
       "wt-client": {
-        "type": "boolean",
+        "type": "union",
         "name": "Enable Watchtower Client",
         "description":
           "Allow your node to subscribe to external watchtowers, which provides protection against misbehvaing channel peers",
         "nullable": true,
-        "default": false,
-      },
-      "add-watchtowers": {
-        "type": "list",
-        "name": "Add Watchtowers",
-        "description":
-          "Add URIs of Watchtowers to connect to. Here's a list of altruistic public watchtowers, if you need some ideas: https://github.com/talaia-labs/rust-teos/discussions/158",
-        "range": "[0,*)",
-        "subtype": "string",
-        "spec": {
-          "masked": false,
-          "copyable": true,
-          "placeholder":
-            "02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814",
+        tag: {
+          id: "enabled",
+          name: "Watchtower Client Enabled",
+          description: "- Disabled: Disable Watchtower Client\n-Enable Watchtower Client",
+          "variant-names": {
+            disabled: "Disabled",
+            enabled: "Enabled",
+          },
         },
-        "nullable": true,
-        "default": Array<string>(),
+        default: "disabled",
+        variants: {
+          disabled: {},
+          enabled: {
+            "add-watchtowers": {
+              "type": "list",
+              "name": "Add Watchtowers",
+              "description":
+                "Add URIs of Watchtowers to connect to. Here's a list of altruistic public watchtowers, if you need some ideas: https://github.com/talaia-labs/rust-teos/discussions/158",
+              "range": "[1,*)",
+              "subtype": "string",
+              "spec": {
+                "masked": false,
+                "copyable": true,
+                "placeholder":
+                  "02b4891f562c8b80571ddd2eeea48530471c30766295e1c78556ae4c4422d24436@recnedb7xfhzjdrcgxongzli3a6qyrv5jwgowoho3v5g3rwk7kkglrid.onion:9814",
+              },
+              "default": Array<string>(),
+            },
+          }
+        }
       },
     },
   },
@@ -481,21 +506,21 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         spec: {
           rebalance: {
             type: "boolean",
-            name: "Enable Rebalance Plugin",
+            name: "Rebalance",
             description:
               "Enables the `rebalance` rpc command, which moves liquidity between your channels using circular payments.\nSee `help rebalance` on the CLI or in the Spark console for usage instructions.\n\nSource: https://github.com/lightningd/plugins/tree/master/rebalance\n",
             default: false,
           },
           summary: {
             type: "boolean",
-            name: "Enable Summary Plugin",
+            name: "Summary",
             description:
               "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.\nCan be called via command line or the Spark console.        \n\nSource: https://github.com/lightningd/plugins/tree/master/summary\n",
             default: false,
           },
           rest: {
             type: "boolean",
-            name: "Enable C-Lightning-REST Plugin",
+            name: "C-Lightning-REST",
             description:
             "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
             default: true,
@@ -507,7 +532,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             spec: {
               enabled: {
                 "type": "boolean",
-                "name": "Enable Sparko Plugin",
+                "name": "Sparko",
                 "description":
                   "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
                 "default": true,
@@ -610,18 +635,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         },
       },
     },
-  },
-  "ui-password": {
-    "type": "string",
-    "name": "UI Password",
-    "description": "The password for your CLN UI",
-    "nullable": false,
-    "copyable": true,
-    "masked": true,
-    "default": {
-      "charset": "a-z,A-Z,0-9",
-      "len": 22
-    }
   },
 } as const,
 );

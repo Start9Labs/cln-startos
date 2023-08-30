@@ -21,9 +21,9 @@ CLN can be connected to wallets supporting connecting over tor to the Sparko int
 
 ## User Interface
 
-Your Core Lightning service comes with a featureful built in [UI](https://github.com/ElementsProject/cln-application/tree/d53e19548939641e7e12c756f43ef5fcf164225d). This interface can be used to deposit and withdraw bitcoin on chain, send and receive bitcoin over the lightning network, and even open or close channels! The password for your CLN UI can be found in the the `Config` menu.
+Your Core Lightning service comes with a featureful built in [UI](https://github.com/ElementsProject/cln-application/tree/d53e19548939641e7e12c756f43ef5fcf164225d). This interface can be used to deposit and withdraw bitcoin on chain, send and receive bitcoin over the lightning network, and even open or close channels! The password for your CLN UI can be found in the `Config` and `Properties` menus.
 
-**Note: If the password for the CLN UI is changed outside of the `Config` menu i.e. within the CLN UI, the password in your `Config` will not be updated!**
+**Note: If the password for the CLN UI is changed outside of the `Config` menu i.e. within the CLN UI, the password in `Config` or `Properties` will not be updated!**
 
 ## CLBOSS
 

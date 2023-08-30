@@ -1,4 +1,3 @@
-import { literal, literals } from "https://deno.land/x/ts_matches@v5.2.0/mod.ts";
 import { compat, matches, types as T } from "../deps.ts";
 
 export const migration: T.ExpectedExports.migration =
@@ -201,19 +200,40 @@ export const migration: T.ExpectedExports.migration =
       "23.02.2.7": {
         up: compat.migrations.updateConfig(
             (config) => {
-            if (
-              matches.shape({
-                advanced: matches.shape({
-                  plugins: matches.shape({http: matches.any}, [ "http", ]
-                  )
-                })
-              }).test(config)
+              config["ui-password"] = generateRandomString(22);
+              if (
+                matches.shape({
+                  advanced: matches.shape({
+                    plugins: matches.shape({http: matches.any}
+                    )
+                  })
+                }).test(config)
               ) {
                 delete config.advanced.plugins.http
-            }
+              }
+              if (
+                matches.shape({
+                  advanced: matches.shape({
+                    plugins: matches.any
+                  })
+                }).test(config)
+              ) {
+                config.advanced.plugins['sparko'] = {
+                  enabled: true,
+                  user: "sparko",
+                  password: generateRandomString(22),
+                }
+              }
+              config.watchtowers = {
+                "wt-server": false,
+                "wt-client": {
+                  enabled: "disabled",
+                  "add-watchtowers": []
+                }
+              }
             return config;
           },
-          false,
+          true,
           { version: "23.02.2.7", type: "up" },
         ),
         down: () => {
@@ -223,3 +243,16 @@ export const migration: T.ExpectedExports.migration =
     },
     "23.02.2.7",
   );
+
+
+function generateRandomString(length: number) {
+  const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let randomString = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters[randomIndex];
+  }
+
+  return randomString;
+}
