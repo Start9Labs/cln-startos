@@ -19,6 +19,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "rpc",
   },
+  "web-ui-tor-address": {
+    name: "UI Tor Address",
+    description: "The Tor address of the cln-application interface",
+    type: "pointer",
+    subtype: "package",
+    "package-id": "c-lightning",
+    target: "tor-address",
+    interface: "web-ui",
+  },
   "rest-tor-address": {
     name: "C-Lightning-REST API Address",
     description: "The Tor address of the C-Lightning-REST API",
