@@ -241,7 +241,7 @@ export const migration: T.ExpectedExports.migration =
         },
       }
     },
-    "23.02.2.7",
+    "23.02.2.8",
   );
 
 
