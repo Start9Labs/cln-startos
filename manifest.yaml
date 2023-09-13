@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.08
+version: 23.08.0
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper

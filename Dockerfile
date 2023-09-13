@@ -136,14 +136,19 @@ COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
 
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && pip3 install -U pip \
-    && pip3 install -U wheel \
-    && /root/.local/bin/poetry install
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-RUN pip3 install mako mistune==0.8.4 mrkd
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 
-RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j$(($(nproc) - 1)) DEVELOPER=${DEVELOPER} && make install
+RUN pip3 install --upgrade pip setuptools wheel
+RUN pip3 wheel cryptography
+RUN pip3 install grpcio-tools
+
+RUN /root/.local/bin/poetry install
+
+RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
+    make DEVELOPER=${DEVELOPER} && \
+    /root/.local/bin/poetry run make install
 
 FROM node:18-bullseye-slim as final
 
