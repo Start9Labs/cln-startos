@@ -232,6 +232,8 @@ ADD ./check-web-ui.sh /usr/local/bin/check-web-ui.sh
 RUN chmod a+x /usr/local/bin/check-web-ui.sh
 ADD ./check-synced.sh /usr/local/bin/check-synced.sh
 RUN chmod a+x /usr/local/bin/check-synced.sh
+ADD ./actions/*.sh /usr/local/bin/
+RUN chmod a+x /usr/local/bin/*.sh
 
 # UI
 COPY --from=ui /app/apps/frontend/build /app/apps/frontend/build
