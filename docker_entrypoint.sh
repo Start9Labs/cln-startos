@@ -179,7 +179,7 @@ fi
 export APP_CORE_LIGHTNING_DAEMON_IP="localhost"
 export LIGHTNING_REST_IP="localhost"
 export APP_CORE_LIGHTNING_IP="0.0.0.0"
-export APP_CONFIG_DIR="$/root/.lightning/data/app"
+export APP_CONFIG_DIR="/root/.lightning/data/app"
 export APP_CORE_LIGHTNING_REST_PORT=3001
 export APP_CORE_LIGHTNING_REST_CERT_DIR="/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs"
 export DEVICE_DOMAIN_NAME=$UI_LAN_ADDRESS
@@ -209,18 +209,18 @@ UI_CONFIG='{
   "password": "'"$UI_PASSWORD_HASH"'"
   }'
 
-if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json ]; then
+if [ -e /root/.lightning/data/app/config.json ]; then
   echo "config.json already exists."
 else
-  mkdir -p /app/apps/backend/$/root/.lightning/data/app
-  touch /app/apps/backend/$/root/.lightning/data/app/config.json
-  echo "$UI_CONFIG" > /app/apps/backend/$/root/.lightning/data/app/config.json
+  mkdir -p /root/.lightning/data/app
+  touch /root/.lightning/data/app/config.json
+  echo "$UI_CONFIG" > /root/.lightning/data/app/config.json
   echo "UI Password hash saved to config.json"
 fi
 
-SAVED_UI_PW_HASH=$(cat /app/apps/backend/$/root/.lightning/data/app/config.json | jq -r '.password')
-if [ -e /app/apps/backend/$/root/.lightning/data/app/config.json ] && [ $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
-  jq ".password = $UI_PASSWORD_HASH" /app/apps/backend/$/root/.lightning/data/app/config.json
+SAVED_UI_PW_HASH=$(cat /root/.lightning/data/app/config.json | jq -r '.password')
+if [ -e /root/.lightning/data/app/config.json ] && [ $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
+  jq ".password = $UI_PASSWORD_HASH" /root/.lightning/data/app/config.json
   echo "updated password hash saved to config.json"
 fi
 
@@ -282,7 +282,6 @@ generate_new_rune() {
     fi
 
     if [ "$UNIQUE_ID" != "" ] &&  [ "$UNIQUE_ID" != "null" ]; then
-      # This will fail for v>23.05
       DATASTORE_RESPONSE=$( (echo "$(commando_datastore_request)"; sleep 1) | socat - UNIX-CONNECT:"$LIGHTNING_RPC") > /dev/null
     fi
   done
