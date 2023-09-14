@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.08.0
+version: 23.08.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,8 +7,10 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning submodule to [v23.08](https://github.com/ElementsProject/lightning/releases/tag/v23.08)
+  * Update lightning submodule to [v23.08.1](https://github.com/ElementsProject/lightning/releases/tag/v23.08.1)
   * Update clboss plugin to [v0.13](https://github.com/ZmnSCPxj/clboss/releases/tag/v0.13)
+  * Add action to generate an unrestricted Rune
+  * Fix UI bug
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -233,25 +235,25 @@ actions:
       io-format: json
       mounts:
         main: /root/.lightning
-  rescan-blockchain:
-    name: "Rescan Blockchain"
-    description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
-    allowed-statuses:
-      - running
-    implementation:
-      type: docker
-      image: main
-      system: false
-      entrypoint: rescan-blockchain.sh
-      args: []
-      io-format: json
-      mounts:
-        main: /root/.lightning
-    input-spec:
-      blockheight-or-depth:
-        type: string
-        name: Depth (or Blockheight if prefixed with a hyphen)
-        description: Depth expressed as a positive number or blockheight prefixed with a hyphen.
-        masked: false
-        placeholder: "-600000"
-        nullable: false
+  # rescan-blockchain:
+  #   name: "Rescan Blockchain"
+  #   description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
+  #   allowed-statuses:
+  #     - running
+  #   implementation:
+  #     type: docker
+  #     image: main
+  #     system: false
+  #     entrypoint: rescan-blockchain.sh
+  #     args: []
+  #     io-format: json
+  #     mounts:
+  #       main: /root/.lightning
+  #   input-spec:
+  #     blockheight-or-depth:
+  #       type: string
+  #       name: Depth (or Blockheight if prefixed with a hyphen)
+  #       description: Depth expressed as a positive number or blockheight prefixed with a hyphen.
+  #       masked: false
+  #       placeholder: "-600000"
+  #       nullable: false

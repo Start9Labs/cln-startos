@@ -240,20 +240,20 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
-      "23.08.0": {
+      "23.08.1": {
         up: compat.migrations.updateConfig(
           (config) => {
             return config;
           },
           true,
-          { version: "23.08.0", type: "up"},
+          { version: "23.08.1", type: "up"},
         ),
         down: () => {
           throw new Error("Cannot downgrade");
         },
       },
     },
-    "23.08.0",
+    "23.08.1",
   );
 
 
