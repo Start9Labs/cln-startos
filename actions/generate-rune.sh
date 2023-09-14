@@ -10,7 +10,7 @@ action_result="    {
     \"message\": \"Successfully Added Rune\",
     \"value\": \"$RUNE\",
     \"copyable\": true,
-    \"qr\": true,
+    \"qr\": true
 }"
 
 echo $action_result
