@@ -106,19 +106,19 @@ RUN wget -q https://zlib.net/zlib-1.3.tar.gz \
 && make install && cd .. && rm zlib-1.3.tar.gz && rm -rf zlib-1.3
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
-&& wget -q https://www.sqlite.org/2023/sqlite-src-3420000.zip \
-&& unzip sqlite-src-3420000.zip \
-&& cd sqlite-src-3420000 \
+&& wget -q https://www.sqlite.org/2023/sqlite-src-3430100.zip \
+&& unzip sqlite-src-3430100.zip \
+&& cd sqlite-src-3430100 \
 && ./configure --enable-static --disable-readline --disable-threadsafe --disable-load-extension \
 && make \
-&& make install && cd .. && rm sqlite-src-3420000.zip && rm -rf sqlite-src-3420000
+&& make install && cd .. && rm sqlite-src-3430100.zip && rm -rf sqlite-src-3430100
 
-RUN wget -q https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz \
-&& tar xvf gmp-6.2.1.tar.xz \
-&& cd gmp-6.2.1 \
-&& ./configure --disable-assembly \
-&& make \
-&& make install && cd .. && rm gmp-6.2.1.tar.xz && rm -rf gmp-6.2.1
+# RUN wget -q https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz \
+# && tar xvf gmp-6.2.1.tar.xz \
+# && cd gmp-6.2.1 \
+# && ./configure --disable-assembly \
+# && make \
+# && make install && cd .. && rm gmp-6.2.1.tar.xz && rm -rf gmp-6.2.1
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
