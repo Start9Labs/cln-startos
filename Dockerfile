@@ -113,13 +113,6 @@ RUN apt-get install -y --no-install-recommends unzip tclsh \
 && make \
 && make install && cd .. && rm sqlite-src-3430100.zip && rm -rf sqlite-src-3430100
 
-# RUN wget -q https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz \
-# && tar xvf gmp-6.2.1.tar.xz \
-# && cd gmp-6.2.1 \
-# && ./configure --disable-assembly \
-# && make \
-# && make install && cd .. && rm gmp-6.2.1.tar.xz && rm -rf gmp-6.2.1
-
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 RUN rustup toolchain install beta
