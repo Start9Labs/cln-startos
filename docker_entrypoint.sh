@@ -27,7 +27,6 @@ export UI_LAN_ADDRESS=$(echo "$UI_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
 export WATCHTOWER_TOR_ADDRESS=$(yq e '.watchtower-tor-address' /root/.lightning/start9/config.yaml)
 export TOWERS_DATA_DIR=/root/.lightning/.watchtower
-export SPARKO_TOR_ADDRESS=$(yq e '.sparko-tor-address' /root/.lightning/start9/config.yaml)
 export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 
 mkdir -p $TOWERS_DATA_DIR
@@ -77,7 +76,6 @@ echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
 echo $WATCHTOWER_TOR_ADDRESS > /root/.lightning/start9/watchtowerTorAddress
-echo $SPARKO_TOR_ADDRESS > /root/.lightning/start9/sparkoTorAddress
 
 sh /root/.lightning/start9/waitForStart.sh
 sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /root/.lightning/config

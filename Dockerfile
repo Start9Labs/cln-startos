@@ -200,9 +200,6 @@ ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
 RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
-# sparko
-RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko
-
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST

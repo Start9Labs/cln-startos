@@ -289,10 +289,6 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableSummaryPlugin = config.advanced.plugins.summary
     ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
     : "";
-  const sparkoPassword = config.advanced.plugins.sparko.password;
-  const enableSparkoPlugin = config.advanced.plugins.sparko.enabled
-    ? `plugin=/usr/local/libexec/c-lightning/plugins/sparko\nsparko-host=0.0.0.0\nsparko-port=9737\nsparko-login=sparko:${sparkoPassword}\nsparko-keys=${sparkoPassword};`
-    : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
@@ -335,7 +331,6 @@ ${enableExperimentalShutdownWrongFunding}
 experimental-websocket-port=4269
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
-${enableSparkoPlugin}
 ${enableRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;

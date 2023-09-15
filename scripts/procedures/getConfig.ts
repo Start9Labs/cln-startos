@@ -46,15 +46,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     "target": "tor-address",
     "interface": "watchtower",
   },
-  "sparko-tor-address": {
-    name: "Sparko Tor Address",
-    description: "The Tor address of the Sparko Tor",
-    type: "pointer",
-    subtype: "package",
-    "package-id": "c-lightning",
-    target: "tor-address",
-    interface: "sparko",
-  },
   alias: {
     type: "string",
     name: "Alias",
@@ -533,42 +524,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             description:
             "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
             default: true,
-          },
-          "sparko": {
-            type: "object",
-            name: "Sparko Options",
-            description: "The Sparko plugin allows your node to connect to wallets that support the Sparko HTTP-RPC interface.",
-            spec: {
-              enabled: {
-                "type": "boolean",
-                "name": "Sparko",
-                "description":
-                  "The famous Spark wallet repackaged as a single-binary lightningd plugin. This works as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.        \n\nSource: https://github.com/fiatjaf/sparko\n",
-                "default": true,
-              },
-              user: {
-                type: "string",
-                name: "Sparko Username",
-                description:
-                  "The username for the Sparko user on your Core Lightning node",
-                nullable: false,
-                default: "sparko",
-                copyable: true,
-              },
-              password: {
-                type: "string",
-                name: "Sparko Password",
-                description:
-                  "The password for the Sparko user on your Core Lightning node",
-                nullable: false,
-                default: {
-                  charset: "a-z,A-Z,0-9",
-                  len: 22,
-                },
-                copyable: true,
-                masked: true,
-              },
-            },
           },
           clboss: {
             type: "union",

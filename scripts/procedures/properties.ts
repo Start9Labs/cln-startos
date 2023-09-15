@@ -119,12 +119,6 @@ export const properties: T.ExpectedExports.properties = async (
       path: "start9/watchtowerTorAddress",
     })
     .then((x) => x.trim());
-  const sparkoTorAddress = await effects
-    .readFile({
-      volumeId: "main",
-      path: "start9/sparkoTorAddress",
-    })
-    .then((x) => x.trim());
   const config = setConfigMatcher.unsafeCast(
     YAML.parse(
       await effects.readFile({
@@ -139,37 +133,6 @@ export const properties: T.ExpectedExports.properties = async (
       volumeId: "main",
     })
   );
-
-  const sparkoProperties: T.PackagePropertiesV2 = !config.advanced.plugins
-    .sparko.enabled
-    ? {}
-    : {
-        "Sparko Address": {
-          type: "string",
-          value: `${sparkoTorAddress}`,
-          description: "The tor address of the Sparko interface",
-          copyable: true,
-          qr: true,
-          masked: true,
-        },
-        "Sparko Port": {
-          type: "string",
-          value: `9737`,
-          description: "The port of the Sparko interface",
-          copyable: true,
-          qr: false,
-          masked: false,
-        },
-        "Sparko key": {
-          type: "string",
-          value: `${config.advanced.plugins.sparko.password}`,
-          description:
-            "The master key to authenticate a wallet to access your CLN node via the Sparko interface",
-          copyable: true,
-          qr: true,
-          masked: true,
-        },
-      };
 
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
@@ -384,15 +347,6 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      ...(config.advanced.plugins.sparko.enabled
-      ? {
-        "Sparko Properties": {
-          type: "object",
-          value: sparkoProperties,
-          description: "Properties of the Sparko interface",
-        }
-      }
-      : {}),
       ...(config.advanced.plugins.rest
       ? {
         "REST Properties": {
