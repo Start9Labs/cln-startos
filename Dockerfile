@@ -106,19 +106,12 @@ RUN wget -q https://zlib.net/zlib-1.3.tar.gz \
 && make install && cd .. && rm zlib-1.3.tar.gz && rm -rf zlib-1.3
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
-&& wget -q https://www.sqlite.org/2023/sqlite-src-3420000.zip \
-&& unzip sqlite-src-3420000.zip \
-&& cd sqlite-src-3420000 \
+&& wget -q https://www.sqlite.org/2023/sqlite-src-3430100.zip \
+&& unzip sqlite-src-3430100.zip \
+&& cd sqlite-src-3430100 \
 && ./configure --enable-static --disable-readline --disable-threadsafe --disable-load-extension \
 && make \
-&& make install && cd .. && rm sqlite-src-3420000.zip && rm -rf sqlite-src-3420000
-
-RUN wget -q https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz \
-&& tar xvf gmp-6.2.1.tar.xz \
-&& cd gmp-6.2.1 \
-&& ./configure --disable-assembly \
-&& make \
-&& make install && cd .. && rm gmp-6.2.1.tar.xz && rm -rf gmp-6.2.1
+&& make install && cd .. && rm sqlite-src-3430100.zip && rm -rf sqlite-src-3430100
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
@@ -130,29 +123,25 @@ WORKDIR /tmp/rust-teos
 RUN cargo install --locked --path teos
 RUN cargo install --locked --path watchtower-plugin
 
-# build http plugin
-ARG ARCH
-COPY c-lightning-http-plugin/. /tmp/lightning-wrapper/c-lightning-http-plugin
-WORKDIR /tmp/lightning-wrapper/c-lightning-http-plugin
-RUN cargo update && cargo +beta build --release
-RUN ls -al /tmp/lightning-wrapper/c-lightning-http-plugin/target/release && sleep 30
 WORKDIR /opt/lightningd
 COPY lightning/. /tmp/lightning-wrapper/lightning
 COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
-# COPY lightning/. /opt/lightningd
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
-    # git checkout $(git --git-dir=/tmp/lightning-wrapper/.git rev-parse HEAD)
 
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && pip3 install -U pip \
-    && pip3 install -U wheel \
-    # && /root/.local/bin/poetry config virtualenvs.create false \
-    && /root/.local/bin/poetry install
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-RUN pip3 install mako mistune==0.8.4 mrkd
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 
-RUN ./configure --prefix=/tmp/lightning_install --enable-static && make -j$(($(nproc) - 1)) DEVELOPER=${DEVELOPER} && make install
+RUN pip3 install --upgrade pip setuptools wheel
+RUN pip3 wheel cryptography
+RUN pip3 install grpcio-tools
+
+RUN /root/.local/bin/poetry install
+
+RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
+    make DEVELOPER=${DEVELOPER} && \
+    /root/.local/bin/poetry run make install
 
 FROM node:18-bullseye-slim as final
 
@@ -211,9 +200,6 @@ ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
 RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
 RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
 
-# sparko
-RUN wget -qO /usr/local/libexec/c-lightning/plugins/sparko https://github.com/fiatjaf/sparko/releases/download/v2.9/sparko_linux_${PLATFORM} && chmod +x /usr/local/libexec/c-lightning/plugins/sparko
-
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
@@ -221,9 +207,6 @@ RUN npm install --omit=dev
 
 # aarch64 or x86_64
 ARG ARCH
-
-# c-lightning-http-plugin
-COPY --from=builder /tmp/lightning-wrapper/c-lightning-http-plugin/target/release/c-lightning-http-plugin /usr/local/libexec/c-lightning/plugins/c-lightning-http-plugin
 
 # teos (server) & watchtower-client
 COPY --from=builder /root/.cargo/bin/teosd /usr/local/bin/teosd
@@ -239,6 +222,8 @@ ADD ./check-web-ui.sh /usr/local/bin/check-web-ui.sh
 RUN chmod a+x /usr/local/bin/check-web-ui.sh
 ADD ./check-synced.sh /usr/local/bin/check-synced.sh
 RUN chmod a+x /usr/local/bin/check-synced.sh
+ADD ./actions/*.sh /usr/local/bin/
+RUN chmod a+x /usr/local/bin/*.sh
 
 # UI
 COPY --from=ui /app/apps/frontend/build /app/apps/frontend/build

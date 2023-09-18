@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.02.2.8
+version: 23.08.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,9 +7,11 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Expose UI with authentication
-  * Replace HTTP plugin with Sparko
-  * Add The Eye of Satoshi watchtower server and client plugin
+  * Update lightning submodule to [v23.08.1](https://github.com/ElementsProject/lightning/releases/tag/v23.08.1)
+  * Update clboss plugin to [v0.13](https://github.com/ZmnSCPxj/clboss/releases/tag/v0.13)
+  * Add action to generate an unrestricted Rune
+  * Fix UI bug
+  * Remove Sparko plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -157,20 +159,6 @@ interfaces:
     protocols:
       - tcp
       - http
-  sparko:
-    name: Sparko API
-    description: The famous Spark wallet repackaged as a single-binary lightningd plugin. This works either as a full-blown HTTP-RPC bridge to your node that can be used to develop apps.
-    tor-config:
-      port-mapping:
-        9737: "9737"
-    lan-config:
-      9737:
-        ssl: true
-        internal: 9737
-    ui: false
-    protocols:
-      - tcp
-      - http
 dependencies:
   bitcoind:
     version: ">=0.21.1.2 <27.0.0"
@@ -218,26 +206,41 @@ migrations:
     "*":
       type: script
       args: ["to"]
-# actions:
-#   rescan-blockchain:
-#     name: "Rescan Blockchain"
-#     description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
-#     allowed-statuses:
-#       - running
-#     implementation:
-#       type: docker
-#       image: main
-#       system: false
-#       entrypoint: rescan-blockchain.sh
-#       args: []
-#       io-format: json
-#       mounts:
-#         main: /root/.lightning
-#     input-spec:
-#       blockheight-or-depth:
-#         type: string
-#         name: Depth (or Blockheight if prefixed with a hyphen)
-#         description: Depth expressed as a positive number or blockheight prefixed with a hyphen.
-#         masked: false
-#         placeholder: "-600000"
-#         nullable: false
+actions:
+  generate-rune:
+    name: "Generate Rune"
+    warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
+    description: "Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby."
+    allowed-statuses:
+      - running
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: generate-rune.sh
+      args: []
+      io-format: json
+      mounts:
+        main: /root/.lightning
+  # rescan-blockchain:
+  #   name: "Rescan Blockchain"
+  #   description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
+  #   allowed-statuses:
+  #     - running
+  #   implementation:
+  #     type: docker
+  #     image: main
+  #     system: false
+  #     entrypoint: rescan-blockchain.sh
+  #     args: []
+  #     io-format: json
+  #     mounts:
+  #       main: /root/.lightning
+  #   input-spec:
+  #     blockheight-or-depth:
+  #       type: string
+  #       name: Depth (or Blockheight if prefixed with a hyphen)
+  #       description: Depth expressed as a positive number or blockheight prefixed with a hyphen.
+  #       masked: false
+  #       placeholder: "-600000"
+  #       nullable: false
