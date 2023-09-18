@@ -332,6 +332,7 @@ experimental-websocket-port=4269
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableRestPlugin}
+disable-plugin=clnrest.py
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;
 }
