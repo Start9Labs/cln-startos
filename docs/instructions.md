@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-When running Core Lightning on StartOS it is recommended to use a full archival Bitcion Core node. However, CLN can be run with a pruned node provided Bitcoin Core's version is >= 25.0.0~2.
+When running Core Lightning on StartOS it is recommended to use a full archival Bitcoin Core node. However, CLN can be run with a pruned node provided Bitcoin Core's version is >= 25.0.0~2.
 
 **Note: If using a pruned node and bitcoind prunes a block that Core Lightning has not processed yet, e.g., Core Lightning was not running for a prolonged period, then bitcoind will not be able to serve the missing block(s), hence Core Lightning will not be able to synchronize anymore and will be stuck.**
 
@@ -15,7 +15,7 @@ use-cases, we recommend using the defaults. You can change credentials from the
 
 ## Using a Wallet
 
-CLN can be connected to wallets supporting connecting over tor to the Sparko interface or the REST inferface (credentials for both are located in
+CLN can be connected to wallets supporting connecting over tor to the Sparko interface or the REST interface (credentials for both are located in
 `Properties`). For a list of compatible wallets, see
 <a href="https://docs.start9.com/latest/guides/service-guides/lightning/index" target="_blank">https://docs.start9.com/latest/guides/service-guides/lightning/index</a>.
 
@@ -49,7 +49,7 @@ To this end, here are some of the things CLBOSS can do automatically:
   funds
 - Acquire incoming capacity via boltz.exchange swaps.
 - Rebalance open channels by self-payment (including JIT rebalancer).
-- Set forwarding fees so that they're competitive to other nodes
+- Set forwarding fees so that they're competitive with other nodes
 - Close channels that are not performing well (this feature is experimental)
 
 # CLBOSS Operation **(advanced users only)**
