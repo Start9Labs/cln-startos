@@ -174,7 +174,7 @@ if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "tru
 fi
 
 # User Interface
-export APP_CORE_LIGHTNING_DAEMON_IP="localhost"
+export APP_CORE_LIGHTNING_DAEMON_IP="0.0.0.0"
 export LIGHTNING_REST_IP="localhost"
 export APP_CORE_LIGHTNING_IP="0.0.0.0"
 export APP_CONFIG_DIR="/root/.lightning/data/app"
