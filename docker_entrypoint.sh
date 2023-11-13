@@ -217,8 +217,8 @@ else
 fi
 
 SAVED_UI_PW_HASH=$(cat /root/.lightning/data/app/config.json | jq -r '.password')
-if [ -e /root/.lightning/data/app/config.json ] && [ $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
-  jq ".password = $UI_PASSWORD_HASH" /root/.lightning/data/app/config.json
+if [ -e /root/.lightning/data/app/config.json ] && [ "$UI_PASSWORD_HASH" !=  "$SAVED_UI_PW_HASH" ]; then
+  jq ".password = \"$UI_PASSWORD_HASH\"" /root/.lightning/data/app/config.json > /tmp/config.tmp && mv /tmp/config.tmp /root/.lightning/data/app/config.json
   echo "updated password hash saved to config.json"
 fi
 

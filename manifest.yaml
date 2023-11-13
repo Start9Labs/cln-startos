@@ -10,7 +10,7 @@ release-notes: |-
   * Update lightning submodule to [v23.08.1](https://github.com/ElementsProject/lightning/releases/tag/v23.08.1)
   * Update clboss plugin to [v0.13](https://github.com/ZmnSCPxj/clboss/releases/tag/v0.13)
   * Update c-lighting-REST to [v0.10.7](https://github.com/Ride-The-Lightning/c-lightning-REST/releases/tag/v0.10.7)
-  * Fix UI bug
+  * Fix UI bugs
   * Remove Sparko plugin
 build: ["make"]
 description:
