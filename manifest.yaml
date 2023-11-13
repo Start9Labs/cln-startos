@@ -10,7 +10,6 @@ release-notes: |-
   * Update lightning submodule to [v23.08.1](https://github.com/ElementsProject/lightning/releases/tag/v23.08.1)
   * Update clboss plugin to [v0.13](https://github.com/ZmnSCPxj/clboss/releases/tag/v0.13)
   * Update c-lighting-REST to [v0.10.7](https://github.com/Ride-The-Lightning/c-lightning-REST/releases/tag/v0.10.7)
-  * Add action to generate an unrestricted Rune
   * Fix UI bug
   * Remove Sparko plugin
 build: ["make"]
@@ -207,22 +206,22 @@ migrations:
     "*":
       type: script
       args: ["to"]
-actions:
-  generate-rune:
-    name: "Generate Rune"
-    warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
-    description: "Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby."
-    allowed-statuses:
-      - running
-    implementation:
-      type: docker
-      image: main
-      system: false
-      entrypoint: generate-rune.sh
-      args: []
-      io-format: json
-      mounts:
-        main: /root/.lightning
+actions: {}
+  # generate-rune:
+  #   name: "Generate Rune"
+  #   warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
+  #   description: "Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby."
+  #   allowed-statuses:
+  #     - running
+  #   implementation:
+  #     type: docker
+  #     image: main
+  #     system: false
+  #     entrypoint: generate-rune.sh
+  #     args: []
+  #     io-format: json
+  #     mounts:
+  #       main: /root/.lightning
   # rescan-blockchain:
   #   name: "Rescan Blockchain"
   #   description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
