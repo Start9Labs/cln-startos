@@ -15,9 +15,9 @@ use-cases, we recommend using the defaults. You can change credentials from the
 
 ## Using a Wallet
 
-CLN can be connected to wallets supporting connecting over tor to the Sparko interface or the REST inferface (credentials for both are located in
-`Properties`). For a list of compatible wallets, see
-<a href="https://docs.start9.com/0.3.5.x/service-guides/lightning/index" target="_blank">https://docs.start9.com/0.3.5.x/service-guides/lightning/index</a>.
+CLN can be connected to wallets supporting connecting over tor to the REST inferface (credentials are located in
+`Properties`). For a list of compatible wallets, refer to the
+<a href="lightning documentation" target="_blank">https://docs.start9.com/0.3.5.x/service-guides/lightning/index</a>.
 
 ## User Interface
 
