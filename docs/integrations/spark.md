@@ -24,4 +24,4 @@ Spark wallet is a "remote control" interface for a remote c-lightning node inten
 
 ## iOS
 
-1. Spark does not exist as a mobile app for iOS. It exists as a [PWA](https://github.com/shesek/spark-wallet#progressive-web-app) and supports basically functionality, but not QR scanning or connecting with a remote node over Tor, which is necessary for connecting to your Start9 server's c-lightning instance. 
+1. Spark does not exist as a mobile app for iOS. It exists as a [PWA](https://github.com/shesek/spark-wallet#progressive-web-app) and supports basic functionality, but not QR scanning or connecting with a remote node over Tor, which is necessary for connecting to your Start9 server's c-lightning instance. 
