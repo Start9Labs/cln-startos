@@ -253,7 +253,7 @@ export const migration: T.ExpectedExports.migration =
         },
       },
     },
-    "23.08.1",
+    "23.08.1.1",
   );
 
 
