@@ -174,7 +174,7 @@ if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "tru
 fi
 
 # User Interface
-export APP_CORE_LIGHTNING_DAEMON_IP="localhost"
+export APP_CORE_LIGHTNING_DAEMON_IP="0.0.0.0"
 export LIGHTNING_REST_IP="localhost"
 export APP_CORE_LIGHTNING_IP="0.0.0.0"
 export APP_CONFIG_DIR="/root/.lightning/data/app"
@@ -217,8 +217,8 @@ else
 fi
 
 SAVED_UI_PW_HASH=$(cat /root/.lightning/data/app/config.json | jq -r '.password')
-if [ -e /root/.lightning/data/app/config.json ] && [ $UI_PASSWORD_HASH !=  $SAVED_UI_PW_HASH ]; then
-  jq ".password = $UI_PASSWORD_HASH" /root/.lightning/data/app/config.json
+if [ -e /root/.lightning/data/app/config.json ] && [ "$UI_PASSWORD_HASH" !=  "$SAVED_UI_PW_HASH" ]; then
+  jq ".password = \"$UI_PASSWORD_HASH\"" /root/.lightning/data/app/config.json > /tmp/config.tmp && mv /tmp/config.tmp /root/.lightning/data/app/config.json
   echo "updated password hash saved to config.json"
 fi
 
