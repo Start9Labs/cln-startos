@@ -15,8 +15,8 @@ use-cases, we recommend using the defaults. You can change credentials from the
 
 ## Using a Wallet
 
-CLN can be connected to wallets supporting connecting over tor via the REST interface (credentials are located in
-`Properties`). For a list of compatible wallets, refer to the
+CLN can be connected to wallets supporting tor connections via the REST interface (credentials are located in
+`Properties`) as well as wallets supporting Runes or LNLink. For a list of compatible wallets, refer to the
 <a href="https://docs.start9.com/0.3.5.x/service-guides/lightning/index" target="_blank">lightning documentation</a>.
 
 ## User Interface
