@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.08.1.1
+version: 23.11
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,11 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning submodule to [v23.08.1](https://github.com/ElementsProject/lightning/releases/tag/v23.08.1)
-  * Update clboss plugin to [v0.13](https://github.com/ZmnSCPxj/clboss/releases/tag/v0.13)
-  * Update c-lighting-REST to [v0.10.7](https://github.com/Ride-The-Lightning/c-lightning-REST/releases/tag/v0.10.7)
-  * Fix UI bugs
-  * Remove Sparko plugin
+  * Update lightning submodule to [v23.08.1](https://github.com/ElementsProject/lightning/releases/tag/v23.11)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
