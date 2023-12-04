@@ -1,5 +1,5 @@
 id: c-lightning
-version: 23.11
+version: 23.11.0
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/c-lightning-wrapper
@@ -7,7 +7,8 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning submodule to [v23.08.1](https://github.com/ElementsProject/lightning/releases/tag/v23.11)
+  * Update lightning submodule to [v23.11](https://github.com/ElementsProject/lightning/releases/tag/v23.11)
+  * Add action to create LNLink QR code.
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -202,7 +203,7 @@ migrations:
     "*":
       type: script
       args: ["to"]
-actions: {}
+actions:
   # generate-rune:
   #   name: "Generate Rune"
   #   warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
@@ -218,6 +219,21 @@ actions: {}
   #     io-format: json
   #     mounts:
   #       main: /root/.lightning
+  generate-rune:
+    name: "Generate LNlink"
+    warning: THIS QRCODE CONTAINS SENSITIVE INFORMATION THAT GIVES ANYONE ACCESS TO YOUR LIGHTNING NODE. DO NOT SHOW IT TO ANYONE.
+    description: "Generate a LNLink QR Code. This Code can be used to connect with integrations such as Plasma."
+    allowed-statuses:
+      - running
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: generate-lnlink.sh
+      args: []
+      io-format: json
+      mounts:
+        main: /root/.lightning
   # rescan-blockchain:
   #   name: "Rescan Blockchain"
   #   description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
