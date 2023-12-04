@@ -220,7 +220,7 @@ actions:
       io-format: json
       mounts:
         main: /root/.lightning
-  generate-rune:
+  generate-lnlink:
     name: "Generate LNlink"
     warning: THIS QRCODE CONTAINS SENSITIVE INFORMATION THAT GIVES ANYONE ACCESS TO YOUR LIGHTNING NODE. DO NOT SHOW IT TO ANYONE.
     description: "Generate a LNLink QR Code. This Code can be used to connect with integrations such as Plasma."
