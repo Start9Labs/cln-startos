@@ -9,6 +9,7 @@ marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update lightning submodule to [v23.11](https://github.com/ElementsProject/lightning/releases/tag/v23.11)
   * Add action to create LNLink QR code.
+  * Add action to create an unrestricted Rune.
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -204,21 +205,21 @@ migrations:
       type: script
       args: ["to"]
 actions:
-  # generate-rune:
-  #   name: "Generate Rune"
-  #   warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
-  #   description: "Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby."
-  #   allowed-statuses:
-  #     - running
-  #   implementation:
-  #     type: docker
-  #     image: main
-  #     system: false
-  #     entrypoint: generate-rune.sh
-  #     args: []
-  #     io-format: json
-  #     mounts:
-  #       main: /root/.lightning
+  generate-rune:
+    name: "Generate Rune"
+    warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
+    description: "Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby."
+    allowed-statuses:
+      - running
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: generate-rune.sh
+      args: []
+      io-format: json
+      mounts:
+        main: /root/.lightning
   generate-rune:
     name: "Generate LNlink"
     warning: THIS QRCODE CONTAINS SENSITIVE INFORMATION THAT GIVES ANYONE ACCESS TO YOUR LIGHTNING NODE. DO NOT SHOW IT TO ANYONE.
