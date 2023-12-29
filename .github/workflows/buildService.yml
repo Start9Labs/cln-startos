@@ -24,7 +24,7 @@ jobs:
         run: |
           git submodule update --init --recursive
           start-sdk init
-          unset https_proxy && unset http_proxy
+          unset HTTPS_PROXY && unset HTTP_PROXY
           make
           PACKAGE_ID=$(yq -oy ".id" manifest.*)
           echo "::set-output name=package_id::$PACKAGE_ID"
