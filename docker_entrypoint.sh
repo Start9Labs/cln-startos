@@ -158,7 +158,7 @@ lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 if [ "$(yq ".watchtowers.wt-client.enabled" /root/.lightning/start9/config.yaml)" = "enabled" ]; then
   lightning-cli listtowers > /root/.lightning/start9/wtClientInfo
   cat /root/.lightning/start9/wtClientInfo | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > /root/.lightning/start9/wt_old
-  cat /root/.lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
+  cat /root/.lightning/start9/config.yaml | yq '.watchtowers.wt-client.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
   echo "Abandoning old watchtowers"
   grep -Fxvf /root/.lightning/start9/wt_new /root/.lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
   echo "Regsistering new watchtowers"
