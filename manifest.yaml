@@ -7,9 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning submodule to [v23.11](https://github.com/ElementsProject/lightning/releases/tag/v23.11)
-  * Add action to create LNLink QR code.
-  * Add action to create an unrestricted Rune.
+  * Add config option for clnrest plugin and expose the clnrest interface
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -139,6 +137,20 @@ interfaces:
       3001:
         ssl: true
         internal: 3001
+    ui: false
+    protocols:
+      - tcp
+      - http
+  clnrest:
+    name: CLNRest
+    description: CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.
+    tor-config:
+      port-mapping:
+        3010: "3010"
+    lan-config:
+      3010:
+        ssl: true
+        internal: 3010
     ui: false
     protocols:
       - tcp

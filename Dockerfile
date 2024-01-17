@@ -68,9 +68,6 @@ FROM debian:bullseye-slim as builder
 ENV LIGHTNINGD_VERSION=master
 ENV RUST_PROFILE=release
 ENV PATH=$PATH:/root/.cargo/bin/
-ARG DEVELOPER=1
-ENV PYTHON_VERSION=3
-
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
@@ -84,17 +81,20 @@ RUN apt-get update -qq && \
         git \
         gnupg \
         libpq-dev \
-        libssl-dev \
-        protobuf-compiler \
         libtool \
         libffi-dev \
         pkg-config \
-        python3 \
+        libssl-dev \
+        protobuf-compiler \
+        python3.9 \
         python3-dev \
         python3-mako \
         python3-pip \
         python3-venv \
         python3-setuptools \
+        libev-dev \
+        libevent-dev \
+        qemu-user-static \
         wget
 
 # CLN
@@ -137,10 +137,12 @@ RUN pip3 install --upgrade pip setuptools wheel
 RUN pip3 wheel cryptography
 RUN pip3 install grpcio-tools
 
-RUN /root/.local/bin/poetry install
+
+RUN /root/.local/bin/poetry export -o requirements.txt --without-hashes --with dev
+RUN pip3 install -r requirements.txt
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
-    make DEVELOPER=${DEVELOPER} && \
+    make && \
     /root/.local/bin/poetry run make install
 
 FROM node:18-bullseye-slim as final
@@ -155,6 +157,7 @@ COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 
 # lightningd
 COPY --from=builder /tmp/lightning_install/ /usr/local/
+COPY --from=builder /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

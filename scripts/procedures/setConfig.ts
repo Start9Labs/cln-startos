@@ -292,6 +292,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
+  const enableCLNRestPlugin = config.advanced.plugins.clnrest
+    ? "clnrest-port=3010\n"
+    : "";
   const enableClbossPlugin =
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
@@ -332,7 +335,7 @@ experimental-websocket-port=4269
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableRestPlugin}
-disable-plugin=clnrest.py
+${enableCLNRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}`;
 }

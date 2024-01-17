@@ -37,6 +37,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "rest",
   },
+  "clnrest-tor-address": {
+    name: "CLNRest Address",
+    description: "The Tor address of the CLNRest plugin interface",
+    type: "pointer",
+    subtype: "package",
+    "package-id": "c-lightning",
+    target: "tor-address",
+    interface: "clnrest",
+  },
   "watchtower-tor-address": {
     "name": "TEoS Watchtower API Address",
     "description": "The Tor address of the TEoS Watchtower API",
@@ -523,6 +532,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             name: "C-Lightning-REST",
             description:
             "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
+            default: true,
+          },
+          clnrest: {
+            type: "boolean",
+            name: "CLNRest",
+            description:
+            "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.",
             default: true,
           },
           clboss: {
