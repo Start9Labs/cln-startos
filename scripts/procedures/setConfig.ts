@@ -293,7 +293,7 @@ function configMaker(alias: Alias, config: SetConfig) {
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
     : "";
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
-    ? "clnrest-port=3010\n"
+    ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
     : "";
   const enableClbossPlugin =
     config.advanced.plugins.clboss.enabled === "enabled"
