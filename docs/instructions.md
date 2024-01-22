@@ -55,7 +55,7 @@ To this end, here are some of the things CLBOSS can do automatically:
 
 In order to control CLBOSS, you will use several commands and config options. If
 you have SSH access to your Start9 server, the commands can be entered on the command
-line using `docker exec -ti c-lightning.embassy lightning-cli <command>`.
+line using `podman exec -ti c-lightning.embassy lightning-cli <command>`.
 
 The commands are:
 

@@ -265,7 +265,7 @@ export const migration: T.ExpectedExports.migration =
         },
       },
     },
-    "23.11",
+    "23.11.2",
   );
 
 
