@@ -337,7 +337,16 @@ ${enableSummaryPlugin}
 ${enableRestPlugin}
 ${enableCLNRestPlugin}
 ${enableClbossPlugin}
-${enableWatchtowerClientPlugin}`;
+${enableWatchtowerClientPlugin}
+
+autoclean-cycle=${config.autoclean["autoclean-cycle"]}
+autoclean-succeededforwards-age=${config.autoclean["autoclean-succeededforwards-age"]}
+autoclean-failedforwards-age=${config.autoclean["autoclean-failedforwards-age"]}
+autoclean-succeededpays-age=${config.autoclean["autoclean-succeededpays-age"]}
+autoclean-failedpays-age=${config.autoclean["autoclean-failedpays-age"]}
+autoclean-paidinvoices-age=${config.autoclean["autoclean-paidinvoices-age"]}
+autoclean-expiredinvoices-age=${config.autoclean["autoclean-expiredinvoices-age"]}
+`;
 }
 const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
 export const setConfig: T.ExpectedExports.setConfig = async (

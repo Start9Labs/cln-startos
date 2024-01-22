@@ -161,6 +161,83 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
     },
   },
+  autoclean: {
+    type: "object",
+    name: "Autoclean Options",
+    description: "Autoclean settings to delete old entries",
+    spec: {
+      "autoclean-cycle": {
+        type: "number",
+        name: "Autoclean Interval (Seconds)",
+        description: "Interval to perform search for things to clean (default 3600, or 1 hour, which is usually sufficient).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 3600,
+        units: "seconds"
+      },
+      "autoclean-succeededforwards-age": {
+        type: "number",
+        name: "Successful Forwards Age (Seconds)",
+        descrption: "How old successful forwards (settled in listforwards status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-failedforwards-age": {
+        type: "number",
+        name: "Failed Forwards Age (Seconds)",
+        descrption: "How old failed forwards (failed or local_failed in listforwards status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-succeededpays-age": {
+        type: "number",
+        name: "Successful Payments Age (Seconds)",
+        descrption: "How old successful payments (complete in listpays status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-failedpays-age": {
+        type: "number",
+        name: "Failed Payments Age (Seconds)",
+        descrption: "How old failed payment attempts (failed in listpays status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-paidinvoices-age": {
+        type: "number",
+        name: "Paid Invoices Age (Seconds)",
+        descrption: "How old invoices which were paid (paid in listinvoices status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-expiredinvoices-age": {
+        type: "number",
+        name: "Expired Invoices Age (Seconds)",
+        descrption: "How old invoices which were not paid (and cannot be) (expired in listinvoices status) before deletion (default 0, meaning never)",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+    }
+  },
   advanced: {
     type: "object",
     name: "Advanced",
