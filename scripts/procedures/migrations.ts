@@ -264,10 +264,41 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "23.11.2.1": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          false,
+          { version: "23.11.2.1", type: "up"},
+        ),
+        down: compat.migrations.updateConfig(
+          (config) => {
+            if (
+              matches.shape({
+                advanced: matches.shape({
+                  plugins: matches.shape({clnrest: matches.any})
+                })
+              }).test(config)
+            ) {
+              delete config.advanced.plugins.clnrest;
+            }
+            if (
+              matches.shape({
+                autoclean: matches.any
+              }).test(config)
+            ) {
+              delete config.autoclean;
+            }
+            return config;
+          },
+          true,
+          { version: "23.11.2.1", type: "down" }
+        ),
+      },
     },
-    "23.11.2",
+    "23.11.2.1",
   );
-
 
 function generateRandomString(length: number) {
   const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

@@ -37,6 +37,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "rest",
   },
+  "clnrest-tor-address": {
+    name: "CLNRest Address",
+    description: "The Tor address of the CLNRest plugin interface",
+    type: "pointer",
+    subtype: "package",
+    "package-id": "c-lightning",
+    target: "tor-address",
+    interface: "clnrest",
+  },
   "watchtower-tor-address": {
     "name": "TEoS Watchtower API Address",
     "description": "The Tor address of the TEoS Watchtower API",
@@ -151,6 +160,89 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         }
       },
     },
+  },
+  autoclean: {
+    type: "object",
+    name: "Autoclean Options",
+    description: "Autoclean settings to delete old entries",
+    spec: {
+      "autoclean-cycle": {
+        type: "number",
+        name: "Autoclean Interval",
+        description: "Interval to perform search for things to clean (default 3600, or 1 hour, which is usually sufficient).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 3600,
+        units: "seconds"
+      },
+      "autoclean-succeededforwards-age": {
+        type: "number",
+        name: "Successful Forwards Age",
+        description:
+          "How old successful forwards (settled in listforwards status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-failedforwards-age": {
+        type: "number",
+        name: "Failed Forwards Age",
+        description:
+          "How old failed forwards (failed or local_failed in listforwards status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-succeededpays-age": {
+        type: "number",
+        name: "Successful Payments Age",
+        description:
+          "How old successful payments (complete in listpays status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-failedpays-age": {
+        type: "number",
+        name: "Failed Payments Age",
+        description:
+          "How old failed payment attempts (failed in listpays status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-paidinvoices-age": {
+        type: "number",
+        name: "Paid Invoices Age",
+        description:
+          "How old invoices which were paid (paid in listinvoices status) have to be before deletion (default 0, meaning never).",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+      "autoclean-expiredinvoices-age": {
+        type: "number",
+        name: "Expired Invoices Age",
+        description:
+          "How old invoices which were not paid (and cannot be) (expired in listinvoices status) before deletion (default 0, meaning never)",
+        nullable: true,
+        range: "[0,*)",
+        integral: true,
+        default: 0,
+        units: "seconds"
+      },
+    }
   },
   advanced: {
     type: "object",
@@ -523,6 +615,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             name: "C-Lightning-REST",
             description:
             "This plugin exposes an LND-like REST API. It is required for Ride The Lighting to connect to Core Lightning.\n\nSource: https://github.com/Ride-The-Lightning/c-lightning-REST\n",
+            default: true,
+          },
+          clnrest: {
+            type: "boolean",
+            name: "CLNRest",
+            description:
+            "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.",
             default: true,
           },
           clboss: {
