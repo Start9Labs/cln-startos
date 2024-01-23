@@ -98,12 +98,14 @@ RUN apt-get update -qq && \
         wget
 
 # CLN
-RUN wget -q https://zlib.net/zlib-1.3.tar.gz \
-&& tar xvf zlib-1.3.tar.gz \
-&& cd zlib-1.3 \
-&& ./configure \
-&& make \
-&& make install && cd .. && rm zlib-1.3.tar.gz && rm -rf zlib-1.3
+RUN wget -q https://zlib.net/fossils/zlib-1.2.13.tar.gz \
+    && tar xvf zlib-1.2.13.tar.gz \
+    && cd zlib-1.2.13 \
+    && ./configure \
+    && make \
+    && make install && cd .. && \
+    rm zlib-1.2.13.tar.gz && \
+    rm -rf zlib-1.2.13
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
 && wget -q https://www.sqlite.org/2023/sqlite-src-3430100.zip \
