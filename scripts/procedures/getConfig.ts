@@ -168,7 +168,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     spec: {
       "autoclean-cycle": {
         type: "number",
-        name: "Autoclean Interval (Seconds)",
+        name: "Autoclean Interval",
         description: "Interval to perform search for things to clean (default 3600, or 1 hour, which is usually sufficient).",
         nullable: true,
         range: "[0,*)",
@@ -178,8 +178,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
       "autoclean-succeededforwards-age": {
         type: "number",
-        name: "Successful Forwards Age (Seconds)",
-        descrption: "How old successful forwards (settled in listforwards status) have to be before deletion (default 0, meaning never).",
+        name: "Successful Forwards Age",
+        description:
+          "How old successful forwards (settled in listforwards status) have to be before deletion (default 0, meaning never).",
         nullable: true,
         range: "[0,*)",
         integral: true,
@@ -188,8 +189,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
       "autoclean-failedforwards-age": {
         type: "number",
-        name: "Failed Forwards Age (Seconds)",
-        descrption: "How old failed forwards (failed or local_failed in listforwards status) have to be before deletion (default 0, meaning never).",
+        name: "Failed Forwards Age",
+        description:
+          "How old failed forwards (failed or local_failed in listforwards status) have to be before deletion (default 0, meaning never).",
         nullable: true,
         range: "[0,*)",
         integral: true,
@@ -198,8 +200,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
       "autoclean-succeededpays-age": {
         type: "number",
-        name: "Successful Payments Age (Seconds)",
-        descrption: "How old successful payments (complete in listpays status) have to be before deletion (default 0, meaning never).",
+        name: "Successful Payments Age",
+        description:
+          "How old successful payments (complete in listpays status) have to be before deletion (default 0, meaning never).",
         nullable: true,
         range: "[0,*)",
         integral: true,
@@ -208,8 +211,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
       "autoclean-failedpays-age": {
         type: "number",
-        name: "Failed Payments Age (Seconds)",
-        descrption: "How old failed payment attempts (failed in listpays status) have to be before deletion (default 0, meaning never).",
+        name: "Failed Payments Age",
+        description:
+          "How old failed payment attempts (failed in listpays status) have to be before deletion (default 0, meaning never).",
         nullable: true,
         range: "[0,*)",
         integral: true,
@@ -218,8 +222,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
       "autoclean-paidinvoices-age": {
         type: "number",
-        name: "Paid Invoices Age (Seconds)",
-        descrption: "How old invoices which were paid (paid in listinvoices status) have to be before deletion (default 0, meaning never).",
+        name: "Paid Invoices Age",
+        description:
+          "How old invoices which were paid (paid in listinvoices status) have to be before deletion (default 0, meaning never).",
         nullable: true,
         range: "[0,*)",
         integral: true,
@@ -228,8 +233,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       },
       "autoclean-expiredinvoices-age": {
         type: "number",
-        name: "Expired Invoices Age (Seconds)",
-        descrption: "How old invoices which were not paid (and cannot be) (expired in listinvoices status) before deletion (default 0, meaning never)",
+        name: "Expired Invoices Age",
+        description:
+          "How old invoices which were not paid (and cannot be) (expired in listinvoices status) before deletion (default 0, meaning never)",
         nullable: true,
         range: "[0,*)",
         integral: true,
