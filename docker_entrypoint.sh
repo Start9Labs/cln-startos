@@ -158,7 +158,7 @@ lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 if [ "$(yq ".watchtowers.wt-client.enabled" /root/.lightning/start9/config.yaml)" = "enabled" ]; then
   lightning-cli listtowers > /root/.lightning/start9/wtClientInfo
   cat /root/.lightning/start9/wtClientInfo | jq -r 'to_entries[] | .key + "@" + (.value.net_addr | split("://")[1])' > /root/.lightning/start9/wt_old
-  cat /root/.lightning/start9/config.yaml | yq '.watchtowers.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
+  cat /root/.lightning/start9/config.yaml | yq '.watchtowers.wt-client.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
   echo "Abandoning old watchtowers"
   grep -Fxvf /root/.lightning/start9/wt_new /root/.lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
   echo "Regsistering new watchtowers"
@@ -242,12 +242,12 @@ EOF
 }
 
 commando_rune_request() {
-  cat <<EOF
+  cat <<EOF | jq -c
 {
   "jsonrpc": "2.0",
   "id": 2,
   "method": "commando-rune",
-  "params": [null, [["For Application#"]]]
+  "params": [null, [["$1"]]]
 }
 EOF
 }
@@ -264,6 +264,8 @@ EOF
 }
 
 generate_new_rune() {
+  RUNE_FILE=$1
+  RUNE_COMMENT=$2
   COUNTER=0
   RUNE=""
   while { [ "$RUNE" = "" ] || [ "$RUNE" = "null" ]; } && [ $COUNTER -lt 10 ]; do
@@ -271,7 +273,7 @@ generate_new_rune() {
     echo "Generating rune attempt: $COUNTER"
     COUNTER=$((COUNTER+1))
 
-    RUNE_RESPONSE=$( (echo "$(commando_rune_request)"; sleep 2) | socat - UNIX-CONNECT:"$LIGHTNING_RPC")
+    RUNE_RESPONSE=$( (echo $(commando_rune_request "$RUNE_COMMENT"); sleep 2) | socat - UNIX-CONNECT:"$LIGHTNING_RPC")
 
     RUNE=$(echo "$RUNE_RESPONSE" | jq -r '.result.rune')
     UNIQUE_ID=$(echo "$RUNE_RESPONSE" | jq -r '.result.unique_id')
@@ -282,7 +284,7 @@ generate_new_rune() {
 
     if [ "$RUNE" != "" ] && [ "$RUNE" != "null" ]; then
       # Save rune in env file
-      echo "LIGHTNING_RUNE=\"$RUNE\"" >> "$COMMANDO_CONFIG"
+      echo "LIGHTNING_RUNE=\"$RUNE\"" >> "$RUNE_FILE"
     fi
 
     if [ "$UNIQUE_ID" != "" ] &&  [ "$UNIQUE_ID" != "null" ]; then
@@ -290,9 +292,14 @@ generate_new_rune() {
     fi
   done
   if [ $COUNTER -eq 10 ] && [ "$RUNE" = "" ]; then
-    echo "Error: Unable to generate rune for application authentication!"
+    echo "Error: Unable to generate rune: \"$RUNE_COMMENT\"!"
   fi
 }
+
+if [ "$(yq ".advanced.plugins.clnrest" /root/.lightning/start9/config.yaml)" = "true" ] && ! [ -e /root/.lightning/public/clnrest_rune ] ; then
+  CLNREST_RUNE_PATH="/root/.lightning/public/clnrest_rune"
+  generate_new_rune $CLNREST_RUNE_PATH "For CLNRest#"
+fi
 
 # Read existing pubkey
 if [ -f "$COMMANDO_CONFIG" ]; then
@@ -325,7 +332,7 @@ if [ "$EXISTING_PUBKEY" != "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" ] ||
   echo "Pubkey mismatched or missing rune; Rewriting the data."
   cat /dev/null > "$COMMANDO_CONFIG"
   echo "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" >> "$COMMANDO_CONFIG"
-  generate_new_rune
+  generate_new_rune $COMMANDO_CONFIG "For Application#"
 else
   echo "Pubkey matches with existing pubkey."
 fi
