@@ -394,12 +394,11 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                             match: "Match",
                             available: "Available",
                             fixed: "Fixed",
-                            
                           },
                         },
                         description:
                           "Determines how your node will react to a dual-funding channel open request",
-                        default: "fixed",
+                        default: "match",
                         variants: {
                           match: {
                             "policy-mod": {
