@@ -627,6 +627,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.  <b>Default: True</b>",
             default: true,
           },
+          clnrest: {
+            type: "boolean",
+            name: "CLNRest",
+            description:
+            "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.",
+            default: true,
+          },
           clboss: {
             type: "union",
             name: "CLBOSS settings",
