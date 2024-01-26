@@ -173,12 +173,6 @@ if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "tru
   wtserver_child=$!
 fi
 
-if [ "$(yq ".advanced.plugins.clnrest" /root/.lightning/start9/config.yaml)" = "true" ] && ! [ -e /root/.lightning/public/clnrest_rune ] ; then
-  CLNRESTRUNE=$(lightning-cli commando-rune)
-  echo "LIGHTNING_RUNE="$(echo $CLNRESTRUNE | jq '.rune') > /root/.lightning/public/clnrest_rune
-  echo "clnrest rune saved to: /root/.lightning/public/clnrest_rune"
-fi
-
 # User Interface
 export APP_CORE_LIGHTNING_DAEMON_IP="0.0.0.0"
 export LIGHTNING_REST_IP="localhost"
