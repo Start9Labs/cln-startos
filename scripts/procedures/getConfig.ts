@@ -627,13 +627,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.  <b>Default: True</b>",
             default: true,
           },
-          clnrest: {
-            type: "boolean",
-            name: "CLNRest",
-            description:
-            "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.",
-            default: true,
-          },
           clboss: {
             type: "union",
             name: "CLBOSS settings",
@@ -674,11 +667,11 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                 zerobasefee: {
                   type: "enum",
                   name: "Zero Base Fee",
-                  values: ["default", "required", "allow", "disallow"],
+                  values: ["required", "allow", "disallow"],
                   "value-names": {},
                   description:
-                    "Specify how this node will advertise its base fee. <ul><li><b>Require:  </b>The base fee must be always 0.</li><li><b>Allow:  </b>If the heuristics of CLBOSS think it might be a good idea to set base_fee to 0, let it be 0, but otherwise set it to whatever value the heuristics want.</li><li><b>Disallow:  </b>The base fee must always be non-zero. If the heuristics think it might be good to set it to 0, set it to 1 instead.</li></ul><b>Default:  Allow</b><br>Some pathfinding algorithms under development may strongly prefer 0 or low base fees, so you might want to set CLBOSS to 0 base fee, or to allow a 0 base fee.",
-                  default: "default",
+                    "Specify how this node will advertise its base fee. <ul><li><b>Required:  </b>The base fee must be always 0.</li><li><b>Allow:  </b>If the heuristics of CLBOSS think it might be a good idea to set base_fee to 0, let it be 0, but otherwise set it to whatever value the heuristics want.</li><li><b>Disallow:  </b>The base fee must always be non-zero. If the heuristics think it might be good to set it to 0, set it to 1 instead.</li></ul><b>Default:  Allow</b><br>Some pathfinding algorithms under development may strongly prefer 0 or low base fees, so you might want to set CLBOSS to 0 base fee, or to allow a 0 base fee.",
+                  default: "allow",
                 },
                 "min-channel": {
                   type: "number",
