@@ -7,8 +7,10 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Add config option for [clnrest plugin](https://docs.corelightning.org/docs/rest)
-  * Add config options for Autoclean
+  * Add Config option for [clnrest plugin](https://docs.corelightning.org/docs/rest)
+  * Add Config options for Autoclean
+  * Fix Watchtower Client bug
+  * Improve Config descriptions
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
