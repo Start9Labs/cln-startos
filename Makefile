@@ -37,7 +37,7 @@ x86:
 	@ARCH=x86_64 $(MAKE)
 
 verify: $(PKG_ID).s9pk
-	@embassy-sdk verify s9pk $(PKG_ID).s9pk
+	@start-sdk verify s9pk $(PKG_ID).s9pk
 	@echo " Done!"
 	@echo "   Filesize: $(shell du -h $(PKG_ID).s9pk) is ready"
 
@@ -45,18 +45,18 @@ install:
 ifeq (,$(wildcard ~/.embassy/config.yaml))
 	@echo; echo "You must define \"host: http://embassy-server-name.local\" in ~/.embassy/config.yaml config file first"; echo
 else
-	embassy-cli package install $(PKG_ID).s9pk
+	start-cli package install $(PKG_ID).s9pk
 endif
 
 $(PKG_ID).s9pk: manifest.yaml docker-images/aarch64.tar docker-images/x86_64.tar instructions.md $(ASSET_PATHS) scripts/embassy.js
 ifeq ($(ARCH),aarch64)
-	@echo "embassy-sdk: Preparing aarch64 package ..."
+	@echo "start-sdk: Preparing aarch64 package ..."
 else ifeq ($(ARCH),x86_64)
-	@echo "embassy-sdk: Preparing x86_64 package ..."
+	@echo "start-sdk: Preparing x86_64 package ..."
 else
-	@echo "embassy-sdk: Preparing Universal Package ..."
+	@echo "start-sdk: Preparing Universal Package ..."
 endif
-	@embassy-sdk pack
+	@start-sdk pack
 
 docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(C_LIGHTNING_REST_SRC) $(TEOS_SRC) manifest.yaml
 ifeq ($(ARCH),x86_64)
