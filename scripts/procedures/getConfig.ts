@@ -564,7 +564,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
                       nullable: true,
                       name: "Per-Channel Maximum",
                       description:
-                        "The minimum amount that we will contribute to a channel open.  <b>Default: 10000000</b>",
+                        "The maximum amount that we will contribute to a channel open.  <b>Default: 10000000</b>",
                       range: "[0,10000000000000)",
                       integral: true,
                       units: "millisatoshis",
