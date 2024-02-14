@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ui/apps/backend ./apps/backend
 COPY ui/apps/frontend ./apps/frontend
 COPY ui/package.json ./
-COPY ui/package-lock.json ./
+#COPY ui/package-lock.json ./
 
 RUN npm install
 RUN npm run build
