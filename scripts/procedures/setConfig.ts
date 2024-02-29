@@ -346,6 +346,7 @@ autoclean-succeededpays-age=${config.autoclean["autoclean-succeededpays-age"]}
 autoclean-failedpays-age=${config.autoclean["autoclean-failedpays-age"]}
 autoclean-paidinvoices-age=${config.autoclean["autoclean-paidinvoices-age"]}
 autoclean-expiredinvoices-age=${config.autoclean["autoclean-expiredinvoices-age"]}
+bind-addr=ws::9736
 `;
 }
 const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
