@@ -302,6 +302,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableWatchtowerClientPlugin = config.watchtowers["wt-client"] === "enabled"
     ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
     : "";
+  const enableSplicing = config.advanced.experimental.splicing
+    ? "experimental-splicing"
+    : "";
 
   return `
 network=bitcoin
@@ -338,6 +341,7 @@ ${enableRestPlugin}
 ${enableCLNRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}
+${enableSplicing}
 
 autoclean-cycle=${config.autoclean["autoclean-cycle"]}
 autoclean-succeededforwards-age=${config.autoclean["autoclean-succeededforwards-age"]}
