@@ -334,7 +334,7 @@ ${enableExperimentalDualFund}
 experimental-onion-messages
 experimental-offers
 ${enableExperimentalShutdownWrongFunding}
-experimental-websocket-port=4269
+bind-addr=ws::4269
 ${enableRebalancePlugin}
 ${enableSummaryPlugin}
 ${enableRestPlugin}
