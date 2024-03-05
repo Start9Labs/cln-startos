@@ -596,6 +596,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             name: "Splicing",
             description: "Specifying this enables support for the splicing protocol (bolt #863), allowing both parties to dynamically adjust the size a channel. These changes can be built interactively using PSBT and combined with other channel actions including dual fund, additional channel splices, or generic transaction activity. The operations will be bundled into a single transaction. The channel will remain active while awaiting splice confirmation, however you can only spend the smaller of the prior channel balance and the new one.  <b>Default: False</b>",
             default: false,
+            required: false,
           },
         },
       },
