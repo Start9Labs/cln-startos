@@ -299,7 +299,7 @@ function configMaker(alias: Alias, config: SetConfig) {
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
-  const enableWatchtowerClientPlugin = config.watchtowers["wt-client"] === "enabled"
+  const enableWatchtowerClientPlugin = config.watchtowers["wt-client"].enabled === "enabled"
     ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
     : "";
   const enableSplicing = config.advanced.experimental.splicing
