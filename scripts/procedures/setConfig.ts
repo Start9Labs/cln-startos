@@ -283,11 +283,8 @@ function configMaker(alias: Alias, config: SetConfig) {
   ]
     ? "experimental-shutdown-wrong-funding"
     : "";
-  const enableRebalancePlugin = config.advanced.plugins.rebalance
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py"
-    : "";
-  const enableSummaryPlugin = config.advanced.plugins.summary
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
+  const enableSlingPlugin = config.advanced.plugins.sling
+    ? "plugin=//usr/local/libexec/c-lightning/plugins/sling/sling"
     : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
@@ -335,8 +332,7 @@ experimental-onion-messages
 experimental-offers
 ${enableExperimentalShutdownWrongFunding}
 bind-addr=ws::4269
-${enableRebalancePlugin}
-${enableSummaryPlugin}
+${enableSlingPlugin}
 ${enableRestPlugin}
 ${enableCLNRestPlugin}
 ${enableClbossPlugin}

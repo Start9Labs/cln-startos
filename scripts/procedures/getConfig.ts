@@ -606,19 +606,14 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         description:
           "Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside \nthe main Core Lightning container in order to communicate directly with it.\nTheir source is maintained separately from that of Core Lightning itself.",
         spec: {
-          rebalance: {
+          sling: {
             type: "boolean",
-            name: "Rebalance",
+            name: "Sling",
             description:
-              "Enables rebalancing, which moves liquidity between your channels using circular payments.  As of early 2024, this can only be done in the CLI.  <b>Default: False</b><br><b>Source:  https://github.com/lightningd/plugins/tree/master/rebalance</b>",
+              "Enables `sling`, A core lightning plugin to automatically rebalance multiple channels. This is a CLI-only tool.  <b>Default: False</b><br><b>Source:  https://github.com/daywalker90/sling</b>",
             default: false,
-          },
-          summary: {
-            type: "boolean",
-            name: "Summary",
-            description:
-              "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.  This is a CLI-only tool.  <b>Default: False</b><br><b>Source:  https://github.com/lightningd/plugins/tree/master/summary</b>",
-            default: false,
+            required: false,
+            nullable: true,
           },
           rest: {
             type: "boolean",
