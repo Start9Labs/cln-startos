@@ -249,25 +249,26 @@ actions:
       io-format: json
       mounts:
         main: /root/.lightning
-  # rescan-blockchain:
-  #   name: "Rescan Blockchain"
-  #   description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
-  #   allowed-statuses:
-  #     - running
-  #   implementation:
-  #     type: docker
-  #     image: main
-  #     system: false
-  #     entrypoint: rescan-blockchain.sh
-  #     args: []
-  #     io-format: json
-  #     mounts:
-  #       main: /root/.lightning
-  #   input-spec:
-  #     blockheight-or-depth:
-  #       type: string
-  #       name: Depth (or Blockheight if prefixed with a hyphen)
-  #       description: Depth expressed as a positive number or blockheight prefixed with a hyphen.
-  #       masked: false
-  #       placeholder: "-600000"
-  #       nullable: false
+  rescan-blockchain:
+    name: "Rescan Blockchain"
+    description: "Rescan the blockchain from a specified height or depth. If rescanning from a specific blockheight, enter a negative number i.e. '-600000' to rescan from block 600,000 to the tip. Alternatively, you can enter a positive number as the depth i.e. '10000' to rescan the last 10,000 blocks from the tip"
+    allowed-statuses:
+      - running
+      - stopped
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: rescan-blockchain.sh
+      args: []
+      io-format: json
+      mounts:
+        main: /root/.lightning
+    input-spec:
+      blockheight-or-depth:
+        type: string
+        name: Depth (or Blockheight if prefixed with a hyphen)
+        description: Depth expressed as a positive number or blockheight prefixed with a hyphen.
+        masked: false
+        placeholder: "-600000"
+        nullable: false

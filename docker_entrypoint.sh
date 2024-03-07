@@ -69,6 +69,12 @@ if [ $CLBOSS_ENABLED_VALUE = "enabled" ]; then
   fi
 fi
 
+if [ -e /root/.lightning/rescan.txt ]; then
+  RESCAN=" --rescan=$(cat /root/.lightning/rescan.txt)"
+  echo $RESCAN
+  rm /root/.lightning/rescan.txt
+fi
+
 mkdir -p /root/.lightning/shared
 mkdir -p /root/.lightning/public
 
@@ -111,7 +117,7 @@ else
 fi
 
 echo "Starting lightningd"
-lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL &
+lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL$RESCAN &
 lightningd_child=$!
 
 if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
