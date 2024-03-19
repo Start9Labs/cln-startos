@@ -10,7 +10,7 @@ echo "$BLOCKHEIGHT_OR_DEPTH" > /root/.lightning/rescan.txt
 action_result_running="    {
     \"version\": \"0\",
     \"message\": \"Core Lightning restarting and scanning blocks from the specified blockheight or depth\",
-    \"value\": "$RESPONSE",
+    \"value\": null,
     \"copyable\": false,
     \"qr\": false
 }"
