@@ -1,5 +1,5 @@
 id: c-lightning
-version: 24.02.0
+version: 24.02.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,7 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning to 24.02 - [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.02)
+  * Update lightning to 24.02 - [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.02.1)
   * Replace 'rebalance' plugin with 'sling'
   * Remove archived 'summary' plugin
 build: ["make"]

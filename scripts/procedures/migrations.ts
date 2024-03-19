@@ -309,7 +309,7 @@ export const migration: T.ExpectedExports.migration =
         },
       },
     },
-    "24.02",
+    "24.02.1",
   );
 
 function generateRandomString(length: number) {
