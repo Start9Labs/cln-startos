@@ -194,7 +194,7 @@ export APP_CORE_LIGHTNING_WEBSOCKET_PORT=4269
 export COMMANDO_CONFIG="/root/.lightning/.commando-env"
 export APP_CORE_LIGHTNING_PORT=4500
 export APP_MODE=production
-export APP_PROTOCOL="https"
+export APP_PROTOCOL="http"
 
 EXISTING_PUBKEY=""
 GETINFO_RESPONSE=""
