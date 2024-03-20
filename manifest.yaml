@@ -7,9 +7,12 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning to 24.02 - [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.02.1)
-  * Replace 'rebalance' plugin with 'sling'
-  * Remove archived 'summary' plugin
+  * Update lightning to 24.02.1 - [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.02.1)
+  * Add Experimental 'Splicing' config option
+  * Replace archived 'Rebalance' plugin with 'Sling'
+  * Remove archived 'Summary' plugin
+  * Fix WT-Client bug
+  * Add action to rescan the blockchain from a specified blockheight or depth
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
