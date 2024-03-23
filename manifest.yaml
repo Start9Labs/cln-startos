@@ -176,14 +176,14 @@ interfaces:
       - http
   websocket:
     name: Websocket
-    description: Websocket Lightning Network interface
+    description: Websocket endpoint for Clams Remote.
     tor-config:
       port-mapping:
-        9736: "9736"
+        7272: "7272"
     lan-config:
-      9736:
+      7272:
         ssl: true
-        internal: 9736
+        internal: 7272
     ui: false
     protocols:
       - tcp
