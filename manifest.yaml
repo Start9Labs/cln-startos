@@ -175,7 +175,7 @@ interfaces:
       - tcp
       - http
   websocket:
-    name: Websocket
+    name: Clams Websocket
     description: Websocket endpoint for Clams Remote.
     tor-config:
       port-mapping:
