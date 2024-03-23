@@ -292,6 +292,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
     ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
     : "";
+  const enableCLNWebsocket = config.advanced.clams_remote_websocket
+    ? "bind-addr=ws::7272\n"
+    : "";
   const enableClbossPlugin =
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
@@ -311,6 +314,7 @@ bitcoin-rpcconnect=${bitcoin_rpc_host}
 bitcoin-rpcport=${bitcoin_rpc_port}
 
 bind-addr=0.0.0.0:9735
+${enableCLNWebsocket}
 announce-addr=${config["peer-tor-address"]}:9735
 proxy={proxy}
 always-use-proxy=${config.advanced["tor-only"]}
@@ -346,7 +350,6 @@ autoclean-succeededpays-age=${config.autoclean["autoclean-succeededpays-age"]}
 autoclean-failedpays-age=${config.autoclean["autoclean-failedpays-age"]}
 autoclean-paidinvoices-age=${config.autoclean["autoclean-paidinvoices-age"]}
 autoclean-expiredinvoices-age=${config.autoclean["autoclean-expiredinvoices-age"]}
-bind-addr=ws::9736
 `;
 }
 const validURI = /^([a-fA-F0-9]{66}@)([^:]+?)(:\d{1,5})?$/m;
