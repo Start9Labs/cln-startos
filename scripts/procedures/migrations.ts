@@ -296,8 +296,30 @@ export const migration: T.ExpectedExports.migration =
           { version: "23.11.2.1", type: "down" }
         ),
       },
+      "24.02.1": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (matches.shape({
+              advanced: matches.shape({experimental: matches.any})
+            }).test(config)) {
+              config.advanced.experimental.splicing = false;
+            }
+            if (matches.shape({
+              advanced: matches.shape({plugins: matches.any})
+            }).test(config)) {
+              config.advanced.plugins.sling = false
+            }
+            return config;
+          },
+          true,
+          { version: "24.02.1", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
     },
-    "23.11.2.1",
+    "24.02.1",
   );
 
 function generateRandomString(length: number) {

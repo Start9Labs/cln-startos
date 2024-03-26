@@ -119,6 +119,11 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
 RUN rustup toolchain install beta
 
+# sling
+ADD ./plugins/sling /tmp/rust-sling
+WORKDIR /tmp/rust-sling
+RUN cargo build --release
+
 # build rust-teos
 COPY ./rust-teos /tmp/rust-teos
 WORKDIR /tmp/rust-teos
@@ -195,16 +200,6 @@ RUN pip3 install -U pip
 RUN pip3 install wheel
 RUN pip3 install -U pyln-proto pyln-bolt7
 
-# rebalance
-ADD ./plugins/rebalance /usr/local/libexec/c-lightning/plugins/rebalance
-RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/rebalance/requirements.txt
-RUN chmod a+x /usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py
-
-# summary
-ADD ./plugins/summary /usr/local/libexec/c-lightning/plugins/summary
-RUN pip3 install -r /usr/local/libexec/c-lightning/plugins/summary/requirements.txt
-RUN chmod a+x /usr/local/libexec/c-lightning/plugins/summary/summary.py
-
 # c-lightning-REST
 ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
@@ -217,6 +212,10 @@ ARG ARCH
 COPY --from=builder /root/.cargo/bin/teosd /usr/local/bin/teosd
 COPY --from=builder /root/.cargo/bin/teos-cli /usr/local/bin/teos-cli
 COPY --from=builder /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/watchtower-client
+
+# sling
+COPY --from=builder /tmp/rust-sling/target/release /usr/local/libexec/c-lightning/plugins/sling
+RUN chmod a+x /usr/local/libexec/c-lightning/plugins/sling
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
