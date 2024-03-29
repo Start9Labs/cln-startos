@@ -283,11 +283,8 @@ function configMaker(alias: Alias, config: SetConfig) {
   ]
     ? "experimental-shutdown-wrong-funding"
     : "";
-  const enableRebalancePlugin = config.advanced.plugins.rebalance
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/rebalance/rebalance.py"
-    : "";
-  const enableSummaryPlugin = config.advanced.plugins.summary
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/summary/summary.py"
+  const enableSlingPlugin = config.advanced.plugins.sling
+    ? "plugin=//usr/local/libexec/c-lightning/plugins/sling/sling"
     : "";
   const enableRestPlugin = config.advanced.plugins.rest
     ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
@@ -299,8 +296,11 @@ function configMaker(alias: Alias, config: SetConfig) {
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
       : "";
-  const enableWatchtowerClientPlugin = config.watchtowers["wt-client"]
+  const enableWatchtowerClientPlugin = config.watchtowers["wt-client"].enabled === "enabled"
     ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
+    : "";
+  const enableSplicing = config.advanced.experimental.splicing
+    ? "experimental-splicing"
     : "";
 
   return `
@@ -331,13 +331,13 @@ ${enableExperimentalDualFund}
 experimental-onion-messages
 experimental-offers
 ${enableExperimentalShutdownWrongFunding}
-experimental-websocket-port=4269
-${enableRebalancePlugin}
-${enableSummaryPlugin}
+bind-addr=ws::4269
+${enableSlingPlugin}
 ${enableRestPlugin}
 ${enableCLNRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}
+${enableSplicing}
 
 autoclean-cycle=${config.autoclean["autoclean-cycle"]}
 autoclean-succeededforwards-age=${config.autoclean["autoclean-succeededforwards-age"]}

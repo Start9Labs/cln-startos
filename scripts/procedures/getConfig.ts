@@ -591,6 +591,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             description: "Allow channel shutdown with alternate txids.  If a remote node has opened a channel, but claims it used the incorrect txid (and the channel hasn't yet been used) this allows them to negotiate a clean shutdown with the txid they offer.  <b>Default: False</b>",
             default: false,
           },
+          "splicing": {
+            type: "boolean",
+            name: "Splicing",
+            description: "Enables support for the splicing protocol (bolt #863), allowing both parties to dynamically adjust the size a channel. These changes can be built interactively using PSBT and combined with other channel actions including dual fund, additional channel splices, or generic transaction activity. The operations will be bundled into a single transaction. The channel will remain active while awaiting splice confirmation, however you can only spend the smaller of the prior channel balance and the new one.  <b>Default: Disabled</b>",
+            default: false,
+            required: false,
+          },
         },
       },
       plugins: {
@@ -599,19 +606,14 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         description:
           "Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside \nthe main Core Lightning container in order to communicate directly with it.\nTheir source is maintained separately from that of Core Lightning itself.",
         spec: {
-          rebalance: {
+          sling: {
             type: "boolean",
-            name: "Rebalance",
+            name: "Sling",
             description:
-              "Enables rebalancing, which moves liquidity between your channels using circular payments.  As of early 2024, this can only be done in the CLI.  <b>Default: False</b><br><b>Source:  https://github.com/lightningd/plugins/tree/master/rebalance</b>",
+              "Automatically rebalance multiple channels. This is a CLI-only tool.  <b>Default: Disabled</b><br><b>Source:  https://github.com/daywalker90/sling</b>",
             default: false,
-          },
-          summary: {
-            type: "boolean",
-            name: "Summary",
-            description:
-              "Enables the `summary` rpc command, which outputs a text summary of your node, including fiat amounts.  This is a CLI-only tool.  <b>Default: False</b><br><b>Source:  https://github.com/lightningd/plugins/tree/master/summary</b>",
-            default: false,
+            required: false,
+            nullable: true,
           },
           rest: {
             type: "boolean",
