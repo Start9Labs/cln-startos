@@ -265,7 +265,7 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
       "clams_remote_websocket": {
         type: "boolean",
         name: "Clams Remote",
-        description: "Enable Core Lightning's websocket interface for Clams Remote.",
+        description: "Accept incoming connections on port 7272, allowing Clams Remote to connect to Core Lightning.",
         default: false,
       },
       "fee-base": {
