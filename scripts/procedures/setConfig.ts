@@ -292,7 +292,7 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
     ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
     : "";
-  const enableCLNWebsocket = config.advanced.clams_remote_websocket
+  const enableClamsRemoteWebsocket = config.advanced.clams_remote_websocket
     ? "bind-addr=ws::7272\n"
     : "";
   const enableClbossPlugin =
@@ -314,7 +314,7 @@ bitcoin-rpcconnect=${bitcoin_rpc_host}
 bitcoin-rpcport=${bitcoin_rpc_port}
 
 bind-addr=0.0.0.0:9735
-${enableCLNWebsocket}
+${enableClamsRemoteWebsocket}
 announce-addr=${config["peer-tor-address"]}:9735
 proxy={proxy}
 always-use-proxy=${config.advanced["tor-only"]}
