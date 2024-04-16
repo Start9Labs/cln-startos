@@ -292,7 +292,7 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
     ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
     : "";
-  const enableClamsRemoteWebsocket = config.advanced.clams_remote_websocket
+  const enableClamsRemoteWebsocket = config.advanced["clams-remote-websocket"]
     ? "bind-addr=ws::7272\n"
     : "";
   const enableClbossPlugin =

@@ -261,8 +261,9 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         name: "Tor Only",
         description: "Only use tor connections.  This increases privacy, at the cost of some performance and reliability.  <b>Default: False</b>",
         default: false,
+        
       },
-      "clams_remote_websocket": {
+      "clams-remote-websocket": {
         type: "boolean",
         name: "Clams Remote",
         description: "Accept incoming connections on port 7272, allowing Clams Remote to connect to Core Lightning.",

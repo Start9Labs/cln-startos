@@ -147,26 +147,6 @@ export const properties: T.ExpectedExports.properties = async (
       volumeId: "main",
     })
   );
-  const websocketProperties: T.PackagePropertiesV2 = !config.advanced.clams_remote_websocket
-    ? {}
-    : {
-      "Clams Remote Websocket Onion": {
-        type: "string",
-        value: `${clamsRemoteWebsocketTorAddress}`,
-        description: "The onion endpoint for your CLN websocket service for use with Clams Remote.",
-        copyable: true,
-        qr: false,
-        masked: true,
-      },
-      "Clams Remote Websocket Port": {
-        type: "string",
-        value: "7272",
-        description: "The service endpoint for your CLN websocket service for use with Clams Remote.",
-        copyable: true,
-        qr: false,
-        masked: false,
-      }
-    };
 
   const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
     ? {}
@@ -373,7 +353,8 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      "Clams Remote Websocket URI": {
+      ...(config.advanced["clams-remote-websocket"]
+      ? {"Clams Remote Websocket URI": {
         type: "string",
         value: `${nodeInfo.id}@${clamsRemoteWebsocketTorAddress}:7272`,
         description:
@@ -381,7 +362,9 @@ export const properties: T.ExpectedExports.properties = async (
         copyable: true,
         qr: true,
         masked: true,
-      },
+        }
+      }
+      : {}),
       "UI Password": {
         type: "string",
         value: config["ui-password"],
