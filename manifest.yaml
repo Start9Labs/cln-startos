@@ -174,6 +174,21 @@ interfaces:
     protocols:
       - tcp
       - http
+  websocket:
+    name: Clams Websocket
+    description: Websocket endpoint for Clams Remote.
+    tor-config:
+      port-mapping:
+        7272: "7272"
+    lan-config:
+      7272:
+        ssl: true
+        internal: 7272
+    ui: false
+    protocols:
+      - tcp
+      - http
+      - ws
 dependencies:
   bitcoind:
     version: ">=0.21.1.2 <27.0.0"
