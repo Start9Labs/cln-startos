@@ -1,5 +1,5 @@
 id: c-lightning
-version: 24.02.1
+version: 24.02.2
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,12 +7,8 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning to 24.02.1 - [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.02.1)
-  * Add Experimental 'Splicing' config option
-  * Replace archived 'Rebalance' plugin with 'Sling'
-  * Remove archived 'Summary' plugin
-  * Fix WT-Client bug
-  * Add action to rescan the blockchain from a specified blockheight or depth
+  * Update lightning to 24.02.2 - [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.02.2)
+  * Bump Bitcoin dependency version
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -174,24 +170,24 @@ interfaces:
     protocols:
       - tcp
       - http
-  websocket:
-    name: Clams Websocket
-    description: Websocket endpoint for Clams Remote.
-    tor-config:
-      port-mapping:
-        7272: "7272"
-    lan-config:
-      7272:
-        ssl: true
-        internal: 7272
-    ui: false
-    protocols:
-      - tcp
-      - http
-      - ws
+  # websocket:
+  #   name: Clams Websocket
+  #   description: Websocket endpoint for Clams Remote.
+  #   tor-config:
+  #     port-mapping:
+  #       7272: "7272"
+  #   lan-config:
+  #     7272:
+  #       ssl: true
+  #       internal: 7272
+  #   ui: false
+  #   protocols:
+  #     - tcp
+  #     - http
+  #     - ws
 dependencies:
   bitcoind:
-    version: ">=0.21.1.2 <27.0.0"
+    version: ">=0.21.1.2 <29.0.0"
     requirement:
       type: required
     description: Used as a blockchain backend.
