@@ -292,9 +292,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
     ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
     : "";
-  const enableClamsRemoteWebsocket = config.advanced["clams-remote-websocket"]
-    ? "bind-addr=ws::7272\n"
-    : "";
+  // const enableClamsRemoteWebsocket = config.advanced["clams-remote-websocket"]
+  //   ? "bind-addr=ws::7272\n"
+  //   : "";
   const enableClbossPlugin =
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
@@ -314,7 +314,6 @@ bitcoin-rpcconnect=${bitcoin_rpc_host}
 bitcoin-rpcport=${bitcoin_rpc_port}
 
 bind-addr=0.0.0.0:9735
-${enableClamsRemoteWebsocket}
 announce-addr=${config["peer-tor-address"]}:9735
 proxy={proxy}
 always-use-proxy=${config.advanced["tor-only"]}

@@ -46,15 +46,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "clnrest",
   },
-  "clams-websocket-tor-address": {
-    name: "Websocket Tor Address",
-    description: "The Tor address of the CLN websocket service.",
-    type: "pointer",
-    subtype: "package",
-    "package-id": "c-lightning",
-    target: "tor-address",
-    interface: "websocket",
-  },
+  // "clams-websocket-tor-address": {
+  //   name: "Websocket Tor Address",
+  //   description: "The Tor address of the CLN websocket service.",
+  //   type: "pointer",
+  //   subtype: "package",
+  //   "package-id": "c-lightning",
+  //   target: "tor-address",
+  //   interface: "websocket",
+  // },
   "watchtower-tor-address": {
     name: "TEoS Watchtower API Address",
     description: "The Tor address of the TEoS Watchtower API",
@@ -263,12 +263,12 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
         default: false,
         
       },
-      "clams-remote-websocket": {
-        type: "boolean",
-        name: "Clams Remote",
-        description: "Accept incoming connections on port 7272, allowing Clams Remote to connect to Core Lightning.",
-        default: false,
-      },
+      // "clams-remote-websocket": {
+      //   type: "boolean",
+      //   name: "Clams Remote",
+      //   description: "Accept incoming connections on port 7272, allowing Clams Remote to connect to Core Lightning.",
+      //   default: false,
+      // },
       "fee-base": {
         type: "number",
         name: "Routing Base Fee",

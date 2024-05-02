@@ -318,32 +318,6 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
-      "24.02.2": {
-        up: compat.migrations.updateConfig(
-          (config) => {
-            if (matches.shape({
-              advanced: matches.any
-            }).test(config)) {
-              config.advanced["clams-remote-websocket"] = false;
-            }
-            return config;
-          },
-          true,
-          { version: "24.02.2", type: "up"},
-        ),
-        down: compat.migrations.updateConfig(
-          (config) => {
-            if (matches.shape({
-              advanced: matches.shape({"clams-remote-websocket": matches.any})
-            }).test(config)) {
-              delete config.advanced["clams-remote-websocket"];
-            }
-            return config;
-          },
-          true,
-          { version: "24.02.2", type: "down" }
-        )
-      },
     },
     "24.02.2",
   );

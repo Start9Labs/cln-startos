@@ -86,14 +86,14 @@ export const properties: T.ExpectedExports.properties = async (
   ) {
     return noPropertiesFound;
   }
-  if (
-    (await util.exists(effects, {
-      volumeId: "main",
-      path: "start9/clamsRemoteWebsocketTorAddress",
-    })) === false
-  ) {
-    return noPropertiesFound;
-  }
+  // if (
+  //   (await util.exists(effects, {
+  //     volumeId: "main",
+  //     path: "start9/clamsRemoteWebsocketTorAddress",
+  //   })) === false
+  // ) {
+  //   return noPropertiesFound;
+  // }
   if (
     (await util.exists(effects, {
       volumeId: "main",
@@ -121,12 +121,12 @@ export const properties: T.ExpectedExports.properties = async (
       path: "start9/restTorAddress",
     })
     .then((x) => x.trim());
-  const clamsRemoteWebsocketTorAddress = await effects
-    .readFile({
-      volumeId: "main",
-      path: "start9/clamsRemoteWebsocketTorAddress",
-    })
-    .then((x) => x.trim());
+  // const clamsRemoteWebsocketTorAddress = await effects
+  //   .readFile({
+  //     volumeId: "main",
+  //     path: "start9/clamsRemoteWebsocketTorAddress",
+  //   })
+  //   .then((x) => x.trim());
   const watchtowerTorAddress = await effects
     .readFile({
       volumeId: "main",
@@ -353,18 +353,18 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
-      ...(config.advanced["clams-remote-websocket"]
-      ? {"Clams Remote Websocket URI": {
-        type: "string",
-        value: `${nodeInfo.id}@${clamsRemoteWebsocketTorAddress}:7272`,
-        description:
-          "The URI needed by Clams Remote to connect to Core Lightning's websocket interface.",
-        copyable: true,
-        qr: true,
-        masked: true,
-        }
-      }
-      : {}),
+      // ...(config.advanced["clams-remote-websocket"]
+      // ? {"Clams Remote Websocket URI": {
+      //   type: "string",
+      //   value: `${nodeInfo.id}@${clamsRemoteWebsocketTorAddress}:7272`,
+      //   description:
+      //     "The URI needed by Clams Remote to connect to Core Lightning's websocket interface.",
+      //   copyable: true,
+      //   qr: true,
+      //   masked: true,
+      //   }
+      // }
+      // : {}),
       "UI Password": {
         type: "string",
         value: config["ui-password"],
