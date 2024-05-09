@@ -25,7 +25,7 @@ export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.
 export UI_TOR_ADDRESS=$(yq e '.web-ui-tor-address' /root/.lightning/start9/config.yaml)
 export UI_LAN_ADDRESS=$(echo "$UI_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
-# export CLAMS_WEBSOCKET_TOR_ADDRESS=$(yq e '.clams-websocket-tor-address' /root/.lightning/start9/config.yaml)
+export CLAMS_WEBSOCKET_TOR_ADDRESS=$(yq e '.clams-websocket-tor-address' /root/.lightning/start9/config.yaml)
 export WATCHTOWER_TOR_ADDRESS=$(yq e '.watchtower-tor-address' /root/.lightning/start9/config.yaml)
 export TOWERS_DATA_DIR=/root/.lightning/.watchtower
 export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
@@ -82,7 +82,7 @@ mkdir -p /root/.lightning/public
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
-# echo $CLAMS_WEBSOCKET_TOR_ADDRESS > /root/.lightning/start9/clamsRemoteWebsocketTorAddress
+echo $CLAMS_WEBSOCKET_TOR_ADDRESS > /root/.lightning/start9/clamsRemoteWebsocketTorAddress
 echo $WATCHTOWER_TOR_ADDRESS > /root/.lightning/start9/watchtowerTorAddress
 
 sh /root/.lightning/start9/waitForStart.sh

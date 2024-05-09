@@ -1,5 +1,5 @@
 id: c-lightning
-version: 24.02.2
+version: 24.02.2.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,8 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning to 24.02.2 - [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.02.2)
-  * Bump Bitcoin dependency version
+  * Add Clams Remote Config and Interface
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -170,21 +169,21 @@ interfaces:
     protocols:
       - tcp
       - http
-  # websocket:
-  #   name: Clams Websocket
-  #   description: Websocket endpoint for Clams Remote.
-  #   tor-config:
-  #     port-mapping:
-  #       7272: "7272"
-  #   lan-config:
-  #     7272:
-  #       ssl: true
-  #       internal: 7272
-  #   ui: false
-  #   protocols:
-  #     - tcp
-  #     - http
-  #     - ws
+  websocket:
+    name: Clams Websocket
+    description: Websocket endpoint for Clams Remote.
+    tor-config:
+      port-mapping:
+        7272: "7272"
+    lan-config:
+      7272:
+        ssl: true
+        internal: 7272
+    ui: false
+    protocols:
+      - tcp
+      - http
+      - ws
 dependencies:
   bitcoind:
     version: ">=0.21.1.2 <29.0.0"
