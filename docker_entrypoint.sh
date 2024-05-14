@@ -280,14 +280,11 @@ generate_new_rune() {
 
     RUNE=$(echo "$RUNE_RESPONSE" | jq -r '.result.rune')
     UNIQUE_ID=$(echo "$RUNE_RESPONSE" | jq -r '.result.unique_id')
-    echo "RUNE_RESPONSE"
-    echo "$RUNE_RESPONSE"
-    echo "RUNE"
-    echo "$RUNE"
 
     if [ "$RUNE" != "" ] && [ "$RUNE" != "null" ]; then
       # Save rune in env file
       echo "LIGHTNING_RUNE=\"$RUNE\"" >> "$RUNE_FILE"
+      echo "Rune ending with ${RUNE: -4} saved to env file"
     fi
 
     if [ "$UNIQUE_ID" != "" ] &&  [ "$UNIQUE_ID" != "null" ]; then
@@ -308,10 +305,8 @@ fi
 if [ -f "$COMMANDO_CONFIG" ]; then
   EXISTING_PUBKEY=$(head -n1 "$COMMANDO_CONFIG")
   EXISTING_RUNE=$(sed -n "2p" "$COMMANDO_CONFIG")
-  echo "EXISTING_PUBKEY"
-  echo "$EXISTING_PUBKEY"
-  echo "EXISTING_RUNE"
-  echo "$EXISTING_RUNE"
+  echo "Found existing Pubkey in commando config: $EXISTING_PUBKEY"
+  echo "Found existing Rune ending with: ${EXISTING_RUNE: -4} in commando config"
 fi
 
 # Getinfo from CLN
