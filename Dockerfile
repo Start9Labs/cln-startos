@@ -133,9 +133,11 @@ RUN cargo install --locked --path watchtower-plugin
 WORKDIR /opt/lightningd
 COPY lightning/. /tmp/lightning-wrapper/lightning
 COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
+
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
 
+ENV PYTHON_VERSION=3
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
@@ -165,6 +167,9 @@ COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 # lightningd
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
+COPY --from=builder /opt/lightningd/plugins/clnrest /usr/local/lib/python3.9/dist-packages/
+COPY --from=builder /opt/lightningd/contrib/pyln-client /usr/local/lib/python3.9/dist-packages/
+COPY --from=builder /opt/lightningd/contrib/pyln-testing /usr/local/lib/python3.9/dist-packages/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
