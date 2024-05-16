@@ -25,7 +25,7 @@ export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.
 export UI_TOR_ADDRESS=$(yq e '.web-ui-tor-address' /root/.lightning/start9/config.yaml)
 export UI_LAN_ADDRESS=$(echo "$UI_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
-# export CLAMS_WEBSOCKET_TOR_ADDRESS=$(yq e '.clams-websocket-tor-address' /root/.lightning/start9/config.yaml)
+export CLAMS_WEBSOCKET_TOR_ADDRESS=$(yq e '.clams-websocket-tor-address' /root/.lightning/start9/config.yaml)
 export WATCHTOWER_TOR_ADDRESS=$(yq e '.watchtower-tor-address' /root/.lightning/start9/config.yaml)
 export TOWERS_DATA_DIR=/root/.lightning/.watchtower
 export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
@@ -82,7 +82,7 @@ mkdir -p /root/.lightning/public
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
-# echo $CLAMS_WEBSOCKET_TOR_ADDRESS > /root/.lightning/start9/clamsRemoteWebsocketTorAddress
+echo $CLAMS_WEBSOCKET_TOR_ADDRESS > /root/.lightning/start9/clamsRemoteWebsocketTorAddress
 echo $WATCHTOWER_TOR_ADDRESS > /root/.lightning/start9/watchtowerTorAddress
 
 sh /root/.lightning/start9/waitForStart.sh
@@ -280,14 +280,12 @@ generate_new_rune() {
 
     RUNE=$(echo "$RUNE_RESPONSE" | jq -r '.result.rune')
     UNIQUE_ID=$(echo "$RUNE_RESPONSE" | jq -r '.result.unique_id')
-    echo "RUNE_RESPONSE"
-    echo "$RUNE_RESPONSE"
-    echo "RUNE"
-    echo "$RUNE"
 
     if [ "$RUNE" != "" ] && [ "$RUNE" != "null" ]; then
       # Save rune in env file
       echo "LIGHTNING_RUNE=\"$RUNE\"" >> "$RUNE_FILE"
+      LAST_FOUR=$(echo "$RUNE" | rev | cut -c 1-4 | rev)
+      echo "Rune ending with ${LAST_FOUR} saved to env file"
     fi
 
     if [ "$UNIQUE_ID" != "" ] &&  [ "$UNIQUE_ID" != "null" ]; then
@@ -308,10 +306,9 @@ fi
 if [ -f "$COMMANDO_CONFIG" ]; then
   EXISTING_PUBKEY=$(head -n1 "$COMMANDO_CONFIG")
   EXISTING_RUNE=$(sed -n "2p" "$COMMANDO_CONFIG")
-  echo "EXISTING_PUBKEY"
-  echo "$EXISTING_PUBKEY"
-  echo "EXISTING_RUNE"
-  echo "$EXISTING_RUNE"
+  LAST_FOUR=$(echo "$EXISTING_RUNE" | rev | cut -c 2-5 | rev)
+  echo "Found existing Pubkey in commando config: $EXISTING_PUBKEY"
+  echo "Found existing Rune ending with: ${LAST_FOUR} in commando config"
 fi
 
 # Getinfo from CLN

@@ -292,9 +292,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
     ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
     : "";
-  // const enableClamsRemoteWebsocket = config.advanced["clams-remote-websocket"]
-  //   ? "bind-addr=ws::7272\n"
-  //   : "";
+  const enableClamsRemoteWebsocket = config.advanced["clams-remote-websocket"]
+    ? "bind-addr=ws::7272\n"
+    : "";
   const enableClbossPlugin =
     config.advanced.plugins.clboss.enabled === "enabled"
       ? "plugin=/usr/local/libexec/c-lightning/plugins/clboss"
@@ -335,6 +335,7 @@ experimental-onion-messages
 experimental-offers
 ${enableExperimentalShutdownWrongFunding}
 bind-addr=ws::4269
+${enableClamsRemoteWebsocket}
 ${enableSlingPlugin}
 ${enableRestPlugin}
 ${enableCLNRestPlugin}
