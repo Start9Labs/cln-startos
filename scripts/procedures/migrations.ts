@@ -345,7 +345,7 @@ export const migration: T.ExpectedExports.migration =
         )
       },
     },
-    "24.02.2.1",
+    "24.05.0",
   );
 
 function generateRandomString(length: number) {
