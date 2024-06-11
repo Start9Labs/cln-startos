@@ -80,6 +80,7 @@ RUN apt-get update -qq && \
         gettext \
         git \
         gnupg \
+        jq \
         libpq-dev \
         libtool \
         libffi-dev \
@@ -95,7 +96,9 @@ RUN apt-get update -qq && \
         libev-dev \
         libevent-dev \
         qemu-user-static \
-        wget
+        wget \
+        unzip \
+        tclsh
 
 # CLN
 RUN wget -q https://zlib.net/fossils/zlib-1.2.13.tar.gz \
