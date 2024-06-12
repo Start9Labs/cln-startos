@@ -55,6 +55,15 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "websocket",
   },
+  "grpc-tor-address": {
+    name: "gRPC Tor Address",
+    description: "The Tor address of the CLN gRPC interface.",
+    type: "pointer",
+    subtype: "package",
+    "package-id": "c-lightning",
+    target: "tor-address",
+    interface: "grpc",
+  },
   "watchtower-tor-address": {
     name: "TEoS Watchtower API Address",
     description: "The Tor address of the TEoS Watchtower API",

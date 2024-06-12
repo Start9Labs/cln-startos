@@ -8,6 +8,9 @@ support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update to CLN 24.05.0 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.05)
+  * Update cln-application UI to v0.0.5
+  * Update plugins
+  * Expose gRPC interface
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -184,6 +187,21 @@ interfaces:
       - tcp
       - http
       - ws
+  grpc:
+    name: gRPC
+    description: gRPC is a Rust-based plugin that provides a standardized API that apps, plugins, and other tools could use to interact with Core Lightning securely.
+    tor-config:
+      port-mapping:
+        2106: "2106"
+    lan-config:
+      2106:
+        ssl: true
+        internal: 2106
+    ui: false
+    protocols:
+      - tcp
+      - http
+      - grpc
 dependencies:
   bitcoind:
     version: ">=0.21.1.2 <29.0.0"

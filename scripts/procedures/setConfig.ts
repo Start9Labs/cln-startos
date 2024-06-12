@@ -335,6 +335,7 @@ experimental-onion-messages
 experimental-offers
 ${enableExperimentalShutdownWrongFunding}
 bind-addr=ws::4269
+grpc-port=2106
 ${enableClamsRemoteWebsocket}
 ${enableSlingPlugin}
 ${enableRestPlugin}

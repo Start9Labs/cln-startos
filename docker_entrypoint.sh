@@ -197,6 +197,9 @@ export COMMANDO_CONFIG="/root/.lightning/.commando-env"
 export APP_CORE_LIGHTNING_PORT=4500
 export APP_MODE=production
 export APP_PROTOCOL="http"
+export CORE_LIGHTNING_PATH="/root/.lightning"
+export APP_CORE_LIGHTNING_BITCOIN_NETWORK="bitcoin"
+export APP_CORE_LIGHTNING_DAEMON_GRPC_PORT=2106
 
 EXISTING_PUBKEY=""
 GETINFO_RESPONSE=""
