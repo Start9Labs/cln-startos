@@ -1,5 +1,13 @@
 FROM node:18-bullseye as ui
 
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-dev
+    
 WORKDIR /app
 
 COPY ui/apps/backend ./apps/backend
@@ -80,6 +88,7 @@ RUN apt-get update -qq && \
         gettext \
         git \
         gnupg \
+        jq \
         libpq-dev \
         libtool \
         libffi-dev \
@@ -95,7 +104,9 @@ RUN apt-get update -qq && \
         libev-dev \
         libevent-dev \
         qemu-user-static \
-        wget
+        wget \
+        unzip \
+        tclsh
 
 # CLN
 RUN wget -q https://zlib.net/fossils/zlib-1.2.13.tar.gz \
@@ -147,12 +158,45 @@ RUN pip3 wheel cryptography
 RUN pip3 install grpcio-tools
 
 
-RUN /root/.local/bin/poetry export -o requirements.txt --without-hashes --with dev
-RUN pip3 install -r requirements.txt
+RUN sed -i '/^clnrest\|^wss-proxy/d' pyproject.toml && \
+    /root/.local/bin/poetry export -o requirements.txt --without-hashes
+RUN pip3 install -r requirements.txt && pip3 cache purge
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
     make && \
     /root/.local/bin/poetry run make install
+
+# We need to build python plugins on the target's arch because python doesn't support cross build
+FROM debian:bullseye-slim as builder-python
+RUN apt-get update -qq && \
+    apt-get install -qq -y --no-install-recommends \
+        git \
+        curl \
+        libtool \
+        pkg-config \
+        autoconf \
+        automake \
+        build-essential \
+        libffi-dev \
+        libssl-dev \
+        python3.9 \
+        python3-dev \
+        python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
+ENV PATH=$PATH:/root/.cargo/bin/
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN rustup toolchain install stable --component rustfmt --allow-downgrade
+
+WORKDIR /opt/lightningd
+COPY lightning/plugins/clnrest/requirements.txt plugins/clnrest/requirements.txt
+COPY lightning/plugins/wss-proxy/requirements.txt plugins/wss-proxy/requirements.txt
+ENV PYTHON_VERSION=3
+RUN pip3 install -r plugins/clnrest/requirements.txt && \
+    pip3 install -r plugins/wss-proxy/requirements.txt && \
+    pip3 cache purge
 
 FROM node:18-bullseye-slim as final
 
@@ -167,9 +211,7 @@ COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 # lightningd
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
-COPY --from=builder /opt/lightningd/plugins/clnrest /usr/local/lib/python3.9/dist-packages/
-COPY --from=builder /opt/lightningd/contrib/pyln-client /usr/local/lib/python3.9/dist-packages/
-COPY --from=builder /opt/lightningd/contrib/pyln-testing /usr/local/lib/python3.9/dist-packages/
+COPY --from=builder-python /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

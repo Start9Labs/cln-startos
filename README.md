@@ -10,7 +10,7 @@ implementation of the [Lightning Network](https://lightning.network/) protocol.
 - [docker](https://docs.docker.com/get-docker)
 - [docker-buildx](https://docs.docker.com/buildx/working-with-buildx/)
 - [yq](https://mikefarah.gitbook.io/yq)
-- [start-sdk](https://github.com/Start9Labs/start-os/tree/sdk/backend)
+- [start-sdk](https://github.com/Start9Labs/start-os/blob/v0.3.5.1/core/install-sdk.sh)
 - [make](https://www.gnu.org/software/make/)
 - [deno](https://deno.land/)
 - [md-packer](https://github.com/Start9Labs/md-packer)
