@@ -162,6 +162,10 @@ RUN sed -i '/^clnrest\|^wss-proxy/d' pyproject.toml && \
     /root/.local/bin/poetry export -o requirements.txt --without-hashes
 RUN pip3 install -r requirements.txt && pip3 cache purge
 
+# Ensure that the desired grpcio-tools & protobuf versions are installed
+# https://github.com/ElementsProject/lightning/pull/7376#issuecomment-2161102381
+RUN poetry lock --no-update && poetry install
+
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
     make && \
     /root/.local/bin/poetry run make install
