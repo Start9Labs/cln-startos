@@ -152,7 +152,11 @@ export const properties: T.ExpectedExports.properties = async (
       volumeId: "main",
       path: "public/clnrest_rune",
     })
-    .then((x) => x.trim());
+    .then((x) => {
+      const trimmed = x.trim();
+      const rune = trimmed.split("=")[1].replace(/"/g, "");
+      return rune;
+    });
   const config = setConfigMatcher.unsafeCast(
     YAML.parse(
       await effects.readFile({
@@ -398,12 +402,9 @@ export const properties: T.ExpectedExports.properties = async (
       },
       ...(config.advanced.plugins.clnrest
         ? {
-            // clnrest://<protocol>://<host>:<port>?rune=<rune>
             "CLNRest Tor URL": {
               type: "string",
-              value: `clnrest://http://${clnRestTorAddress}:3010?rune=${
-                clnRestRune.match(/LIGHTNING_RUNE="(.+?)"/)?.[0]
-              }`,
+              value: `clnrest://http://${clnRestTorAddress}:3010?rune=${clnRestRune}`,
               description:
                 "URI to connect a wallet to Core Lightning's CLNRest interface remotely via Tor",
               copyable: true,
@@ -415,7 +416,7 @@ export const properties: T.ExpectedExports.properties = async (
               value: `clnrest://https://${clnRestTorAddress.replace(
                 ".onion",
                 ".local"
-              )}:3010?rune=${clnRestRune.match(/LIGHTNING_RUNE="(.+?)"/)?.[0]}`,
+              )}:3010?rune=${clnRestRune}`,
               description:
                 "URI to connect a wallet to Core Lightning's CLNRest interface locally",
               copyable: true,
