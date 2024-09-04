@@ -154,7 +154,7 @@ export const properties: T.ExpectedExports.properties = async (
     })
     .then((x) => {
       const trimmed = x.trim();
-      const rune = trimmed.split("/=(.+)/")[1].replace(/"/g, "");
+      const rune = trimmed.split(/=(.+)/)[1].replace(/"/g, "");
       return rune;
     });
   const config = setConfigMatcher.unsafeCast(
