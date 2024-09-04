@@ -404,21 +404,9 @@ export const properties: T.ExpectedExports.properties = async (
         ? {
             "CLNRest Tor URL": {
               type: "string",
-              value: `clnrest://http://${nodeInfo.id}@${clnRestTorAddress}:3010?rune=${clnRestRune}`,
+              value: `clnrest://${nodeInfo.id}@${clnRestTorAddress}:3010?rune=${clnRestRune}`,
               description:
                 "URI to connect a wallet to Core Lightning's CLNRest interface remotely via Tor",
-              copyable: true,
-              qr: true,
-              masked: true,
-            },
-            "CLNRest Local URL": {
-              type: "string",
-              value: `clnrest://https://${nodeInfo.id}@${clnRestTorAddress.replace(
-                ".onion",
-                ".local"
-              )}:3010?rune=${clnRestRune}`,
-              description:
-                "URI to connect a wallet to Core Lightning's CLNRest interface locally",
               copyable: true,
               qr: true,
               masked: true,
