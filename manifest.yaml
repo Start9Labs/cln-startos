@@ -9,6 +9,7 @@ marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update to CLN 24.08 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.08)
   * Update clboss to v0.13.3
+  * Expose CLNRest in Properties
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

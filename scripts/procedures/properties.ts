@@ -402,7 +402,7 @@ export const properties: T.ExpectedExports.properties = async (
       },
       ...(config.advanced.plugins.clnrest
         ? {
-            "CLNRest Tor URL": {
+            "CLNRest Quick Connect": {
               type: "string",
               value: `clnrest://${nodeInfo.id}@${clnRestTorAddress}:3010?rune=${clnRestRune}`,
               description:
