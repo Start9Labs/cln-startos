@@ -1,4 +1,4 @@
-FROM node:18-bullseye as ui
+FROM node:18-bullseye AS ui
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -19,7 +19,7 @@ RUN npm install
 RUN npm run build
 RUN npm prune --omit=dev
 
-FROM debian:bullseye-slim as downloader
+FROM debian:bullseye-slim AS downloader
 
 RUN set -ex \
 	&& apt-get update \
@@ -33,9 +33,9 @@ ARG PLATFORM
 ARG ARCH
 
 ARG BITCOIN_VERSION
-ENV BITCOIN_TARBALL bitcoin-${BITCOIN_VERSION}-${ARCH}-linux-gnu.tar.gz
-ENV BITCOIN_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
-ENV BITCOIN_ASC_URL https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS
+ENV BITCOIN_TARBALL=bitcoin-${BITCOIN_VERSION}-${ARCH}-linux-gnu.tar.gz
+ENV BITCOIN_URL=https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/$BITCOIN_TARBALL
+ENV BITCOIN_ASC_URL=https://bitcoincore.org/bin/bitcoin-core-$BITCOIN_VERSION/SHA256SUMS
 
 RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && wget -qO $BITCOIN_TARBALL "$BITCOIN_URL" \
@@ -47,7 +47,7 @@ RUN mkdir /opt/bitcoin && cd /opt/bitcoin \
     && rm $BITCOIN_TARBALL
 
 # clboss builder
-FROM debian:bullseye-slim as clboss
+FROM debian:bullseye-slim AS clboss
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
@@ -71,11 +71,11 @@ RUN make install
 RUN strip /usr/local/bin/clboss
 
 # lightningd builder
-FROM debian:bullseye-slim as builder
+FROM debian:bullseye-slim AS builder
 
 ENV LIGHTNINGD_VERSION=master
 ENV RUST_PROFILE=release
-ENV PATH=$PATH:/root/.cargo/bin/
+ENV PATH="/root/.cargo/bin:/root/.local/bin:$PATH"
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
@@ -162,12 +162,22 @@ RUN sed -i '/^clnrest\|^wss-proxy/d' pyproject.toml && \
     /root/.local/bin/poetry export -o requirements.txt --without-hashes
 RUN pip3 install -r requirements.txt && pip3 cache purge
 
-RUN ./configure --prefix=/tmp/lightning_install --enable-static && \
-    make && \
-    /root/.local/bin/poetry run make install
+# Ensure that the desired grpcio-tools & protobuf versions are installed
+# https://github.com/ElementsProject/lightning/pull/7376#issuecomment-2161102381
+RUN poetry lock --no-update && poetry install
+
+RUN ./configure --prefix=/tmp/lightning_install --enable-static && make && poetry run make install
+
+# Export the requirements for the plugins so we can install them in builder-python stage
+WORKDIR /opt/lightningd/plugins/clnrest
+RUN poetry export -o requirements.txt --without-hashes
+WORKDIR /opt/lightningd/plugins/wss-proxy
+RUN poetry export -o requirements.txt --without-hashes
+WORKDIR /opt/lightningd
+RUN echo 'RUSTUP_INSTALL_OPTS="${RUSTUP_INSTALL_OPTS}"' > /tmp/rustup_install_opts.txt
 
 # We need to build python plugins on the target's arch because python doesn't support cross build
-FROM debian:bullseye-slim as builder-python
+FROM debian:bullseye-slim AS builder-python
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
         git \
@@ -186,19 +196,29 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
-ENV PATH=$PATH:/root/.cargo/bin/
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-RUN rustup toolchain install stable --component rustfmt --allow-downgrade
+
+ENV PYTHON_VERSION=3
+RUN pip3 install --upgrade pip setuptools wheel
+
+# Copy rustup_install_opts.txt file from builder
+COPY --from=builder /tmp/rustup_install_opts.txt /tmp/rustup_install_opts.txt
+# Setup ENV $RUSTUP_INSTALL_OPTS for this stage
+RUN export $(cat /tmp/rustup_install_opts.txt)
+ENV PATH="/root/.cargo/bin:$PATH"
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y ${RUSTUP_INSTALL_OPTS}
+
+WORKDIR /opt/lightningd/plugins/clnrest
+COPY --from=builder /opt/lightningd/plugins/clnrest/requirements.txt .
+RUN pip3 install -r requirements.txt
+
+WORKDIR /opt/lightningd/plugins/wss-proxy
+COPY --from=builder /opt/lightningd/plugins/wss-proxy/requirements.txt .
+RUN pip3 install -r requirements.txt
+RUN pip3 cache purge
 
 WORKDIR /opt/lightningd
-COPY lightning/plugins/clnrest/requirements.txt plugins/clnrest/requirements.txt
-COPY lightning/plugins/wss-proxy/requirements.txt plugins/wss-proxy/requirements.txt
-ENV PYTHON_VERSION=3
-RUN pip3 install -r plugins/clnrest/requirements.txt && \
-    pip3 install -r plugins/wss-proxy/requirements.txt && \
-    pip3 cache purge
 
-FROM node:18-bullseye-slim as final
+FROM node:18-bullseye-slim AS final
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835

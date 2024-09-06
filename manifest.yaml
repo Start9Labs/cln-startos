@@ -1,5 +1,5 @@
 id: c-lightning
-version: 24.05.0
+version: 24.08.0
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,10 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to CLN 24.05.0 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.05)
-  * Update cln-application UI to v0.0.5
-  * Update plugins
-  * Expose gRPC interface
+  * Update to CLN 24.08 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.08)
+  * Update clboss to v0.13.3
+  * Expose CLNRest in Properties
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

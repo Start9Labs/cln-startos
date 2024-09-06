@@ -102,6 +102,14 @@ export const properties: T.ExpectedExports.properties = async (
   ) {
     return noPropertiesFound;
   }
+  if (
+    (await util.exists(effects, {
+      volumeId: "main",
+      path: "start9/watchtowerTorAddress",
+    })) === false
+  ) {
+    return noPropertiesFound;
+  }
 
   const nodeInfo = nodeInfoMatcher.unsafeCast(
     await effects.readJsonFile({
@@ -133,6 +141,22 @@ export const properties: T.ExpectedExports.properties = async (
       path: "start9/watchtowerTorAddress",
     })
     .then((x) => x.trim());
+  const clnRestTorAddress = await effects
+    .readFile({
+      volumeId: "main",
+      path: "start9/clnRestTorAddress",
+    })
+    .then((x) => x.trim());
+  const clnRestRune = await effects
+    .readFile({
+      volumeId: "main",
+      path: "public/clnrest_rune",
+    })
+    .then((x) => {
+      const trimmed = x.trim();
+      const rune = trimmed.split(/=(.+)/)[1].replace(/"/g, "");
+      return rune;
+    });
   const config = setConfigMatcher.unsafeCast(
     YAML.parse(
       await effects.readFile({
@@ -257,8 +281,10 @@ export const properties: T.ExpectedExports.properties = async (
       })
       .then(JSON.parse)
       .then((dataIn) => {
-        if (config.watchtowers["wt-client"].enabled == "enabled" ) {
-          for (const tower of config.watchtowers["wt-client"]["add-watchtowers"]) {
+        if (config.watchtowers["wt-client"].enabled == "enabled") {
+          for (const tower of config.watchtowers["wt-client"][
+            "add-watchtowers"
+          ]) {
             const [pubkey, url] = tower.split("@");
             if (!(pubkey in dataIn)) {
               dataIn[pubkey] = {
@@ -354,17 +380,18 @@ export const properties: T.ExpectedExports.properties = async (
         masked: true,
       },
       ...(config.advanced["clams-remote-websocket"]
-      ? {"Clams Remote Websocket URI": {
-        type: "string",
-        value: `${nodeInfo.id}@${clamsRemoteWebsocketTorAddress}:7272`,
-        description:
-          "The URI needed by Clams Remote to connect to Core Lightning's websocket interface.",
-        copyable: true,
-        qr: true,
-        masked: true,
-        }
-      }
-      : {}),
+        ? {
+            "Clams Remote Websocket URI": {
+              type: "string",
+              value: `${nodeInfo.id}@${clamsRemoteWebsocketTorAddress}:7272`,
+              description:
+                "The URI needed by Clams Remote to connect to Core Lightning's websocket interface.",
+              copyable: true,
+              qr: true,
+              masked: true,
+            },
+          }
+        : {}),
       "UI Password": {
         type: "string",
         value: config["ui-password"],
@@ -373,15 +400,28 @@ export const properties: T.ExpectedExports.properties = async (
         qr: true,
         masked: true,
       },
+      ...(config.advanced.plugins.clnrest
+        ? {
+            "CLNRest Quick Connect": {
+              type: "string",
+              value: `clnrest://${nodeInfo.id}@${clnRestTorAddress}:3010?rune=${clnRestRune}`,
+              description:
+                "URI to connect a wallet to Core Lightning's CLNRest interface remotely via Tor",
+              copyable: true,
+              qr: true,
+              masked: true,
+            },
+          }
+        : {}),
       ...(config.advanced.plugins.rest
-      ? {
-        "REST Properties": {
-          type: "object",
-          value: restProperties,
-          description: "Properties of the CLN REST interface",
-        }
-      }
-      : {}),
+        ? {
+            "REST Properties": {
+              type: "object",
+              value: restProperties,
+              description: "Properties of the CLN REST interface",
+            },
+          }
+        : {}),
       ...(config.watchtowers["wt-server"]
         ? {
             "Watchtower Server Properties": {
