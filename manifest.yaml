@@ -11,6 +11,7 @@ release-notes: |-
   * Update clboss to v0.13.3
   * Expose CLNRest in Properties
   * Add action to delete corrupted gossip store
+  * Update cln-application UI to v0.0.6
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
