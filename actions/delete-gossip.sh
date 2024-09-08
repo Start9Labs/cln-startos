@@ -20,9 +20,10 @@ action_result_stopped="    {
 lightning-cli getinfo >/dev/null 2>/dev/null && EXIT_CODE=$? || EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 0 ]; then
-    lightning-cli stop >/dev/null 2>/dev/null || rm /embassy-data/package-data/volumes/c-lightning/data/main/bitcoin/gossip_store && echo $action_result_running
+    lightning-cli stop >/dev/null 2>/dev/null || rm /root/.lightning/bitcoin/gossip_store && echo $action_result_running
+
 else
-    rm /embassy-data/package-data/volumes/c-lightning/data/main/bitcoin/gossip_store
+    rm /root/.lightning/bitcoin/gossip_store
     echo $action_result_stopped
 fi
 
