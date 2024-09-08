@@ -10,6 +10,7 @@ release-notes: |-
   * Update to CLN 24.08 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.08)
   * Update clboss to v0.13.3
   * Expose CLNRest in Properties
+  * Add action to delete corrupted gossip store
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -302,3 +303,18 @@ actions:
         masked: false
         placeholder: "-600000"
         nullable: false
+  delete-gossip:
+    name: "Delete Gossip Store
+    description: "Deletes gossip_store in the case of corruption"
+    allowed-statuses:
+      - running
+      - stopped
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: delete-gossip.sh
+      args: []
+      io-format: json
+      mounts:
+        main: /root/.lightning
