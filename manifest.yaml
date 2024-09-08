@@ -251,6 +251,21 @@ migrations:
       type: script
       args: ["to"]
 actions:
+  delete-gossip:
+    name: "Delete Gossip Store"
+    description: "Deletes gossip_store in the case of corruption"
+    allowed-statuses:
+      - running
+      - stopped
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: delete-gossip.sh
+      args: []
+      io-format: json
+      mounts:
+        main: /root/.lightning
   generate-rune:
     name: "Generate Rune"
     warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
@@ -304,18 +319,3 @@ actions:
         masked: false
         placeholder: "-600000"
         nullable: false
-  delete-gossip:
-    name: "Delete Gossip Store
-    description: "Deletes gossip_store in the case of corruption"
-    allowed-statuses:
-      - running
-      - stopped
-    implementation:
-      type: docker
-      image: main
-      system: false
-      entrypoint: delete-gossip.sh
-      args: []
-      io-format: json
-      mounts:
-        main: /root/.lightning
