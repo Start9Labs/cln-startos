@@ -1,5 +1,5 @@
 id: c-lightning
-version: 24.08.0
+version: 24.08.0.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -10,6 +10,8 @@ release-notes: |-
   * Update to CLN 24.08 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.08)
   * Update clboss to v0.13.3
   * Expose CLNRest in Properties
+  * Add action to delete corrupted gossip store
+  * Update cln-application UI to v0.0.6
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -249,6 +251,21 @@ migrations:
       type: script
       args: ["to"]
 actions:
+  delete-gossip:
+    name: "Delete Gossip Store"
+    description: "Deletes gossip_store in the case of corruption"
+    allowed-statuses:
+      - running
+      - stopped
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: delete-gossip.sh
+      args: []
+      io-format: json
+      mounts:
+        main: /root/.lightning
   generate-rune:
     name: "Generate Rune"
     warning: This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust.
