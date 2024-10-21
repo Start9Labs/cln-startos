@@ -51,7 +51,6 @@ FROM debian:bullseye-slim AS clboss
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
-        # autoconf \
         autoconf-archive \
         automake \
         build-essential \
@@ -66,6 +65,7 @@ COPY clboss/. /tmp/clboss
 WORKDIR /tmp/clboss
 RUN autoreconf -i
 RUN ./configure
+RUN ./generate_commit_hash.sh
 RUN make
 RUN make install
 RUN strip /usr/local/bin/clboss
