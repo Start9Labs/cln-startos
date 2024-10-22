@@ -51,7 +51,6 @@ FROM debian:bullseye-slim AS clboss
 
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
-        # autoconf \
         autoconf-archive \
         automake \
         build-essential \
@@ -66,6 +65,7 @@ COPY clboss/. /tmp/clboss
 WORKDIR /tmp/clboss
 RUN autoreconf -i
 RUN ./configure
+RUN ./generate_commit_hash.sh
 RUN make
 RUN make install
 RUN strip /usr/local/bin/clboss
@@ -165,6 +165,11 @@ RUN pip3 install -r requirements.txt && pip3 cache purge
 # Ensure that the desired grpcio-tools & protobuf versions are installed
 # https://github.com/ElementsProject/lightning/pull/7376#issuecomment-2161102381
 RUN poetry lock --no-update && poetry install
+
+# Ensure that git differences are removed before making bineries, to avoid `-modded` suffix
+# poetry.lock changed due to pyln-client, pyln-proto and pyln-testing version updates
+# pyproject.toml was updated to exclude clnrest and wss-proxy plugins in base-builder stage
+RUN git reset --hard HEAD
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make && poetry run make install
 

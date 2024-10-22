@@ -345,7 +345,7 @@ export const migration: T.ExpectedExports.migration =
         )
       },
     },
-    "24.08.1",
+    "24.08.2",
   );
 
 function generateRandomString(length: number) {
