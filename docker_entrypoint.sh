@@ -171,7 +171,7 @@ if [ "$(yq ".watchtowers.wt-client.enabled" /root/.lightning/start9/config.yaml)
   cat /root/.lightning/start9/config.yaml | yq '.watchtowers.wt-client.add-watchtowers | .[]' > /root/.lightning/start9/wt_new
   echo "Abandoning old watchtowers"
   grep -Fxvf /root/.lightning/start9/wt_new /root/.lightning/start9/wt_old | cut -f1 -d "@" | xargs -I{} lightning-cli abandontower {} 2>&1 || true
-  echo "Regsistering new watchtowers"
+  echo "Registering new watchtowers"
   grep -Fxvf /root/.lightning/start9/wt_old /root/.lightning/start9/wt_new | xargs -I{} lightning-cli registertower {} 2>&1 || true
 
   while true; do lightning-cli listtowers > /root/.lightning/start9/wtClientInfo || echo 'Failed to fetch towers from client endpoint.'; sleep 60; done &
