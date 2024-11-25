@@ -124,6 +124,12 @@ echo "Starting lightningd"
 lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL$RESCAN &
 lightningd_child=$!
 
+if [ -e /root/.lightning/start9/restore.yaml ]; then
+  echo "Detected backup restore. Attempting to recover channels using emergency.recover..."
+  lightning-cli emergencyrecover
+  rm /root/.lightning/start9/restore.yaml
+fi
+
 if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then
   echo "Starting teosd"
   teosd --datadir=/root/.lightning/.teos &
