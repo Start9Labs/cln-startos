@@ -80,6 +80,13 @@ fi
 mkdir -p /root/.lightning/shared
 mkdir -p /root/.lightning/public
 
+# Don't backup lightningd DB
+if ! [ -e /root/.lightning/.backupignore ]; then
+  echo "Creating .backupignore"
+  touch /root/.lightning/.backupignore
+  echo "/root/.lightning/bitcoin/lightningd.sqlite3" > /root/.lightning/.backupignore
+fi
+
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress

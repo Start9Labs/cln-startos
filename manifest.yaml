@@ -213,7 +213,18 @@ dependencies:
         type: script
 backup:
   create:
-    type: script
+    type: docker
+    image: compat
+    system: true
+    entrypoint: compat
+    args:
+      - duplicity
+      - create
+      - /mnt/backup
+      - /root/.lightning
+    mounts:
+      BACKUP: /mnt/backup
+      main: /root/.lightning
   restore:
     type: docker
     image: compat
