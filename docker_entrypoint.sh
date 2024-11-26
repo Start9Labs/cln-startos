@@ -95,10 +95,7 @@ if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
     rm /root/.lightning/bitcoin/lightning-rpc
 fi
 
-# echo "Checking cert"
 echo "Fetching system cert for REST interface"
-# if ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/key.pem ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem ]; then
-  # echo "Cert missing, copying cert into c-lightning-REST dir"
 while ! [ -e /mnt/cert/rest.key.pem ]; do
   echo "Waiting for system cert key file..."
   sleep 1
@@ -110,7 +107,6 @@ while ! [ -e /mnt/cert/rest.cert.pem ]; do
   sleep 1
 done
 cp /mnt/cert/rest.cert.pem /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem
-# fi
 
 # use macaroon if exists
 if [ -e /root/.lightning/public/access.macaroon ] && [ -e /root/.lightning/public/rootKey.key ]; then
