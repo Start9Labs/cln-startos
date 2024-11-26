@@ -238,6 +238,7 @@ backup:
     mounts:
       BACKUP: /mnt/backup
       main: /root/.lightning
+      compat: /mnt/assets
 migrations:
   from:
     "*":
