@@ -71,6 +71,8 @@ volumes:
   cert:
     type: certificate
     interface-id: rest
+  compat:
+    type: assets
 alerts:
   install: |
     READ CAREFULLY! Core Lightning and the Lightning Network are considered beta software. Please use with caution and do not
