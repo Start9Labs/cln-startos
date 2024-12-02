@@ -227,6 +227,7 @@ backup:
     mounts:
       BACKUP: /mnt/backup
       main: /root/.lightning
+    io-format: yaml
   restore:
     type: docker
     image: compat
@@ -241,6 +242,7 @@ backup:
       BACKUP: /mnt/backup
       main: /root/.lightning
       compat: /mnt/assets
+    io-format: yaml
 migrations:
   from:
     "*":
