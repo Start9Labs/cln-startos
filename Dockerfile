@@ -59,7 +59,8 @@ RUN apt-get update -qq && \
         libev-dev \
         libsqlite3-dev \
         libtool \
-        pkg-config
+        pkg-config \
+        libunwind-dev
 
 COPY clboss/. /tmp/clboss
 WORKDIR /tmp/clboss
