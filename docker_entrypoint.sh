@@ -80,6 +80,13 @@ fi
 mkdir -p /root/.lightning/shared
 mkdir -p /root/.lightning/public
 
+# Don't backup lightningd DB
+if ! [ -e /root/.lightning/.backupignore ]; then
+  echo "Creating .backupignore"
+  touch /root/.lightning/.backupignore
+  echo "/root/.lightning/bitcoin/lightningd.sqlite3" > /root/.lightning/.backupignore
+fi
+
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
@@ -95,10 +102,7 @@ if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
     rm /root/.lightning/bitcoin/lightning-rpc
 fi
 
-# echo "Checking cert"
 echo "Fetching system cert for REST interface"
-# if ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/key.pem ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem ]; then
-  # echo "Cert missing, copying cert into c-lightning-REST dir"
 while ! [ -e /mnt/cert/rest.key.pem ]; do
   echo "Waiting for system cert key file..."
   sleep 1
@@ -110,7 +114,6 @@ while ! [ -e /mnt/cert/rest.cert.pem ]; do
   sleep 1
 done
 cp /mnt/cert/rest.cert.pem /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem
-# fi
 
 # use macaroon if exists
 if [ -e /root/.lightning/public/access.macaroon ] && [ -e /root/.lightning/public/rootKey.key ]; then
@@ -145,6 +148,11 @@ if [ -e /root/.lightning/shared/lightning-rpc ]; then
 fi
 ln /root/.lightning/bitcoin/lightning-rpc /root/.lightning/shared/lightning-rpc
 
+if [ -e /root/.lightning/start9/restore.yaml ]; then
+  echo "Detected backup restore. Attempting to recover channels using emergency.recover..."
+  lightning-cli emergencyrecover
+  rm /root/.lightning/start9/restore.yaml
+fi
 
 if ! [ -e /root/.lightning/public/access.macaroon ] || ! [ -e /root/.lightning/public/rootKey.key ] ; then
   while ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key ];
