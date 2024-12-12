@@ -234,11 +234,7 @@ backup:
     image: compat
     system: true
     entrypoint: /mnt/assets/backup-restore.sh
-    args:
-      - duplicity
-      - restore
-      - /mnt/backup
-      - /root/.lightning
+    args: {}
     mounts:
       BACKUP: /mnt/backup
       main: /root/.lightning
