@@ -10,6 +10,7 @@ release-notes: |-
   * Update to CLN 24.11 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.11)
   * Update clboss to 0.14.1
   * Update Backup Restore to use SCBs rather than lightning db
+  * Add experimental xpay plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
