@@ -344,6 +344,36 @@ export const migration: T.ExpectedExports.migration =
           { version: "24.02.2.1", type: "down" }
         )
       },
+      "24.11.0": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (matches.shape({
+              advanced: matches.any
+            }).test(config)) {
+              config.advanced.experimental["xpay-handle-pay"] = false;
+            }
+            return config;
+          },
+          true,
+          { version: "24.11.0", type: "up"},
+        ),
+        down: compat.migrations.updateConfig(
+          (config) => {
+            if (matches.shape({
+              advanced: matches.shape({
+                experimental: matches.shape({
+                  "xpay-handle-pay": matches.any
+                })
+              })
+            }).test(config)) {
+              delete config.advanced.experimental["xpay-handle-pay"];
+            }
+            return config;
+          },
+          true,
+          { version: "24.11.0", type: "down" }
+        )
+      },
     },
     "24.11.0",
   );
