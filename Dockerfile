@@ -278,6 +278,9 @@ ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
 RUN npm install --omit=dev
 
+# backupignore
+COPY assets/.backupignore ./
+
 # aarch64 or x86_64
 ARG ARCH
 
