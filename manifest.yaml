@@ -220,12 +220,8 @@ backup:
     type: docker
     image: compat
     system: true
-    entrypoint: compat
-    args:
-      - duplicity
-      - create
-      - /mnt/backup
-      - /root/.lightning
+    entrypoint: /mnt/assets/backup-create.sh
+    args: []
     mounts:
       BACKUP: /mnt/backup
       main: /root/.lightning
