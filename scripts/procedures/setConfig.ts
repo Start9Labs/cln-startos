@@ -305,6 +305,9 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableSplicing = config.advanced.experimental.splicing
     ? "experimental-splicing"
     : "";
+  const enableXpay = config.advanced.experimental["xpay-handle-pay"]
+    ? "xpay-handle-pay=true"
+    : "";
 
   return `
 network=bitcoin
@@ -343,6 +346,7 @@ ${enableCLNRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}
 ${enableSplicing}
+${enableXpay}
 
 autoclean-cycle=${config.autoclean["autoclean-cycle"]}
 autoclean-succeededforwards-age=${config.autoclean["autoclean-succeededforwards-age"]}

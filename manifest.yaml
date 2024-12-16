@@ -1,5 +1,5 @@
 id: c-lightning
-version: 24.08.2
+version: 24.11.0
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,8 +7,10 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to CLN 24.08.2 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.08.2)
-  * Update clboss to 0.14.0
+  * Update to CLN 24.11 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.11)
+  * Update clboss to 0.14.1
+  * Update Backup Restore to use SCBs rather than lightning db
+  * Add experimental xpay plugin
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -71,6 +73,8 @@ volumes:
   cert:
     type: certificate
     interface-id: rest
+  compat:
+    type: assets
 alerts:
   install: |
     READ CAREFULLY! Core Lightning and the Lightning Network are considered beta software. Please use with caution and do not
@@ -229,15 +233,13 @@ backup:
     type: docker
     image: compat
     system: true
-    entrypoint: compat
-    args:
-      - duplicity
-      - restore
-      - /mnt/backup
-      - /root/.lightning
+    entrypoint: /mnt/assets/backup-restore.sh
+    args: []
     mounts:
       BACKUP: /mnt/backup
       main: /root/.lightning
+      compat: /mnt/assets
+    io-format: yaml
 migrations:
   from:
     "*":

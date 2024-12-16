@@ -623,6 +623,13 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             default: false,
             required: false,
           },
+          "xpay-handle-pay": {
+            type: "boolean",
+            name: "Xpay",
+            description: "Setting this makes xpay intercept simply pay commands (default false). Note that the response will be different from the normal pay command, however.  <b>Default: Disabled</b>",
+            default: false,
+            required: false,
+          },
         },
       },
       plugins: {
