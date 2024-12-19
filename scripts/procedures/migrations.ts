@@ -375,7 +375,7 @@ export const migration: T.ExpectedExports.migration =
         )
       },
     },
-    "24.11.0",
+    "24.11.1",
   );
 
 function generateRandomString(length: number) {
