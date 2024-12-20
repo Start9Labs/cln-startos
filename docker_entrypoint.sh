@@ -80,13 +80,6 @@ fi
 mkdir -p /root/.lightning/shared
 mkdir -p /root/.lightning/public
 
-# Don't backup lightningd DB
-if ! [ -e /root/.lightning/.backupignore ]; then
-  echo "Creating .backupignore"
-  touch /root/.lightning/.backupignore
-  echo "/root/.lightning/bitcoin/lightningd.sqlite3" > /root/.lightning/.backupignore
-fi
-
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
 echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
@@ -147,12 +140,6 @@ if [ -e /root/.lightning/shared/lightning-rpc ]; then
     rm /root/.lightning/shared/lightning-rpc
 fi
 ln /root/.lightning/bitcoin/lightning-rpc /root/.lightning/shared/lightning-rpc
-
-if [ -e /root/.lightning/start9/restore.yaml ]; then
-  echo "Detected backup restore. Attempting to recover channels using emergency.recover..."
-  lightning-cli emergencyrecover
-  rm /root/.lightning/start9/restore.yaml
-fi
 
 if ! [ -e /root/.lightning/public/access.macaroon ] || ! [ -e /root/.lightning/public/rootKey.key ] ; then
   while ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key ];
