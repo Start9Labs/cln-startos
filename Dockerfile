@@ -241,6 +241,7 @@ COPY --from=builder-python /usr/local/lib/python3.9/dist-packages/ /usr/local/li
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    binutils \
     curl \
     dnsutils \
     socat \
@@ -250,6 +251,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcurl4-gnutls-dev \
     libev-dev \
     libsqlite3-dev \
+    libunwind-dev \
     procps \
     python3 \
     python3-gdbm \
