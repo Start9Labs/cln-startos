@@ -28,15 +28,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
     target: "tor-address",
     interface: "web-ui",
   },
-  "rest-tor-address": {
-    name: "C-Lightning-REST API Address",
-    description: "The Tor address of the C-Lightning-REST API",
-    type: "pointer",
-    subtype: "package",
-    "package-id": "c-lightning",
-    target: "tor-address",
-    interface: "rest",
-  },
   "clnrest-tor-address": {
     name: "CLNRest Address",
     description: "The Tor address of the CLNRest plugin interface",
@@ -646,13 +637,6 @@ export const [getConfig, setConfigMatcher] = compat.getConfigAndMatcher({
             default: false,
             required: false,
             nullable: true,
-          },
-          rest: {
-            type: "boolean",
-            name: "C-Lightning-REST",
-            description:
-            "This plugin exposes an LND-like REST API. It is required for some wallets, such as Zeus to connect to Core Lightning.  <b>Default: True</b><br><b>Source:  https://github.com/Ride-The-Lightning/c-lightning-REST</b>",
-            default: true,
           },
           clnrest: {
             type: "boolean",

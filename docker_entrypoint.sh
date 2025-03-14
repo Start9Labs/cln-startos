@@ -24,12 +24,11 @@ export PEER_TOR_ADDRESS=$(yq e '.peer-tor-address' /root/.lightning/start9/confi
 export RPC_TOR_ADDRESS=$(yq e '.rpc-tor-address' /root/.lightning/start9/config.yaml)
 export UI_TOR_ADDRESS=$(yq e '.web-ui-tor-address' /root/.lightning/start9/config.yaml)
 export UI_LAN_ADDRESS=$(echo "$UI_TOR_ADDRESS" | sed 's/\.onion/\.local/')
-export REST_TOR_ADDRESS=$(yq e '.rest-tor-address' /root/.lightning/start9/config.yaml)
 export CLN_REST_TOR_ADDRESS=$(yq e '.clnrest-tor-address' /root/.lightning/start9/config.yaml)
 export CLAMS_WEBSOCKET_TOR_ADDRESS=$(yq e '.clams-websocket-tor-address' /root/.lightning/start9/config.yaml)
 export WATCHTOWER_TOR_ADDRESS=$(yq e '.watchtower-tor-address' /root/.lightning/start9/config.yaml)
 export TOWERS_DATA_DIR=/root/.lightning/.watchtower
-export REST_LAN_ADDRESS=$(echo "$REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
+export CLN_REST_LAN_ADDRESS=$(echo "$CLN_REST_TOR_ADDRESS" | sed 's/\.onion/\.local/')
 
 mkdir -p $TOWERS_DATA_DIR
 
@@ -82,7 +81,6 @@ mkdir -p /root/.lightning/public
 
 echo $PEER_TOR_ADDRESS > /root/.lightning/start9/peerTorAddress
 echo $RPC_TOR_ADDRESS > /root/.lightning/start9/rpcTorAddress
-echo $REST_TOR_ADDRESS > /root/.lightning/start9/restTorAddress
 echo $CLN_REST_TOR_ADDRESS > /root/.lightning/start9/clnRestTorAddress
 echo $CLAMS_WEBSOCKET_TOR_ADDRESS > /root/.lightning/start9/clamsRemoteWebsocketTorAddress
 echo $WATCHTOWER_TOR_ADDRESS > /root/.lightning/start9/watchtowerTorAddress
@@ -93,27 +91,6 @@ sed "s/proxy={proxy}/proxy=${EMBASSY_IP}:9050/" /root/.lightning/config.main > /
 echo "Cleaning old lightning rpc"
 if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
     rm /root/.lightning/bitcoin/lightning-rpc
-fi
-
-echo "Fetching system cert for REST interface"
-while ! [ -e /mnt/cert/rest.key.pem ]; do
-  echo "Waiting for system cert key file..."
-  sleep 1
-done
-mkdir -p /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs
-cp /mnt/cert/rest.key.pem /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/key.pem
-while ! [ -e /mnt/cert/rest.cert.pem ]; do
-  echo "Waiting for system cert..."
-  sleep 1
-done
-cp /mnt/cert/rest.cert.pem /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/certificate.pem
-
-# use macaroon if exists
-if [ -e /root/.lightning/public/access.macaroon ] && [ -e /root/.lightning/public/rootKey.key ]; then
-  cp /root/.lightning/public/access.macaroon /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon
-  cp /root/.lightning/public/rootKey.key /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key
-else
-  echo "Macaroon not found, generating new one"
 fi
 
 echo "Starting lightningd"
@@ -140,20 +117,6 @@ if [ -e /root/.lightning/shared/lightning-rpc ]; then
     rm /root/.lightning/shared/lightning-rpc
 fi
 ln /root/.lightning/bitcoin/lightning-rpc /root/.lightning/shared/lightning-rpc
-
-if ! [ -e /root/.lightning/public/access.macaroon ] || ! [ -e /root/.lightning/public/rootKey.key ] ; then
-  while ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon ] || ! [ -e /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key ];
-  do
-      echo "Waiting for macaroon..."
-      sleep 1
-      if ! ps -p $lightningd_child > /dev/null; then
-          echo "lightningd has stopped, exiting container"
-          exit 1
-      fi
-  done
-  cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/access.macaroon /root/.lightning/public/access.macaroon
-  cp /usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs/rootKey.key /root/.lightning/public/rootKey.key
-fi
 
 cat /root/.lightning/public/access.macaroon | basenc --base64url -w0  > /root/.lightning/start9/access.macaroon.base64
 cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.lightning/start9/access.macaroon.hex
@@ -184,9 +147,8 @@ export LIGHTNING_REST_IP="localhost"
 export APP_CORE_LIGHTNING_IP="0.0.0.0"
 export APP_CONFIG_DIR="/root/.lightning/data/app"
 export APP_CORE_LIGHTNING_REST_PORT=3001
-export APP_CORE_LIGHTNING_REST_CERT_DIR="/usr/local/libexec/c-lightning/plugins/c-lightning-REST/certs"
 export DEVICE_DOMAIN_NAME=$UI_LAN_ADDRESS
-export LOCAL_HOST=$REST_LAN_ADDRESS
+export LOCAL_HOST=$CLN_REST_LAN_ADDRESS
 export APP_CORE_LIGHTNING_COMMANDO_ENV_DIR="/root/.lightning"
 export APP_CORE_LIGHTNING_REST_HIDDEN_SERVICE=$UI_TOR_ADDRESS
 export APP_CORE_LIGHTNING_WEBSOCKET_PORT=4269

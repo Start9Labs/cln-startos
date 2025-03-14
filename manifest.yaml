@@ -23,7 +23,6 @@ main:
   args: []
   mounts:
     main: /root/.lightning
-    cert: /mnt/cert
   shm-size-mb: 64
 health-checks:
   rpc:
@@ -67,9 +66,6 @@ properties:
 volumes:
   main:
     type: data
-  cert:
-    type: certificate
-    interface-id: rest
   compat:
     type: assets
 alerts:
@@ -129,20 +125,6 @@ interfaces:
     protocols:
       - tcp
       - lightning
-  rest:
-    name: C-Lightning-REST API
-    description: C-Lightning-REST is a plugin for Core Lightning written by the RTL team that exposes an LND-like REST API for C-Lightning.
-    tor-config:
-      port-mapping:
-        3001: "3001"
-    lan-config:
-      3001:
-        ssl: true
-        internal: 3001
-    ui: false
-    protocols:
-      - tcp
-      - http
   clnrest:
     name: CLNRest
     description: CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.
