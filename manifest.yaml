@@ -8,6 +8,8 @@ support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update to CLN 25.02 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.02)
+  * Remove deprecated plugin c-lightning-REST
+  * Fixes and improvements
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
