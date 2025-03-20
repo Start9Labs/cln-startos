@@ -208,7 +208,7 @@ commando_rune_request() {
 {
   "jsonrpc": "2.0",
   "id": 2,
-  "method": "commando-rune",
+  "method": "createrune",
   "params": [null, [["$1"]]]
 }
 EOF

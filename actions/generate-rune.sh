@@ -2,7 +2,7 @@
 
 set -e
 
-json_output="$(lightning-cli commando-rune)"
+json_output="$(lightning-cli createrune)"
 RUNE="$(echo "$json_output" | jq -r '.rune')"
 
 action_result="    {
