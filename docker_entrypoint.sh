@@ -118,9 +118,6 @@ if [ -e /root/.lightning/shared/lightning-rpc ]; then
 fi
 ln /root/.lightning/bitcoin/lightning-rpc /root/.lightning/shared/lightning-rpc
 
-cat /root/.lightning/public/access.macaroon | basenc --base64url -w0  > /root/.lightning/start9/access.macaroon.base64
-cat /root/.lightning/public/access.macaroon | basenc --base16 -w0  > /root/.lightning/start9/access.macaroon.hex
-
 lightning-cli getinfo > /root/.lightning/start9/lightningGetInfo
 
 if [ "$(yq ".watchtowers.wt-client.enabled" /root/.lightning/start9/config.yaml)" = "enabled" ]; then
