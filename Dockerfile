@@ -172,7 +172,7 @@ RUN poetry lock && poetry install
 
 # Ensure that git differences are removed before making bineries, to avoid `-modded` suffix
 # poetry.lock changed due to pyln-client, pyln-proto and pyln-testing version updates
-# pyproject.toml was updated to exclude clnrest and wss-proxy plugins in base-builder stage
+# pyproject.toml was updated to exclude wss-proxy plugin in base-builder stage
 RUN git reset --hard HEAD
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make && poetry run make install
@@ -271,11 +271,6 @@ WORKDIR /usr/local/libexec/c-lightning/plugins
 RUN pip3 install -U pip
 RUN pip3 install wheel
 RUN pip3 install -U pyln-proto pyln-bolt7
-
-# c-lightning-REST
-ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-RUN npm install --omit=dev
 
 # aarch64 or x86_64
 ARG ARCH

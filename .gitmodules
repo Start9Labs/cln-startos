@@ -4,9 +4,6 @@
 [submodule "plugins"]
 	path = plugins
 	url = https://github.com/lightningd/plugins
-[submodule "c-lightning-REST"]
-	path = c-lightning-REST
-	url = https://github.com/Ride-The-Lightning/c-lightning-REST
 [submodule "clboss"]
 	path = clboss
 	url = https://github.com/ZmnSCPxj/clboss
