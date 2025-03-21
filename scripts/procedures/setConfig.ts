@@ -286,9 +286,6 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableSlingPlugin = config.advanced.plugins.sling
     ? "plugin=//usr/local/libexec/c-lightning/plugins/sling/sling"
     : "";
-  const enableRestPlugin = config.advanced.plugins.rest
-    ? "plugin=/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js\nrest-port=3001\nrest-protocol=https\n"
-    : "";
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
     ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
     : "";
@@ -334,14 +331,11 @@ ${minHtlcMsat}
 ${maxHtlcMsat}
 ${enableWumbo}
 ${enableExperimentalDualFund}
-experimental-onion-messages
-experimental-offers
 ${enableExperimentalShutdownWrongFunding}
 bind-addr=ws::4269
 grpc-port=2106
 ${enableClamsRemoteWebsocket}
 ${enableSlingPlugin}
-${enableRestPlugin}
 ${enableCLNRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}

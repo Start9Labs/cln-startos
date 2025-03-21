@@ -150,7 +150,8 @@ RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
 
 ENV PYTHON_VERSION=3
-RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN curl -sSL https://install.python-poetry.org | python3 - && \
+    /root/.local/bin/poetry self add poetry-plugin-export
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 
@@ -159,26 +160,26 @@ RUN pip3 wheel cryptography
 RUN pip3 install grpcio-tools
 
 
-RUN sed -i '/^clnrest\|^wss-proxy/d' pyproject.toml && \
+RUN sed -i '/^wss-proxy/d' pyproject.toml && \
+    /root/.local/bin/poetry lock && \
     /root/.local/bin/poetry export -o requirements.txt --without-hashes
+
 RUN pip3 install -r requirements.txt && pip3 cache purge
 
 # Ensure that the desired grpcio-tools & protobuf versions are installed
 # https://github.com/ElementsProject/lightning/pull/7376#issuecomment-2161102381
-RUN poetry lock --no-update && poetry install
+RUN poetry lock && poetry install
 
 # Ensure that git differences are removed before making bineries, to avoid `-modded` suffix
 # poetry.lock changed due to pyln-client, pyln-proto and pyln-testing version updates
-# pyproject.toml was updated to exclude clnrest and wss-proxy plugins in base-builder stage
+# pyproject.toml was updated to exclude wss-proxy plugin in base-builder stage
 RUN git reset --hard HEAD
 
 RUN ./configure --prefix=/tmp/lightning_install --enable-static && make && poetry run make install
 
 # Export the requirements for the plugins so we can install them in builder-python stage
-WORKDIR /opt/lightningd/plugins/clnrest
-RUN poetry export -o requirements.txt --without-hashes
 WORKDIR /opt/lightningd/plugins/wss-proxy
-RUN poetry export -o requirements.txt --without-hashes
+RUN poetry lock && poetry export -o requirements.txt --without-hashes
 WORKDIR /opt/lightningd
 RUN echo 'RUSTUP_INSTALL_OPTS="${RUSTUP_INSTALL_OPTS}"' > /tmp/rustup_install_opts.txt
 
@@ -212,10 +213,6 @@ COPY --from=builder /tmp/rustup_install_opts.txt /tmp/rustup_install_opts.txt
 RUN export $(cat /tmp/rustup_install_opts.txt)
 ENV PATH="/root/.cargo/bin:$PATH"
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y ${RUSTUP_INSTALL_OPTS}
-
-WORKDIR /opt/lightningd/plugins/clnrest
-COPY --from=builder /opt/lightningd/plugins/clnrest/requirements.txt .
-RUN pip3 install -r requirements.txt
 
 WORKDIR /opt/lightningd/plugins/wss-proxy
 COPY --from=builder /opt/lightningd/plugins/wss-proxy/requirements.txt .
@@ -274,11 +271,6 @@ WORKDIR /usr/local/libexec/c-lightning/plugins
 RUN pip3 install -U pip
 RUN pip3 install wheel
 RUN pip3 install -U pyln-proto pyln-bolt7
-
-# c-lightning-REST
-ADD ./c-lightning-REST /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-WORKDIR /usr/local/libexec/c-lightning/plugins/c-lightning-REST
-RUN npm install --omit=dev
 
 # aarch64 or x86_64
 ARG ARCH

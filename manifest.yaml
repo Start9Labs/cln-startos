@@ -1,5 +1,5 @@
 id: c-lightning
-version: 24.11.1.1
+version: 25.02.0
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,9 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to CLN 24.11.1 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v24.11.1)
-  * Update clboss to 0.14.1
-  * Add experimental xpay plugin
+  * Update to CLN 25.02 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.02)
+  * Remove deprecated plugin c-lightning-REST
+  * Fixes and improvements
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
@@ -25,7 +25,6 @@ main:
   args: []
   mounts:
     main: /root/.lightning
-    cert: /mnt/cert
   shm-size-mb: 64
 health-checks:
   rpc:
@@ -69,9 +68,6 @@ properties:
 volumes:
   main:
     type: data
-  cert:
-    type: certificate
-    interface-id: rest
   compat:
     type: assets
 alerts:
@@ -131,20 +127,6 @@ interfaces:
     protocols:
       - tcp
       - lightning
-  rest:
-    name: C-Lightning-REST API
-    description: C-Lightning-REST is a plugin for Core Lightning written by the RTL team that exposes an LND-like REST API for C-Lightning.
-    tor-config:
-      port-mapping:
-        3001: "3001"
-    lan-config:
-      3001:
-        ssl: true
-        internal: 3001
-    ui: false
-    protocols:
-      - tcp
-      - http
   clnrest:
     name: CLNRest
     description: CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.
@@ -205,7 +187,7 @@ interfaces:
       - grpc
 dependencies:
   bitcoind:
-    version: ">=0.21.1.2 <29.0.0"
+    version: ">=0.21.1.2 <30.0.0"
     requirement:
       type: required
     description: Used as a blockchain backend.

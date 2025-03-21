@@ -386,8 +386,31 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "25.02.0": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (matches.shape({
+              'rest-tor-address': matches.any,
+              advanced: matches.shape({
+                plugins: matches.shape({
+                  rest: matches.any
+                })
+              })
+            }).test(config)) {
+              delete config['rest-tor-address']
+              delete config.advanced.plugins.rest
+            }
+            return config;
+          },
+          true,
+          { version: "25.02.0", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
     },
-    "24.11.1.1",
+    "25.02.0",
   );
 
 function generateRandomString(length: number) {

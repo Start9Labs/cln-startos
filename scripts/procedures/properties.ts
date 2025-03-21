@@ -81,14 +81,6 @@ export const properties: T.ExpectedExports.properties = async (
   if (
     (await util.exists(effects, {
       volumeId: "main",
-      path: "start9/restTorAddress",
-    })) === false
-  ) {
-    return noPropertiesFound;
-  }
-  if (
-    (await util.exists(effects, {
-      volumeId: "main",
       path: "start9/clamsRemoteWebsocketTorAddress",
     })) === false
   ) {
@@ -121,12 +113,6 @@ export const properties: T.ExpectedExports.properties = async (
     .readFile({
       volumeId: "main",
       path: "start9/peerTorAddress",
-    })
-    .then((x) => x.trim());
-  const restTorAddress = await effects
-    .readFile({
-      volumeId: "main",
-      path: "start9/restTorAddress",
     })
     .then((x) => x.trim());
   const clamsRemoteWebsocketTorAddress = await effects
@@ -171,45 +157,6 @@ export const properties: T.ExpectedExports.properties = async (
       volumeId: "main",
     })
   );
-
-  const restProperties: T.PackagePropertiesV2 = !config.advanced.plugins.rest
-    ? {}
-    : {
-        "REST Quick Connect": {
-          type: "string",
-          value: `c-lightning-rest://${restTorAddress}:3001?&macaroon=${await hexMacaroon.val()}`,
-          description:
-            "A copyable string/scannable QR code you can import into wallet client applications such as Zeus",
-          copyable: true,
-          qr: true,
-          masked: true,
-        },
-        "REST Host": {
-          type: "string",
-          value: `${restTorAddress}`,
-          description: "The host of your c-lightning-REST API",
-          copyable: true,
-          qr: false,
-          masked: true,
-        },
-        "REST Port": {
-          type: "string",
-          value: "3001",
-          description: "The port your c-lightning-REST API is listening on",
-          copyable: true,
-          qr: false,
-          masked: false,
-        },
-        "REST Macaroon (Hex)": {
-          type: "string",
-          value: await hexMacaroon.val(),
-          description:
-            "The macaroon that grants access to your node's REST API plugin, in hexadecimal format",
-          copyable: true,
-          qr: false,
-          masked: true,
-        },
-      };
 
   let watchtowerProperties: T.PackagePropertiesV2 = {};
   if (config.watchtowers["wt-server"]) {
@@ -410,15 +357,6 @@ export const properties: T.ExpectedExports.properties = async (
               copyable: true,
               qr: true,
               masked: true,
-            },
-          }
-        : {}),
-      ...(config.advanced.plugins.rest
-        ? {
-            "REST Properties": {
-              type: "object",
-              value: restProperties,
-              description: "Properties of the CLN REST interface",
             },
           }
         : {}),

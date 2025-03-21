@@ -4,8 +4,6 @@
 
 When running Core Lightning on StartOS it is recommended to use a full archival Bitcoin Core node. However, CLN can be run with a pruned node provided Bitcoin Core's version is >= 25.0.0~2.
 
-**Note: If using a pruned node and bitcoind prunes a block that Core Lightning has not processed yet, e.g., Core Lightning was not running for a prolonged period, then bitcoind will not be able to serve the missing block(s), hence Core Lightning will not be able to synchronize anymore and will be stuck.**
-
 ## Core Lightning (CLN) Config
 
 Your Core Lightning node is highly configurable. Many settings are considered
@@ -15,14 +13,14 @@ use-cases, we recommend using the defaults. You can change credentials from the
 
 ## Using a Wallet
 
-CLN can be connected via LNLink or a Rune (generated from "Actions"), or alternatively, via the REST interface over tor (credentials are located in`Properties`). For a list of compatible wallets, refer to the
+CLN can be connected via LNLink or a Rune (generated from "Actions"), or alternatively, via the clnrest interface over tor (credentials are located in`Properties`). For a list of compatible wallets, refer to the
 <a href="https://docs.start9.com/0.3.5.x/service-guides/lightning/index" target="_blank">lightning documentation</a>.
 
 ## User Interface
 
-Your Core Lightning service comes with a featureful built in [UI](https://github.com/ElementsProject/cln-application/tree/d53e19548939641e7e12c756f43ef5fcf164225d). This interface can be used to deposit and withdraw bitcoin on chain, send and receive bitcoin over the lightning network, and even open or close channels! The password for your CLN UI can be found in the `Config` and `Properties` menus.
+Your Core Lightning service comes with a featureful built in [UI](https://github.com/ElementsProject/cln-application). This interface can be used to deposit and withdraw bitcoin on chain, send and receive bitcoin over the lightning network, and even open or close channels! The password for your CLN UI can be found in the `Config` and `Properties` menus.
 
-**Note: If the password for the CLN UI is changed outside of the `Config` menu i.e. within the CLN UI, the password in `Config` or `Properties` will not be updated!**
+**Note: If the password for the CLN UI is changed outside of the `Config` menu i.e. within the CLN UI, the password shown in `Config` and `Properties` will not be updated!**
 
 ## CLBOSS
 
