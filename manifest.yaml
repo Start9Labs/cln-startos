@@ -1,5 +1,5 @@
 id: c-lightning
-version: 25.02.0
+version: 25.02.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,9 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to CLN 25.02 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.02)
-  * Remove deprecated plugin c-lightning-REST
-  * Fixes and improvements
+  * Update to CLN 25.02.1 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.02.1)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
