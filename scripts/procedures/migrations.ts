@@ -421,8 +421,20 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "25.02.2": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          true,
+          { version: "25.02.2", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
     },
-    "25.02.1",
+    "25.02.2",
   );
 
 function generateRandomString(length: number) {
