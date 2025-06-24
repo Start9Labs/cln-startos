@@ -139,23 +139,19 @@ if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "tru
 fi
 
 # User Interface
-export APP_CORE_LIGHTNING_DAEMON_IP="0.0.0.0"
-export LIGHTNING_REST_IP="localhost"
-export APP_CORE_LIGHTNING_IP="0.0.0.0"
+export LIGHTNING_IP="0.0.0.0"
+export APP_IP="0.0.0.0"
 export APP_CONFIG_DIR="/root/.lightning/data/app"
-export APP_CORE_LIGHTNING_REST_PORT=3001
 export DEVICE_DOMAIN_NAME=$UI_LAN_ADDRESS
 export LOCAL_HOST=$CLN_REST_LAN_ADDRESS
-export APP_CORE_LIGHTNING_COMMANDO_ENV_DIR="/root/.lightning"
-export APP_CORE_LIGHTNING_REST_HIDDEN_SERVICE=$UI_TOR_ADDRESS
-export APP_CORE_LIGHTNING_WEBSOCKET_PORT=4269
+export HIDDEN_SERVICE_URL=$CLN_REST_TOR_ADDRESS
+export LIGHTNING_WEBSOCKET_PORT=4269
 export COMMANDO_CONFIG="/root/.lightning/.commando-env"
-export APP_CORE_LIGHTNING_PORT=4500
-export APP_MODE=production
-export APP_PROTOCOL="http"
-export CORE_LIGHTNING_PATH="/root/.lightning"
-export APP_BITCOIN_NETWORK="bitcoin"
-export APP_CORE_LIGHTNING_DAEMON_GRPC_PORT=2106
+export APP_PORT=4500
+export LIGHTNING_PATH="/root/.lightning"
+export BITCOIN_NODE_IP="bitcoind.embassy"
+export BITCOIN_NETWORK="bitcoin"
+export LIGHTNING_GRPC_PORT=2106
 
 EXISTING_PUBKEY=""
 GETINFO_RESPONSE=""
