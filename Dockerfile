@@ -149,7 +149,8 @@ COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
 
-ENV PYTHON_VERSION=3
+ENV PYTHON_VERSION=3 \
+  POETRY_VERSION=2.0.1
 RUN curl -sSL https://install.python-poetry.org | python3 - && \
     /root/.local/bin/poetry self add poetry-plugin-export
 

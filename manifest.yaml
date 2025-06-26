@@ -1,5 +1,5 @@
 id: c-lightning
-version: 25.02.2
+version: 25.05.0
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,7 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to CLN 25.02.2 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.02.2)
+  * Update to CLN 25.05 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.05)
+  * Due to to experimental protocol upgrades (refer to the above release notes), --experimental-splicing will be disabled upon update to 25.05.
+  * Update to UI v0.0.7 [Release Notes](https://github.com/ElementsProject/cln-application/releases/tag/v0.0.7)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
