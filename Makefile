@@ -1,79 +1,55 @@
-BITCOIN_VERSION := "27.1"
-C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
-C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
-CLBOSS_SRC := $(shell find ./clboss)
-DOC_ASSETS := $(shell find ./docs/assets)
-PKG_VERSION := $(shell yq e ".version" manifest.yaml)
-PKG_ID := $(shell yq e ".id" manifest.yaml)
-PLUGINS_SRC := $(shell find ./plugins)
-VERSION := $(shell yq e ".version" manifest.yaml)
-TEOS_SRC := $(shell find rust-teos -name '*.rs')
-TS_FILES := $(shell find . -name \*.ts )
+PACKAGE_ID := $(shell grep -o "id: '[^']*'" startos/manifest.ts | sed "s/id: '\([^']*\)'/\1/")
+INGREDIENTS := $(shell start-cli s9pk list-ingredients 2> /dev/null)
+
+.PHONY: all clean install check-deps check-init ingredients
 
 .DELETE_ON_ERROR:
 
-all: submodule-update instructions.md verify
+all: ${PACKAGE_ID}.s9pk
+	@echo " Done!"
+	@echo " Filesize:$(shell du -h $(PACKAGE_ID).s9pk) is ready"
 
-clean:
-	rm -rf docker-images
-	rm -f $(PKG_ID).s9pk
-	rm -f scripts/*.js
-
-submodule-update:
-	@if [ -z "$(shell git submodule status | egrep -v '^ '|awk '{print $2}')" ]; then \
-		echo "\nAll submodules ready for build.\n"; \
-	else \
-		echo "\nPulling submodules...\n"; \
-		git submodule update --init --progress; \
+check-deps:
+	@if ! command -v start-cli > /dev/null; then \
+		echo "Error: start-cli not found. Please install it first."; \
+		exit 1; \
+	fi
+	@if ! command -v npm > /dev/null; then \
+		echo "Error: npm (Node Package Manager) not found. Please install Node.js and npm."; \
+		exit 1; \
 	fi
 
-arm:
-	@rm -f docker-images/x86_64.tar
-	@ARCH=aarch64 $(MAKE)
+check-init:
+	@if [ ! -f ~/.startos/developer.key.pem ]; then \
+		start-cli init; \
+	fi
 
-x86:
-	@rm -f docker-images/aarch64.tar
-	@ARCH=x86_64 $(MAKE)
+ingredients: $(INGREDIENTS)
+	@echo "Re-evaluating ingredients..."
 
-verify: $(PKG_ID).s9pk
-	@start-sdk verify s9pk $(PKG_ID).s9pk
-	@echo " Done!"
-	@echo "   Filesize: $(shell du -h $(PKG_ID).s9pk) is ready"
+${PACKAGE_ID}.s9pk: $(INGREDIENTS) | check-deps check-init
+	@$(MAKE) --no-print-directory ingredients
+	start-cli s9pk pack
 
-install:
-ifeq (,$(wildcard ~/.embassy/config.yaml))
-	@echo; echo "You must define \"host: http://embassy-server-name.local\" in ~/.embassy/config.yaml config file first"; echo
-else
-	start-cli package install $(PKG_ID).s9pk
-endif
+javascript/index.js: $(shell git ls-files startos) tsconfig.json node_modules package.json
+	npm run build
 
-$(PKG_ID).s9pk: manifest.yaml docker-images/aarch64.tar docker-images/x86_64.tar instructions.md $(ASSET_PATHS) scripts/embassy.js
-ifeq ($(ARCH),aarch64)
-	@echo "start-sdk: Preparing aarch64 package ..."
-else ifeq ($(ARCH),x86_64)
-	@echo "start-sdk: Preparing x86_64 package ..."
-else
-	@echo "start-sdk: Preparing Universal Package ..."
-endif
-	@start-sdk pack
+assets:
+	mkdir -p assets
 
-docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(TEOS_SRC) manifest.yaml ./actions/*
-ifeq ($(ARCH),x86_64)
-else
-	mkdir -p docker-images
-	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=aarch64 --build-arg PLATFORM=arm64 --platform=linux/arm64/v8 -o type=docker,dest=docker-images/aarch64.tar .
-endif
+node_modules: package-lock.json
+	npm ci
 
-docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(TEOS_SRC) manifest.yaml ./actions/*
-ifeq ($(ARCH),aarch64)
-else
-	mkdir -p docker-images
-	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=x86_64 --build-arg PLATFORM=amd64 --platform=linux/amd64 -o type=docker,dest=docker-images/x86_64.tar .
-endif
+package-lock.json: package.json
+	npm i
 
-scripts/embassy.js: $(TS_FILES)
-	deno bundle scripts/embassy.ts scripts/embassy.js
-	
-instructions.md: docs/instructions.md $(DOC_ASSETS)
-	@echo "Generating instructions.md\n"
-	@cd docs && md-packer < instructions.md > ../instructions.md
+clean:
+	rm -rf ${PACKAGE_ID}.s9pk
+	rm -rf javascript
+	rm -rf node_modules
+
+install: | check-deps check-init ${PACKAGE_ID}.s9pk
+	@if [ ! -f ~/.startos/config.yaml ]; then echo "You must define \"host: http://server-name.local\" in ~/.startos/config.yaml config file first."; exit 1; fi
+	@echo "\nInstalling to $$(grep -v '^#' ~/.startos/config.yaml | cut -d'/' -f3) ...\n"
+	@[ -f $(PACKAGE_ID).s9pk ] || ( $(MAKE) && echo "\nInstalling to $$(grep -v '^#' ~/.startos/config.yaml | cut -d'/' -f3) ...\n" )
+	@start-cli package install -s $(PACKAGE_ID).s9pk
