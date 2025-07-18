@@ -6,6 +6,7 @@ import { plugins } from './config/plugins'
 import { watchtower } from './config/watchtower'
 import { createRune } from './generateRune'
 import { deleteGossipStore } from './deleteGossipStore'
+import { resetPassword } from './resetPassword'
 
 export const actions = sdk.Actions.of()
   .addAction(autoclean)
@@ -15,5 +16,6 @@ export const actions = sdk.Actions.of()
   .addAction(watchtower)
   .addAction(createRune)
   .addAction(deleteGossipStore)
+  .addAction(resetPassword)
 
-// @TODO reset-password (UI), generate-lnlink, and rescan-blockchain actions
+// @TODO generate-lnlink, and rescan-blockchain actions

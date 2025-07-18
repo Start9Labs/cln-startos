@@ -120,7 +120,7 @@ export const plugins = sdk.Action.withInput(
       'Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside the main Core Lightning container in order to communicate directly with it. Their source is maintained separately from that of Core Lightning itself.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'Configuration',
     visibility: 'enabled',
   }),
 

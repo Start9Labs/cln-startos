@@ -219,7 +219,7 @@ export const config = sdk.Action.withInput(
     description: 'Set other configuration options for CLN',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'Configuration',
     visibility: 'enabled',
   }),
 

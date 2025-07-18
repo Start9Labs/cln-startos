@@ -128,7 +128,7 @@ export const autoclean = sdk.Action.withInput(
       'Set autoclean options for deleting old invoices/payments/forwards',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'Configuration',
     visibility: 'enabled',
   }),
 

@@ -341,7 +341,7 @@ export const experimental = sdk.Action.withInput(
     warning:
       'Experimental options are subject to breakage between releases: they are made available for advanced users who want to test proposed features.',
     allowedStatuses: 'any',
-    group: 'Config',
+    group: 'Configuration',
     visibility: 'enabled',
   }),
 
