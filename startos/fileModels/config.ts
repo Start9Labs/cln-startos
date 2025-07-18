@@ -1,5 +1,5 @@
 import { matches, FileHelper } from '@start9labs/start-sdk'
-import { clnConfDefaults } from '../utils'
+import { clnConfDefaults, rootDir } from '../utils'
 const { object, anyOf } = matches
 
 const stringArray = matches.array(matches.string)
@@ -150,10 +150,27 @@ const shape = object({
   'funder-reserve-tank': natural.optional().onMismatch(funderReserveTank),
 })
 
+function onWrite(a: unknown): any {
+  if (a && typeof a === 'object') {
+    if (Array.isArray(a)) {
+      return a.map(onWrite)
+    }
+    return Object.fromEntries(
+      Object.entries(a).map(([k, v]) => [k, onWrite(v)]),
+    )
+  }
+  return a
+}
+
 export const clnConfig = FileHelper.ini(
   {
     volumeId: 'main',
-    subpath: '/config',
+    subpath: `/config`,
   },
   shape,
+  { bracketedArray: false },
+  {
+    onRead: (a) => a,
+    onWrite,
+  },
 )

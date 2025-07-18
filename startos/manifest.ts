@@ -25,7 +25,7 @@ export const manifest = setupManifest({
     },
     ui: {
       source: {
-        dockerTag: 'ghcr.io/elementsproject/cln-application:25.0.7',
+        dockerTag: 'ghcr.io/elementsproject/cln-application:25.07',
       },
     },
     // @TODO disect 0.3.5.1 Dockerfile and build additional plugins into another image

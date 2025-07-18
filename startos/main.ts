@@ -72,28 +72,56 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         dependencyId: 'bitcoind',
         mountpoint: clnConfDefaults['bitcoin-datadir'],
         readonly: true,
-        subpath: '',
+        subpath: null,
         volumeId: 'main',
       })
       .mountAssets({
         mountpoint: '/scripts',
         subpath: null,
-        type: 'file',
       }),
     'lightning-sub',
   )
 
+  // try {
+  //   await access(`/media/startos/volumes/main/.commando-env`)
+  //   console.log('Existing .commando-env found')
+  // } catch (error) {
+  //   console.log('.commando-env not found. creating with entrypoint.sh...')
+  //   await lightningdSubc.exec([`/scripts/entrypoint.sh`])
+  // }
+
   return sdk.Daemons.of(effects, started)
     .addDaemon('lightningd', {
       subcontainer: lightningdSubc,
-      exec: { command: ['lightningd', ...lightningdArgs] },
+      exec: {
+        command: [
+          'lightningd',
+          `--lightning-dir=${rootDir}`,
+          `--conf=${rootDir}/config`,
+          // '--network=bitcoin',
+          ...lightningdArgs,
+        ],
+      },
       ready: {
         display: 'RPC Interface',
-        fn: () =>
-          sdk.healthCheck.checkPortListening(effects, rpcPort, {
-            successMessage: 'The RPC interface is ready',
-            errorMessage: 'The RPC interface is not ready',
-          }),
+        fn: async () => {
+          const res = await lightningdSubc.exec([
+            'lightning-cli',
+            `--lightning-dir=${rootDir}`,
+            'getinfo',
+          ])
+          console.log('RES: ', res)
+          if (res.exitCode === 0) {
+            return {
+              message: 'The RPC interface is ready',
+              result: 'success',
+            }
+          }
+          return {
+            message: 'The RPC interface is not ready',
+            result: 'loading',
+          }
+        },
       },
       requires: [],
     })
@@ -103,17 +131,23 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       exec: {
         fn: async () => {
           try {
-            access(`${rootDir}/.commando-env`)
+            await access(`${rootDir}/.commando-env`)
             console.log('Existing .commando-env found')
             return {
-              command: ['pwd'] // noop command because exec requires a command
+              command: ['pwd'], // noop command because exec requires a command
             }
           } catch (error) {
             console.log(
               'No .commando-env found. Creating with entrypoint.sh...',
             )
             return {
-              command: ['/scripts/entrypoint.sh', ]
+              // command: ['find', '/', '-name', 'entrypoint.sh']
+              command: [`scripts/entrypoint.sh`],
+              env: {
+                LIGHTNING_PATH: rootDir,
+                BITCOIN_NETWORK: 'bitcoin',
+                COMMANDO_CONFIG: `${rootDir}/.commando-env`,
+              },
             }
           }
         },
@@ -137,6 +171,8 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
           APP_PROTOCOL: 'https',
           APP_HOST: '0.0.0.0',
           APP_PORT: '4500',
+          APP_CONFIG_FILE: `${rootDir}/data/app/config.json`,
+          APP_LOG_FILE: `${rootDir}/data/app/application-cln.log`,
           // APP_CONNECT: 'REST', // @TODO it would be nice if REST works without additional setup so generating a rune (COMMANDO) can be avoided.
           // LIGHTNING_HOST: 'c-lightning.startos',
           LIGHTNING_VARS_FILE: `${rootDir}/.commando-env`,
