@@ -20,7 +20,10 @@ export const manifest = setupManifest({
   images: {
     lightning: {
       source: {
-        dockerTag: 'elementsproject/lightningd:v25.05',
+        dockerBuild: {
+          dockerfile: 'Dockerfile',
+          workdir: '.',
+        },
       },
     },
     ui: {
@@ -28,7 +31,6 @@ export const manifest = setupManifest({
         dockerTag: 'ghcr.io/elementsproject/cln-application:25.07',
       },
     },
-    // @TODO disect 0.3.5.1 Dockerfile and build additional plugins into another image
   },
   hardwareRequirements: {},
   alerts: {
