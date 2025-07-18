@@ -82,14 +82,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     'lightning-sub',
   )
 
-  // try {
-  //   await access(`/media/startos/volumes/main/.commando-env`)
-  //   console.log('Existing .commando-env found')
-  // } catch (error) {
-  //   console.log('.commando-env not found. creating with entrypoint.sh...')
-  //   await lightningdSubc.exec([`/scripts/entrypoint.sh`])
-  // }
-
   return sdk.Daemons.of(effects, started)
     .addDaemon('lightningd', {
       subcontainer: lightningdSubc,
@@ -98,7 +90,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
           'lightningd',
           `--lightning-dir=${rootDir}`,
           `--conf=${rootDir}/config`,
-          // '--network=bitcoin',
           ...lightningdArgs,
         ],
       },
@@ -110,7 +101,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
             `--lightning-dir=${rootDir}`,
             'getinfo',
           ])
-          console.log('RES: ', res)
           if (res.exitCode === 0) {
             return {
               message: 'The RPC interface is ready',
@@ -141,7 +131,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
               'No .commando-env found. Creating with entrypoint.sh...',
             )
             return {
-              // command: ['find', '/', '-name', 'entrypoint.sh']
               command: [`scripts/entrypoint.sh`],
               env: {
                 LIGHTNING_PATH: rootDir,
@@ -173,8 +162,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
           APP_PORT: '4500',
           APP_CONFIG_FILE: `${rootDir}/data/app/config.json`,
           APP_LOG_FILE: `${rootDir}/data/app/application-cln.log`,
-          // APP_CONNECT: 'REST', // @TODO it would be nice if REST works without additional setup so generating a rune (COMMANDO) can be avoided.
-          // LIGHTNING_HOST: 'c-lightning.startos',
           LIGHTNING_VARS_FILE: `${rootDir}/.commando-env`,
           LIGHTNING_WS_PORT: '4269',
           LIGHTNING_GRPC_PORT: '2106',
