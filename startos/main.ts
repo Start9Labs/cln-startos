@@ -154,6 +154,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       exec: {
         command: ['npm', 'run', 'start'],
         // Passing env variables instead of using a FileModel as these settings shouldn't be configurable
+        // @TODO add REST and GRPC env variables so wallet connect screen in UI shows the correct url
         env: {
           BITCOIN_NETWORK: 'bitcoin',
           LIGHTNING_DATA_DIR: rootDir,
@@ -175,6 +176,67 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
             successMessage: 'The Web Interface is ready',
             errorMessage: 'The Web Interface is not ready',
           }),
+      },
+    })
+    .addHealthCheck('check-synced', {
+      requires: ['lightningd'],
+      ready: {
+        display: 'Synced',
+        fn: async () => {
+          const getinfoRes = await lightningdSubc.exec([
+            'lightning-cli',
+            `--lightning-dir=${rootDir}`,
+            'getinfo',
+          ])
+
+          const {
+            warning_lightningd_sync,
+            warning_bitcoind_sync,
+            blockheight,
+          }: {
+            warning_lightningd_sync?: string
+            warning_bitcoind_sync?: string
+            blockheight: number
+          } = JSON.parse(getinfoRes.stdout as string)
+
+          if (warning_bitcoind_sync) {
+            return {
+              message: 'Bitcoind is not up-to-date with network.',
+              result: 'loading',
+            }
+          } else if (warning_lightningd_sync) {
+            const bitcoinGetblockcount = await lightningdSubc.exec([
+              'bitcoin-cli',
+              '--rpcconnect=bitcoind.startos',
+              '--rpccookiefile=/mnt/bitcoin/.cookie',
+              'getblockcount',
+            ])
+            if (bitcoinGetblockcount.exitCode !== 0) {
+              return {
+                message:
+                  'Lightningd is still loading latest blocks from bitcoind, but bitcoin-cli failed to getblockcount from bitcoind',
+                result: 'failure',
+              }
+            }
+            return {
+              message: `Catching up to blocks from bitcoind. This may take several hours. Progress: ${blockheight} of ${bitcoinGetblockcount.stdout}`,
+              result: 'loading',
+            }
+          }
+
+          if (getinfoRes.exitCode === 0) {
+            return {
+              result: 'success',
+              message:
+                'Synced to chain and ready to perform on-chain operations',
+            }
+          }
+
+          return {
+            result: 'failure',
+            message: `Error calling 'lightning-cli getinfo': ${getinfoRes.stderr}`,
+          }
+        },
       },
     })
 })
