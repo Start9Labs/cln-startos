@@ -32,29 +32,29 @@ ENV RUST_PROFILE=release
 ENV PATH="/root/.cargo/bin:/root/.local/bin:$PATH"
 
 RUN apt-get update -qq && \
-    apt-get install -qq -y --no-install-recommends \
-        autoconf \
-        automake \
-        build-essential \
-        ca-certificates \
-        curl \
-        dirmngr \
-        gettext \
-        git \
-        gnupg \
-        jq \
-        libpq-dev \
-        libtool \
-        libffi-dev \
-        pkg-config \
-        libssl-dev \
-        protobuf-compiler \
-        libev-dev \
-        libevent-dev \
-        qemu-user-static \
-        wget \
-        unzip \
-        tclsh
+  apt-get install -qq -y --no-install-recommends \
+  autoconf \
+  automake \
+  build-essential \
+  ca-certificates \
+  curl \
+  dirmngr \
+  gettext \
+  git \
+  gnupg \
+  jq \
+  libpq-dev \
+  libtool \
+  libffi-dev \
+  pkg-config \
+  libssl-dev \
+  protobuf-compiler \
+  libev-dev \
+  libevent-dev \
+  qemu-user-static \
+  wget \
+  unzip \
+  tclsh
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
