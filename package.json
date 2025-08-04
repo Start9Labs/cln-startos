@@ -8,7 +8,9 @@
   "dependencies": {
     "@start9labs/start-sdk": "^0.4.0-beta.36",
     "bitcoind-startos": "git+https://github.com/Start9Labs/bitcoind-startos.git#update/040",
-    "dotenv": "^17.2.0"
+    "dotenv": "^17.2.0",
+    "js-yaml": "^4.1.0",
+    "node-forge": "^1.3.1"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
