@@ -72,6 +72,8 @@ const shape = object({
   'bitcoin-rpcport': literal(bitcoinRpcport).onMismatch(bitcoinRpcport),
   'bitcoin-datadir': literal(bitcoindDatadir).onMismatch(bitcoindDatadir),
   'bind-addr': stringArray.onMismatch(bindAddr),
+ ' bitcoin-rpcuser': matches.literal(undefined).optional().onMismatch(undefined),
+  'bitcoin-rpcpassword': matches.literal(undefined).optional().onMismatch(undefined),
 
   'announce-addr': stringArray.optional().onMismatch(announceAddr),
   proxy: string.optional().onMismatch(proxy),
