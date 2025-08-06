@@ -26,10 +26,13 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
     allowedStatuses: 'only-running',
     group: 'Watchtower',
     visibility: (await storeJson
-      .read((e) => e.watchtowerClients && e.watchtowerClients.length > 0)
+      .read(
+        (e) =>
+          e.watchtowerClients !== undefined && e.watchtowerClients.length > 0,
+      )
       .const(effects))
       ? 'enabled'
-      : 'hidden',
+      : { disabled: 'Watchtower Client must be enabled' },
   }),
 
   // the execution function

@@ -24,10 +24,11 @@ export const watchtowerInfo = sdk.Action.withoutInput(
     warning: null,
     allowedStatuses: 'only-running',
     group: 'Watchtower',
-    visibility:
-      (await storeJson.read((e) => e.watchtowerServer).const(effects)) || false
-        ? 'enabled'
-        : 'hidden',
+    visibility: (await storeJson
+      .read((e) => e.watchtowerServer !== undefined && e.watchtowerServer)
+      .const(effects))
+      ? 'enabled'
+      : { disabled: 'Watchtower Server must be enabled' },
   }),
 
   // the execution function
