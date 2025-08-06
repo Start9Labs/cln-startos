@@ -65,6 +65,15 @@ WORKDIR /tmp/rust-sling
 RUN cargo build --release
 
 # build rust-teos
+ENV PROTOBUF_VERSION=21.12
+RUN curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.tar.gz && \
+    tar -xzf protobuf-all-${PROTOBUF_VERSION}.tar.gz && \
+    cp -r protobuf-${PROTOBUF_VERSION}/src/google /usr/local/include/ && \
+    rm -rf protobuf*
+
+ENV PROTOC=/usr/bin/protoc
+ENV PROTOC_INCLUDE=/usr/local/include
+ENV PATH=$PATH:/usr/bin
 COPY ./rust-teos /tmp/rust-teos
 WORKDIR /tmp/rust-teos
 RUN cargo install --locked --path teos

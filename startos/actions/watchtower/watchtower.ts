@@ -7,6 +7,9 @@ import {
 import { sdk } from '../../sdk'
 import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
+import { mkdir, writeFile } from 'fs/promises'
+import { rpcPort } from 'bitcoind-startos/startos/utils'
+import { clnConfDefaults } from '../../utils'
 
 const watchtowerClientPlugin =
   '/usr/local/libexec/c-lightning/plugins/watchtower-client'
@@ -68,7 +71,7 @@ export const watchtower = sdk.Action.withInput(
       'Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family to watch over their nodes.  You can learn more about watchtowers at https://docs.corelightning.org/docs/watchtowers.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'Watchtower',
     visibility: 'enabled',
   }),
 
@@ -98,7 +101,6 @@ async function read(effects: any): Promise<PartialWatchTowerSpec> {
   }
 }
 
-// @TODO const the storeJson in main and start the server and/or add the watchtowers accordingly
 async function write(effects: any, input: WatchtowerSpec) {
   const watchtowerSettings = {
     watchtowerServer: input['wt-server'],
@@ -107,10 +109,48 @@ async function write(effects: any, input: WatchtowerSpec) {
         ? input['wt-client'].value['add-watchtowers']
         : [],
   }
+  if (watchtowerSettings.watchtowerServer) {
+    await mkdir(`/media/startos/volumes/main/.teos`, { recursive: true })
+    await writeFile(
+      `/media/startos/volumes/main/.teos/teos.toml`,
+      `
+# API
+api_bind = "0.0.0.0"
+api_port = 9814
+#tor_control_port = 9051
+#onion_hidden_service_port = 9814
+tor_support = false
 
-  // write instead of merge to simplify watchtowerClients array
-  await storeJson.write(effects, watchtowerSettings)
-  const plugins = (await clnConfig.read((e) => e.plugin).const(effects))!
+# RPC
+rpc_bind = "127.0.0.1"
+rpc_port = 8814
+
+# bitcoind
+btc_network = "mainnet"
+btc_rpc_connect = "bitcoind.startos"
+btc_rpc_port = ${rpcPort}
+btc_rpc_cookie = \"${clnConfDefaults['bitcoin-datadir']}/.cookie\"
+
+# Flags
+debug = false
+deps_debug = false
+overwrite_key = false
+
+# General
+subscription_slots = 10000
+subscription_duration = 4320
+expiry_delta = 6
+min_to_self_delay = 20
+polling_delta = 60
+
+# Internal API
+internal_api_bind = "127.0.0.1"
+internal_api_port = 50051
+`,
+    )
+  }
+
+  const plugins = (await clnConfig.read((e) => e.plugin).once()) || []
 
   if (watchtowerSettings.watchtowerClients.length > 0) {
     if (!plugins.includes(watchtowerClientPlugin)) {
@@ -125,6 +165,7 @@ async function write(effects: any, input: WatchtowerSpec) {
     if (index !== -1) plugins.splice(index, 1)
     await clnConfig.merge(effects, { plugin: plugins })
   }
+  await storeJson.merge(effects, watchtowerSettings)
 }
 
 type WatchtowerSpec = typeof watchtowerSpec._TYPE

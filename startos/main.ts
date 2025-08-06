@@ -1,12 +1,11 @@
-import {
-  bitcoinConfDefaults,
-  peerInterfaceId,
-} from 'bitcoind-startos/startos/utils'
 import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
 import { sdk } from './sdk'
-import { clnConfDefaults, mainMounts, rootDir, rpcPort, uiPort } from './utils'
-import { access } from 'fs/promises'
+import { clnConfDefaults, mainMounts, rootDir, uiPort } from './utils'
+import { Daemons } from '@start9labs/start-sdk'
+import { manifest } from './manifest'
+import { peerInterfaceId } from './interfaces'
+import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   /**
@@ -31,7 +30,9 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   await clnConfig.merge(effects, { proxy, 'announce-addr': peerAddresses })
 
+  // restart on changes to store or config
   const store = await storeJson.read().const(effects)
+  const config = await clnConfig.read().const(effects)
 
   const lightningdArgs: string[] = []
 
@@ -82,7 +83,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     'lightning-sub',
   )
 
-  return sdk.Daemons.of(effects, started)
+  const baseDaemons = sdk.Daemons.of(effects, started)
     .addDaemon('lightningd', {
       subcontainer: lightningdSubc,
       exec: {
@@ -120,24 +121,13 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       subcontainer: lightningdSubc,
       exec: {
         fn: async () => {
-          try {
-            await access(`${rootDir}/.commando-env`)
-            console.log('Existing .commando-env found')
-            return {
-              command: ['pwd'], // noop command because exec requires a command
-            }
-          } catch (error) {
-            console.log(
-              'No .commando-env found. Creating with entrypoint.sh...',
-            )
-            return {
-              command: [`scripts/entrypoint.sh`],
-              env: {
-                LIGHTNING_PATH: rootDir,
-                BITCOIN_NETWORK: 'bitcoin',
-                COMMANDO_CONFIG: `${rootDir}/.commando-env`,
-              },
-            }
+          return {
+            command: [`scripts/entrypoint.sh`],
+            env: {
+              LIGHTNING_PATH: rootDir,
+              BITCOIN_NETWORK: 'bitcoin',
+              COMMANDO_CONFIG: `${rootDir}/.commando-env`,
+            },
           }
         },
       },
@@ -239,4 +229,156 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         },
       },
     })
+
+  let daemons: Daemons<
+    typeof manifest,
+    | 'lightningd'
+    | 'commando-config'
+    | 'cln-application'
+    | 'check-synced'
+    | 'watchtower-server'
+  > = baseDaemons
+
+  if (store?.watchtowerServer) {
+    daemons = baseDaemons.addDaemon('watchtower-server', {
+      requires: ['lightningd'],
+      subcontainer: lightningdSubc,
+      exec: {
+        command: ['teosd', '--datadir=/root/.lightning/.teos'],
+      },
+      ready: {
+        display: 'TEOS Watchtower Server',
+        fn: async () => {
+          const gettowerinfoRes = await lightningdSubc.exec([
+            'teos-cli',
+            '--datadir=/root/.lightning/.teos',
+            'gettowerinfo',
+          ])
+          if (gettowerinfoRes.exitCode === 0) {
+            return {
+              result: 'success',
+              message: 'The Watchtower Server is online',
+            }
+          }
+
+          return {
+            result: 'starting',
+            message: 'TEOSd is starting...',
+          }
+        },
+      },
+    })
+  }
+
+  if (store?.watchtowerClients && store.watchtowerClients.length > 0) {
+    return daemons.addOneshot('watchtower-client', {
+      subcontainer: lightningdSubc,
+      requires: ['lightningd'],
+      exec: {
+        fn: async (subcontainer, abort) => {
+          const listtowersRes = await subcontainer.exec([
+            'lightning-cli',
+            'listtowers',
+          ])
+
+          if (listtowersRes.exitCode === 0) {
+            const parsedTowers: ListTowers = JSON.parse(
+              listtowersRes.stdout as string,
+            )
+            const registeredTowers = Object.entries(parsedTowers).map((t) => {
+              return `${t[0]}@${t[1].net_addr.split('://')[1]}`
+            })
+            for (const tower of store.watchtowerClients || []) {
+              if (abort.aborted) break
+              if (!registeredTowers.includes(tower)) {
+                console.log(`Watchtower client adding ${tower}`)
+                let res = await subcontainer.exec(
+                  ['lightning-cli', 'registertower', tower],
+                  undefined,
+                  undefined,
+                  {
+                    abort: abort.reason,
+                    signal: abort,
+                  },
+                )
+
+                if (
+                  res.exitCode === 0 &&
+                  res.stdout !== '' &&
+                  typeof res.stdout === 'string'
+                ) {
+                  console.log(`Result adding tower ${tower}: ${res.stdout}`)
+                } else {
+                  console.log(`Error adding tower ${tower}: ${res.stderr}`)
+                }
+              }
+            }
+          } else {
+            console.log("failed to run 'listtowers':", listtowersRes.stdout)
+          }
+          return null
+        },
+      },
+    })
+  }
+
+  if (store) {
+    daemons.addOneshot('abandontowers', {
+      subcontainer: lightningdSubc,
+      requires: ['lightningd', 'watchtower-server'],
+      exec: {
+        fn: async (subcontainer, abort) => {
+          const listtowersRes = await subcontainer.exec([
+            'lightning-cli',
+            'listtowers',
+          ])
+
+          if (listtowersRes.exitCode === 0) {
+            const parsedTowers: ListTowers = JSON.parse(
+              listtowersRes.stdout as string,
+            )
+            const registeredTowers = Object.entries(parsedTowers).map((t) => {
+              return `${t[0]}@${t[1].net_addr.split('://')[1]}`
+            })
+            for (const tower of registeredTowers) {
+              if (abort.aborted) break
+              if (
+                store.watchtowerClients === undefined ||
+                !store.watchtowerClients.includes(tower)
+              ) {
+                console.log(`Watchtower client removing ${tower}`)
+                let res = await subcontainer.exec(
+                  ['lightning-cli', 'abandontower', tower.split('@')[0]],
+                  undefined,
+                  undefined,
+                  {
+                    abort: abort.reason,
+                    signal: abort,
+                  },
+                )
+
+                if (
+                  res.exitCode === 0 &&
+                  res.stdout !== '' &&
+                  typeof res.stdout === 'string'
+                ) {
+                  console.log(`Result adding tower ${tower}: ${res.stdout}`)
+                } else {
+                  console.log(`Error adding tower ${tower}: ${res.stderr}`)
+                }
+              }
+            }
+          } else {
+            console.log(
+              'Failed to run listtowers while checking for abandoned towers',
+              listtowersRes.stderr,
+            )
+          }
+          return null
+        },
+      },
+    })
+  }
+
+  return daemons
 })

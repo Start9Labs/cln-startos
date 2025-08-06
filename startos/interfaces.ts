@@ -1,4 +1,6 @@
+import { readFile } from 'fs/promises'
 import { clnConfig } from './fileModels/config'
+import { parse } from 'dotenv'
 import { storeJson } from './fileModels/store.json'
 import { sdk } from './sdk'
 import {
@@ -10,6 +12,10 @@ import {
   grpcPort,
   websocketPort,
 } from './utils'
+import { FileHelper } from '@start9labs/start-sdk'
+
+export const peerInterfaceId = 'peer'
+export const teosInterfaceId = 'watchtower'
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const receipts = []
@@ -64,7 +70,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   })
   const peer = sdk.createInterface(effects, {
     name: 'Peer',
-    id: 'peer',
+    id: peerInterfaceId,
     description: 'Listens for incoming connections from lightning peers.',
     type: 'p2p',
     masked: false,
@@ -164,7 +170,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     )
     const watchtower = sdk.createInterface(effects, {
       name: 'TEOS Watchtower API',
-      id: 'watchtower',
+      id: teosInterfaceId,
       description:
         'The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.',
       type: 'api',
