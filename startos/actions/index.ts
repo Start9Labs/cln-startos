@@ -9,6 +9,7 @@ import { deleteGossipStore } from './deleteGossipStore'
 import { resetPassword } from './resetPassword'
 import { watchtowerInfo } from './watchtower/watchtowerInfo'
 import { watchtowerClientInfo } from './watchtower/watchtowerClientInfo'
+import { rescanBlockchain } from './rescanBlockchain'
 
 export const actions = sdk.Actions.of()
   .addAction(autoclean)
@@ -21,5 +22,6 @@ export const actions = sdk.Actions.of()
   .addAction(resetPassword)
   .addAction(watchtowerInfo)
   .addAction(watchtowerClientInfo)
+  .addAction(rescanBlockchain)
 
-// @TODO generate-lnlink, and rescan-blockchain actions
+// @TODO generate-lnlink

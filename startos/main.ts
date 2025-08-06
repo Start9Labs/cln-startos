@@ -30,9 +30,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   await clnConfig.merge(effects, { proxy, 'announce-addr': peerAddresses })
 
-  // restart on changes to store or config
-  const store = await storeJson.read().const(effects)
-  const config = await clnConfig.read().const(effects)
+  const store = await storeJson.read().once()
 
   const lightningdArgs: string[] = []
 
@@ -54,8 +52,13 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     }
     if (store.rescan) {
       lightningdArgs.push(`--rescan=${store.rescan}`)
+      await storeJson.merge(effects, { rescan: undefined })
     }
   }
+
+  // restart on changes to store or config
+  await storeJson.read().const(effects)
+  await clnConfig.read().const(effects)
 
   /**
    * ======================== Daemons ========================
