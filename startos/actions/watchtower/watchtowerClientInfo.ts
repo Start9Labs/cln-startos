@@ -1,7 +1,7 @@
 import { ActionResultMember } from '@start9labs/start-sdk/base/lib/osBindings'
 import { storeJson } from '../../fileModels/store.json'
 import { sdk } from '../../sdk'
-import { mainMounts } from '../../utils'
+import { mainMounts, rootDir } from '../../utils'
 
 export type ListTowers = {
   [pubkey: string]: {
@@ -42,7 +42,7 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
       mainMounts,
       'listtowers',
       async (subc) => {
-        return subc.exec(['lightning-cli', `listtowers`])
+        return subc.exec(['lightning-cli', `listtowers`], { cwd: rootDir })
       },
     )
 

@@ -1,5 +1,5 @@
 import { sdk } from '../sdk'
-import { mainMounts } from '../utils'
+import { mainMounts, rootDir } from '../utils'
 
 export const createRune = sdk.Action.withoutInput(
   // id
@@ -25,7 +25,9 @@ export const createRune = sdk.Action.withoutInput(
       mainMounts,
       'createrune',
       async (subc) => {
-        return await subc.exec(['lightning-cli', 'createrune'])
+        return await subc.exec(['lightning-cli', 'createrune'], {
+          cwd: rootDir,
+        })
       },
     )
 
