@@ -151,7 +151,7 @@ internal_api_port = 50051
     )
   }
 
-  const plugins = (await clnConfig.read((e) => e.plugin).once()) || []
+  const plugins = [(await clnConfig.read((e) => e.plugin).once()) || []].flat()
 
   if (watchtowerSettings.watchtowerClients.length > 0) {
     if (!plugins.includes(watchtowerClientPlugin)) {

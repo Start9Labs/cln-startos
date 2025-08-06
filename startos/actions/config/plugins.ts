@@ -161,7 +161,7 @@ async function read(effects: any): Promise<PartialPluginSpec> {
 
 async function write(effects: any, input: PluginSpec) {
   const confPlugins =
-    (await clnConfig.read((e) => e.plugin).const(effects)) || []
+    [(await clnConfig.read((e) => e.plugin).const(effects)) || []].flat()
 
   if (input.sling) {
     if (!confPlugins.includes(slingPlugin)) {

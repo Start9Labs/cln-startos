@@ -78,6 +78,7 @@ const shape = object({
   'always-use-proxy': boolean.optional().onMismatch(alwaysUseProxy),
   'clnrest-host': literal(clnrestHost).optional().onMismatch(clnrestHost),
   'clnrest-port': literal(clnrestPort).optional().onMismatch(clnrestPort),
+  'clnrest-certs': literal(rootDir).optional().onMismatch(rootDir),
   alias: string.optional().onMismatch(alias),
   rgb: string.optional().onMismatch(rgb),
 
@@ -112,7 +113,7 @@ const shape = object({
   'htlc-minimum-msat': natural.optional().onMismatch(htlcMinimumMsat),
   'htlc-maximum-msat': natural.optional().onMismatch(htlcMaximumMsat),
   'xpay-handle-pay': boolean.optional().onMismatch(xpayHandlePay),
-  plugin: stringArray.optional().onMismatch(plugin),
+  plugin: stringArray.orParser(matches.string).optional().onMismatch(plugin),
 
   // Dual Funding
   'funder-lease-requests-only': boolean
