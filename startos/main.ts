@@ -270,16 +270,20 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     })
   }
 
-  if (store?.watchtowerClients && store.watchtowerClients.length > 0) {
+  if (
+    store !== null &&
+    store.watchtowerClients !== undefined &&
+    store.watchtowerClients.length > 0
+  ) {
     return daemons.addOneshot('watchtower-client', {
       subcontainer: lightningdSubc,
       requires: ['lightningd'],
       exec: {
         fn: async (subcontainer, abort) => {
-          const listtowersRes = await subcontainer.exec([
-            'lightning-cli',
-            'listtowers',
-          ])
+          const listtowersRes = await subcontainer.exec(
+            ['lightning-cli', 'listtowers'],
+            { cwd: rootDir },
+          )
 
           if (listtowersRes.exitCode === 0) {
             const parsedTowers: ListTowers = JSON.parse(
@@ -294,7 +298,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
                 console.log(`Watchtower client adding ${tower}`)
                 let res = await subcontainer.exec(
                   ['lightning-cli', 'registertower', tower],
-                  undefined,
+                  { cwd: rootDir },
                   undefined,
                   {
                     abort: abort.reason,
@@ -314,7 +318,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
               }
             }
           } else {
-            console.log("failed to run 'listtowers':", listtowersRes.stdout)
+            console.log("failed to run 'listtowers':", listtowersRes)
           }
           return null
         },
@@ -328,10 +332,10 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       requires: ['lightningd', 'watchtower-server'],
       exec: {
         fn: async (subcontainer, abort) => {
-          const listtowersRes = await subcontainer.exec([
-            'lightning-cli',
-            'listtowers',
-          ])
+          const listtowersRes = await subcontainer.exec(
+            ['lightning-cli', 'listtowers'],
+            { cwd: rootDir },
+          )
 
           if (listtowersRes.exitCode === 0) {
             const parsedTowers: ListTowers = JSON.parse(
@@ -349,7 +353,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
                 console.log(`Watchtower client removing ${tower}`)
                 let res = await subcontainer.exec(
                   ['lightning-cli', 'abandontower', tower.split('@')[0]],
-                  undefined,
+                  { cwd: rootDir },
                   undefined,
                   {
                     abort: abort.reason,
@@ -371,7 +375,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
           } else {
             console.log(
               'Failed to run listtowers while checking for abandoned towers',
-              listtowersRes.stderr,
+              listtowersRes,
             )
           }
           return null
