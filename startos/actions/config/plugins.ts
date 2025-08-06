@@ -11,7 +11,7 @@ import { clnConfDefaults } from '../../utils'
 const { 'clnrest-host': clnrestHost, 'clnrest-port': clnrestPort } =
   clnConfDefaults
 
-const slingPlugin = '/usr/local/libexec/c-lightning/plugins/sling/sling'
+const slingPlugin = '/usr/local/libexec/c-lightning/plugins/sling'
 const clbossPlugin = '/usr/local/libexec/c-lightning/plugins/clboss'
 
 const pluginsSpec = InputSpec.of({
