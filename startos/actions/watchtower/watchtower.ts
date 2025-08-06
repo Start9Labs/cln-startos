@@ -86,16 +86,17 @@ export const watchtower = sdk.Action.withInput(
 )
 
 async function read(effects: any): Promise<PartialWatchTowerSpec> {
-  const watchtowerSettings = (await storeJson.read().const(effects))!
+  const store = await storeJson.read().const(effects)
+  if (!store) return {}
 
   return {
-    'wt-server': watchtowerSettings.watchtowerServer,
+    'wt-server': store.watchtowerServer,
     'wt-client':
-      watchtowerSettings.watchtowerClients &&
-      watchtowerSettings.watchtowerClients.length > 0
+      store.watchtowerClients &&
+      store.watchtowerClients.length > 0
         ? {
             selection: 'enabled',
-            value: { 'add-watchtowers': watchtowerSettings.watchtowerClients },
+            value: { 'add-watchtowers': store.watchtowerClients },
           }
         : { selection: 'disabled' },
   }
