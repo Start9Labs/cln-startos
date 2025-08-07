@@ -87,7 +87,6 @@ const shape = object({
   'always-use-proxy': boolean.optional().onMismatch(alwaysUseProxy),
   'clnrest-host': literal(clnrestHost).optional().onMismatch(clnrestHost),
   'clnrest-port': literal(clnrestPort).optional().onMismatch(clnrestPort),
-  'clnrest-certs': literal(rootDir).optional().onMismatch(rootDir),
   alias: string.optional().onMismatch(alias),
   rgb: string.optional().onMismatch(rgb),
   'grpc-port': literal(grpcPort).onMismatch(grpcPort),

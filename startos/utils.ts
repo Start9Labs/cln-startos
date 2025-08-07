@@ -26,7 +26,6 @@ export const clnConfDefaults = {
   proxy: undefined,
   'clnrest-port': 3010,
   'clnrest-host': '0.0.0.0',
-  'clnrest-certs': rootDir,
   'grpc-port': 2106,
 
   // autoclean
