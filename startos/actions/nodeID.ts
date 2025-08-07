@@ -9,9 +9,8 @@ export const nodeId = sdk.Action.withoutInput(
   async ({ effects }) => ({
     name: 'Node ID',
     description:
-      'Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby.',
-    warning:
-      "This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust",
+      'Display Node ID.',
+    warning: null,
     allowedStatuses: 'only-running',
     group: null,
     visibility: 'enabled',
