@@ -26,6 +26,7 @@ const {
   'always-use-proxy': alwaysUseProxy,
   'clnrest-host': clnrestHost,
   'clnrest-port': clnrestPort,
+  'grpc-port': grpcPort,
   alias,
   rgb,
   'autoclean-cycle': autocleanCycle,
@@ -89,6 +90,7 @@ const shape = object({
   'clnrest-certs': literal(rootDir).optional().onMismatch(rootDir),
   alias: string.optional().onMismatch(alias),
   rgb: string.optional().onMismatch(rgb),
+  'grpc-port': literal(grpcPort).onMismatch(grpcPort),
 
   // Autoclean
   'autoclean-cycle': natural.optional().onMismatch(autocleanCycle),

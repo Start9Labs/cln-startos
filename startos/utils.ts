@@ -1,4 +1,4 @@
-import { sdk } from "./sdk"
+import { sdk } from './sdk'
 
 export const uiPort = 4500
 export const rpcPort = 8080
@@ -26,6 +26,8 @@ export const clnConfDefaults = {
   proxy: undefined,
   'clnrest-port': 3010,
   'clnrest-host': '0.0.0.0',
+  'clnrest-certs': rootDir,
+  'grpc-port': 2106,
 
   // autoclean
   'autoclean-cycle': 3_600,

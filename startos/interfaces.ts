@@ -111,25 +111,46 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // clnrest
   if (conf && conf['clnrest-host'] && conf['clnrest-port']) {
-    const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest-multi')
-    const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
-      protocol: 'http',
-      preferredExternalPort: clnrestPort,
-    })
-    const clnrest = sdk.createInterface(effects, {
-      name: 'CLNrest',
-      id: 'clnrest',
-      description:
-        'CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.',
-      type: 'api',
-      masked: false,
-      schemeOverride: null,
-      username: null,
-      path: '',
-      query: {},
-    })
-    const clnrestReceipt = await clnrestMultiOrigin.export([clnrest])
-    receipts.push(clnrestReceipt)
+    try {
+      const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest-multi')
+      const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
+        protocol: 'https',
+        preferredExternalPort: clnrestPort,
+        addSsl: {
+          alpn: null,
+          preferredExternalPort: clnrestPort,
+        },
+      })
+
+      await FileHelper.string('/media/startos/volumes/main/.commando-env')
+        .read()
+        .const(effects)
+
+      const contents = await readFile(
+        '/media/startos/volumes/main/.commando-env',
+        'utf-8',
+      )
+      const rune = parse(contents)['LIGHTNING_RUNE']
+
+      console.log('Rune: ', rune)
+
+      const clnrest = sdk.createInterface(effects, {
+        name: 'CLNrest',
+        id: 'clnrest',
+        description:
+          'CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.',
+        type: 'api',
+        masked: false,
+        schemeOverride: { ssl: 'clnrest', noSsl: 'clnrest' },
+        username: null,
+        path: '',
+        query: { rune: rune ? rune : 'Error parsing Rune' },
+      })
+      const clnrestReceipt = await clnrestMultiOrigin.export([clnrest])
+      receipts.push(clnrestReceipt)
+    } catch {
+      console.log('Rune not found')
+    }
   }
 
   // websocket (clams)
