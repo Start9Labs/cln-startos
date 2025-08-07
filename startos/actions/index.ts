@@ -10,6 +10,7 @@ import { resetPassword } from './resetPassword'
 import { watchtowerInfo } from './watchtower/watchtowerInfo'
 import { watchtowerClientInfo } from './watchtower/watchtowerClientInfo'
 import { rescanBlockchain } from './rescanBlockchain'
+import { nodeId } from './nodeID'
 
 export const actions = sdk.Actions.of()
   .addAction(autoclean)
@@ -23,5 +24,6 @@ export const actions = sdk.Actions.of()
   .addAction(watchtowerInfo)
   .addAction(watchtowerClientInfo)
   .addAction(rescanBlockchain)
+  .addAction(nodeId)
 
 // @TODO generate-lnlink

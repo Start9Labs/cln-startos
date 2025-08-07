@@ -69,3 +69,7 @@ export const clnConfDefaults = {
   'funder-per-channel-max': undefined,
   'funder-reserve-tank': undefined,
 }
+
+export type GetInfoResponse = {
+  id: string
+}
