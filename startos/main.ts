@@ -329,7 +329,11 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     })
   }
 
-  if (store) {
+  if (
+    store &&
+    store.watchtowerClients !== undefined &&
+    store.watchtowerClients.length > 0
+  ) {
     daemons.addOneshot('abandontowers', {
       subcontainer: lightningdSubc,
       requires: ['lightningd', 'watchtower-server'],

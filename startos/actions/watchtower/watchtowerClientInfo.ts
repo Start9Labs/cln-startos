@@ -53,9 +53,9 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
       const towerInfo: ListTowers = JSON.parse(res.stdout as string)
 
       const towers: ActionResultMember[] =
-        Object.entries(towerInfo).map((tower, idx) => {
+        Object.entries(towerInfo).map((tower) => {
           return {
-            name: `Watchtower #${idx + 1}`,
+            name: `Watchtower Pubkey #${tower[0]}`,
             description:
               'Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower',
             value: [
