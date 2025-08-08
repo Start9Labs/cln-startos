@@ -46,7 +46,8 @@ export const rescanBlockchain = sdk.Action.withInput(
     return {
       version: '1',
       title: 'Success',
-      message: 'Launch the CLN UI to set a new password',
+      message:
+        'If CLN is running it will be restarted now to begin the rescan. If CLN is stopped it will rescan the next time CLN is started',
       result: null,
     }
   },
