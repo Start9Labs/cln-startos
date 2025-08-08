@@ -188,12 +188,14 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     const watchtowerMultiOrigin = await watchtowerMulti.bindPort(
       watchtowerPort,
       {
-        protocol: 'http',
+        protocol: null,
+        addSsl: null,
         preferredExternalPort: watchtowerPort,
+        secure: null,
       },
     )
     const watchtower = sdk.createInterface(effects, {
-      name: 'TEOS Watchtower API',
+      name: 'TEOS Watchtower',
       id: teosInterfaceId,
       description:
         'The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.',

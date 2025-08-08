@@ -51,17 +51,17 @@ export const watchtowerInfo = sdk.Action.withoutInput(
 
     if (res.exitCode === 0) {
       const towerInfo: GetTowerInfo = JSON.parse(res.stdout as string)
-      const watchtowerAddress = (
+      const watchtowerAddresses = (
         await sdk.serviceInterface.getOwn(effects, teosInterfaceId).const()
       )?.addressInfo?.publicUrls
 
       const watchtowerUrls: ActionResultMember[] =
-        watchtowerAddress?.map((tower, idx) => {
+        watchtowerAddresses?.map((tower, idx) => {
           return {
             name: `Tower #${idx + 1}`,
             description:
               'Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower',
-            value: `${towerInfo.tower_id}@${tower.split('://')[1]}`,
+            value: `${towerInfo.tower_id}@${tower}`,
             copyable: true,
             masked: true,
             qr: true,
