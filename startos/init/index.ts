@@ -9,10 +9,10 @@ import { setupCerts } from './setupCerts'
 export const init = sdk.setupInit(
   restoreInit,
   versionGraph,
+  setupCerts,
   setInterfaces,
   setDependencies,
   actions,
-  setupCerts,
 )
 
 export const uninit = sdk.setupUninit(versionGraph)

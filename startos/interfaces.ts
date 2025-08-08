@@ -63,17 +63,20 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const rpcReceipt = await rpcMultiOrigin.export([rpc])
   receipts.push(rpcReceipt)
 
-  const nodeInfo: GetInfoResponse = await sdk.SubContainer.withTemp(effects, {
-    imageId: 'lightning'},
+  const nodeInfo: GetInfoResponse = await sdk.SubContainer.withTemp(
+    effects,
+    {
+      imageId: 'lightning',
+    },
     mainMounts,
     'getinfo',
-          async (subc) => {
-            const res = await subc.execFail(['lightning-cli', 'getinfo'], {
-              cwd: rootDir,
-            })
+    async (subc) => {
+      const res = await subc.execFail(['lightning-cli', 'getinfo'], {
+        cwd: rootDir,
+      })
 
-            return JSON.parse(res.stdout as string)
-          },
+      return JSON.parse(res.stdout as string)
+    },
   )
 
   // Peer
