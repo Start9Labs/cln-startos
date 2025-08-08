@@ -11,14 +11,14 @@ export const deleteGossipStore = sdk.Action.withoutInput(
     name: 'Delete Gossip Store',
     description: 'Deletes gossip_store in the case of corruption',
     warning: null,
-    allowedStatuses: 'any',
+    allowedStatuses: 'only-stopped',
     group: null,
     visibility: 'enabled',
   }),
 
   // the execution function
   async ({ effects }) => {
-    await fs.rm(`${rootDir}/bitcoin/gossip_store`, {
+    await fs.rm('/media/startos/volumes/main//bitcoin/gossip_store', {
       recursive: true,
     })
 
