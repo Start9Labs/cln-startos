@@ -26,7 +26,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   const peerAddresses = (
     await sdk.serviceInterface.getOwn(effects, peerInterfaceId).const()
-  )?.addressInfo?.publicUrls.map((u) => u.split('@')[1])
+  )?.addressInfo?.publicUrls
 
   await clnConfig.merge(effects, { proxy, 'announce-addr': peerAddresses })
 

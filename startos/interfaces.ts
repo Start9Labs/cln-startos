@@ -63,47 +63,27 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const rpcReceipt = await rpcMultiOrigin.export([rpc])
   receipts.push(rpcReceipt)
 
-  try {
-    const nodeInfo: GetInfoResponse = await sdk.SubContainer.withTemp(
-      effects,
-      {
-        imageId: 'lightning',
-      },
-      mainMounts,
-      'getinfo',
-      async (subc) => {
-        const res = await subc.execFail(['lightning-cli', 'getinfo'], {
-          cwd: rootDir,
-        })
-
-        return JSON.parse(res.stdout as string)
-      },
-    )
-
-    // Peer
-    const peerMulti = sdk.MultiHost.of(effects, 'peer-multi')
-    const peerMultiOrigin = await peerMulti.bindPort(peerPort, {
-      protocol: null,
-      addSsl: null,
-      preferredExternalPort: peerPort,
-      secure: null,
-    })
-    const peer = sdk.createInterface(effects, {
-      name: 'Peer',
-      id: peerInterfaceId,
-      description: 'Listens for incoming connections from lightning peers.',
-      type: 'p2p',
-      masked: false,
-      schemeOverride: null,
-      username: nodeInfo.id,
-      path: '',
-      query: {},
-    })
-    const peerReceipt = await peerMultiOrigin.export([peer])
-    receipts.push(peerReceipt)
-  } catch (error) {
-    console.log('lightning-rpc is not ready')
-  }
+  // Peer
+  const peerMulti = sdk.MultiHost.of(effects, 'peer-multi')
+  const peerMultiOrigin = await peerMulti.bindPort(peerPort, {
+    protocol: null,
+    addSsl: null,
+    preferredExternalPort: peerPort,
+    secure: null,
+  })
+  const peer = sdk.createInterface(effects, {
+    name: 'Peer',
+    id: peerInterfaceId,
+    description: 'Listens for incoming connections from lightning peers.',
+    type: 'p2p',
+    masked: false,
+    schemeOverride: null,
+    username: '',
+    path: '',
+    query: {},
+  })
+  const peerReceipt = await peerMultiOrigin.export([peer])
+  receipts.push(peerReceipt)
 
   // gRPC
   const grpcMulti = sdk.MultiHost.of(effects, 'grpc-multi')
