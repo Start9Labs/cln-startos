@@ -25,7 +25,7 @@ CLN works with both Bitcoin Core and Bitcoin Knots, whichever is running. It is 
 #### General Settings
 ##### Privacy
 
-The Lightning Network allows you to open announced channels, unannounced channels, or a mixture of the two. Announced channels are those whose existence and size are publicly visible to all participants in the network and would ordinarily be used to route payments between distant peers. Unannounced channels are those only known to you and the channel peer to whom you opened the channel. If you only have unannounced channels, then your node may go undetected on the wider network, but you'd rely entirely on the liquidity and the connectedness of your channel peer to send or receive payments, and some may fail.
+The Lightning Network allows you to open announced channels, unannounced channels, or a mixture of the two. Announced channels are those whose existence and size are publicly visible to all participants in the network and would ordinarily be used to route payments between distant peers. Unannounced channels are those only known to you and the channel peer to whom you opened the channel. If you only have unannounced channels, then your node may go undetected on the wider network, but you'd rely entirely on the liquidity and the connectedness of your channel peers to send or receive payments, and some may fail.
 
 Privacy-focused node runners may want to run all their traffic over TOR, and that option is available to you on StartOS. This would prevent the leaking of your IP address via clearnet.
 
