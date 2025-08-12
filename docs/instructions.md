@@ -20,7 +20,7 @@ Your CLN node is highly configurable. Many settings are considered advanced and 
 
 #### Bitcoin Backend
 
-CLN works with both Bitcoin Core and Bitcoin Knots, whichever is running. It is recommended to use a full archival Bitcoin Core node. However, CLN can be run with a pruned node provided Bitcoin's version is >= 25.0.0~2.
+CLN works with both Bitcoin Core and Bitcoin Knots, whichever is running. It is recommended to use a full archival Bitcoin Core node.
 
 #### General Settings
 ##### Privacy
@@ -35,7 +35,7 @@ There's lots of fun to be had for those who aren't quite as privacy-focused, suc
 
 Routing is the process of passing along payments in through one peer and out through another, with payments sent by and being received by third parties who may be several hops away. You can choose to allow routing requests. Preventing routing requests means that you don't earn small amounts of sats per routing event, but it also means you do not slowly unbalance your channels and later need to rebalance (perhaps costing more than you earned).
 
-If you have many announced channels and good connectedness, peers you have no relation to may find your node on the network and decide to open a channel to it. You can set minimum and maximum channel sizes. `Minimum Channel Size` is perhaps more relevant to a beginner, as many users may not want to deal with the resources and risks associated with funds allocated across many small channels that may not be particularly useful for your own regular payment sizes. It is not recommended to open a channel of less than 100,000 satoshis since anything less could mean it's possible that the cost to open and close the channel might approach the size of the channel itself. The bigger the channel you open, the more outbound liquidity you will have, which means you have more spending power on the network.
+If you have many announced channels and good connectedness, peers you have no relation to may find your node on the network and decide to open a channel to it. You can set minimum and maximum channel sizes. `Minimum Channel Size` is perhaps more relevant to a beginner, as many users may not want to deal with the resources and risks associated with funds allocated across many small channels that may not be particularly useful for your own regular payment sizes. It is not recommended to open a channel of less than 500,000 satoshis since anything less could mean it's possible that the cost to open and close the channel might approach the size of the channel itself. The bigger the channel you open, the more outbound liquidity you will have, which means you have more spending power on the network.
 
 #### Channel Configuration Settings
 
