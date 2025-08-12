@@ -10,9 +10,9 @@ Available For:
 
 1. Download [Zeus](https://zeusln.app/) for your device.
 
-1. Log into StartOS and select Services -> CLN and find the Interfaces section, then open the settings for `CLNRest Quick Connect`.
+1. Log into StartOS and select Services -> CLN and find the Interfaces section, then select the gear icon on the right-hand side for `CLNRest`.
 
-1. Tap the QR code icon for **CLNRest Quick Connect** to display the QR code.
+1. Tap the QR code icon for the desired connection option (tor, local, IPv6, IPv6, etc) to display the QR code.
 
 1. In Zeus, tap "Scan node config". Allow camera access, scan the QR code, and then tap 'Save node config'. Zeus will fill in your node details based on the information in the QR code.
 
