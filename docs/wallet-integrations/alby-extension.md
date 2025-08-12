@@ -35,7 +35,7 @@ WARNING: If you are looking for Alby Hub, this is not it. To use Alby Hub you mu
 
 1. For **Public key** enter your **Node Id** found within the Actions area of the CLN service on your server.
 
-1. To generate a rune on StartOS you will need to navigate to Core Lightning > Actions > Generate Rune. Then copy the value and paste it into Alby.
+1. To generate a rune on StartOS you will need to navigate to Core Lightning > Actions > Create Rune. Then copy the value and paste it into Alby.
 
 1. Enter the port number for your chosen interface in **Port**.
 
