@@ -3,7 +3,8 @@ import { readFile } from 'fs/promises'
 import { load } from 'js-yaml'
 import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
-import { clnConfDefaults } from '../../utils'
+import { clnConfDefaults, teosTomlDefaults } from '../../utils'
+import { teosToml } from '../../fileModels/teos.toml'
 
 export const v25_5_0_1 = VersionInfo.of({
   version: '25.5.0:1-alpha.0',
@@ -48,6 +49,10 @@ export const v25_5_0_1 = VersionInfo.of({
           }
         }
 
+        if (configYaml.watchtowers['wt-server']) {
+          await teosToml.write(effects, teosTomlDefaults)
+        }
+
         await storeJson.write(effects, {
           rescan: undefined,
           'experimental-dual-fund':
@@ -79,7 +84,7 @@ export const v25_5_0_1 = VersionInfo.of({
               : undefined,
         })
       } catch {
-        console.log('configYaml not found using store.json defaults')
+        console.log('configYaml not found. Using store.json defaults')
         await storeJson.write(effects, {
           rescan: undefined,
           'experimental-dual-fund': false,
