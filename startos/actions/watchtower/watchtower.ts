@@ -9,7 +9,8 @@ import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
 import { mkdir, writeFile } from 'fs/promises'
 import { rpcPort } from 'bitcoind-startos/startos/utils'
-import { clnConfDefaults } from '../../utils'
+import { clnConfDefaults, teosTomlDefaults } from '../../utils'
+import { teosToml } from '../../fileModels/teos.toml'
 
 const watchtowerClientPlugin =
   '/usr/local/libexec/c-lightning/plugins/watchtower-client'
@@ -112,43 +113,7 @@ async function write(effects: any, input: WatchtowerSpec) {
   }
   if (watchtowerSettings.watchtowerServer) {
     await mkdir(`/media/startos/volumes/main/.teos`, { recursive: true })
-    await writeFile(
-      `/media/startos/volumes/main/.teos/teos.toml`,
-      `
-# API
-api_bind = "0.0.0.0"
-api_port = 9814
-#tor_control_port = 9051
-#onion_hidden_service_port = 9814
-tor_support = false
-
-# RPC
-rpc_bind = "127.0.0.1"
-rpc_port = 8814
-
-# bitcoind
-btc_network = "mainnet"
-btc_rpc_connect = "bitcoind.startos"
-btc_rpc_port = ${rpcPort}
-btc_rpc_cookie = \"${clnConfDefaults['bitcoin-datadir']}/.cookie\"
-
-# Flags
-debug = false
-deps_debug = false
-overwrite_key = false
-
-# General
-subscription_slots = 10000
-subscription_duration = 4320
-expiry_delta = 6
-min_to_self_delay = 20
-polling_delta = 60
-
-# Internal API
-internal_api_bind = "127.0.0.1"
-internal_api_port = 50051
-`,
-    )
+    await teosToml.write(effects, teosTomlDefaults)
   }
 
   const plugins = [(await clnConfig.read((e) => e.plugin).once()) || []].flat()

@@ -73,3 +73,30 @@ export const clnConfDefaults = {
 export type GetInfoResponse = {
   id: string
 }
+
+export const teosTomlDefaults = {
+  api_bind: '0.0.0.0',
+  api_port: 9814,
+  tor_support: false,
+
+  rpc_bind: '127.0.0.1',
+  rpc_port: 8814,
+
+  btc_network: 'mainnet',
+  btc_rpc_connect: 'bitcoind.startos',
+  btc_rpc_port: rpcPort,
+  btc_rpc_cookie: `${clnConfDefaults['bitcoin-datadir']}/.cookie`,
+
+  debug: false,
+  deps_debug: false,
+  overwrite_key: false,
+
+  subscription_slots: 10_000,
+  subscription_duration: 4_320,
+  expiry_delta: 6,
+  min_to_self_delay: 20,
+  polling_delta: 60,
+
+  internal_api_bind: '127.0.0.1',
+  internal_api_port: 50051,
+}
