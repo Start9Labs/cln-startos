@@ -11,16 +11,17 @@ const shape = object({
   'experimental-shutdown-wrong-funding': boolean.optional().onMismatch(false),
   // clboss startup options passed to lightningd
   clboss: object({
-    "min-onchain": natural.optional().onMismatch(undefined),
-    "auto-close": boolean.optional().onMismatch(undefined),
+    'min-onchain': natural.optional().onMismatch(undefined),
+    'auto-close': boolean.optional().onMismatch(undefined),
     zerobasefee: literals('default', 'required', 'allow', 'disallow')
       .optional()
       .onMismatch(undefined),
-    "min-channel": natural.optional().onMismatch(undefined),
-    "max-channel": natural.optional().onMismatch(undefined),
+    'min-channel': natural.optional().onMismatch(undefined),
+    'max-channel': natural.optional().onMismatch(undefined),
   })
     .optional()
     .onMismatch(undefined),
+  restore: boolean.optional().onMismatch(undefined),
 })
 
 export const storeJson = FileHelper.json(

@@ -56,10 +56,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     }
   }
 
-  // restart on changes to store or config
-  await storeJson.read().const(effects)
-  await clnConfig.read().const(effects)
-
   /**
    * ======================== Daemons ========================
    *
@@ -241,6 +237,29 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     | 'check-synced'
     | 'watchtower-server'
   > = baseDaemons
+
+  if (store?.restore) {
+    daemons.addOneshot('emergency-recover', {
+      subcontainer: lightningdSubc,
+      requires: ['lightningd'],
+      exec: {
+        command: [
+          'lightning-cli',
+          `--lightning-dir=${rootDir}`,
+          'emergencyrecover',
+        ],
+      },
+    })
+  }
+
+  console.log('resetting restore')
+  if (store?.restore) {
+    await storeJson.merge(effects, { restore: false })
+  }
+
+  // restart on changes to store or config
+  await storeJson.read().const(effects)
+  await clnConfig.read().const(effects)
 
   if (store?.watchtowerServer) {
     daemons = baseDaemons.addDaemon('watchtower-server', {
