@@ -84,7 +84,7 @@ export const teosTomlDefaults = {
 
   btc_network: 'mainnet',
   btc_rpc_connect: 'bitcoind.startos',
-  btc_rpc_port: rpcPort,
+  btc_rpc_port: 8332,
   btc_rpc_cookie: `${clnConfDefaults['bitcoin-datadir']}/.cookie`,
 
   debug: false,
