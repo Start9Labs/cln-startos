@@ -139,9 +139,11 @@ async function read(effects: any): Promise<PartialPluginSpec> {
   const store = await storeJson.read().const(effects)
   if (!conf) return {}
 
+  const plugins = [conf.plugin || []].flat()
+
   return {
     clnrest: !!conf['clnrest-host'] && !!conf['clnrest-port'],
-    sling: conf.plugin?.includes('sling'),
+    sling: plugins.includes(slingPlugin),
     clboss: store?.clboss
       ? {
           selection: 'enabled',
@@ -160,8 +162,9 @@ async function read(effects: any): Promise<PartialPluginSpec> {
 }
 
 async function write(effects: any, input: PluginSpec) {
-  const confPlugins =
-    [(await clnConfig.read((e) => e.plugin).const(effects)) || []].flat()
+  const confPlugins = [
+    (await clnConfig.read((e) => e.plugin).const(effects)) || [],
+  ].flat()
 
   if (input.sling) {
     if (!confPlugins.includes(slingPlugin)) {
@@ -186,10 +189,10 @@ async function write(effects: any, input: PluginSpec) {
     }
     await storeJson.merge(effects, {
       clboss: {
-        "auto-close": autoClose,
-        "max-channel": maxChannel || undefined,
-        "min-channel": minChannel || undefined,
-        "min-onchain": minOnchain || undefined,
+        'auto-close': autoClose,
+        'max-channel': maxChannel || undefined,
+        'min-channel': minChannel || undefined,
+        'min-onchain': minOnchain || undefined,
         zerobasefee: zerobasefee,
       },
     })
