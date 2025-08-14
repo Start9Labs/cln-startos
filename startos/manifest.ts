@@ -1,9 +1,19 @@
 import { setupManifest } from '@start9labs/start-sdk'
+import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
+
+const BUILD = process.env.BUILD || ''
+
+const architectures =
+  BUILD === 'x86'
+    ? ['x86_64']
+    : BUILD === 'arm'
+      ? ['aarch64']
+      : ['x86_64', 'aarch64']
 
 export const manifest = setupManifest({
   id: 'c-lightning',
   title: 'Core Lightning',
-  license: 'mit',
+  license: 'MIT',
   wrapperRepo: 'https://github.com/Start9Labs/cln-startos',
   upstreamRepo: 'https://github.com/ElementsProject/lightning',
   supportSite: 'https://github.com/ElementsProject/lightning/issues',
@@ -19,20 +29,19 @@ export const manifest = setupManifest({
   volumes: ['main'],
   images: {
     lightning: {
-      source: {
-        dockerBuild: {
-          dockerfile: 'Dockerfile',
-          workdir: '.',
-        },
-      },
-    },
+      source: { dockerBuild: {} },
+      arch: architectures,
+    } as SDKImageInputSpec,
     ui: {
       source: {
         dockerTag: 'ghcr.io/elementsproject/cln-application:25.07',
       },
-    },
+      arch: architectures,
+    } as SDKImageInputSpec,
   },
-  hardwareRequirements: {},
+  hardwareRequirements: {
+    arch: architectures,
+  },
   alerts: {
     install:
       'READ CAREFULLY! Core Lightning and the Lightning Network are considered beta software. Please use with caution and do not risk more money than you are willing to lose. We encourage frequent backups. If for any reason, you need to restore CLN from a backup, your on-chain wallet will be restored, but the money locked up in your channels will be stuck in those channels for an indeterminate period of time, if they are returned to you at all. It depends on the cooperation of your peers. Choose peers with discretion.',

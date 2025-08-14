@@ -1,5 +1,6 @@
 *.s9pk
 startos/*.js
+startos/.js
 node_modules/
 .DS_Store
 .vscode/
