@@ -11,16 +11,19 @@ on:
 
 jobs:
   BuildPackage:
+    name: Build S9PK for ${{ matrix.arch_display }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         include:
-          - platform: x86
-            runner: ubuntu-24.04
-            arch: amd64
           - platform: arm
             runner: ubuntu-24.04-arm
             arch: arm64
+            arch_display: aarch64
+          - platform: x86
+            runner: ubuntu-24.04
+            arch: amd64
+            arch_display: x86_64
     
     steps:
       - name: Prepare StartOS SDK
