@@ -11,7 +11,7 @@ on:
 
 jobs:
   BuildPackage:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
     steps:
       - name: Prepare StartOS SDK
         uses: k0gen/sdk@v3-optimization
