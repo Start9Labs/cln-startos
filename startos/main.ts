@@ -2,7 +2,7 @@ import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
 import { sdk } from './sdk'
 import { clnConfDefaults, mainMounts, rootDir, uiPort } from './utils'
-import { Daemons } from '@start9labs/start-sdk'
+import { Daemons, FileHelper } from '@start9labs/start-sdk'
 import { manifest } from './manifest'
 import { peerInterfaceId } from './interfaces'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
@@ -81,6 +81,11 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       }),
     'lightning-sub',
   )
+
+  // Restart if Bitcoin .cookie changes
+  await FileHelper.string(`${lightningdSubc.rootfs}/mnt/bitcoin/.cookie`)
+    .read()
+    .const(effects)
 
   const baseDaemons = sdk.Daemons.of(effects, started)
     .addDaemon('lightningd', {
