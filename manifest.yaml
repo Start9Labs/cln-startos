@@ -186,7 +186,7 @@ interfaces:
       - grpc
 dependencies:
   bitcoind:
-    version: ">=0.21.1.2 <30.0.0"
+    version: ">=0.21.1.2 <31.0.0"
     requirement:
       type: required
     description: Used as a blockchain backend.
