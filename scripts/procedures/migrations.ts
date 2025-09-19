@@ -453,11 +453,6 @@ export const migration: T.ExpectedExports.migration =
       "25.09.0": {
         up: compat.migrations.updateConfig(
           (config) => {
-            if (matches.shape({
-              advanced: matches.shape({experimental: matches.any})
-            }).test(config)) {
-              config.advanced.experimental.splicing = false;
-            }
             return config;
           },
           true,
