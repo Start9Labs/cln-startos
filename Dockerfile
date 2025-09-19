@@ -149,10 +149,14 @@ COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 RUN git clone --recursive /tmp/lightning-wrapper/lightning . && \
     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
 
-ENV PYTHON_VERSION=3 \
-  POETRY_VERSION=2.0.1
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    /root/.local/bin/poetry self add poetry-plugin-export
+# ENV PYTHON_VERSION=3 \
+#   POETRY_VERSION=2.0.1
+# RUN curl -sSL https://install.python-poetry.org | python3 - && \
+#     /root/.local/bin/poetry self add poetry-plugin-export
+ENV PATH="/root/.local/bin:$PATH" \
+    PYTHON_VERSION=3
+RUN wget -qO- https://astral.sh/uv/install.sh | sh && \
+    uv sync --all-extras --all-groups
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 
@@ -160,65 +164,21 @@ RUN pip3 install --upgrade pip setuptools wheel
 RUN pip3 wheel cryptography
 RUN pip3 install grpcio-tools
 
-
-RUN sed -i '/^wss-proxy/d' pyproject.toml && \
-    /root/.local/bin/poetry lock && \
-    /root/.local/bin/poetry export -o requirements.txt --without-hashes
-
-RUN pip3 install -r requirements.txt && pip3 cache purge
-
-# Ensure that the desired grpcio-tools & protobuf versions are installed
-# https://github.com/ElementsProject/lightning/pull/7376#issuecomment-2161102381
-RUN poetry lock && poetry install
-
 # Ensure that git differences are removed before making bineries, to avoid `-modded` suffix
 # poetry.lock changed due to pyln-client, pyln-proto and pyln-testing version updates
 # pyproject.toml was updated to exclude wss-proxy plugin in base-builder stage
 RUN git reset --hard HEAD
 
-RUN ./configure --prefix=/tmp/lightning_install --enable-static && make && poetry run make install
+RUN ./configure --prefix=/tmp/lightning_install --enable-static && uv run make install
 
 # Export the requirements for the plugins so we can install them in builder-python stage
-WORKDIR /opt/lightningd/plugins/wss-proxy
-RUN poetry lock && poetry export -o requirements.txt --without-hashes
 WORKDIR /opt/lightningd
 RUN echo 'RUSTUP_INSTALL_OPTS="${RUSTUP_INSTALL_OPTS}"' > /tmp/rustup_install_opts.txt
 
-# We need to build python plugins on the target's arch because python doesn't support cross build
-FROM debian:bullseye-slim AS builder-python
-RUN apt-get update -qq && \
-    apt-get install -qq -y --no-install-recommends \
-        git \
-        curl \
-        libtool \
-        pkg-config \
-        autoconf \
-        automake \
-        build-essential \
-        libffi-dev \
-        libssl-dev \
-        python3.9 \
-        python3-dev \
-        python3-pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
-
-ENV PYTHON_VERSION=3
-RUN pip3 install --upgrade pip setuptools wheel
-
-# Copy rustup_install_opts.txt file from builder
-COPY --from=builder /tmp/rustup_install_opts.txt /tmp/rustup_install_opts.txt
 # Setup ENV $RUSTUP_INSTALL_OPTS for this stage
 RUN export $(cat /tmp/rustup_install_opts.txt)
 ENV PATH="/root/.cargo/bin:$PATH"
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y ${RUSTUP_INSTALL_OPTS}
-
-WORKDIR /opt/lightningd/plugins/wss-proxy
-COPY --from=builder /opt/lightningd/plugins/wss-proxy/requirements.txt .
-RUN pip3 install -r requirements.txt
-RUN pip3 cache purge
 
 WORKDIR /opt/lightningd
 
@@ -235,11 +195,11 @@ COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 # lightningd
 COPY --from=builder /tmp/lightning_install/ /usr/local/
 COPY --from=builder /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
-COPY --from=builder-python /usr/local/lib/python3.9/dist-packages/ /usr/local/lib/python3.9/dist-packages/
 COPY --from=downloader /opt/bitcoin/bin /usr/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     binutils \
+    ca-certificates \
     curl \
     dnsutils \
     socat \
@@ -252,8 +212,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libunwind-dev \
     procps \
     python3 \
-    python3-gdbm \
-    python3-pip \
     libpq5 \
     wget \
     xxd \
@@ -268,10 +226,6 @@ ARG PLATFORM
 RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /usr/local/bin/yq
 
 # PLUGINS
-WORKDIR /usr/local/libexec/c-lightning/plugins
-RUN pip3 install -U pip
-RUN pip3 install wheel
-RUN pip3 install -U pyln-proto pyln-bolt7
 
 # aarch64 or x86_64
 ARG ARCH
