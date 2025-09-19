@@ -450,8 +450,25 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "25.09.0": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            if (matches.shape({
+              advanced: matches.shape({experimental: matches.any})
+            }).test(config)) {
+              config.advanced.experimental.splicing = false;
+            }
+            return config;
+          },
+          true,
+          { version: "25.09.0", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
     },
-    "25.05.0",
+    "25.09.0",
   );
 
 function generateRandomString(length: number) {
