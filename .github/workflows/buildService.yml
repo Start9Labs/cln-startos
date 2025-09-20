@@ -4,25 +4,73 @@ on:
   workflow_dispatch:
   pull_request:
     paths-ignore: ['*.md']
-    branches: ['main', 'update/workflows']
+    branches: ['main', 'update/040']
   push:
     paths-ignore: ['*.md']
-    branches: ['main', 'update/workflows']
+    branches: ['main', 'update/040']
 
 jobs:
-  BuildPackage:
-    runs-on: ubuntu-latest
+  build-arm:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout services repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Build aarch64 image
+        run: make arm
+
+      - name: Upload aarch64 image
+        uses: actions/upload-artifact@v4
+        with:
+          name: aarch64-image
+          path: ./docker-images/aarch64.tar
+
+  build-x86:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout services repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Build x86_64 image
+        run: make x86
+
+      - name: Upload x86_64 image
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64-image
+          path: ./docker-images/x86_64.tar
+
+  build-universal-s9pk:
+    runs-on: ubuntu-24.04
+    needs: [build-arm, build-x86]
     steps:
       - name: Prepare StartOS SDK
         uses: Start9Labs/sdk@v1
 
       - name: Checkout services repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Download aarch64 image
+        uses: actions/download-artifact@v4
+        with:
+          name: aarch64-image
+          path: ./docker-images/
+
+      - name: Download x86_64 image
+        uses: actions/download-artifact@v4
+        with:
+          name: x86_64-image
+          path: ./docker-images/
 
       - name: Build the service package
         id: build
         run: |
-          git submodule update --init --recursive
           start-sdk init
           make
           PACKAGE_ID=$(yq -oy ".id" manifest.*)
@@ -30,7 +78,7 @@ jobs:
         shell: bash
 
       - name: Upload .s9pk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.build.outputs.package_id }}.s9pk
           path: ./${{ steps.build.outputs.package_id }}.s9pk
