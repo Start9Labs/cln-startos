@@ -67,7 +67,7 @@ WORKDIR /tmp/clboss
 RUN autoreconf -i
 RUN ./configure
 RUN ./generate_commit_hash.sh
-RUN make
+RUN make -j"$(getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1)"
 RUN make install
 RUN strip /usr/local/bin/clboss
 
@@ -110,22 +110,22 @@ RUN apt-get update -qq && \
         tclsh
 
 # CLN
-RUN wget -q https://zlib.net/fossils/zlib-1.2.13.tar.gz \
-    && tar xvf zlib-1.2.13.tar.gz \
-    && cd zlib-1.2.13 \
+RUN wget -q https://zlib.net/fossils/zlib-1.3.1.tar.gz \
+    && tar xvf zlib-1.3.1.tar.gz \
+    && cd zlib-1.3.1 \
     && ./configure \
     && make \
     && make install && cd .. && \
-    rm zlib-1.2.13.tar.gz && \
-    rm -rf zlib-1.2.13
+    rm zlib-1.3.1.tar.gz && \
+    rm -rf zlib-1.3.1
 
 RUN apt-get install -y --no-install-recommends unzip tclsh \
-&& wget -q https://www.sqlite.org/2023/sqlite-src-3430100.zip \
-&& unzip sqlite-src-3430100.zip \
-&& cd sqlite-src-3430100 \
+&& wget -q https://www.sqlite.org/2025/sqlite-src-3500400.zip \
+&& unzip sqlite-src-3500400.zip \
+&& cd sqlite-src-3500400 \
 && ./configure --enable-static --disable-readline --disable-threadsafe --disable-load-extension \
 && make \
-&& make install && cd .. && rm sqlite-src-3430100.zip && rm -rf sqlite-src-3430100
+&& make install && cd .. && rm sqlite-src-3500400.zip && rm -rf sqlite-src-3500400
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN rustup toolchain install stable --component rustfmt --allow-downgrade
