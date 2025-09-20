@@ -18,6 +18,12 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Prepare StartOS SDK
+        uses: Start9Labs/sdk@v1
+
+      - name: Install md-packer
+        run: cargo install --git=https://github.com/Start9Labs/md-packer.git --branch=main
+
       - name: Build aarch64 image
         run: make arm
 
@@ -34,6 +40,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+
+      - name: Prepare StartOS SDK
+        uses: Start9Labs/sdk@v1
+
+      - name: Install md-packer
+        run: cargo install --git=https://github.com/Start9Labs/md-packer.git --branch=main
 
       - name: Build x86_64 image
         run: make x86
@@ -67,6 +79,9 @@ jobs:
         with:
           name: x86_64-image
           path: ./docker-images/
+
+      - name: Install md-packer
+        run: cargo install --git=https://github.com/Start9Labs/md-packer.git --branch=main
 
       - name: Build the service package
         id: build
