@@ -21,6 +21,11 @@ jobs:
       - name: Prepare StartOS SDK
         uses: k0gen/sdk@v1.3.2
 
+      - name: Debug info
+        run: |
+          pwd
+          ls -F
+
       - name: Build aarch64 image
         run: |
           start-sdk init
@@ -42,6 +47,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+
+      - name: Debug info
+        run: |
+          pwd
+          ls -F
 
       - name: Build x86_64 image
         run: |
