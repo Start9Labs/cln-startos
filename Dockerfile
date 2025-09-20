@@ -146,9 +146,7 @@ WORKDIR /opt/lightningd
 COPY lightning/. /tmp/lightning-wrapper/lightning
 COPY ./.git/modules/lightning /tmp/lightning-wrapper/lightning/.git/
 
-RUN git clone /tmp/lightning-wrapper/lightning . && \
-    git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD) && \
-    git submodule update --init --recursive
+RUN sed -i 's|url = ../../|url = https://github.com/|g' /tmp/lightning-wrapper/lightning/.gitmodules &&     git clone --recursive /tmp/lightning-wrapper/lightning . &&     git checkout $(git --work-tree=/tmp/lightning-wrapper/lightning --git-dir=/tmp/lightning-wrapper/lightning/.git rev-parse HEAD)
 
 # ENV PYTHON_VERSION=3 \
 #   POETRY_VERSION=2.0.1
