@@ -1,4 +1,4 @@
-FROM node:18-bullseye AS ui
+FROM node:20-bookworm AS ui
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -87,7 +87,7 @@ ARG PLATFORM
 RUN curl -sL -o /tmp/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /tmp/yq
 
 # Final stage
-FROM elementsproject/lightningd AS final
+FROM elementsproject/lightningd:v25.09 AS final
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
@@ -95,12 +95,13 @@ ENV LIGHTNINGD_PORT=9735
 ENV LIGHTNINGD_NETWORK=bitcoin
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev iproute2 procps && \
+    libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev iproute2 procps curl nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 
-    RUN touch $LIGHTNINGD_DATA/config
+RUN touch $LIGHTNINGD_DATA/config
 VOLUME [ "/root/.lightning" ]
 
+COPY --from=ui /app/ /app/
 COPY --from=builder-rust /tmp/yq /usr/local/bin/
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 COPY --from=builder-rust /root/.cargo/bin/teos* /usr/local/bin/
@@ -110,23 +111,10 @@ RUN chmod a+x /usr/local/libexec/c-lightning/plugins/sling
 
 # other scripts
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
-RUN chmod a+x /usr/local/bin/docker_entrypoint.sh
 ADD ./check-rpc.sh /usr/local/bin/check-rpc.sh
-RUN chmod a+x /usr/local/bin/check-rpc.sh
 ADD ./check-web-ui.sh /usr/local/bin/check-web-ui.sh
-RUN chmod a+x /usr/local/bin/check-web-ui.sh
 ADD ./check-synced.sh /usr/local/bin/check-synced.sh
-RUN chmod a+x /usr/local/bin/check-synced.sh
 ADD ./actions/*.sh /usr/local/bin/
 RUN chmod a+x /usr/local/bin/*.sh
-
-# UI
-COPY --from=ui /app/apps/frontend/build /app/apps/frontend/build
-COPY --from=ui /app/apps/frontend/public /app/apps/frontend/public
-COPY --from=ui /app/apps/frontend/package.json /app/apps/frontend/package.json
-COPY --from=ui /app/apps/backend/dist /app/apps/backend/dist
-COPY --from=ui /app/apps/backend/package.json /app/apps/backend/package.json
-COPY --from=ui /app/package.json /app/package.json
-COPY --from=ui /app/node_modules /app/node_modules
 
 WORKDIR /app
