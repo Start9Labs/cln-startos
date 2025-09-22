@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths-ignore: ['*.md']
-    branches: ['main', 'update/040']
+    branches: ['master']
   push:
     paths-ignore: ['*.md']
-    branches: ['main', 'update/040']
+    branches: ['master']
 
 jobs:
   build-arm:
@@ -84,7 +84,7 @@ jobs:
           start-sdk init
           make
           PACKAGE_ID=$(yq -oy ".id" manifest.*)
-          echo "::set-output name=package_id::$PACKAGE_ID"
+          echo "package_id=$PACKAGE_ID" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Upload .s9pk
