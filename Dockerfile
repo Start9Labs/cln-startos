@@ -1,4 +1,4 @@
-FROM node:20-bookworm AS ui
+FROM node:22-bookworm AS ui
 
 RUN apt-get update && apt-get install -y \
     build-essential \

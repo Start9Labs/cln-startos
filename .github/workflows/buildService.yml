@@ -35,6 +35,9 @@ jobs:
   build-x86:
     runs-on: ubuntu-24.04
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Prepare StartOS SDK
         uses: k0gen/sdk@v1.3.2
 
