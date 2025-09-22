@@ -32,7 +32,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   const store = await storeJson.read().once()
 
-  const lightningdArgs: string[] = []
+  const lightningdArgs: string[] = ['--database-upgrade=true']
 
   if (store && store.clboss) {
     for (const [key, value] of Object.entries(store.clboss)) {
