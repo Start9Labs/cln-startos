@@ -1,0 +1,27 @@
+{
+  "name": "cln-startos",
+  "scripts": {
+    "build": "rm -rf ./javascript && ncc build startos/index.ts -o ./javascript",
+    "prettier": "prettier --write startos",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@start9labs/start-sdk": "^0.4.0-beta.41",
+    "bitcoind-startos": "git+https://github.com/Start9Labs/bitcoind-startos.git#update/040",
+    "dotenv": "^17.2.0",
+    "js-yaml": "^4.1.0",
+    "node-forge": "^1.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@vercel/ncc": "^0.38.3",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
+  }
+}

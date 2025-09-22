@@ -1,79 +1,88 @@
-BITCOIN_VERSION := "27.1"
-C_LIGHTNING_GIT_REF := $(shell cat .git/modules/lightning/HEAD)
-C_LIGHTNING_GIT_FILE := $(addprefix .git/modules/lightning/,$(if $(filter ref:%,$(C_LIGHTNING_GIT_REF)),$(lastword $(C_LIGHTNING_GIT_REF)),HEAD))
-CLBOSS_SRC := $(shell find ./clboss)
-DOC_ASSETS := $(shell find ./docs/assets)
-PKG_VERSION := $(shell yq e ".version" manifest.yaml)
-PKG_ID := $(shell yq e ".id" manifest.yaml)
-PLUGINS_SRC := $(shell find ./plugins)
-VERSION := $(shell yq e ".version" manifest.yaml)
-TEOS_SRC := $(shell find rust-teos -name '*.rs')
-TS_FILES := $(shell find . -name \*.ts )
+PACKAGE_ID := $(shell awk -F"'" '/id:/ {print $$2}' startos/manifest.ts)
+INGREDIENTS := $(shell start-cli s9pk list-ingredients 2>/dev/null)
 
+CMD_ARCH_GOAL := $(filter aarch64 x86_64 arm x86, $(MAKECMDGOALS))
+ifeq ($(CMD_ARCH_GOAL),)
+  BUILD := universal
+  S9PK := $(PACKAGE_ID).s9pk
+else
+  RAW_ARCH := $(firstword $(CMD_ARCH_GOAL))
+  ACTUAL_ARCH := $(patsubst x86,x86_64,$(patsubst arm,aarch64,$(RAW_ARCH)))
+  BUILD := $(ACTUAL_ARCH)
+  S9PK := $(PACKAGE_ID)_$(BUILD).s9pk
+endif
+
+.PHONY: all aarch64 x86_64 arm x86 clean install check-deps check-init package ingredients
 .DELETE_ON_ERROR:
 
-all: submodule-update instructions.md verify
+define SUMMARY
+	@manifest=$$(start-cli s9pk inspect $(1) manifest); \
+	size=$$(du -h $(1) | awk '{print $$1}'); \
+	title=$$(printf '%s' "$$manifest" | jq -r .title); \
+	version=$$(printf '%s' "$$manifest" | jq -r .version); \
+	arches=$$(printf '%s' "$$manifest" | jq -r '.hardwareRequirements.arch | join(", ")'); \
+	sdkv=$$(printf '%s' "$$manifest" | jq -r .sdkVersion); \
+	gitHash=$$(printf '%s' "$$manifest" | jq -r .gitHash | sed -E 's/(.*-modified)$$/\x1b[0;31m\1\x1b[0m/'); \
+	printf "\n"; \
+	printf "\033[1;32m✅ Build Complete!\033[0m\n"; \
+	printf "\n"; \
+	printf "\033[1;37m📦 $$title\033[0m   \033[36mv$$version\033[0m\n"; \
+	printf "───────────────────────────────\n"; \
+	printf " \033[1;36mFilename:\033[0m   %s\n" "$(1)"; \
+	printf " \033[1;36mSize:\033[0m       %s\n" "$$size"; \
+	printf " \033[1;36mArch:\033[0m       %s\n" "$$arches"; \
+	printf " \033[1;36mSDK:\033[0m        %s\n" "$$sdkv"; \
+	printf " \033[1;36mGit:\033[0m        %s\n" "$$gitHash"; \
+	echo ""
+endef
 
-clean:
-	rm -rf docker-images
-	rm -f $(PKG_ID).s9pk
-	rm -f scripts/*.js
+all: $(PACKAGE_ID).s9pk
+	$(call SUMMARY,$(S9PK))
 
-submodule-update:
-	@if [ -z "$(shell git submodule status | egrep -v '^ '|awk '{print $2}')" ]; then \
-		echo "\nAll submodules ready for build.\n"; \
-	else \
-		echo "\nPulling submodules...\n"; \
-		git submodule update --init --progress; \
+$(BUILD): $(PACKAGE_ID)_$(BUILD).s9pk
+	$(call SUMMARY,$(S9PK))
+
+x86: x86_64
+arm: aarch64
+
+$(S9PK): $(INGREDIENTS) .git/HEAD .git/index
+	@$(MAKE) --no-print-directory ingredients
+	@echo "   Packing '$(S9PK)'..."
+	BUILD=$(BUILD) start-cli s9pk pack -o $(S9PK)
+
+ingredients: $(INGREDIENTS)
+	@echo "   Re-evaluating ingredients..."
+
+install: package | check-deps check-init
+	@HOST=$$(awk -F'/' '/^host:/ {print $$3}' ~/.startos/config.yaml); \
+	if [ -z "$$HOST" ]; then \
+		echo "Error: You must define \"host: http://server-name.local\" in ~/.startos/config.yaml"; \
+		exit 1; \
+	fi; \
+	echo "\n🚀 Installing to $$HOST ..."; \
+	start-cli package install -s $(S9PK)
+
+check-deps:
+	@command -v start-cli >/dev/null || \
+		(echo "Error: start-cli not found. Please see https://docs.start9.com/latest/developer-guide/sdk/installing-the-sdk" && exit 1)
+	@command -v npm >/dev/null || \
+		(echo "Error: npm not found. Please install Node.js and npm." && exit 1)
+
+check-init:
+	@if [ ! -f ~/.startos/developer.key.pem ]; then \
+		echo "Initializing StartOS developer environment..."; \
+		start-cli init; \
 	fi
 
-arm:
-	@rm -f docker-images/x86_64.tar
-	@ARCH=aarch64 $(MAKE)
+javascript/index.js: $(shell find startos -type f) tsconfig.json node_modules
+	npm run build
 
-x86:
-	@rm -f docker-images/aarch64.tar
-	@ARCH=x86_64 $(MAKE)
+node_modules: package-lock.json
+	npm ci
 
-verify: $(PKG_ID).s9pk
-	@start-sdk verify s9pk $(PKG_ID).s9pk
-	@echo " Done!"
-	@echo "   Filesize: $(shell du -h $(PKG_ID).s9pk) is ready"
+package-lock.json: package.json
+	npm i
 
-install:
-ifeq (,$(wildcard ~/.embassy/config.yaml))
-	@echo; echo "You must define \"host: http://embassy-server-name.local\" in ~/.embassy/config.yaml config file first"; echo
-else
-	start-cli package install $(PKG_ID).s9pk
-endif
-
-$(PKG_ID).s9pk: manifest.yaml docker-images/aarch64.tar docker-images/x86_64.tar instructions.md $(ASSET_PATHS) scripts/embassy.js
-ifeq ($(ARCH),aarch64)
-	@echo "start-sdk: Preparing aarch64 package ..."
-else ifeq ($(ARCH),x86_64)
-	@echo "start-sdk: Preparing x86_64 package ..."
-else
-	@echo "start-sdk: Preparing Universal Package ..."
-endif
-	@start-sdk pack
-
-docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(TEOS_SRC) manifest.yaml ./actions/*
-ifeq ($(ARCH),x86_64)
-else
-	mkdir -p docker-images
-	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=aarch64 --build-arg PLATFORM=arm64 --platform=linux/arm64/v8 -o type=docker,dest=docker-images/aarch64.tar .
-endif
-
-docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh check-rpc.sh check-synced.sh $(C_LIGHTNING_GIT_FILE) $(PLUGINS_SRC) $(TEOS_SRC) manifest.yaml ./actions/*
-ifeq ($(ARCH),aarch64)
-else
-	mkdir -p docker-images
-	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --build-arg BITCOIN_VERSION=$(BITCOIN_VERSION) --build-arg ARCH=x86_64 --build-arg PLATFORM=amd64 --platform=linux/amd64 -o type=docker,dest=docker-images/x86_64.tar .
-endif
-
-scripts/embassy.js: $(TS_FILES)
-	deno bundle scripts/embassy.ts scripts/embassy.js
-	
-instructions.md: docs/instructions.md $(DOC_ASSETS)
-	@echo "Generating instructions.md\n"
-	@cd docs && md-packer < instructions.md > ../instructions.md
+clean:
+	@echo "Cleaning up build artifacts..."
+	@rm -rf $(PACKAGE_ID).s9pk $(PACKAGE_ID)_x86_64.s9pk $(PACKAGE_ID)_aarch64.s9pk javascript node_modules
