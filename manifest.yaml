@@ -1,5 +1,5 @@
 id: c-lightning
-version: 25.09.0
+version: 25.09.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,8 +7,9 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update to CLN 25.09 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.09)
+  * Update to CLN 25.09.1 [Release Notes](https://github.com/ElementsProject/lightning/releases/tag/v25.09.1)
   * Update cln-application UI to v25.07.2 [Release Notes](https://github.com/ElementsProject/cln-application/releases/tag/v25.07.2)
+  * Update clboss to v0.15.1 [Release Notes](https://github.com/ZmnSCPxj/clboss/releases/tag/v0.15.1)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
