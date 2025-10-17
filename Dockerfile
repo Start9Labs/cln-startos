@@ -98,7 +98,6 @@ RUN apt-get update && \
     libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev iproute2 procps curl nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 
-RUN touch $LIGHTNINGD_DATA/config
 VOLUME [ "/root/.lightning" ]
 
 COPY --from=ui /app/ /app/
