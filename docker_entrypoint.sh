@@ -139,14 +139,14 @@ if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "tru
 fi
 
 # User Interface
-export LIGHTNING_IP="0.0.0.0"
-export APP_IP="0.0.0.0"
-export APP_CONFIG_DIR="/root/.lightning/data/app"
+export LIGHTNING_HOST="0.0.0.0"
+export APP_HOST="0.0.0.0"
+export APP_CONFIG_FILE="/root/.lightning/data/app/config.json"
 export DEVICE_DOMAIN_NAME=$UI_LAN_ADDRESS
 export LOCAL_HOST=$CLN_REST_LAN_ADDRESS
-export HIDDEN_SERVICE_URL=$CLN_REST_TOR_ADDRESS
-export LIGHTNING_WEBSOCKET_PORT=4269
-export COMMANDO_CONFIG="/root/.lightning/.commando-env"
+export LIGHTNING_TOR_HOST=$CLN_REST_TOR_ADDRESS
+export LIGHTNING_WS_PORT=4269
+export LIGHTNING_VARS_FILE="/root/.lightning/.commando-env"
 export APP_PORT=4500
 export LIGHTNING_PATH="/root/.lightning"
 export BITCOIN_NODE_IP="bitcoind.embassy"
@@ -258,9 +258,9 @@ if [ "$(yq ".advanced.plugins.clnrest" /root/.lightning/start9/config.yaml)" = "
 fi
 
 # Read existing pubkey
-if [ -f "$COMMANDO_CONFIG" ]; then
-  EXISTING_PUBKEY=$(head -n1 "$COMMANDO_CONFIG")
-  EXISTING_RUNE=$(sed -n "2p" "$COMMANDO_CONFIG")
+if [ -f "$LIGHTNING_VARS_FILE" ]; then
+  EXISTING_PUBKEY=$(head -n1 "$LIGHTNING_VARS_FILE")
+  EXISTING_RUNE=$(sed -n "2p" "$LIGHTNING_VARS_FILE")
   LAST_FOUR=$(echo "$EXISTING_RUNE" | rev | cut -c 2-5 | rev)
   echo "Found existing Pubkey in commando config: $EXISTING_PUBKEY"
   echo "Found existing Rune ending with: ${LAST_FOUR} in commando config"
@@ -285,9 +285,9 @@ if [ "$EXISTING_PUBKEY" != "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" ] ||
   [ "$EXISTING_RUNE" = "LIGHTNING_RUNE=\"null\"" ]; then
   # Pubkey changed or missing rune; rewrite new data on the file.
   echo "Pubkey mismatched or missing rune; Rewriting the data."
-  cat /dev/null > "$COMMANDO_CONFIG"
-  echo "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" >> "$COMMANDO_CONFIG"
-  generate_new_rune $COMMANDO_CONFIG "For Application#"
+  cat /dev/null > "$LIGHTNING_VARS_FILE"
+  echo "LIGHTNING_PUBKEY=\"$LIGHTNING_PUBKEY\"" >> "$LIGHTNING_VARS_FILE"
+  generate_new_rune $LIGHTNING_VARS_FILE "For Application#"
 else
   echo "Pubkey matches with existing pubkey."
 fi
