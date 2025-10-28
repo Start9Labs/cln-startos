@@ -284,7 +284,7 @@ function configMaker(alias: Alias, config: SetConfig) {
     ? "experimental-shutdown-wrong-funding"
     : "";
   const enableSlingPlugin = config.advanced.plugins.sling
-    ? "plugin=//usr/local/libexec/c-lightning/plugins/sling/sling"
+    ? "plugin=/usr/local/libexec/c-lightning/plugins/sling"
     : "";
   const enableCLNRestPlugin = config.advanced.plugins.clnrest
     ? "clnrest-port=3010\nclnrest-host=0.0.0.0\n"
