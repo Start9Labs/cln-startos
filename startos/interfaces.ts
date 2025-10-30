@@ -21,7 +21,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const receipts = []
 
   // UI
-  const uiMulti = sdk.MultiHost.of(effects, 'ui-multi')
+  const uiMulti = sdk.MultiHost.of(effects, 'web-ui')
   const uiMultiOrigin = await uiMulti.bindPort(uiPort, {
     protocol: 'http',
     preferredExternalPort: uiPort,
@@ -41,7 +41,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   receipts.push(uiReceipt)
 
   // RPC
-  const rpcMulti = sdk.MultiHost.of(effects, 'rpc-multi')
+  const rpcMulti = sdk.MultiHost.of(effects, 'rpc')
   const rpcMultiOrigin = await rpcMulti.bindPort(rpcPort, {
     protocol: 'http',
     preferredExternalPort: rpcPort,
@@ -61,7 +61,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   receipts.push(rpcReceipt)
 
   // Peer
-  const peerMulti = sdk.MultiHost.of(effects, 'peer-multi')
+  const peerMulti = sdk.MultiHost.of(effects, 'peer')
   const peerMultiOrigin = await peerMulti.bindPort(peerPort, {
     protocol: null,
     addSsl: null,
@@ -83,7 +83,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   receipts.push(peerReceipt)
 
   // gRPC
-  const grpcMulti = sdk.MultiHost.of(effects, 'grpc-multi')
+  const grpcMulti = sdk.MultiHost.of(effects, 'grpc')
   const grpcMultiOrigin = await grpcMulti.bindPort(grpcPort, {
     protocol: 'https',
     preferredExternalPort: grpcPort,
@@ -112,7 +112,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   // clnrest
   if (conf && conf['clnrest-host'] && conf['clnrest-port']) {
     try {
-      const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest-multi')
+      const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest')
       const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
         protocol: 'https',
         preferredExternalPort: clnrestPort,
@@ -155,7 +155,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // websocket (clams)
   if (conf && conf['bind-addr'].includes('ws::7272')) {
-    const websocketMulti = sdk.MultiHost.of(effects, 'websocket-multi')
+    const websocketMulti = sdk.MultiHost.of(effects, 'websocket')
     const websocketMultiOrigin = await websocketMulti.bindPort(websocketPort, {
       protocol: 'http',
       preferredExternalPort: websocketPort,
@@ -181,7 +181,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // watchtower
   if (watchtowerServerEnabled) {
-    const watchtowerMulti = sdk.MultiHost.of(effects, 'watchtower-multi')
+    const watchtowerMulti = sdk.MultiHost.of(effects, 'watchtower')
     const watchtowerMultiOrigin = await watchtowerMulti.bindPort(
       watchtowerPort,
       {
