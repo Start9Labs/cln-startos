@@ -11,23 +11,10 @@ on:
 
 jobs:
   BuildPackage:
-    name: Build S9PK for ${{ matrix.arch_display }}
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        include:
-          - platform: arm
-            runner: ubuntu-24.04-arm
-            arch: arm64
-            arch_display: aarch64
-          - platform: x86
-            runner: ubuntu-24.04
-            arch: amd64
-            arch_display: x86_64
-    
+    runs-on: ubuntu-latest
     steps:
       - name: Prepare StartOS SDK
-        uses: k0gen/sdk@v3-optimization
+        uses: start9labs/sdk@v2
 
       - name: Checkout services repository
         uses: actions/checkout@v4
@@ -38,27 +25,14 @@ jobs:
         id: build
         run: |
           start-cli init
-          RUST_LOG=debug RUST_BACKTRACE=1 make ${{ matrix.platform }}
-          
-          # Get the original package name
-          ORIGINAL_PACKAGE=$(ls *.s9pk | head -n1)
-          PACKAGE_ID=$(start-cli s9pk inspect "$ORIGINAL_PACKAGE" manifest | jq -r '.id')
-          
-          # Create architecture-specific filename
-          ARCH_PACKAGE="${PACKAGE_ID}-${{ matrix.platform }}.s9pk"
-          
-          # Rename the package to include architecture
-          mv "$ORIGINAL_PACKAGE" "$ARCH_PACKAGE"
-          
-          # Set environment variables for later steps
+          RUST_LOG=debug RUST_BACKTRACE=1 make
+          PACKAGE_ID=$(start-cli s9pk inspect *.s9pk manifest | jq -r '.id')
           echo "package_id=${PACKAGE_ID}" >> $GITHUB_ENV
-          echo "arch_package=${ARCH_PACKAGE}" >> $GITHUB_ENV
-          
-          printf "\n SHA256SUM: $(sha256sum ${ARCH_PACKAGE}) \n"
+          printf "\n SHA256SUM: $(sha256sum ${PACKAGE_ID}.s9pk) \n"
         shell: bash
 
       - name: Upload .s9pk
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.arch_package }}
-          path: ./${{ env.arch_package }}
+          name: ${{ env.package_id }}.s9pk
+          path: ./${{ env.package_id }}.s9pk
