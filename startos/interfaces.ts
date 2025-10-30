@@ -11,9 +11,6 @@ import {
   watchtowerPort,
   grpcPort,
   websocketPort,
-  GetInfoResponse,
-  mainMounts,
-  rootDir,
 } from './utils'
 import { FileHelper } from '@start9labs/start-sdk'
 
