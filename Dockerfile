@@ -63,7 +63,7 @@ RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
 # Final stage - simplified
-FROM elementsproject/lightningd:v25.09 AS final
+FROM elementsproject/lightningd:v25.09.1 AS final
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev && \
