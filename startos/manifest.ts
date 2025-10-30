@@ -35,7 +35,7 @@ export const manifest = setupManifest({
     } as SDKImageInputSpec,
     ui: {
       source: {
-        dockerTag: 'ghcr.io/elementsproject/cln-application:25.07',
+        dockerTag: 'ghcr.io/elementsproject/cln-application:25.07.3',
       },
       arch: arch,
     } as SDKImageInputSpec,
