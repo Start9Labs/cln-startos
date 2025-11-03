@@ -6,8 +6,8 @@ import { clnConfig } from '../../fileModels/config'
 import { clnConfDefaults, teosTomlDefaults } from '../../utils'
 import { teosToml } from '../../fileModels/teos.toml'
 
-export const v25_9_1_1_beta0 = VersionInfo.of({
-  version: '25.9.1:1-beta.0',
+export const v25_9_1_1_beta1 = VersionInfo.of({
+  version: '25.9.1:1-beta.1',
   releaseNotes: 'Revamped for StartOS 0.4.0',
   migrations: {
     up: async ({ effects }) => {
