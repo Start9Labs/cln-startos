@@ -1,5 +1,5 @@
 id: c-lightning
-version: 25.09.1.1
+version: 25.09.3
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,7 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Fix Sling plugin
+  * Update lightning to [v25.09.3](https://github.com/ElementsProject/lightning/releases/tag/v25.09.3)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."

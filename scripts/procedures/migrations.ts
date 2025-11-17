@@ -463,7 +463,7 @@ export const migration: T.ExpectedExports.migration =
         },
       },
     },
-    "25.09.1.1",
+    "25.09.3",
   );
 
 function generateRandomString(length: number) {
