@@ -7,6 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
+  * Update cln-application (UI) to [v25.07.3](https://github.com/ElementsProject/cln-application/releases/tag/v25.07.3)
   * Update lightning to [v25.09.3](https://github.com/ElementsProject/lightning/releases/tag/v25.09.3)
 build: ["make"]
 description:
