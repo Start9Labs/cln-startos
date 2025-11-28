@@ -66,7 +66,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     protocol: null,
     addSsl: null,
     preferredExternalPort: peerPort,
-    secure: null,
+    secure: { ssl: false },
   })
   const peer = sdk.createInterface(effects, {
     name: 'Peer',
