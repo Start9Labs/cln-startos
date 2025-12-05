@@ -1,4 +1,3 @@
-import { readFile } from 'fs/promises'
 import { clnConfig } from './fileModels/config'
 import { parse } from 'dotenv'
 import { storeJson } from './fileModels/store.json'
@@ -107,29 +106,33 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const grpcReceipt = await grpcMultiOrigin.export([grpc])
   receipts.push(grpcReceipt)
 
-  const conf = await clnConfig.read().const(effects)
+  const conf = await clnConfig
+    .read((c) => ({
+      'clnrest-host': c['clnrest-host'],
+      'clnrest-port': c['clnrest-port'],
+      'bind-addr': c['bind-addr'],
+    }))
+    .const(effects)
 
   // clnrest
   if (conf && conf['clnrest-host'] && conf['clnrest-port']) {
-    try {
-      const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest')
-      const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
-        protocol: 'https',
+    const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest')
+    const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
+      protocol: 'https',
+      preferredExternalPort: clnrestPort,
+      addSsl: {
+        alpn: null,
         preferredExternalPort: clnrestPort,
-        addSsl: {
-          alpn: null,
-          preferredExternalPort: clnrestPort,
-        },
-      })
+      },
+    })
 
-      await FileHelper.string('/media/startos/volumes/main/.commando-env')
-        .read()
-        .const(effects)
+    const contents = await FileHelper.string(
+      '/media/startos/volumes/main/.commando-env',
+    )
+      .read()
+      .const(effects)
 
-      const contents = await readFile(
-        '/media/startos/volumes/main/.commando-env',
-        'utf-8',
-      )
+    if (contents) {
       const rune = parse(contents)['LIGHTNING_RUNE']
 
       console.log('Rune: ', rune)
@@ -148,7 +151,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       })
       const clnrestReceipt = await clnrestMultiOrigin.export([clnrest])
       receipts.push(clnrestReceipt)
-    } catch {
+    } else {
       console.log('Rune not found')
     }
   }
