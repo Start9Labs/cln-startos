@@ -15,18 +15,12 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    */
   console.info('Starting Core Lightning!')
 
-  const depResult = await sdk.checkDependencies(effects)
-  depResult.throwIfRunningNotSatisfied('bitcoind')
-  depResult.throwIfInstalledVersionNotSatisfied('bitcoind')
-  depResult.throwIfTasksNotSatisfied('bitcoind')
-  depResult.throwIfHealthNotSatisfied('bitcoind', 'primary')
-
   const osIp = await sdk.getOsIp(effects)
   const proxy = `${osIp}:9050`
 
   const peerAddresses = (
     await sdk.serviceInterface.getOwn(effects, peerInterfaceId).const()
-  )?.addressInfo?.publicUrls
+  )?.addressInfo?.filter({ visibility: 'public' })
 
   await clnConfig.merge(effects, { proxy, 'announce-addr': peerAddresses })
 
