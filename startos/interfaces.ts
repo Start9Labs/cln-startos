@@ -135,8 +135,6 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     if (contents) {
       const rune = parse(contents)['LIGHTNING_RUNE']
 
-      console.log('Rune: ', rune)
-
       const clnrest = sdk.createInterface(effects, {
         name: 'CLNrest',
         id: 'clnrest',
