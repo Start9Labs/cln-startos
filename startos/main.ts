@@ -118,15 +118,11 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
       requires: ['lightningd'],
       subcontainer: lightningdSubc,
       exec: {
-        fn: async () => {
-          return {
-            command: [`scripts/entrypoint.sh`],
-            env: {
-              LIGHTNING_PATH: rootDir,
-              BITCOIN_NETWORK: 'bitcoin',
-              COMMANDO_CONFIG: `${rootDir}/.commando-env`,
-            },
-          }
+        command: [`scripts/entrypoint.sh`],
+        env: {
+          LIGHTNING_PATH: rootDir,
+          BITCOIN_NETWORK: 'bitcoin',
+          COMMANDO_CONFIG: `${rootDir}/.commando-env`,
         },
       },
     })
