@@ -87,7 +87,7 @@ ARG PLATFORM
 RUN curl -sL -o /tmp/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${PLATFORM} && chmod +x /tmp/yq
 
 # Final stage
-FROM elementsproject/lightningd:v25.09.3 AS final
+FROM elementsproject/lightningd:v25.12 AS final
 
 ENV LIGHTNINGD_DATA=/root/.lightning
 ENV LIGHTNINGD_RPC_PORT=9835
