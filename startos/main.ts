@@ -7,7 +7,7 @@ import { manifest } from './manifest'
 import { peerInterfaceId } from './interfaces'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 
-export const main = sdk.setupMain(async ({ effects, started }) => {
+export const main = sdk.setupMain(async ({ effects }) => {
   /**
    * ======================== Setup (optional) ========================
    *
@@ -20,7 +20,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   const peerAddresses = (
     await sdk.serviceInterface.getOwn(effects, peerInterfaceId).const()
-  )?.addressInfo?.filter({ visibility: 'public' })
+  )?.addressInfo?.filter({ visibility: 'public' }).format()
 
   await clnConfig.merge(effects, { proxy, 'announce-addr': peerAddresses })
 
@@ -81,7 +81,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     .read()
     .const(effects)
 
-  const baseDaemons = sdk.Daemons.of(effects, started)
+  const baseDaemons = sdk.Daemons.of(effects)
     .addDaemon('lightningd', {
       subcontainer: lightningdSubc,
       exec: {

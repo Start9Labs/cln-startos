@@ -40,7 +40,7 @@ export const nodeInfo = sdk.Action.withoutInput(
 
     const peerAddresses = (
       await sdk.serviceInterface.getOwn(effects, peerInterfaceId).const()
-    )?.addressInfo?.publicUrls
+    )?.addressInfo?.public.format()
 
     const uriActionResultMembers: ActionResultMember[] =
       peerAddresses?.map((url, idx) => {

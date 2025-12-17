@@ -53,7 +53,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
       const towerInfo: GetTowerInfo = JSON.parse(res.stdout as string)
       const watchtowerAddresses = (
         await sdk.serviceInterface.getOwn(effects, teosInterfaceId).const()
-      )?.addressInfo?.publicUrls
+      )?.addressInfo?.public.format()
 
       const watchtowerUrls: ActionResultMember[] =
         watchtowerAddresses?.map((tower, idx) => {
