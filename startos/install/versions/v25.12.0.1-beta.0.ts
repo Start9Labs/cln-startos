@@ -1,6 +1,5 @@
-import { VersionInfo, IMPOSSIBLE } from '@start9labs/start-sdk'
-import { readFile } from 'fs/promises'
-import { load } from 'js-yaml'
+import { VersionInfo, IMPOSSIBLE, YAML } from '@start9labs/start-sdk'
+import { readFile, rm } from 'fs/promises'
 import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
 import { clnConfDefaults, teosTomlDefaults } from '../../utils'
@@ -14,14 +13,9 @@ export const v25_12_0_1 = VersionInfo.of({
       const config = await clnConfig.read().once()
       const store = await storeJson.read().once()
 
-      if (!store) {
-        try {
-          const configYaml = load(
-            await readFile(
-              '/media/startos/volumes/main/start9/config.yaml',
-              'utf8',
-            ),
-          ) as {
+      // get old config.yaml
+      const configYaml:
+        | {
             watchtowers: {
               'wt-server': boolean
               'wt-client':
@@ -52,59 +46,57 @@ export const v25_12_0_1 = VersionInfo.of({
               }
             }
           }
-  
-          if (configYaml.watchtowers['wt-server']) {
-            await teosToml.write(effects, teosTomlDefaults)
-          }
-  
-          await storeJson.write(effects, {
-            rescan: undefined,
-            'experimental-dual-fund':
-              configYaml.advanced.experimental['dual-fund'].enabled === 'enabled',
-            'experimental-shutdown-wrong-funding':
-              configYaml.advanced.experimental['shutdown-wrong-funding'],
-            'experimental-splicing': configYaml.advanced.experimental.splicing,
-            watchtowerServer: configYaml.watchtowers['wt-server'],
-            watchtowerClients:
-              configYaml.watchtowers['wt-client'].enabled === 'enabled'
-                ? configYaml.watchtowers['wt-client']['add-watchtowers']
-                : [],
-            clboss:
-              configYaml.advanced.plugins.clboss.enabled === 'enabled'
-                ? {
-                    'min-onchain':
-                      configYaml.advanced.plugins.clboss['min-onchain'] ||
-                      undefined,
-                    'auto-close':
-                      configYaml.advanced.plugins.clboss['auto-close'],
-                    zerobasefee: configYaml.advanced.plugins.clboss.zerobasefee,
-                    'min-channel':
-                      configYaml.advanced.plugins.clboss['min-channel'] ||
-                      undefined,
-                    'max-channel':
-                      configYaml.advanced.plugins.clboss['max-channel'] ||
-                      undefined,
-                  }
-                : undefined,
-          })
-        } catch {
-          console.log('configYaml not found. Using store.json defaults')
-          await storeJson.write(effects, {
-            rescan: undefined,
-            'experimental-dual-fund': false,
-            'experimental-shutdown-wrong-funding': false,
-            'experimental-splicing': false,
-            watchtowerServer: false,
-            watchtowerClients: [],
-            clboss: undefined,
-          })
+        | undefined = await readFile(
+        '/media/startos/volumes/main/start9/config.yaml',
+        'utf-8',
+      ).then(YAML.parse, () => undefined)
+
+      if (!store && configYaml) {
+        if (configYaml.watchtowers['wt-server']) {
+          await teosToml.write(effects, teosTomlDefaults)
         }
+
+        await storeJson.write(effects, {
+          rescan: undefined,
+          'experimental-dual-fund':
+            configYaml.advanced.experimental['dual-fund'].enabled === 'enabled',
+          'experimental-shutdown-wrong-funding':
+            configYaml.advanced.experimental['shutdown-wrong-funding'],
+          'experimental-splicing': configYaml.advanced.experimental.splicing,
+          watchtowerServer: configYaml.watchtowers['wt-server'],
+          watchtowerClients:
+            configYaml.watchtowers['wt-client'].enabled === 'enabled'
+              ? configYaml.watchtowers['wt-client']['add-watchtowers']
+              : [],
+          clboss:
+            configYaml.advanced.plugins.clboss.enabled === 'enabled'
+              ? {
+                  'min-onchain':
+                    configYaml.advanced.plugins.clboss['min-onchain'] ||
+                    undefined,
+                  'auto-close':
+                    configYaml.advanced.plugins.clboss['auto-close'],
+                  zerobasefee: configYaml.advanced.plugins.clboss.zerobasefee,
+                  'min-channel':
+                    configYaml.advanced.plugins.clboss['min-channel'] ||
+                    undefined,
+                  'max-channel':
+                    configYaml.advanced.plugins.clboss['max-channel'] ||
+                    undefined,
+                }
+              : undefined,
+        })
       }
 
       if (!config) {
         console.log('No existing config found. Writing defaults')
         await clnConfig.write(effects, clnConfDefaults)
       }
+
+      // remove old start9 dir
+      await rm('/media/startos/volumes/main/start9', { recursive: true }).catch(
+        console.error,
+      )
     },
     down: IMPOSSIBLE,
   },
