@@ -11,10 +11,12 @@ import { watchtowerInfo } from './watchtower/watchtowerInfo'
 import { watchtowerClientInfo } from './watchtower/watchtowerClientInfo'
 import { rescanBlockchain } from './rescanBlockchain'
 import { nodeInfo } from './nodeInfo'
+import { displaySeed } from './displaySeed'
 
 export const actions = sdk.Actions.of()
   .addAction(autoclean)
   .addAction(config)
+  .addAction(displaySeed)
   .addAction(experimental)
   .addAction(plugins)
   .addAction(watchtower)
