@@ -1,5 +1,5 @@
 id: c-lightning
-version: 25.12.0
+version: 25.12.1
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,7 +7,7 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Update lightning to [v25.12](https://github.com/ElementsProject/lightning/releases/tag/v25.12)
+  * Update lightning to [v25.12.1](https://github.com/ElementsProject/lightning/releases/tag/v25.12.1)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
