@@ -486,8 +486,20 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "25.12.1.1": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            return config;
+          },
+          true,
+          { version: "25.12.1.1", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
     },
-    "25.12.1",
+    "25.12.1.1",
   );
 
 function generateRandomString(length: number) {
