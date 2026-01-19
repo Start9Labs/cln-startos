@@ -8,7 +8,7 @@ support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
   * Update lightning to [v25.12.1](https://github.com/ElementsProject/lightning/releases/tag/v25.12.1)
-  * Update cln-application (UI) to [v26.1](https://github.com/ElementsProject/cln-application/releases/tag/v26.01)
+  * Update cln-application (UI) to [v26.1.1](https://github.com/ElementsProject/cln-application/releases/tag/v26.01.1)
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
