@@ -1,3 +1,4 @@
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { rootDir } from '../utils'
 import * as fs from 'fs/promises'
@@ -8,8 +9,8 @@ export const deleteGossipStore = sdk.Action.withoutInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Delete Gossip Store',
-    description: 'Deletes gossip_store in the case of corruption',
+    name: i18n('Delete Gossip Store'),
+    description: i18n('Deletes gossip_store in the case of corruption'),
     warning: null,
     allowedStatuses: 'only-stopped',
     group: null,
@@ -26,8 +27,10 @@ export const deleteGossipStore = sdk.Action.withoutInput(
 
     return {
       version: '1',
-      title: 'Success',
-      message: `The gossip_store has been deleted. On the next service start Core Lightning will rebuild gossip_store from peers`,
+      title: i18n('Success'),
+      message: i18n(
+        'The gossip_store has been deleted. On the next service start Core Lightning will rebuild gossip_store from peers',
+      ),
       result: null,
     }
   },

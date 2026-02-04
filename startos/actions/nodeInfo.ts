@@ -3,6 +3,7 @@ import {
   ActionResultMember,
 } from '@start9labs/start-sdk/base/lib/osBindings'
 import { peerInterfaceId } from '../interfaces'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { GetInfoResponse, mainMounts, rootDir } from '../utils'
 
@@ -12,8 +13,8 @@ export const nodeInfo = sdk.Action.withoutInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Node Info',
-    description: 'Display Node ID and Peer Interface URIs.',
+    name: i18n('Node Info'),
+    description: i18n('Display Node ID and Peer Interface URIs.'),
     warning: null,
     allowedStatuses: 'only-running',
     group: null,
@@ -46,8 +47,9 @@ export const nodeInfo = sdk.Action.withoutInput(
       peerAddresses?.map((url, idx) => {
         return {
           name: `URI $${idx + 1}`,
-          description:
+          description: i18n(
             'Share this URI with others so they can add your CLN node as a peer',
+          ),
           copyable: true,
           masked: true,
           qr: true,
@@ -58,15 +60,18 @@ export const nodeInfo = sdk.Action.withoutInput(
 
     return {
       version: '1',
-      title: 'Node Info',
-      message:
+      title: i18n('Node Info'),
+      message: i18n(
         'Necessary information about this node for peers to connect and open channels',
+      ),
       result: {
         type: 'group',
         value: [
           {
-            name: 'Node ID',
-            description: `The node identifier that can be used for connecting to other nodes`,
+            name: i18n('Node ID'),
+            description: i18n(
+              'The node identifier that can be used for connecting to other nodes',
+            ),
             copyable: true,
             value: nodeInfo.id,
             masked: true,
@@ -74,9 +79,10 @@ export const nodeInfo = sdk.Action.withoutInput(
             type: 'single',
           },
           {
-            name: 'Node URI(s)',
-            description:
+            name: i18n('Node URI(s)'),
+            description: i18n(
               'URI(s) for other nodes to peer with and open a channels',
+            ),
             value: uriActionResultMembers,
             type: 'group',
           },

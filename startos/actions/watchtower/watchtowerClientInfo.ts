@@ -1,5 +1,6 @@
 import { ActionResultMember } from '@start9labs/start-sdk/base/lib/osBindings'
 import { storeJson } from '../../fileModels/store.json'
+import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
 import { mainMounts, rootDir } from '../../utils'
 
@@ -19,12 +20,12 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Watchtower Client Info',
+    name: i18n('Watchtower Client Info'),
     description:
-      'Display information about the watchtower clients configured for this node.',
+      i18n('Display information about the watchtower clients configured for this node.'),
     warning: null,
     allowedStatuses: 'only-running',
-    group: 'Watchtower',
+    group: i18n('Watchtower'),
     visibility: (await storeJson
       .read(
         (e) =>
@@ -32,7 +33,7 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
       )
       .const(effects))
       ? 'enabled'
-      : { disabled: 'Watchtower Client must be enabled' },
+      : { disabled: i18n('Watchtower Client must be enabled') },
   }),
 
   // the execution function
@@ -57,48 +58,48 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
           return {
             name: `Watchtower Pubkey #${tower[0]}`,
             description:
-              'Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower',
+              i18n('Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower'),
             value: [
               {
-                name: 'Network Address',
+                name: i18n('Network Address'),
                 value: tower[1].net_addr,
-                description: 'Network address the tower is listening on',
+                description: i18n('Network address the tower is listening on'),
                 copyable: true,
                 qr: false,
                 masked: false,
                 type: 'single',
               },
               {
-                name: 'Available Slots',
+                name: i18n('Available Slots'),
                 value: `${tower[1].available_slots}`,
-                description: 'Number of slots the tower has available',
+                description: i18n('Number of slots the tower has available'),
                 copyable: false,
                 qr: false,
                 masked: false,
                 type: 'single',
               },
               {
-                name: 'Subscription Start',
+                name: i18n('Subscription Start'),
                 value: `${tower[1].subscription_start}`,
-                description: 'Block height when the subscription started',
+                description: i18n('Block height when the subscription started'),
                 copyable: false,
                 qr: false,
                 masked: false,
                 type: 'single',
               },
               {
-                name: 'Subscription Expiry',
+                name: i18n('Subscription Expiry'),
                 value: `${tower[1].subscription_expiry}`,
-                description: 'Block height when the subscription will expire',
+                description: i18n('Block height when the subscription will expire'),
                 copyable: false,
                 qr: false,
                 masked: false,
                 type: 'single',
               },
               {
-                name: 'Status',
+                name: i18n('Status'),
                 value: `${tower[1].status}`,
-                description: 'Whether the tower is reachable',
+                description: i18n('Whether the tower is reachable'),
                 copyable: false,
                 qr: false,
                 masked: false,
@@ -111,7 +112,7 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
 
       return {
         version: '1',
-        title: 'Watchtower Client Properties',
+        title: i18n('Watchtower Client Properties'),
         message: null,
         result: {
           type: 'group',
@@ -122,7 +123,7 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
 
     return {
       version: '1',
-      title: 'Failure',
+      title: i18n('Failure'),
       message: `Error running 'listtowers': ${res.stderr}`,
       result: null,
     }

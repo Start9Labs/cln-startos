@@ -4,10 +4,17 @@ import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
 import { clnConfDefaults, teosTomlDefaults } from '../../utils'
 import { teosToml } from '../../fileModels/teos.toml'
+import { i18n } from '../../i18n'
 
-export const v25_12_0_1 = VersionInfo.of({
-  version: '25.12:1-beta.1',
-  releaseNotes: 'Revamped for StartOS 0.4.0',
+export const v25_12_1_2 = VersionInfo.of({
+  version: '25.12.1:2-beta.0',
+  releaseNotes: {
+    en_US: 'Revamped for StartOS 0.4.0',
+    es_ES: 'Renovado para StartOS 0.4.0',
+    de_DE: 'Überarbeitet für StartOS 0.4.0',
+    pl_PL: 'Przeprojektowany dla StartOS 0.4.0',
+    fr_FR: 'Refait pour StartOS 0.4.0',
+  },
   migrations: {
     up: async ({ effects }) => {
       const config = await clnConfig.read().once()
@@ -89,7 +96,7 @@ export const v25_12_0_1 = VersionInfo.of({
       }
 
       if (!config) {
-        console.log('No existing config found. Writing defaults')
+        console.log(i18n('No existing config found. Writing defaults'))
         await clnConfig.write(effects, clnConfDefaults)
       }
 

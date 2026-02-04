@@ -1,3 +1,4 @@
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { mainMounts, rootDir } from '../utils'
 
@@ -7,11 +8,13 @@ export const createRune = sdk.Action.withoutInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Create Rune',
-    description:
+    name: i18n('Create Rune'),
+    description: i18n(
       'Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby.',
-    warning:
+    ),
+    warning: i18n(
       "This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust",
+    ),
     allowedStatuses: 'only-running',
     group: null,
     visibility: 'enabled',
@@ -35,8 +38,8 @@ export const createRune = sdk.Action.withoutInput(
       const rune: { rune: string } = JSON.parse(runeRes.stdout as string)
       return {
         version: '1',
-        title: 'Success',
-        message: `Successfully added unrestricted rune`,
+        title: i18n('Success'),
+        message: i18n('Successfully added unrestricted rune'),
         result: {
           value: rune.rune,
           qr: true,
@@ -49,7 +52,7 @@ export const createRune = sdk.Action.withoutInput(
 
     return {
       version: '1',
-      title: 'Failed to Create Rune',
+      title: i18n('Failed to Create Rune'),
       message: `Error: ${runeRes.stderr}`,
       result: null,
     }

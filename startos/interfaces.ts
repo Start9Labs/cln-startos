@@ -1,6 +1,7 @@
 import { clnConfig } from './fileModels/config'
 import { parse } from 'dotenv'
 import { storeJson } from './fileModels/store.json'
+import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
   uiPort,
@@ -26,9 +27,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     preferredExternalPort: uiPort,
   })
   const ui = sdk.createInterface(effects, {
-    name: 'Web UI',
+    name: i18n('Web UI'),
     id: 'ui',
-    description: 'The web interface of CLN',
+    description: i18n('The web interface of CLN'),
     type: 'ui',
     masked: false,
     schemeOverride: null,
@@ -46,9 +47,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     preferredExternalPort: rpcPort,
   })
   const rpc = sdk.createInterface(effects, {
-    name: 'RPC',
+    name: i18n('RPC'),
     id: 'rpc',
-    description: 'Listens for JSON-RPC commands over HTTP.',
+    description: i18n('Listens for JSON-RPC commands over HTTP.'),
     type: 'api',
     masked: false,
     schemeOverride: null,
@@ -68,9 +69,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     secure: { ssl: false },
   })
   const peer = sdk.createInterface(effects, {
-    name: 'Peer',
+    name: i18n('Peer'),
     id: peerInterfaceId,
-    description: 'Listens for incoming connections from lightning peers.',
+    description: i18n('Listens for incoming connections from lightning peers.'),
     type: 'p2p',
     masked: false,
     schemeOverride: null,
@@ -93,10 +94,11 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     },
   })
   const grpc = sdk.createInterface(effects, {
-    name: 'grpc',
+    name: i18n('grpc'),
     id: 'grpc',
-    description:
+    description: i18n(
       'gRPC is a Rust-based plugin that provides a standardized API that apps, plugins, and other tools could use to interact with Core Lightning securely.',
+    ),
     type: 'api',
     masked: false,
     schemeOverride: null,
@@ -138,10 +140,11 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       const rune = parse(contents)['LIGHTNING_RUNE']
 
       const clnrest = sdk.createInterface(effects, {
-        name: 'CLNrest',
+        name: i18n('CLNrest'),
         id: 'clnrest',
-        description:
+        description: i18n(
           'CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.',
+        ),
         type: 'api',
         masked: false,
         schemeOverride: { ssl: 'clnrest', noSsl: 'clnrest' },
@@ -164,9 +167,9 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       preferredExternalPort: websocketPort,
     })
     const websocket = sdk.createInterface(effects, {
-      name: 'Clams Websocket',
+      name: i18n('Clams Websocket'),
       id: 'websocket',
-      description: 'Websocket endpoint for Clams Remote.',
+      description: i18n('Websocket endpoint for Clams Remote.'),
       type: 'api',
       masked: false,
       schemeOverride: null,
@@ -195,10 +198,11 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       },
     )
     const watchtower = sdk.createInterface(effects, {
-      name: 'TEOS Watchtower',
+      name: i18n('TEOS Watchtower'),
       id: teosInterfaceId,
-      description:
+      description: i18n(
         'The Eye of Satoshi is a Lightning watchtower compliant with BOLT13, written in Rust.',
+      ),
       type: 'api',
       masked: false,
       schemeOverride: null,

@@ -1,5 +1,6 @@
 import { matches, FileHelper } from '@start9labs/start-sdk'
 import { clnConfDefaults, rootDir } from '../utils'
+import { sdk } from '../sdk'
 const { object, anyOf } = matches
 
 const stringArray = matches.array(matches.string)
@@ -173,10 +174,8 @@ function onWrite(a: unknown): any {
 }
 
 export const clnConfig = FileHelper.ini(
-  {
-    volumeId: 'main',
-    subpath: `/config`,
-  },
+  { base: sdk.volumes.main, subpath: '/config'},
+
   shape,
   { bracketedArray: false },
   {

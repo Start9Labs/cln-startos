@@ -1,5 +1,6 @@
 import { matches, FileHelper } from '@start9labs/start-sdk'
 import { teosTomlDefaults } from '../utils'
+import { sdk } from '../sdk'
 
 const { object, boolean, natural, literal } = matches
 
@@ -53,9 +54,6 @@ const shape = object({
 })
 
 export const teosToml = FileHelper.toml(
-  {
-    volumeId: 'main',
-    subpath: '/.teos/teos.toml',
-  },
+  { base: sdk.volumes.main, subpath: '/.teos/teos.toml'},
   shape,
 )

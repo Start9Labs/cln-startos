@@ -1,30 +1,23 @@
 import { sdk } from '../../sdk'
 const { InputSpec, Value } = sdk
 import { T } from '@start9labs/start-sdk'
+import { i18n } from '../../i18n'
 import { clnConfDefaults } from '../../utils'
 import { clnConfig } from '../../fileModels/config'
 
 const {
   alias,
-  rgb,
-  'always-use-proxy': alwaysUseProxy,
-  'fee-base': feeBase,
-  'fee-per-satoshi': feePerSatoshi,
-  'min-capacity-sat': minCapacitySat,
-  'ignore-fee-limits': ignoreFeeLimits,
-  'funding-confirms': fundingConfirms,
-  'cltv-delta': cltvDelta,
   'htlc-minimum-msat': htlcMinimumMsat,
   'htlc-maximum-msat': htlcMaximumMsat,
 } = clnConfDefaults
 
 export const inputSpec = InputSpec.of({
   alias: Value.text({
-    name: 'Alias',
+    name: i18n('Alias'),
     default: null,
     required: false,
     description:
-      'A custom, human-readable name for your node.  This is publicly visible to the Lightning Network.  <b>Default: Unique id of pattern: start9-[random alphanumerics]</b>',
+      i18n('A custom, human-readable name for your node.  This is publicly visible to the Lightning Network.  <b>Default: Unique id of pattern: start9-[random alphanumerics]</b>'),
     warning: null,
     masked: false,
     placeholder: null,
@@ -33,21 +26,21 @@ export const inputSpec = InputSpec.of({
       {
         regex: '.{1,32}',
         description:
-          'Must be at least 1 character and no more than 32 characters',
+          i18n('Must be at least 1 character and no more than 32 characters'),
       },
     ],
     minLength: null,
     maxLength: null,
   }),
   color: Value.text({
-    name: 'Color',
+    name: i18n('Color'),
     default: {
       charset: 'a-f,0-9',
       len: 6,
     },
     required: true,
     description:
-      'The public color of your node on the Lightning Network in hexadecimal.  <b>Default: Random color</b>',
+      i18n('The public color of your node on the Lightning Network in hexadecimal.  <b>Default: Random color</b>'),
     warning: null,
     masked: false,
     placeholder: null,
@@ -56,54 +49,37 @@ export const inputSpec = InputSpec.of({
       {
         regex: '[0-9a-fA-F]{6}',
         description:
-          'Must be a valid 6 digit hexadecimal RGB value. The first two digits are red, the middle two are green, and the final two are blue.',
+          i18n('Must be a valid 6 digit hexadecimal RGB value. The first two digits are red, the middle two are green, and the final two are blue.'),
       },
     ],
     minLength: null,
     maxLength: null,
   }),
   'tor-only': Value.toggle({
-    name: 'Tor Only',
+    name: i18n('Tor Only'),
     default: false,
     description:
-      'Only use tor connections.  This increases privacy, at the cost of some performance and reliability.  <b>Default: False</b>',
+      i18n('Only use tor connections.  This increases privacy, at the cost of some performance and reliability.  <b>Default: False</b>'),
     warning: null,
   }),
   'clams-remote-websocket': Value.toggle({
-    name: 'Clams Remote',
+    name: i18n('Clams Remote'),
     default: false,
     description:
-      'Accept incoming connections on port 7272, allowing Clams Remote to connect to Core Lightning.',
+      i18n('Accept incoming connections on port 7272, allowing Clams Remote to connect to Core Lightning.'),
     warning: null,
   }),
-  // 'ui-password': Value.text({
-  //   name: 'UI Password',
-  //   default: {
-  //     charset: 'a-z,A-Z,0-9',
-  //     len: 22,
-  //   },
-  //   required: true,
-  //   description:
-  //     'The password for your CLN UI (User Interface).  <b>Default: Randomly generated password</b>',
-  //   warning: null,
-  //   masked: true,
-  //   placeholder: null,
-  //   inputmode: 'text',
-  //   patterns: [],
-  //   minLength: null,
-  //   maxLength: null,
-  // }),
 
   advanced: Value.object(
     {
-      name: 'Advanced',
-      description: 'Advanced Options',
+      name: i18n('Advanced'),
+      description: i18n('Advanced Options'),
     },
     InputSpec.of({
       'fee-base': Value.number({
-        name: 'Routing Base Fee',
+        name: i18n('Routing Base Fee'),
         description:
-          'The base fee in millisatoshis you will charge for forwarding payments on your channels.  <b>Default: 1000</b>',
+          i18n('The base fee in millisatoshis you will charge for forwarding payments on your channels.  <b>Default: 1000</b>'),
         warning: null,
         default: 1000,
         required: true,
@@ -115,9 +91,9 @@ export const inputSpec = InputSpec.of({
         placeholder: null,
       }),
       'fee-rate': Value.number({
-        name: 'Routing Fee Rate',
+        name: i18n('Routing Fee Rate'),
         description:
-          'The fee rate used when forwarding payments on your channels. The total fee charged is the Base Fee + (amount * Fee Rate / 1,000,000), where the amount is the forwarded amount.  Measured in sats per million.  <b>Default: 1</b>',
+          i18n('The fee rate used when forwarding payments on your channels. The total fee charged is the Base Fee + (amount * Fee Rate / 1,000,000), where the amount is the forwarded amount.  Measured in sats per million.  <b>Default: 1</b>'),
         warning: null,
         default: 1,
         required: true,
@@ -129,9 +105,9 @@ export const inputSpec = InputSpec.of({
         placeholder: null,
       }),
       'min-capacity': Value.number({
-        name: 'Minimum Channel Capacity',
+        name: i18n('Minimum Channel Capacity'),
         description:
-          "This value defines the minimal effective channel capacity in satoshis to accept for channel opening requests.  This will reject any opening of a channel which can't pass an HTLC of at least this value. Usually this prevents a peer opening a tiny channel, but it can also prevent a channel you open with a reasonable amount and the peer is requesting such a large reserve that the capacity of the channel falls below this.  <b>Default: 10,000</b>",
+          i18n("This value defines the minimal effective channel capacity in satoshis to accept for channel opening requests.  This will reject any opening of a channel which can't pass an HTLC of at least this value. Usually this prevents a peer opening a tiny channel, but it can also prevent a channel you open with a reasonable amount and the peer is requesting such a large reserve that the capacity of the channel falls below this.  <b>Default: 10,000</b>"),
         warning: null,
         default: 10000,
         required: true,
@@ -143,16 +119,16 @@ export const inputSpec = InputSpec.of({
         placeholder: null,
       }),
       'ignore-fee-limits': Value.toggle({
-        name: 'Ignore Fee Limits',
+        name: i18n('Ignore Fee Limits'),
         default: false,
         description:
-          'Allow nodes which establish channels to you to set any fee they want. This may result in a channel which cannot be closed, should fees increase, but make channels far more reliable since Core Lightning will never close it due to unreasonable fees.  <b>Default: False</b>',
+          i18n('Allow nodes which establish channels to you to set any fee they want. This may result in a channel which cannot be closed, should fees increase, but make channels far more reliable since Core Lightning will never close it due to unreasonable fees.  <b>Default: False</b>'),
         warning: null,
       }),
       'funding-confirms': Value.number({
-        name: 'Required Funding Confirmations',
+        name: i18n('Required Funding Confirmations'),
         description:
-          'Confirmations required for the funding transaction when the other side opens a channel before the channel is usable.  <b>Default: 3</b>',
+          i18n('Confirmations required for the funding transaction when the other side opens a channel before the channel is usable.  <b>Default: 3</b>'),
         warning: null,
         default: 3,
         required: true,
@@ -164,9 +140,9 @@ export const inputSpec = InputSpec.of({
         placeholder: null,
       }),
       'cltv-delta': Value.number({
-        name: 'Time Lock Delta',
+        name: i18n('Time Lock Delta'),
         description:
-          'The number of blocks between the incoming payments and outgoing payments: this needs to be enough to make sure that if it has to, Core Lightning can close the outgoing payment before the incoming, or redeem the incoming once the outgoing is redeemed.  <b>Default: 40</b>',
+          i18n('The number of blocks between the incoming payments and outgoing payments: this needs to be enough to make sure that if it has to, Core Lightning can close the outgoing payment before the incoming, or redeem the incoming once the outgoing is redeemed.  <b>Default: 40</b>'),
         warning: null,
         default: 40,
         required: true,
@@ -178,9 +154,9 @@ export const inputSpec = InputSpec.of({
         placeholder: null,
       }),
       'htlc-minimum-msat': Value.number({
-        name: 'HTLC Minimum Size (Msat)',
+        name: i18n('HTLC Minimum Size (Msat)'),
         description:
-          'Sets the minimal allowed HTLC value for newly created channels. If you want to change the htlc_minimum_msat for existing channels, use the RPC call lightning-setchannel.  <b>Default: unset (no minimum)</b>',
+          i18n('Sets the minimal allowed HTLC value for newly created channels. If you want to change the htlc_minimum_msat for existing channels, use the RPC call lightning-setchannel.  <b>Default: unset (no minimum)</b>'),
         warning: null,
         default: null,
         required: false,
@@ -192,9 +168,9 @@ export const inputSpec = InputSpec.of({
         placeholder: null,
       }),
       'htlc-maximum-msat': Value.number({
-        name: 'HTLC Maximum Size (Msat)',
+        name: i18n('HTLC Maximum Size (Msat)'),
         description:
-          'Sets the maximum allowed HTLC value for newly created channels. If you want to change the htlc_maximum_msat for existing channels, use the RPC call lightning-setchannel.  <b>Default: unset (no limit)</b>',
+          i18n('Sets the maximum allowed HTLC value for newly created channels. If you want to change the htlc_maximum_msat for existing channels, use the RPC call lightning-setchannel.  <b>Default: unset (no limit)</b>'),
         warning: null,
         default: null,
         required: false,
@@ -215,11 +191,11 @@ export const config = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Other Config Options',
-    description: 'Set other configuration options for CLN',
+    name: i18n('Other Config Options'),
+    description: i18n('Set other configuration options for CLN'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Configuration',
+    group: i18n('Configuration'),
     visibility: 'enabled',
   }),
 

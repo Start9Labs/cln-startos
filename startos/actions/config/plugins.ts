@@ -4,6 +4,7 @@ import {
   Variants,
 } from '@start9labs/start-sdk/base/lib/actions/input/builder'
 import { sdk } from '../../sdk'
+import { i18n } from '../../i18n'
 import { clnConfig } from '../../fileModels/config'
 import { storeJson } from '../../fileModels/store.json'
 import { clnConfDefaults } from '../../utils'
@@ -16,35 +17,35 @@ const clbossPlugin = '/usr/local/libexec/c-lightning/plugins/clboss'
 
 const pluginsSpec = InputSpec.of({
   sling: Value.toggle({
-    name: 'Sling',
+    name: i18n('Sling'),
     default: false,
     description:
-      'Automatically rebalance multiple channels. This is a CLI-only tool.  <b>Default: Disabled</b><br><b>Source:  https://github.com/daywalker90/sling</b>',
+      i18n('Automatically rebalance multiple channels. This is a CLI-only tool.  <b>Default: Disabled</b><br><b>Source:  https://github.com/daywalker90/sling</b>'),
     warning: null,
   }),
   clnrest: Value.toggle({
-    name: 'CLNRest',
+    name: i18n('CLNrest'),
     default: true,
     description:
-      "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.  <b>Default: True</b>",
+      i18n("Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.  <b>Default: True</b>"),
     warning: null,
   }),
   clboss: Value.union({
-    name: 'CLBOSS settings',
+    name: i18n('CLBOSS settings'),
     description:
-      'CLBOSS is an automated manager for Core Lightning forwarding nodes.  <b>Default: Disabled</b><br><b>Source: https://github.com/ZmnSCPxj/clboss</b>',
+      i18n('CLBOSS is an automated manager for Core Lightning forwarding nodes.  <b>Default: Disabled</b><br><b>Source: https://github.com/ZmnSCPxj/clboss</b>'),
     warning:
-      "CLBOSS automatically manages your CLN node. It is experimental software and will probably not be profitable to run. It will automatically open channels, buy incoming liquidity, rebalance channels, and set forwarding fees. If you don't want this behavior or don't understand what this means, please keep this option disabled. Source: https://github.com/ZmnSCPxj/clboss#operating",
+      i18n("CLBOSS automatically manages your CLN node. It is experimental software and will probably not be profitable to run. It will automatically open channels, buy incoming liquidity, rebalance channels, and set forwarding fees. If you don't want this behavior or don't understand what this means, please keep this option disabled. Source: https://github.com/ZmnSCPxj/clboss#operating"),
     default: 'disabled',
     variants: Variants.of({
-      disabled: { name: 'Disabled', spec: InputSpec.of({}) },
+      disabled: { name: i18n('Disabled'), spec: InputSpec.of({}) },
       enabled: {
-        name: 'Enabled',
+        name: i18n('Enabled'),
         spec: InputSpec.of({
           'min-onchain': Value.number({
-            name: 'Minimum On-Chain',
+            name: i18n('Minimum On-Chain'),
             description:
-              'The minimum amount that CLBOSS will leave in the on-chain wallet. The intent is that this amount will be used in the future, by your node, to manage anchor-commitment channels, or post-Taproot Decker-Russell-Osuntokun channels. These channel types need some small amount of on-chain funds to unilaterally close, so it is not recommended to set it to 0. The amount specified is a ballpark figure, and CLBOSS may leave slightly lower or slightly higher than this amount.  <b>Default: 30000</b>',
+              i18n('The minimum amount that CLBOSS will leave in the on-chain wallet. The intent is that this amount will be used in the future, by your node, to manage anchor-commitment channels, or post-Taproot Decker-Russell-Osuntokun channels. These channel types need some small amount of on-chain funds to unilaterally close, so it is not recommended to set it to 0. The amount specified is a ballpark figure, and CLBOSS may leave slightly lower or slightly higher than this amount.  <b>Default: 30000</b>'),
             warning: null,
             default: null,
             required: false,
@@ -56,16 +57,16 @@ const pluginsSpec = InputSpec.of({
             placeholder: null,
           }),
           'auto-close': Value.toggle({
-            name: 'Auto Close',
+            name: i18n('Auto Close'),
             default: false,
             description:
-              'Enable if you want CLBOSS to have the ability to close channels it deems unprofitable.  This can be costly, please understand the ramifications before enabling.  <b>Default: False</b>',
-            warning: 'This feature is EXPERIMENTAL AND DANGEROUS!',
+              i18n('Enable if you want CLBOSS to have the ability to close channels it deems unprofitable.  This can be costly, please understand the ramifications before enabling.  <b>Default: False</b>'),
+            warning: i18n('This feature is EXPERIMENTAL AND DANGEROUS!'),
           }),
           zerobasefee: Value.select({
-            name: 'Zero Base Fee',
+            name: i18n('Zero Base Fee'),
             description:
-              'Specify how this node will advertise its base fee. <ul><li><b>Required:  </b>The base fee must be always 0.</li><li><b>Allow:  </b>If the heuristics of CLBOSS think it might be a good idea to set base fee to 0, let it be 0, but otherwise set it to whatever value the heuristics want.</li><li><b>Disallow:  </b>The base fee must always be non-zero. If the heuristics think it might be good to set it to 0, set it to 1 instead.</li></ul><b>Default:  default (use fee set by Advanced -> Routing Base Fee)</b><br>Some pathfinding algorithms under development may strongly prefer 0 or low base fees, so you might want to set CLBOSS to 0 base fee, or to allow a 0 base fee.',
+              i18n('Specify how this node will advertise its base fee. <ul><li><b>Required:  </b>The base fee must be always 0.</li><li><b>Allow:  </b>If the heuristics of CLBOSS think it might be a good idea to set base fee to 0, let it be 0, but otherwise set it to whatever value the heuristics want.</li><li><b>Disallow:  </b>The base fee must always be non-zero. If the heuristics think it might be good to set it to 0, set it to 1 instead.</li></ul><b>Default:  default (use fee set by Advanced -> Routing Base Fee)</b><br>Some pathfinding algorithms under development may strongly prefer 0 or low base fees, so you might want to set CLBOSS to 0 base fee, or to allow a 0 base fee.'),
             warning: null,
             default: 'default',
             values: {
@@ -76,9 +77,9 @@ const pluginsSpec = InputSpec.of({
             },
           } as const),
           'min-channel': Value.number({
-            name: 'Min Channel Size',
+            name: i18n('Min Channel Size'),
             description:
-              'Sets the minimum channel sizes that CLBOSS will make.  <b>Default:  No minimum</b>',
+              i18n('Sets the minimum channel sizes that CLBOSS will make.  <b>Default:  No minimum</b>'),
             warning: null,
             default: null,
             required: false,
@@ -90,9 +91,9 @@ const pluginsSpec = InputSpec.of({
             placeholder: null,
           }),
           'max-channel': Value.number({
-            name: 'Max Channel Size',
+            name: i18n('Max Channel Size'),
             description:
-              'Sets the maximum channel sizes that CLBOSS will make.  <b>Default:  No maximum</b>',
+              i18n('Sets the maximum channel sizes that CLBOSS will make.  <b>Default:  No maximum</b>'),
             warning: null,
             default: null,
             required: false,
@@ -115,12 +116,12 @@ export const plugins = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Plugins',
+    name: i18n('Plugins'),
     description:
-      'Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside the main Core Lightning container in order to communicate directly with it. Their source is maintained separately from that of Core Lightning itself.',
+      i18n('Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside the main Core Lightning container in order to communicate directly with it. Their source is maintained separately from that of Core Lightning itself.'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Configuration',
+    group: i18n('Configuration'),
     visibility: 'enabled',
   }),
 

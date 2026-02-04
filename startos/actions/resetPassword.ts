@@ -1,4 +1,5 @@
 import { configJson } from '../fileModels/config.json'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 
 export const resetPassword = sdk.Action.withoutInput(
@@ -7,8 +8,8 @@ export const resetPassword = sdk.Action.withoutInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Reset UI Password',
-    description: 'Reset UI Password in the event it is lost or forgotten',
+    name: i18n('Reset UI Password'),
+    description: i18n('Reset UI Password in the event it is lost or forgotten'),
     warning: null,
     allowedStatuses: 'any',
     group: null,
@@ -21,8 +22,8 @@ export const resetPassword = sdk.Action.withoutInput(
 
     return {
       version: '1',
-      title: 'Success',
-      message: 'Launch the CLN UI to set a new password',
+      title: i18n('Success'),
+      message: i18n('Launch the CLN UI to set a new password'),
       result: null,
     }
   },
