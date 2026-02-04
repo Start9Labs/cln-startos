@@ -4,6 +4,7 @@ import {
   Variants,
 } from '@start9labs/start-sdk/base/lib/actions/input/builder'
 import { sdk } from '../../sdk'
+import { i18n } from '../../i18n'
 import { clnConfig } from '../../fileModels/config'
 import { clnConfDefaults } from '../../utils'
 import { storeJson } from '../../fileModels/store.json'
@@ -29,62 +30,62 @@ const {
 
 const experimentalSpec = InputSpec.of({
   'shutdown-wrong-funding': Value.toggle({
-    name: 'Shutdown Wrong Funding',
+    name: i18n('Shutdown Wrong Funding'),
     default: false,
     description:
-      "Allow channel shutdown with alternate txids.  If a remote node has opened a channel, but claims it used the incorrect txid (and the channel hasn't yet been used) this allows them to negotiate a clean shutdown with the txid they offer.  <b>Default: False</b>",
+      i18n("Allow channel shutdown with alternate txids.  If a remote node has opened a channel, but claims it used the incorrect txid (and the channel hasn't yet been used) this allows them to negotiate a clean shutdown with the txid they offer.  <b>Default: False</b>"),
     warning: null,
   }),
   splicing: Value.toggle({
-    name: 'Splicing',
+    name: i18n('Splicing'),
     default: false,
     description:
-      'Enables support for the splicing protocol (bolt #863), allowing both parties to dynamically adjust the size a channel. These changes can be built interactively using PSBT and combined with other channel actions including dual fund, additional channel splices, or generic transaction activity. The operations will be bundled into a single transaction. The channel will remain active while awaiting splice confirmation, however you can only spend the smaller of the prior channel balance and the new one.  <b>Default: Disabled</b>',
+      i18n('Enables support for the splicing protocol (bolt #863), allowing both parties to dynamically adjust the size a channel. These changes can be built interactively using PSBT and combined with other channel actions including dual fund, additional channel splices, or generic transaction activity. The operations will be bundled into a single transaction. The channel will remain active while awaiting splice confirmation, however you can only spend the smaller of the prior channel balance and the new one.  <b>Default: Disabled</b>'),
     warning: null,
   }),
   'xpay-handle-pay': Value.toggle({
-    name: 'Xpay',
+    name: i18n('Xpay'),
     default: false,
     description:
-      'Setting this makes xpay intercept simply pay commands (default false). Note that the response will be different from the normal pay command, however.  <b>Default: Disabled</b>',
+      i18n('Setting this makes xpay intercept simply pay commands (default false). Note that the response will be different from the normal pay command, however.  <b>Default: Disabled</b>'),
     warning: null,
   }),
   'dual-fund': Value.union({
-    name: 'Dual Funding And Liquidity Ads',
+    name: i18n('Dual Funding And Liquidity Ads'),
     description:
-      'Dual Funding enables use of the channel opening protocol v2, in which both channel parties commit funds into the channel at opening. This potentially solves all sorts of problems with liquidity on the Lightning Network, but is currently experimental and only implemented by Core Lightning so far.<br>See https://blog.blockstream.com/setting-up-liquidity-ads-in-c-lightning/ for more details.  <b>Default: Disabled</b>',
+      i18n('Dual Funding enables use of the channel opening protocol v2, in which both channel parties commit funds into the channel at opening. This potentially solves all sorts of problems with liquidity on the Lightning Network, but is currently experimental and only implemented by Core Lightning so far.<br>See https://blog.blockstream.com/setting-up-liquidity-ads-in-c-lightning/ for more details.  <b>Default: Disabled</b>'),
     warning:
-      'Dual funding is an experimental feature which can cause your node to automatically commit on-chain funds into channels that may or may not be profitable. <b>Use at your own risk!</b>',
+      i18n('Dual funding is an experimental feature which can cause your node to automatically commit on-chain funds into channels that may or may not be profitable. <b>Use at your own risk!</b>'),
     default: 'disabled',
     variants: Variants.of({
-      disabled: { name: 'Disabled', spec: InputSpec.of({}) },
+      disabled: { name: i18n('Disabled'), spec: InputSpec.of({}) },
       enabled: {
-        name: 'Enabled',
+        name: i18n('Enabled'),
         spec: InputSpec.of({
           strategy: Value.union({
-            name: 'Dual-Funding Channel Acceptance Strategy',
+            name: i18n('Dual-Funding Channel Acceptance Strategy'),
             description:
-              "Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings.<br><ul><li><b>Incognito: </b>Wait for others to stumble upon your unadvertised node and open a dual-fund request, then react in a more complex way</li><li><b>Liquidity Merchant: </b>Advertise and sell liquidity on the market in a straightforward way (i.e., always match 100% of requested funds, and don't accept dual-funding requests that aren't channel lease requests).</li></ul><br><b>Default: Incognito</b>",
+              i18n("Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings.<br><ul><li><b>Incognito: </b>Wait for others to stumble upon your unadvertised node and open a dual-fund request, then react in a more complex way</li><li><b>Liquidity Merchant: </b>Advertise and sell liquidity on the market in a straightforward way (i.e., always match 100% of requested funds, and don't accept dual-funding requests that aren't channel lease requests).</li></ul><br><b>Default: Incognito</b>"),
             warning: null,
             default: 'incognito',
             variants: Variants.of({
               incognito: {
-                name: 'Incognito',
+                name: i18n('Incognito'),
                 spec: InputSpec.of({
                   policy: Value.union({
-                    name: 'Policy',
+                    name: i18n('Policy'),
                     description:
-                      '<ul><li><b>Match: </b>Contribute a percentage of their requested funds.</li><li><b>Available: </b>Contribute policy_mod percent of our available node wallet funds.</li><li><b>Fixed: </b>Contribute a fixed number of sats to v2 channel open requests.</li></ul><br><b>Default: Match</b>',
+                      i18n('<ul><li><b>Match: </b>Contribute a percentage of their requested funds.</li><li><b>Available: </b>Contribute policy_mod percent of our available node wallet funds.</li><li><b>Fixed: </b>Contribute a fixed number of sats to v2 channel open requests.</li></ul><br><b>Default: Match</b>'),
                     warning: null,
                     default: 'match',
                     variants: Variants.of({
                       match: {
-                        name: 'Match',
+                        name: i18n('Match'),
                         spec: InputSpec.of({
                           'policy-mod': Value.number({
-                            name: 'Percentage of Requested Funds to Commit',
+                            name: i18n('Percentage of Requested Funds to Commit'),
                             description:
-                              'Percentage of requested funds to commit to the channel. If this is a channel lease request, we match based on their requested funds. If it is not a channel lease request (and leases only is false, which is is by default), then we match their funding amount. Note: any lease match less than 100 will likely fail, as clients will not accept a lease less than their request.  <b>Default: 100</b>',
+                              i18n('Percentage of requested funds to commit to the channel. If this is a channel lease request, we match based on their requested funds. If it is not a channel lease request (and leases only is false, which is is by default), then we match their funding amount. Note: any lease match less than 100 will likely fail, as clients will not accept a lease less than their request.  <b>Default: 100</b>'),
                             warning: null,
                             default: 100,
                             required: false,
@@ -98,12 +99,12 @@ const experimentalSpec = InputSpec.of({
                         }),
                       },
                       available: {
-                        name: 'Available',
+                        name: i18n('Available'),
                         spec: InputSpec.of({
                           'policy-mod': Value.number({
-                            name: 'Percentage of Available Funds to Commit',
+                            name: i18n('Percentage of Available Funds to Commit'),
                             description:
-                              'Percentage of available on-chain funds to commit to the channel.  <b>Default: 100</b>',
+                              i18n('Percentage of available on-chain funds to commit to the channel.  <b>Default: 100</b>'),
                             warning: null,
                             default: 100,
                             required: false,
@@ -117,12 +118,12 @@ const experimentalSpec = InputSpec.of({
                         }),
                       },
                       fixed: {
-                        name: 'Fixed',
+                        name: i18n('Fixed'),
                         spec: InputSpec.of({
                           'policy-mod': Value.number({
-                            name: 'Fixed Number of Satoshis to Commit',
+                            name: i18n('Fixed Number of Satoshis to Commit'),
                             description:
-                              'Fixed number of sats to contribute to the channel.  <b>Default: 10000</b>',
+                              i18n('Fixed number of sats to contribute to the channel.  <b>Default: 10000</b>'),
                             warning: null,
                             default: 10000,
                             required: false,
@@ -138,9 +139,9 @@ const experimentalSpec = InputSpec.of({
                     }),
                   }),
                   'fuzz-percent': Value.number({
-                    name: 'Fuzz Percentage',
+                    name: i18n('Fuzz Percentage'),
                     description:
-                      'A percentage to fuzz the resulting contribution amount by.<b>WARNING: Fuzzing with a Match 100% policy can cause random failures.<b><br><b>Defaults to 0% (no fuzz)</b>',
+                      i18n('A percentage to fuzz the resulting contribution amount by.<b>WARNING: Fuzzing with a Match 100% policy can cause random failures.<b><br><b>Defaults to 0% (no fuzz)</b>'),
                     warning: null,
                     default: null,
                     required: false,
@@ -152,9 +153,9 @@ const experimentalSpec = InputSpec.of({
                     placeholder: null,
                   }),
                   'fund-probability': Value.number({
-                    name: 'Fund Probability',
+                    name: i18n('Fund Probability'),
                     description:
-                      'The percent of v2 channel open requests to apply our policy to. Valid values are integers from 0 (fund no requests) to 100 (fund every request). Useful for randomizing opens that receive funds.  <b>Default: 100</b>',
+                      i18n('The percent of v2 channel open requests to apply our policy to. Valid values are integers from 0 (fund no requests) to 100 (fund every request). Useful for randomizing opens that receive funds.  <b>Default: 100</b>'),
                     warning: null,
                     default: 100,
                     required: false,
@@ -168,12 +169,12 @@ const experimentalSpec = InputSpec.of({
                 }),
               },
               merchant: {
-                name: 'Liquidity Merchant',
+                name: i18n('Liquidity Merchant'),
                 spec: InputSpec.of({
                   'lease-fee-base-sat': Value.number({
-                    name: 'Fixed Lease Fee',
+                    name: i18n('Fixed Lease Fee'),
                     description:
-                      'The flat fee for a channel lease. Node will receive this much extra added to their channel balance, paid by the opening node.  <b>Default: 2000</b>',
+                      i18n('The flat fee for a channel lease. Node will receive this much extra added to their channel balance, paid by the opening node.  <b>Default: 2000</b>'),
                     warning: null,
                     default: 2000,
                     required: false,
@@ -185,9 +186,9 @@ const experimentalSpec = InputSpec.of({
                     placeholder: null,
                   }),
                   'lease-fee-basis': Value.number({
-                    name: 'Fee as Percentage of Requested Funds',
+                    name: i18n('Fee as Percentage of Requested Funds'),
                     description:
-                      "A basis fee that's calculated as 1/10k of the total requested funds the peer is asking for. Node will receive the total of the lease fee basis * requested funds / 10k satoshis added to their channel balance, paid by the opening node. <b>Default: 0.65% (65 basis points)</b>",
+                      i18n("A basis fee that's calculated as 1/10k of the total requested funds the peer is asking for. Node will receive the total of the lease fee basis * requested funds / 10k satoshis added to their channel balance, paid by the opening node. <b>Default: 0.65% (65 basis points)</b>"),
                     warning: null,
                     default: 65,
                     required: false,
@@ -199,9 +200,9 @@ const experimentalSpec = InputSpec.of({
                     placeholder: null,
                   }),
                   'funding-weight': Value.number({
-                    name: 'Funding Weight',
+                    name: i18n('Funding Weight'),
                     description:
-                      'Transaction weight the channel opener will pay us for a leased funding transaction. Node will have this funding fee added to their channel balance, paid by the opening node. <b>Default: dynamically calculated for 2 inputs + 1 P2WPKH output</b>',
+                      i18n('Transaction weight the channel opener will pay us for a leased funding transaction. Node will have this funding fee added to their channel balance, paid by the opening node. <b>Default: dynamically calculated for 2 inputs + 1 P2WPKH output</b>'),
                     warning: null,
                     default: null,
                     required: false,
@@ -213,9 +214,9 @@ const experimentalSpec = InputSpec.of({
                     placeholder: null,
                   }),
                   'channel-fee-max-base-msat': Value.number({
-                    name: 'Channel Fee Max Base',
+                    name: i18n('Channel Fee Max Base'),
                     description:
-                      'A commitment to a maximum channel_fee_base_msat that your node will charge for routing payments over this leased channel during the lease duration. <b>Default: 5000000</b>',
+                      i18n('A commitment to a maximum channel_fee_base_msat that your node will charge for routing payments over this leased channel during the lease duration. <b>Default: 5000000</b>'),
                     warning: null,
                     default: 5000000,
                     required: false,
@@ -227,9 +228,9 @@ const experimentalSpec = InputSpec.of({
                     placeholder: null,
                   }),
                   'channel-fee-max-proportional-thousandths': Value.number({
-                    name: 'Channel Fee Max Proportional',
+                    name: i18n('Channel Fee Max Proportional'),
                     description:
-                      "A commitment to a maximum channel_fee_proportional_millionths that your node will charge for routing payments over this leased channel during the lease duration. Note that it's denominated in 'thousandths'. A setting of 1 is equal to 1k ppm; 5 is 5k ppm, etc. <b>Default: 100 (100k ppm)</b>",
+                      i18n("A commitment to a maximum channel_fee_proportional_millionths that your node will charge for routing payments over this leased channel during the lease duration. Note that it's denominated in 'thousandths'. A setting of 1 is equal to 1k ppm; 5 is 5k ppm, etc. <b>Default: 100 (100k ppm)</b>"),
                     warning: null,
                     default: 100,
                     required: false,
@@ -246,15 +247,15 @@ const experimentalSpec = InputSpec.of({
           }),
           other: Value.object(
             {
-              name: 'Other Settings',
+              name: i18n('Other Settings'),
               description:
-                'Additional settings that apply to both operating strategies',
+                i18n('Additional settings that apply to both operating strategies'),
             },
             InputSpec.of({
               'min-their-funding-msat': Value.number({
-                name: 'Minimum Their Funding',
+                name: i18n('Minimum Their Funding'),
                 description:
-                  'The minimum funding msats that we require in order to activate our contribution policy to the v2 open.  <b>Default: 10000000</b>',
+                  i18n('The minimum funding msats that we require in order to activate our contribution policy to the v2 open.  <b>Default: 10000000</b>'),
                 warning: null,
                 default: 10000000,
                 required: false,
@@ -266,9 +267,9 @@ const experimentalSpec = InputSpec.of({
                 placeholder: null,
               }),
               'max-their-funding-msat': Value.number({
-                name: 'Maximum Their Funding',
+                name: i18n('Maximum Their Funding'),
                 description:
-                  'The maximum funding msats that we will consider to activate our contribution policy to the v2 open. Any channel open above this will not be funded.  <b>Default: No max</b>',
+                  i18n('The maximum funding msats that we will consider to activate our contribution policy to the v2 open. Any channel open above this will not be funded.  <b>Default: No max</b>'),
                 warning: null,
                 default: null,
                 required: false,
@@ -280,9 +281,9 @@ const experimentalSpec = InputSpec.of({
                 placeholder: null,
               }),
               'per-channel-min-msat': Value.number({
-                name: 'Per-Channel Minimum',
+                name: i18n('Per-Channel Minimum'),
                 description:
-                  'The minimum amount that we will contribute to a channel open.  <b>Default: 10000000',
+                  i18n('The minimum amount that we will contribute to a channel open.  <b>Default: 10000000'),
                 warning: null,
                 default: 10000000,
                 required: false,
@@ -294,9 +295,9 @@ const experimentalSpec = InputSpec.of({
                 placeholder: null,
               }),
               'per-channel-max-msat': Value.number({
-                name: 'Per-Channel Maximum',
+                name: i18n('Per-Channel Maximum'),
                 description:
-                  'The maximum amount that we will contribute to a channel open.  <b>Default: 10000000</b>',
+                  i18n('The maximum amount that we will contribute to a channel open.  <b>Default: 10000000</b>'),
                 warning: null,
                 default: 10000000,
                 required: false,
@@ -308,9 +309,9 @@ const experimentalSpec = InputSpec.of({
                 placeholder: null,
               }),
               'reserve-tank-msat': Value.number({
-                name: 'Reserve Tank',
+                name: i18n('Reserve Tank'),
                 description:
-                  'The amount of msats to leave available in the node wallet.  <b>Default: Nothing (can use all on-chain funds)</b>',
+                  i18n('The amount of msats to leave available in the node wallet.  <b>Default: Nothing (can use all on-chain funds)</b>'),
                 warning: null,
                 default: null,
                 required: false,
@@ -335,13 +336,13 @@ export const experimental = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Experimental Features',
+    name: i18n('Experimental Features'),
     description:
-      'Experimental features are those that have not yet been standardized across other major Lightning Network implementations.',
+      i18n('Experimental features are those that have not yet been standardized across other major Lightning Network implementations.'),
     warning:
-      'Experimental options are subject to breakage between releases: they are made available for advanced users who want to test proposed features.',
+      i18n('Experimental options are subject to breakage between releases: they are made available for advanced users who want to test proposed features.'),
     allowedStatuses: 'any',
-    group: 'Configuration',
+    group: i18n('Configuration'),
     visibility: 'enabled',
   }),
 

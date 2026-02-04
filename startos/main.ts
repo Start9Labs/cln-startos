@@ -1,5 +1,6 @@
 import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
+import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { clnConfDefaults, mainMounts, rootDir, uiPort } from './utils'
 import { Daemons, FileHelper } from '@start9labs/start-sdk'
@@ -13,7 +14,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
    *
    * In this section, we fetch any resources or run any desired preliminary commands.
    */
-  console.info('Starting Core Lightning!')
+  console.info(i18n('Starting Core Lightning!'))
 
   const osIp = await sdk.getOsIp(effects)
   const proxy = `${osIp}:9050`
@@ -93,7 +94,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         ],
       },
       ready: {
-        display: 'RPC Interface',
+        display: i18n('RPC Interface'),
         fn: async () => {
           const res = await lightningdSubc.exec([
             'lightning-cli',
@@ -102,12 +103,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
           ])
           if (res.exitCode === 0) {
             return {
-              message: 'The RPC interface is ready',
+              message: i18n('The RPC interface is ready'),
               result: 'success',
             }
           }
           return {
-            message: 'The RPC interface is not ready',
+            message: i18n('The RPC interface is not ready'),
             result: 'loading',
           }
         },
@@ -154,18 +155,18 @@ export const main = sdk.setupMain(async ({ effects }) => {
       },
       requires: ['lightningd', 'commando-config'],
       ready: {
-        display: 'Web Interface',
+        display: i18n('Web Interface'),
         fn: () =>
           sdk.healthCheck.checkPortListening(effects, uiPort, {
-            successMessage: 'The Web Interface is ready',
-            errorMessage: 'The Web Interface is not ready',
+            successMessage: i18n('The Web Interface is ready'),
+            errorMessage: i18n('The Web Interface is not ready'),
           }),
       },
     })
     .addHealthCheck('check-synced', {
       requires: ['lightningd'],
       ready: {
-        display: 'Synced',
+        display: i18n('Synced'),
         fn: async () => {
           const getinfoRes = await lightningdSubc.exec([
             'lightning-cli',
@@ -185,7 +186,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
           if (warning_bitcoind_sync) {
             return {
-              message: 'Bitcoind is not up-to-date with network.',
+              message: i18n('Bitcoind is not up-to-date with network.'),
               result: 'loading',
             }
           } else if (warning_lightningd_sync) {
@@ -198,7 +199,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
             if (bitcoinGetblockcount.exitCode !== 0) {
               return {
                 message:
-                  'Lightningd is still loading latest blocks from bitcoind, but bitcoin-cli failed to getblockcount from bitcoind',
+                  i18n('Lightningd is still loading latest blocks from bitcoind, but bitcoin-cli failed to getblockcount from bitcoind'),
                 result: 'failure',
               }
             }
@@ -211,8 +212,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
           if (getinfoRes.exitCode === 0) {
             return {
               result: 'success',
-              message:
+              message: i18n(
                 'Synced to chain and ready to perform on-chain operations',
+              ),
             }
           }
 
@@ -264,7 +266,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         command: ['teosd', '--datadir=/root/.lightning/.teos'],
       },
       ready: {
-        display: 'TEOS Watchtower Server',
+        display: i18n('TEOS Watchtower Server'),
         fn: async () => {
           const gettowerinfoRes = await lightningdSubc.exec([
             'teos-cli',
@@ -274,13 +276,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
           if (gettowerinfoRes.exitCode === 0) {
             return {
               result: 'success',
-              message: 'The Watchtower Server is online',
+              message: i18n('The Watchtower Server is online'),
             }
           }
 
           return {
             result: 'starting',
-            message: 'TEOSd is starting...',
+            message: i18n('TEOSd is starting...'),
           }
         },
       },

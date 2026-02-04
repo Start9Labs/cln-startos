@@ -1,3 +1,4 @@
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { FileHelper } from '@start9labs/start-sdk'
 
@@ -14,9 +15,10 @@ export const displaySeed = sdk.Action.withoutInput(
       .const(effects)
 
     return {
-      name: 'Display BIP-39 Seed',
-      description:
+      name: i18n('Display BIP-39 Seed'),
+      description: i18n(
         'The BIP-39 Seed can be used to recover on-chain funds in a disaster recovery scenario. Note this seed is insufficient to recover',
+      ),
       warning: null,
       allowedStatuses: 'any',
       group: null,
@@ -26,8 +28,9 @@ export const displaySeed = sdk.Action.withoutInput(
           : hsmSecretContents.toString().split(' ').length === 12
             ? 'enabled'
             : {
-                disabled:
+                disabled: i18n(
                   'No BIP-39 Seed found. Wallets initialized on earler versions of CLN were not derived from a BIP-39 Seed. If a BIP-39 Seed is desired, all funds will need to be transferred out of this node. After all funds have been safely transferred to another wallet, CLN can be uninstalled, and then installed fresh',
+                ),
               },
     }
   },
@@ -42,9 +45,10 @@ export const displaySeed = sdk.Action.withoutInput(
 
     return {
       version: '1',
-      title: 'BIP-39 Seed',
-      message:
+      title: i18n('BIP-39 Seed'),
+      message: i18n(
         'WARNING: This seed is highly sensitive and sharing it with other will result in loss of funds. This Seed is for restoring on-chain ONLY funds; it has no knowledge of channel state.',
+      ),
       result: {
         copyable: true,
         masked: true,

@@ -5,6 +5,7 @@ import {
   Value,
 } from '@start9labs/start-sdk/base/lib/actions/input/builder'
 import { sdk } from '../../sdk'
+import { i18n } from '../../i18n'
 import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
 import { mkdir, writeFile } from 'fs/promises'
@@ -17,32 +18,32 @@ const watchtowerClientPlugin =
 
 const watchtowerSpec = InputSpec.of({
   'wt-server': Value.toggle({
-    name: 'Watchtower Server',
+    name: i18n('Watchtower Server'),
     default: false,
     description:
-      'Allow other nodes to connect to your watchtower server on the network.  <b>Default: Disabled</b>',
+      i18n('Allow other nodes to connect to your watchtower server on the network.  <b>Default: Disabled</b>'),
     warning: null,
   }),
   'wt-client': Value.union({
-    name: 'Watchtower Client',
+    name: i18n('Watchtower Client'),
     description:
-      'Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>',
+      i18n('Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>'),
     warning: null,
     default: 'disabled',
     variants: Variants.of({
-      disabled: { name: 'Disabled', spec: InputSpec.of({}) },
+      disabled: { name: i18n('Disabled'), spec: InputSpec.of({}) },
       enabled: {
-        name: 'Enabled',
+        name: i18n('Enabled'),
         spec: InputSpec.of({
           'add-watchtowers': Value.list(
             List.text(
               {
-                name: 'Add Watchtower Servers',
+                name: i18n('Add Watchtower Servers'),
                 minLength: 1,
                 maxLength: null,
                 default: [],
                 description:
-                  "Add URIs of watchtower servers to connect to. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158",
+                  i18n("Add URIs of watchtower servers to connect to. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158"),
                 warning: null,
               },
               {
@@ -67,12 +68,12 @@ export const watchtower = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Watchtower Settings',
+    name: i18n('Watchtower Settings'),
     description:
-      'Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family to watch over their nodes.  You can learn more about watchtowers at https://docs.corelightning.org/docs/watchtowers.',
+      i18n('Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family to watch over their nodes.  You can learn more about watchtowers at https://docs.corelightning.org/docs/watchtowers.'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Watchtower',
+    group: i18n('Watchtower'),
     visibility: 'enabled',
   }),
 

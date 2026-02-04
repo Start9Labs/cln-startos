@@ -3,6 +3,7 @@ import {
   Value,
 } from '@start9labs/start-sdk/base/lib/actions/input/builder'
 import { sdk } from '../../sdk'
+import { i18n } from '../../i18n'
 import { clnConfig } from '../../fileModels/config'
 import { clnConfDefaults } from '../../utils'
 
@@ -18,9 +19,9 @@ const {
 
 const autocleanSpec = InputSpec.of({
   'autoclean-cycle': Value.number({
-    name: 'Autoclean Interval',
+    name: i18n('Autoclean Interval'),
     description:
-      'Interval to perform search for things to clean. <b>Default: 3600 (1 hour) which is usually sufficient.</b>',
+      i18n('Interval to perform search for things to clean. <b>Default: 3600 (1 hour) which is usually sufficient.</b>'),
     warning: null,
     default: autocleanCycle,
     required: false,
@@ -32,9 +33,9 @@ const autocleanSpec = InputSpec.of({
     placeholder: null,
   }),
   'autoclean-succeededforwards-age': Value.number({
-    name: 'Successful Forwards Age',
+    name: i18n('Successful Forwards Age'),
     description:
-      'How old successful forwards (settled in listforwards status) have to be before deletion. <b>Default: 0, meaning never.</b>',
+      i18n('How old successful forwards (settled in listforwards status) have to be before deletion. <b>Default: 0, meaning never.</b>'),
     warning: null,
     default: autocleanSucceededforwardsAge,
     required: false,
@@ -46,9 +47,9 @@ const autocleanSpec = InputSpec.of({
     placeholder: null,
   }),
   'autoclean-failedforwards-age': Value.number({
-    name: 'Failed Forwards Age',
+    name: i18n('Failed Forwards Age'),
     description:
-      'How old failed forwards (failed or local_failed in listforwards status) have to be before deletion.  <b>Default: 0, meaning never.</b>',
+      i18n('How old failed forwards (failed or local_failed in listforwards status) have to be before deletion.  <b>Default: 0, meaning never.</b>'),
     warning: null,
     default: autocleanFailedforwardsAge,
     required: false,
@@ -60,9 +61,9 @@ const autocleanSpec = InputSpec.of({
     placeholder: null,
   }),
   'autoclean-succeededpays-age': Value.number({
-    name: 'Successful Payments Age',
+    name: i18n('Successful Payments Age'),
     description:
-      'How old successful payments (complete in listpays status) have to be before deletion.  <b>Default: 0, meaning never.</b>',
+      i18n('How old successful payments (complete in listpays status) have to be before deletion.  <b>Default: 0, meaning never.</b>'),
     warning: null,
     default: autocleanSucceededpaysAge,
     required: false,
@@ -74,9 +75,9 @@ const autocleanSpec = InputSpec.of({
     placeholder: null,
   }),
   'autoclean-failedpays-age': Value.number({
-    name: 'Failed Payments Age',
+    name: i18n('Failed Payments Age'),
     description:
-      'How old failed payment attempts (failed in listpays status) have to be before deletion.  <b>Default: 0, meaning never.</b>',
+      i18n('How old failed payment attempts (failed in listpays status) have to be before deletion.  <b>Default: 0, meaning never.</b>'),
     warning: null,
     default: autocleanFailedpaysAge,
     required: false,
@@ -88,9 +89,9 @@ const autocleanSpec = InputSpec.of({
     placeholder: null,
   }),
   'autoclean-paidinvoices-age': Value.number({
-    name: 'Paid Invoices Age',
+    name: i18n('Paid Invoices Age'),
     description:
-      'How old invoices which were paid (paid in listinvoices status) have to be before deletion.  <b>Default: 0, meaning never.</b>',
+      i18n('How old invoices which were paid (paid in listinvoices status) have to be before deletion.  <b>Default: 0, meaning never.</b>'),
     warning: null,
     default: autocleanPaidinvoicesAge,
     required: false,
@@ -102,9 +103,9 @@ const autocleanSpec = InputSpec.of({
     placeholder: null,
   }),
   'autoclean-expiredinvoices-age': Value.number({
-    name: 'Expired Invoices Age',
+    name: i18n('Expired Invoices Age'),
     description:
-      'How old invoices which were not paid (and cannot be) (expired in listinvoices status) before deletion.  <b>Default: 0, meaning never</b>',
+      i18n('How old invoices which were not paid (and cannot be) (expired in listinvoices status) before deletion.  <b>Default: 0, meaning never</b>'),
     warning: null,
     default: autocleanExpiredinvoicesAge,
     required: false,
@@ -123,12 +124,12 @@ export const autoclean = sdk.Action.withInput(
 
   // metadata
   async ({ effects }) => ({
-    name: 'Autoclean Options',
+    name: i18n('Autoclean Options'),
     description:
-      'Set autoclean options for deleting old invoices/payments/forwards',
+      i18n('Set autoclean options for deleting old invoices/payments/forwards'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Configuration',
+    group: i18n('Configuration'),
     visibility: 'enabled',
   }),
 

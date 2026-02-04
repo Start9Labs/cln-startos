@@ -6,7 +6,7 @@ export const setupCerts = sdk.setupOnInit(async (effects) => {
     'c-lightning.startos',
     await sdk.getContainerIp(effects).const(),
   ]
-  const certs = await sdk.getSslCerificate(effects, hostnames).const()
+  const certs = await sdk.getSslCertificate(effects, hostnames).const()
   const fullChain = certs.join('')
   const caPem = certs[0]
   const key = await sdk.getSslKey(effects, { hostnames })
