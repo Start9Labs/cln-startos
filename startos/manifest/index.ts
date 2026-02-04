@@ -2,11 +2,6 @@ import { setupManifest } from '@start9labs/start-sdk'
 import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
 import { alertInstall, alertUninstall, alertRestore, bitcoindTitle, short, long } from './i18n'
 
-const BUILD = process.env.BUILD || ''
-
-const arch =
-  BUILD === 'x86_64' || BUILD === 'aarch64' ? [BUILD] : ['x86_64', 'aarch64']
-
 export const manifest = setupManifest({
   id: 'c-lightning',
   title: 'Core Lightning',
@@ -28,17 +23,16 @@ export const manifest = setupManifest({
           workdir: '.',
         },
       },
-      arch: arch,
-    } as SDKImageInputSpec,
+      arch: ['x86_64', 'aarch64'],
+      emulateMissingAs: 'aarch64',
+    },
     ui: {
       source: {
-        dockerTag: 'ghcr.io/elementsproject/cln-application:25.07.3',
+        dockerTag: 'ghcr.io/elementsproject/cln-application:26.01.2',
       },
-      arch: arch,
-    } as SDKImageInputSpec,
-  },
-  hardwareRequirements: {
-    arch: arch,
+      arch: ['x86_64', 'aarch64'],
+      emulateMissingAs: 'aarch64',
+    },
   },
   alerts: {
     install: alertInstall,
