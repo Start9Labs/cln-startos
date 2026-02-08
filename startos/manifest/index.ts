@@ -12,7 +12,7 @@ export const manifest = setupManifest({
   marketingSite: 'https://blockstream.com/lightning',
   donationUrl: null,
   docsUrl:
-    'https://github.com/Start9Labs/cln-startos/blob/master/docs/instructions.md',
+    'https://docs.corelightning.org/docs/home',
   description: { short, long },
   volumes: ['main'],
   images: {
@@ -45,7 +45,7 @@ export const manifest = setupManifest({
   dependencies: {
     bitcoind: {
       description: 'Used to subscribe to new block events.',
-      optional: true,
+      optional: false,
       metadata: {
         title: bitcoindTitle,
         icon: 'https://bitcoin.org/img/icons/opengraph.png',
