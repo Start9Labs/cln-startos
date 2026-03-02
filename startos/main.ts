@@ -1,12 +1,19 @@
+import { Daemons, FileHelper } from '@start9labs/start-sdk'
+import { readFile, writeFile } from 'fs/promises'
+import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
-import { sdk } from './sdk'
-import { clnConfDefaults, mainMounts, rootDir, uiPort } from './utils'
-import { Daemons, FileHelper } from '@start9labs/start-sdk'
 import { manifest } from './manifest'
-import { peerInterfaceId } from './interfaces'
-import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
+import { sdk } from './sdk'
+import {
+  bitcoinDataDir,
+  grpcPort,
+  mainMounts,
+  rootDir,
+  uiPort,
+  wsPort,
+} from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   /**
@@ -16,39 +23,20 @@ export const main = sdk.setupMain(async ({ effects }) => {
    */
   console.info(i18n('Starting Core Lightning!'))
 
-  const osIp = await sdk.getOsIp(effects)
-  const proxy = `${osIp}:9050`
+  // watch cln config for changes
+  await clnConfig.read().const(effects)
 
-  const peerAddresses = (
-    await sdk.serviceInterface.getOwn(effects, peerInterfaceId).const()
-  )?.addressInfo?.filter({ visibility: 'public' }).format()
-
-  await clnConfig.merge(effects, { proxy, 'announce-addr': peerAddresses })
-
+  // get store.json but don't watch for changes
   const store = await storeJson.read().once()
+  if (!store) {
+    throw new Error('no store.json')
+  }
 
   const lightningdArgs: string[] = ['--database-upgrade=true']
 
-  if (store && store.clboss) {
-    for (const [key, value] of Object.entries(store.clboss)) {
-      lightningdArgs.push(`--clboss-${key}=${value}`)
-    }
-  }
-
-  if (store) {
-    if (store['experimental-dual-fund']) {
-      lightningdArgs.push('--experimental-dual-fund')
-    }
-    if (store['experimental-shutdown-wrong-funding']) {
-      lightningdArgs.push('--experimental-shutdown-wrong-funding')
-    }
-    if (store['experimental-splicing']) {
-      lightningdArgs.push('--experimental-splicing')
-    }
-    if (store.rescan) {
-      lightningdArgs.push(`--rescan=${store.rescan}`)
-      await storeJson.merge(effects, { rescan: undefined })
-    }
+  if (store.rescan) {
+    lightningdArgs.push(`--rescan=${store.rescan}`)
+    await storeJson.merge(effects, { rescan: undefined })
   }
 
   /**
@@ -59,32 +47,27 @@ export const main = sdk.setupMain(async ({ effects }) => {
    * Each daemon defines its own health check, which can optionally be exposed to the user.
    */
 
-  const lightningdSubc = await sdk.SubContainer.of(
+  const lightningSub = await sdk.SubContainer.of(
     effects,
     { imageId: 'lightning' },
-    mainMounts
-      .mountDependency({
-        dependencyId: 'bitcoind',
-        mountpoint: clnConfDefaults['bitcoin-datadir'],
-        readonly: true,
-        subpath: null,
-        volumeId: 'main',
-      })
-      .mountAssets({
-        mountpoint: '/scripts',
-        subpath: null,
-      }),
+    mainMounts.mountDependency({
+      dependencyId: 'bitcoind',
+      mountpoint: bitcoinDataDir,
+      subpath: null,
+      readonly: true,
+      volumeId: 'main',
+    }),
     'lightning-sub',
   )
 
   // Restart if Bitcoin .cookie changes
-  await FileHelper.string(`${lightningdSubc.rootfs}/mnt/bitcoin/.cookie`)
+  await FileHelper.string(`${lightningSub.rootfs}/mnt/bitcoin/.cookie`)
     .read()
     .const(effects)
 
   const baseDaemons = sdk.Daemons.of(effects)
     .addDaemon('lightningd', {
-      subcontainer: lightningdSubc,
+      subcontainer: lightningSub,
       exec: {
         command: [
           'lightningd',
@@ -96,7 +79,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ready: {
         display: i18n('RPC Interface'),
         fn: async () => {
-          const res = await lightningdSubc.exec([
+          const res = await lightningSub.exec([
             'lightning-cli',
             `--lightning-dir=${rootDir}`,
             'getinfo',
@@ -116,16 +99,53 @@ export const main = sdk.setupMain(async ({ effects }) => {
       requires: [],
     })
     .addOneshot('commando-config', {
-      requires: ['lightningd'],
-      subcontainer: lightningdSubc,
+      subcontainer: lightningSub,
       exec: {
-        command: [`scripts/entrypoint.sh`],
-        env: {
-          LIGHTNING_PATH: rootDir,
-          BITCOIN_NETWORK: 'bitcoin',
-          COMMANDO_CONFIG: `${rootDir}/.commando-env`,
+        fn: async (subcontainer) => {
+          const commandoEnv = `${lightningSub.rootfs}${rootDir}/.commando-env`
+          const cliBase = ['lightning-cli', `--lightning-dir=${rootDir}`]
+
+          // Get current pubkey
+          const getinfoRes = await subcontainer.exec([...cliBase, 'getinfo'])
+          if (getinfoRes.exitCode !== 0) {
+            throw new Error(`getinfo failed: ${getinfoRes.stderr}`)
+          }
+          const { id: pubkey } = JSON.parse(getinfoRes.stdout as string)
+
+          // Check existing config
+          const existing = await readFile(commandoEnv, 'utf-8').catch(() => '')
+          const existingPubkey = existing.match(
+            /^LIGHTNING_PUBKEY="(.+)"$/m,
+          )?.[1]
+          const existingRune = existing.match(/^LIGHTNING_RUNE="(.+)"$/m)?.[1]
+
+          if (existingPubkey === pubkey && existingRune) {
+            console.log('Commando config: pubkey matches, rune exists')
+            return null
+          }
+
+          // Generate new rune
+          console.log('Commando config: generating new rune')
+          const runeRes = await subcontainer.exec([
+            ...cliBase,
+            'createrune',
+            'null',
+            '[["For Application#"]]',
+          ])
+          if (runeRes.exitCode !== 0) {
+            throw new Error(`createrune failed: ${runeRes.stderr}`)
+          }
+          const { rune } = JSON.parse(runeRes.stdout as string)
+
+          await writeFile(
+            commandoEnv,
+            `LIGHTNING_PUBKEY="${pubkey}"\nLIGHTNING_RUNE="${rune}"\n`,
+          )
+
+          return null
         },
       },
+      requires: ['lightningd'],
     })
     .addDaemon('cln-application', {
       subcontainer: await sdk.SubContainer.of(
@@ -138,22 +158,20 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ),
       exec: {
         command: ['npm', 'run', 'start'],
-        // Passing env variables instead of using a FileModel as these settings shouldn't be configurable
         // @TODO add REST and GRPC env variables so wallet connect screen in UI shows the correct url
         env: {
           BITCOIN_NETWORK: 'bitcoin',
           LIGHTNING_DATA_DIR: rootDir,
           APP_PROTOCOL: 'https',
           APP_HOST: '0.0.0.0',
-          APP_PORT: '4500',
+          APP_PORT: String(uiPort),
           APP_CONFIG_FILE: `${rootDir}/data/app/config.json`,
           APP_LOG_FILE: `${rootDir}/data/app/application-cln.log`,
           LIGHTNING_VARS_FILE: `${rootDir}/.commando-env`,
-          LIGHTNING_WS_PORT: '4269',
-          LIGHTNING_GRPC_PORT: '2106',
+          LIGHTNING_WS_PORT: String(wsPort),
+          LIGHTNING_GRPC_PORT: String(grpcPort),
         },
       },
-      requires: ['lightningd', 'commando-config'],
       ready: {
         display: i18n('Web Interface'),
         fn: () =>
@@ -162,13 +180,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
             errorMessage: i18n('The Web Interface is not ready'),
           }),
       },
+      requires: ['lightningd', 'commando-config'],
     })
     .addHealthCheck('check-synced', {
-      requires: ['lightningd'],
       ready: {
         display: i18n('Synced'),
         fn: async () => {
-          const getinfoRes = await lightningdSubc.exec([
+          const getinfoRes = await lightningSub.exec([
             'lightning-cli',
             `--lightning-dir=${rootDir}`,
             'getinfo',
@@ -190,7 +208,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               result: 'loading',
             }
           } else if (warning_lightningd_sync) {
-            const bitcoinGetblockcount = await lightningdSubc.exec([
+            const bitcoinGetblockcount = await lightningSub.exec([
               'bitcoin-cli',
               '--rpcconnect=bitcoind.startos',
               '--rpccookiefile=/mnt/bitcoin/.cookie',
@@ -198,8 +216,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
             ])
             if (bitcoinGetblockcount.exitCode !== 0) {
               return {
-                message:
-                  i18n('Lightningd is still loading latest blocks from bitcoind, but bitcoin-cli failed to getblockcount from bitcoind'),
+                message: i18n(
+                  'Lightningd is still loading latest blocks from bitcoind, but bitcoin-cli failed to getblockcount from bitcoind',
+                ),
                 result: 'failure',
               }
             }
@@ -224,6 +243,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           }
         },
       },
+      requires: ['lightningd'],
     })
 
   let daemons: Daemons<
@@ -232,43 +252,49 @@ export const main = sdk.setupMain(async ({ effects }) => {
     | 'commando-config'
     | 'cln-application'
     | 'check-synced'
+    | 'emergency-recover'
     | 'watchtower-server'
   > = baseDaemons
 
-  if (store?.restore) {
-    daemons.addOneshot('emergency-recover', {
-      subcontainer: lightningdSubc,
-      requires: ['lightningd'],
+  if (store.restore) {
+    daemons = baseDaemons.addOneshot('emergency-recover', {
+      subcontainer: lightningSub,
       exec: {
-        command: [
-          'lightning-cli',
-          `--lightning-dir=${rootDir}`,
-          'emergencyrecover',
-        ],
+        fn: async () => {
+          await sdk.setHealth(effects, {
+            id: 'restored',
+            name: i18n('Backup Restoration Detected'),
+            message: i18n(
+              'It is not recommended to continue using a Core Lightning node after emergency recovery. All channels will be force-closed and funds swept to the on-chain wallet. Please wait for all channels to resolve, then sweep remaining funds to another wallet. Afterwards, Core Lightning should be uninstalled and re-installed fresh if you would like to continue using it.',
+            ),
+            result: 'failure',
+          })
+          return {
+            command: [
+              'lightning-cli',
+              `--lightning-dir=${rootDir}`,
+              'emergencyrecover',
+            ],
+          }
+        },
       },
+      requires: ['lightningd'],
     })
-  }
-
-  console.log('resetting restore')
-  if (store?.restore) {
-    await storeJson.merge(effects, { restore: false })
   }
 
   // restart on changes to store or config
   await storeJson.read().const(effects)
-  await clnConfig.read().const(effects)
 
-  if (store?.watchtowerServer) {
+  if (store.watchtowerServer) {
     daemons = baseDaemons.addDaemon('watchtower-server', {
-      requires: ['lightningd'],
-      subcontainer: lightningdSubc,
+      subcontainer: lightningSub,
       exec: {
         command: ['teosd', '--datadir=/root/.lightning/.teos'],
       },
       ready: {
         display: i18n('TEOS Watchtower Server'),
         fn: async () => {
-          const gettowerinfoRes = await lightningdSubc.exec([
+          const gettowerinfoRes = await lightningSub.exec([
             'teos-cli',
             '--datadir=/root/.lightning/.teos',
             'gettowerinfo',
@@ -286,17 +312,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
           }
         },
       },
+      requires: ['lightningd'],
     })
   }
 
-  if (
-    store !== null &&
-    store.watchtowerClients !== undefined &&
-    store.watchtowerClients.length > 0
-  ) {
-    return daemons.addOneshot('watchtower-client', {
-      subcontainer: lightningdSubc,
-      requires: ['lightningd'],
+  return daemons
+    .addOneshot('watchtower-client', {
+      subcontainer: lightningSub,
       exec: {
         fn: async (subcontainer, abort) => {
           const listtowersRes = await subcontainer.exec(
@@ -342,17 +364,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
           return null
         },
       },
+      requires: ['lightningd'],
     })
-  }
-
-  if (
-    store &&
-    store.watchtowerClients !== undefined &&
-    store.watchtowerClients.length > 0
-  ) {
-    daemons.addOneshot('abandontowers', {
-      subcontainer: lightningdSubc,
-      requires: ['lightningd', 'watchtower-server'],
+    .addOneshot('abandontowers', {
+      subcontainer: lightningSub,
       exec: {
         fn: async (subcontainer, abort) => {
           const listtowersRes = await subcontainer.exec(
@@ -404,8 +419,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
           return null
         },
       },
+      requires: ['lightningd', 'watchtower-server'],
     })
-  }
-
-  return daemons
 })

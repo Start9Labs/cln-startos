@@ -1,17 +1,15 @@
 import {
-  Variants,
-  List,
   InputSpec,
+  List,
   Value,
+  Variants,
 } from '@start9labs/start-sdk/base/lib/actions/input/builder'
-import { sdk } from '../../sdk'
-import { i18n } from '../../i18n'
-import { storeJson } from '../../fileModels/store.json'
+import { mkdir } from 'fs/promises'
 import { clnConfig } from '../../fileModels/config'
-import { mkdir, writeFile } from 'fs/promises'
-import { rpcPort } from 'bitcoind-startos/startos/utils'
-import { clnConfDefaults, teosTomlDefaults } from '../../utils'
+import { storeJson } from '../../fileModels/store.json'
 import { teosToml } from '../../fileModels/teos.toml'
+import { i18n } from '../../i18n'
+import { sdk } from '../../sdk'
 
 const watchtowerClientPlugin =
   '/usr/local/libexec/c-lightning/plugins/watchtower-client'
@@ -20,14 +18,16 @@ const watchtowerSpec = InputSpec.of({
   'wt-server': Value.toggle({
     name: i18n('Watchtower Server'),
     default: false,
-    description:
-      i18n('Allow other nodes to connect to your watchtower server on the network.  <b>Default: Disabled</b>'),
+    description: i18n(
+      'Allow other nodes to connect to your watchtower server on the network.  <b>Default: Disabled</b>',
+    ),
     warning: null,
   }),
   'wt-client': Value.union({
     name: i18n('Watchtower Client'),
-    description:
-      i18n('Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>'),
+    description: i18n(
+      'Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>',
+    ),
     warning: null,
     default: 'disabled',
     variants: Variants.of({
@@ -42,8 +42,9 @@ const watchtowerSpec = InputSpec.of({
                 minLength: 1,
                 maxLength: null,
                 default: [],
-                description:
-                  i18n("Add URIs of watchtower servers to connect to. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158"),
+                description: i18n(
+                  "Add URIs of watchtower servers to connect to. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158",
+                ),
                 warning: null,
               },
               {
@@ -69,8 +70,9 @@ export const watchtower = sdk.Action.withInput(
   // metadata
   async ({ effects }) => ({
     name: i18n('Watchtower Settings'),
-    description:
-      i18n('Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family to watch over their nodes.  You can learn more about watchtowers at https://docs.corelightning.org/docs/watchtowers.'),
+    description: i18n(
+      'Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family to watch over their nodes.  You can learn more about watchtowers at https://docs.corelightning.org/docs/watchtowers.',
+    ),
     warning: null,
     allowedStatuses: 'any',
     group: i18n('Watchtower'),
@@ -94,8 +96,7 @@ async function read(effects: any): Promise<PartialWatchTowerSpec> {
   return {
     'wt-server': store.watchtowerServer,
     'wt-client':
-      store.watchtowerClients &&
-      store.watchtowerClients.length > 0
+      store.watchtowerClients && store.watchtowerClients.length > 0
         ? {
             selection: 'enabled',
             value: { 'add-watchtowers': store.watchtowerClients },
@@ -114,24 +115,25 @@ async function write(effects: any, input: WatchtowerSpec) {
   }
   if (watchtowerSettings.watchtowerServer) {
     await mkdir(`/media/startos/volumes/main/.teos`, { recursive: true })
-    await teosToml.write(effects, teosTomlDefaults)
+    await teosToml.merge(effects, {})
   }
 
-  const plugins = [(await clnConfig.read((e) => e.plugin).once()) || []].flat()
+  const form = await clnConfig.read().once()
+  const plugins = [...(form?.raw?.plugin || [])].filter(
+    (p): p is string => typeof p === 'string',
+  )
 
   if (watchtowerSettings.watchtowerClients.length > 0) {
     if (!plugins.includes(watchtowerClientPlugin)) {
       plugins.push(watchtowerClientPlugin)
-      await clnConfig.merge(effects, { plugin: plugins })
     }
   } else {
-    const index = plugins.findIndex(
-      (plugin) => plugin === watchtowerClientPlugin,
-    )
-
+    const index = plugins.indexOf(watchtowerClientPlugin)
     if (index !== -1) plugins.splice(index, 1)
-    await clnConfig.merge(effects, { plugin: plugins })
   }
+  await clnConfig.merge(effects, {
+    raw: { ...(form?.raw ?? {}), plugin: plugins },
+  })
   await storeJson.merge(effects, watchtowerSettings)
 }
 

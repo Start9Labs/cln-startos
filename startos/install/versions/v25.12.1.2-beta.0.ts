@@ -2,7 +2,6 @@ import { VersionInfo, IMPOSSIBLE, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
 import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
-import { clnConfDefaults, teosTomlDefaults } from '../../utils'
 import { teosToml } from '../../fileModels/teos.toml'
 import { i18n } from '../../i18n'
 
@@ -60,44 +59,52 @@ export const v25_12_1_2 = VersionInfo.of({
 
       if (!store && configYaml) {
         if (configYaml.watchtowers['wt-server']) {
-          await teosToml.write(effects, teosTomlDefaults)
+          await teosToml.merge(effects, {})
         }
 
         await storeJson.write(effects, {
-          rescan: undefined,
-          'experimental-dual-fund':
-            configYaml.advanced.experimental['dual-fund'].enabled === 'enabled',
-          'experimental-shutdown-wrong-funding':
-            configYaml.advanced.experimental['shutdown-wrong-funding'],
-          'experimental-splicing': configYaml.advanced.experimental.splicing,
           watchtowerServer: configYaml.watchtowers['wt-server'],
           watchtowerClients:
             configYaml.watchtowers['wt-client'].enabled === 'enabled'
               ? configYaml.watchtowers['wt-client']['add-watchtowers']
               : [],
-          clboss:
-            configYaml.advanced.plugins.clboss.enabled === 'enabled'
-              ? {
-                  'min-onchain':
-                    configYaml.advanced.plugins.clboss['min-onchain'] ||
-                    undefined,
-                  'auto-close':
-                    configYaml.advanced.plugins.clboss['auto-close'],
-                  zerobasefee: configYaml.advanced.plugins.clboss.zerobasefee,
-                  'min-channel':
-                    configYaml.advanced.plugins.clboss['min-channel'] ||
-                    undefined,
-                  'max-channel':
-                    configYaml.advanced.plugins.clboss['max-channel'] ||
-                    undefined,
-                }
-              : undefined,
         })
-      }
 
-      if (!config) {
+        // Migrate experimental flags and clboss settings into CLN config
+        const configRaw: Record<string, unknown> = {}
+        if (
+          configYaml.advanced.experimental['dual-fund'].enabled === 'enabled'
+        ) {
+          configRaw['experimental-dual-fund'] = true
+        }
+        if (configYaml.advanced.experimental['shutdown-wrong-funding']) {
+          configRaw['experimental-shutdown-wrong-funding'] = true
+        }
+        if (configYaml.advanced.experimental.splicing) {
+          configRaw['experimental-splicing'] = true
+        }
+        if (configYaml.advanced.plugins.clboss.enabled === 'enabled') {
+          const cb = configYaml.advanced.plugins.clboss
+          configRaw['clboss-min-onchain'] = cb['min-onchain'] || undefined
+          configRaw['clboss-auto-close'] = cb['auto-close'] || undefined
+          configRaw['clboss-zerobasefee'] =
+            cb.zerobasefee === 'default' ? undefined : cb.zerobasefee
+          configRaw['clboss-min-channel'] = cb['min-channel'] || undefined
+          configRaw['clboss-max-channel'] = cb['max-channel'] || undefined
+        }
+
+        if (!config) {
+          console.log(i18n('No existing config found. Writing defaults'))
+          await clnConfig.write(effects, {
+            clnrest: true,
+            raw: configRaw,
+          })
+        } else if (Object.keys(configRaw).length > 0) {
+          await clnConfig.merge(effects, { raw: configRaw })
+        }
+      } else if (!config) {
         console.log(i18n('No existing config found. Writing defaults'))
-        await clnConfig.write(effects, clnConfDefaults)
+        await clnConfig.write(effects, { clnrest: true })
       }
 
       // remove old start9 dir

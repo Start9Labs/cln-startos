@@ -20,6 +20,7 @@ An implementation of the Lightning Network protocol by [Blockstream](https://blo
 - [Volume and Data Layout](#volume-and-data-layout)
 - [Installation and First-Run Flow](#installation-and-first-run-flow)
 - [Configuration Management](#configuration-management)
+- [Default Overrides](#default-overrides)
 - [Network Access and Interfaces](#network-access-and-interfaces)
 - [Actions](#actions-startos-ui)
 - [Backups and Restore](#backups-and-restore)
@@ -97,6 +98,21 @@ Settings **not** managed by StartOS (hardcoded):
 | `bitcoin-datadir` | `/mnt/bitcoin` | Mounted dependency volume |
 | `clnrest-port` | `3010` | Fixed internal port |
 | `grpc-port` | `2106` | Fixed internal port |
+
+## Default Overrides
+
+The following settings are intentionally set to values that differ from
+upstream CLN defaults. When a user leaves the field empty in the StartOS UI,
+CLN uses its own upstream default (shown in the **Upstream** column). The
+**Our Default** column shows what the StartOS form pre-fills.
+
+| Setting | Upstream | Our Default | Reason |
+|---------|----------|-------------|--------|
+| `clnrest` | Disabled (no host/port set) | Enabled | Most users want REST API access for wallet apps |
+
+All other numeric fields in the Experimental and Plugins actions use upstream
+CLN defaults as placeholders. When a field is left empty, CLN's own default
+applies.
 
 ## Network Access and Interfaces
 

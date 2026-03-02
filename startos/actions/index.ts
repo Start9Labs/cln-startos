@@ -1,5 +1,4 @@
 import { sdk } from '../sdk'
-import { autoclean } from './config/autoclean'
 import { experimental } from './config/experimental'
 import { config } from './config/config'
 import { plugins } from './config/plugins'
@@ -14,7 +13,6 @@ import { nodeInfo } from './nodeInfo'
 import { displaySeed } from './displaySeed'
 
 export const actions = sdk.Actions.of()
-  .addAction(autoclean)
   .addAction(config)
   .addAction(displaySeed)
   .addAction(experimental)

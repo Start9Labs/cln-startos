@@ -151,7 +151,7 @@ const dict = {
   'Routing Base Fee': 112,
   'The base fee in millisatoshis you will charge for forwarding payments on your channels.  <b>Default: 1000</b>': 113,
   'Routing Fee Rate': 114,
-  'The fee rate used when forwarding payments on your channels. The total fee charged is the Base Fee + (amount * Fee Rate / 1,000,000), where the amount is the forwarded amount.  Measured in sats per million.  <b>Default: 1</b>': 115,
+  'The fee rate used when forwarding payments on your channels. The total fee charged is the Base Fee + (amount * Fee Rate / 1,000,000), where the amount is the forwarded amount.  Measured in sats per million.  <b>Default: 10</b>': 115,
   'Minimum Channel Capacity': 116,
   "This value defines the minimal effective channel capacity in satoshis to accept for channel opening requests.  This will reject any opening of a channel which can't pass an HTLC of at least this value. Usually this prevents a peer opening a tiny channel, but it can also prevent a channel you open with a reasonable amount and the peer is requesting such a large reserve that the capacity of the channel falls below this.  <b>Default: 10,000</b>": 117,
   'Ignore Fee Limits': 118,
@@ -159,7 +159,7 @@ const dict = {
   'Required Funding Confirmations': 120,
   'Confirmations required for the funding transaction when the other side opens a channel before the channel is usable.  <b>Default: 3</b>': 121,
   'Time Lock Delta': 122,
-  'The number of blocks between the incoming payments and outgoing payments: this needs to be enough to make sure that if it has to, Core Lightning can close the outgoing payment before the incoming, or redeem the incoming once the outgoing is redeemed.  <b>Default: 40</b>': 123,
+  'The number of blocks between the incoming payments and outgoing payments: this needs to be enough to make sure that if it has to, Core Lightning can close the outgoing payment before the incoming, or redeem the incoming once the outgoing is redeemed.  <b>Default: 34</b>': 123,
   'HTLC Minimum Size (Msat)': 124,
   'Sets the minimal allowed HTLC value for newly created channels. If you want to change the htlc_minimum_msat for existing channels, use the RPC call lightning-setchannel.  <b>Default: unset (no minimum)</b>': 125,
   'HTLC Maximum Size (Msat)': 126,
@@ -216,7 +216,7 @@ const dict = {
   "Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings.<br><ul><li><b>Incognito: </b>Wait for others to stumble upon your unadvertised node and open a dual-fund request, then react in a more complex way</li><li><b>Liquidity Merchant: </b>Advertise and sell liquidity on the market in a straightforward way (i.e., always match 100% of requested funds, and don't accept dual-funding requests that aren't channel lease requests).</li></ul><br><b>Default: Incognito</b>": 171,
   'Incognito': 172,
   'Policy': 173,
-  '<ul><li><b>Match: </b>Contribute a percentage of their requested funds.</li><li><b>Available: </b>Contribute policy_mod percent of our available node wallet funds.</li><li><b>Fixed: </b>Contribute a fixed number of sats to v2 channel open requests.</li></ul><br><b>Default: Match</b>': 174,
+  '<ul><li><b>Match: </b>Contribute a percentage of their requested funds.</li><li><b>Available: </b>Contribute policy_mod percent of our available node wallet funds.</li><li><b>Fixed: </b>Contribute a fixed number of sats to v2 channel open requests.</li></ul><br><b>Default: Fixed</b>': 174,
   'Match': 175,
   'Percentage of Requested Funds to Commit': 176,
   'Percentage of requested funds to commit to the channel. If this is a channel lease request, we match based on their requested funds. If it is not a channel lease request (and leases only is false, which is is by default), then we match their funding amount. Note: any lease match less than 100 will likely fail, as clients will not accept a lease less than their request.  <b>Default: 100</b>': 177,
@@ -261,6 +261,10 @@ const dict = {
   'Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>': 214,
   'Add Watchtower Servers': 215,
   "Add URIs of watchtower servers to connect to. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158": 216,
+
+  // main.ts (emergency recovery)
+  'Backup Restoration Detected': 218,
+  'It is not recommended to continue using a Core Lightning node after emergency recovery. All channels will be force-closed and funds swept to the on-chain wallet. Please wait for all channels to resolve, then sweep remaining funds to another wallet. Afterwards, Core Lightning should be uninstalled and re-installed fresh if you would like to continue using it.': 219,
 
   // install/versions/v25.12.0.1-beta.1.ts
   'No existing config found. Writing defaults': 217,

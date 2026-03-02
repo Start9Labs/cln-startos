@@ -1,59 +1,37 @@
-import { matches, FileHelper } from '@start9labs/start-sdk'
-import { teosTomlDefaults } from '../utils'
+import { FileHelper, z } from '@start9labs/start-sdk'
+import { bitcoinDataDir } from '../utils'
 import { sdk } from '../sdk'
 
-const { object, boolean, natural, literal } = matches
+const shape = z.object({
+  api_bind: z.literal('0.0.0.0').catch('0.0.0.0'),
+  api_port: z.literal(9814).catch(9814),
+  tor_support: z.literal(false).catch(false),
 
-const {
-  api_bind,
-  api_port,
-  tor_support,
-  rpc_bind,
-  rpc_port,
-  btc_network,
-  btc_rpc_connect,
-  btc_rpc_port,
-  btc_rpc_cookie,
-  debug,
-  deps_debug,
-  overwrite_key,
-  subscription_slots,
-  subscription_duration,
-  expiry_delta,
-  min_to_self_delay,
-  polling_delta,
-  internal_api_bind,
-  internal_api_port,
-} = teosTomlDefaults
+  rpc_bind: z.literal('127.0.0.1').catch('127.0.0.1'),
+  rpc_port: z.literal(8814).catch(8814),
 
-const shape = object({
-  api_bind: literal(api_bind).onMismatch(api_bind),
-  api_port: literal(api_port).onMismatch(api_port),
-  tor_support: literal(tor_support).onMismatch(tor_support),
+  btc_network: z.literal('mainnet').catch('mainnet'),
+  btc_rpc_connect: z.literal('bitcoind.startos').catch('bitcoind.startos'),
+  btc_rpc_port: z.literal(8332).catch(8332),
+  btc_rpc_cookie: z
+    .literal(`${bitcoinDataDir}/.cookie`)
+    .catch(`${bitcoinDataDir}/.cookie`),
 
-  rpc_bind: literal(rpc_bind).onMismatch(rpc_bind),
-  rpc_port: literal(rpc_port).onMismatch(rpc_port),
+  debug: z.literal(false).catch(false),
+  deps_debug: z.literal(false).catch(false),
+  overwrite_key: z.literal(false).catch(false),
 
-  btc_network: literal(btc_network).onMismatch(btc_network),
-  btc_rpc_connect: literal(btc_rpc_connect).onMismatch(btc_rpc_connect),
-  btc_rpc_port: literal(btc_rpc_port).onMismatch(btc_rpc_port),
-  btc_rpc_cookie: literal(btc_rpc_cookie).onMismatch(btc_rpc_cookie),
+  subscription_slots: z.literal(10_000).catch(10_000),
+  subscription_duration: z.literal(4_320).catch(4_320),
+  expiry_delta: z.literal(6).catch(6),
+  min_to_self_delay: z.literal(20).catch(20),
+  polling_delta: z.literal(60).catch(60),
 
-  debug: boolean.onMismatch(debug),
-  deps_debug: boolean.onMismatch(deps_debug),
-  overwrite_key: boolean.onMismatch(overwrite_key),
-
-  subscription_slots: natural.onMismatch(subscription_slots),
-  subscription_duration: natural.onMismatch(subscription_duration),
-  expiry_delta: natural.onMismatch(expiry_delta),
-  min_to_self_delay: natural.onMismatch(min_to_self_delay),
-  polling_delta: natural.onMismatch(polling_delta),
-
-  internal_api_bind: literal(internal_api_bind).onMismatch(internal_api_bind),
-  internal_api_port: literal(internal_api_port).onMismatch(internal_api_port),
+  internal_api_bind: z.literal('127.0.0.1').catch('127.0.0.1'),
+  internal_api_port: z.literal(50051).catch(50051),
 })
 
 export const teosToml = FileHelper.toml(
-  { base: sdk.volumes.main, subpath: '/.teos/teos.toml'},
+  { base: sdk.volumes.main, subpath: '/.teos/teos.toml' },
   shape,
 )

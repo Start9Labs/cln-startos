@@ -2,7 +2,6 @@ import {
   InputSpec,
   Value,
 } from '@start9labs/start-sdk/base/lib/actions/input/builder'
-import { configJson } from '../fileModels/config.json'
 import { storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
@@ -10,8 +9,9 @@ import { sdk } from '../sdk'
 const rescanBlockchainSpec = InputSpec.of({
   rescan: Value.number({
     name: i18n('Depth (or Blockheight if prefixed with a hyphen)'),
-    description:
-      i18n('Depth expressed as a positive number or blockheight prefixed with a hyphen.'),
+    description: i18n(
+      'Depth expressed as a positive number or blockheight prefixed with a hyphen.',
+    ),
     default: null,
     integer: true,
     required: true,

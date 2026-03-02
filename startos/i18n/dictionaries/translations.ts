@@ -121,7 +121,7 @@ export default {
     112: 'Tarifa base de enrutamiento',
     113: 'La tarifa base en milisatoshis que cobrará por reenviar pagos en sus canales. <b>Por defecto: 1000</b>',
     114: 'Tasa de tarifa de enrutamiento',
-    115: 'La tasa de tarifa utilizada al reenviar pagos en sus canales. La tarifa total cobrada es la Tarifa Base + (monto * Tasa de Tarifa / 1.000.000), donde el monto es el monto reenviado. Medida en sats por millón. <b>Por defecto: 1</b>',
+    115: 'La tasa de tarifa utilizada al reenviar pagos en sus canales. La tarifa total cobrada es la Tarifa Base + (monto * Tasa de Tarifa / 1.000.000), donde el monto es el monto reenviado. Medida en sats por millón. <b>Por defecto: 10</b>',
     116: 'Capacidad mínima del canal',
     117: 'Este valor define la capacidad efectiva mínima del canal en satoshis para aceptar solicitudes de apertura de canal. Esto rechazará cualquier apertura de un canal que no pueda pasar un HTLC de al menos este valor. Normalmente esto evita que un par abra un canal diminuto, pero también puede evitar un canal que usted abra con una cantidad razonable y el par esté solicitando una reserva tan grande que la capacidad del canal caiga por debajo de esto. <b>Por defecto: 10.000</b>',
     118: 'Ignorar límites de tarifas',
@@ -129,7 +129,7 @@ export default {
     120: 'Confirmaciones de financiación requeridas',
     121: 'Confirmaciones requeridas para la transacción de financiación cuando el otro lado abre un canal antes de que el canal sea utilizable. <b>Por defecto: 3</b>',
     122: 'Delta de bloqueo temporal',
-    123: 'El número de bloques entre los pagos entrantes y salientes: esto debe ser suficiente para asegurar que, si es necesario, Core Lightning pueda cerrar el pago saliente antes del entrante, o canjear el entrante una vez que el saliente sea canjeado. <b>Por defecto: 40</b>',
+    123: 'El número de bloques entre los pagos entrantes y salientes: esto debe ser suficiente para asegurar que, si es necesario, Core Lightning pueda cerrar el pago saliente antes del entrante, o canjear el entrante una vez que el saliente sea canjeado. <b>Por defecto: 34</b>',
     124: 'Tamaño mínimo HTLC (Msat)',
     125: 'Establece el valor mínimo permitido de HTLC para canales recién creados. Si desea cambiar el htlc_minimum_msat para canales existentes, use la llamada RPC lightning-setchannel. <b>Por defecto: sin establecer (sin mínimo)</b>',
     126: 'Tamaño máximo HTLC (Msat)',
@@ -234,6 +234,10 @@ export default {
 
     // install/versions/v25.12.0.1-beta.1.ts
     217: 'No se encontró configuración existente. Escribiendo valores predeterminados',
+
+    // main.ts (emergency recovery)
+    218: 'Restauración de copia de seguridad detectada',
+    219: 'No se recomienda continuar usando un nodo Core Lightning después de una recuperación de emergencia. Todos los canales se cerrarán forzosamente y los fondos se enviarán a la billetera on-chain. Espere a que se resuelvan todos los canales, luego transfiera los fondos restantes a otra billetera. Después, Core Lightning debe ser desinstalado y reinstalado de nuevo si desea seguir usándolo.',
   },
   de_DE: {
     0: 'Core Lightning wird gestartet!',
@@ -355,7 +359,7 @@ export default {
     112: 'Routing-Grundgebühr',
     113: 'Die Grundgebühr in Millisatoshis, die Sie für die Weiterleitung von Zahlungen auf Ihren Kanälen berechnen. <b>Standard: 1000</b>',
     114: 'Routing-Gebührenrate',
-    115: 'Die Gebührenrate bei der Weiterleitung von Zahlungen auf Ihren Kanälen. Die Gesamtgebühr beträgt Grundgebühr + (Betrag * Gebührenrate / 1.000.000), wobei der Betrag der weitergeleitete Betrag ist. Gemessen in Sats pro Million. <b>Standard: 1</b>',
+    115: 'Die Gebührenrate bei der Weiterleitung von Zahlungen auf Ihren Kanälen. Die Gesamtgebühr beträgt Grundgebühr + (Betrag * Gebührenrate / 1.000.000), wobei der Betrag der weitergeleitete Betrag ist. Gemessen in Sats pro Million. <b>Standard: 10</b>',
     116: 'Minimale Kanalkapazität',
     117: 'Dieser Wert definiert die minimale effektive Kanalkapazität in Satoshis für die Annahme von Kanaleröffnungsanfragen. Dies lehnt jede Eröffnung eines Kanals ab, der keinen HTLC von mindestens diesem Wert durchleiten kann. Normalerweise verhindert dies, dass ein Peer einen winzigen Kanal öffnet, aber es kann auch einen Kanal verhindern, den Sie mit einem angemessenen Betrag öffnen und der Peer eine so große Reserve anfordert, dass die Kapazität des Kanals unter diesen Wert fällt. <b>Standard: 10.000</b>',
     118: 'Gebührenlimits ignorieren',
@@ -363,7 +367,7 @@ export default {
     120: 'Erforderliche Finanzierungsbestätigungen',
     121: 'Erforderliche Bestätigungen für die Finanzierungstransaktion, wenn die andere Seite einen Kanal eröffnet, bevor der Kanal nutzbar ist. <b>Standard: 3</b>',
     122: 'Zeitsperren-Delta',
-    123: 'Die Anzahl der Blöcke zwischen eingehenden und ausgehenden Zahlungen: Dies muss ausreichend sein, um sicherzustellen, dass Core Lightning bei Bedarf die ausgehende Zahlung vor der eingehenden schließen oder die eingehende einlösen kann, sobald die ausgehende eingelöst wurde. <b>Standard: 40</b>',
+    123: 'Die Anzahl der Blöcke zwischen eingehenden und ausgehenden Zahlungen: Dies muss ausreichend sein, um sicherzustellen, dass Core Lightning bei Bedarf die ausgehende Zahlung vor der eingehenden schließen oder die eingehende einlösen kann, sobald die ausgehende eingelöst wurde. <b>Standard: 34</b>',
     124: 'HTLC-Mindestgröße (Msat)',
     125: 'Legt den minimal erlaubten HTLC-Wert für neu erstellte Kanäle fest. Wenn Sie den htlc_minimum_msat für bestehende Kanäle ändern möchten, verwenden Sie den RPC-Aufruf lightning-setchannel. <b>Standard: nicht gesetzt (kein Minimum)</b>',
     126: 'HTLC-Maximalgröße (Msat)',
@@ -468,6 +472,10 @@ export default {
 
     // install/versions/v25.12.0.1-beta.1.ts
     217: 'Keine vorhandene Konfiguration gefunden. Standardwerte werden geschrieben',
+
+    // main.ts (emergency recovery)
+    218: 'Sicherungswiederherstellung erkannt',
+    219: 'Es wird nicht empfohlen, einen Core Lightning-Knoten nach einer Notfallwiederherstellung weiter zu verwenden. Alle Kanäle werden zwangsgeschlossen und die Mittel werden an die On-Chain-Wallet überwiesen. Bitte warten Sie, bis alle Kanäle aufgelöst sind, und überweisen Sie dann die verbleibenden Mittel an eine andere Wallet. Danach sollte Core Lightning deinstalliert und bei Bedarf neu installiert werden.',
   },
   pl_PL: {
     0: 'Uruchamianie Core Lightning!',
@@ -589,7 +597,7 @@ export default {
     112: 'Podstawowa opłata routingu',
     113: 'Podstawowa opłata w milisatoshi, którą pobierzesz za przekazywanie płatności na swoich kanałach. <b>Domyślnie: 1000</b>',
     114: 'Stawka opłaty routingu',
-    115: 'Stawka opłaty używana przy przekazywaniu płatności na kanałach. Całkowita pobrana opłata to Opłata Podstawowa + (kwota * Stawka Opłaty / 1 000 000), gdzie kwota to kwota przekazana. Mierzona w satach na milion. <b>Domyślnie: 1</b>',
+    115: 'Stawka opłaty używana przy przekazywaniu płatności na kanałach. Całkowita pobrana opłata to Opłata Podstawowa + (kwota * Stawka Opłaty / 1 000 000), gdzie kwota to kwota przekazana. Mierzona w satach na milion. <b>Domyślnie: 10</b>',
     116: 'Minimalna pojemność kanału',
     117: 'Ta wartość definiuje minimalną efektywną pojemność kanału w satoshi do akceptacji dla żądań otwarcia kanału. Spowoduje to odrzucenie każdego otwarcia kanału, który nie może przekazać HTLC o co najmniej tej wartości. Zwykle zapobiega to otwarciu małego kanału przez peera, ale może również zapobiec otwarciu kanału z rozsądną kwotą, gdy peer żąda tak dużej rezerwy, że pojemność kanału spada poniżej tej wartości. <b>Domyślnie: 10 000</b>',
     118: 'Ignoruj limity opłat',
@@ -597,7 +605,7 @@ export default {
     120: 'Wymagane potwierdzenia finansowania',
     121: 'Potwierdzenia wymagane dla transakcji finansowania, gdy druga strona otwiera kanał, zanim kanał będzie użyteczny. <b>Domyślnie: 3</b>',
     122: 'Delta blokady czasowej',
-    123: 'Liczba bloków między płatnościami przychodzącymi i wychodzącymi: musi to być wystarczające, aby w razie potrzeby Core Lightning mógł zamknąć płatność wychodzącą przed przychodzącą lub zrealizować przychodzącą po zrealizowaniu wychodzącej. <b>Domyślnie: 40</b>',
+    123: 'Liczba bloków między płatnościami przychodzącymi i wychodzącymi: musi to być wystarczające, aby w razie potrzeby Core Lightning mógł zamknąć płatność wychodzącą przed przychodzącą lub zrealizować przychodzącą po zrealizowaniu wychodzącej. <b>Domyślnie: 34</b>',
     124: 'Minimalny rozmiar HTLC (Msat)',
     125: 'Ustawia minimalną dozwoloną wartość HTLC dla nowo utworzonych kanałów. Jeśli chcesz zmienić htlc_minimum_msat dla istniejących kanałów, użyj wywołania RPC lightning-setchannel. <b>Domyślnie: nieustawione (bez minimum)</b>',
     126: 'Maksymalny rozmiar HTLC (Msat)',
@@ -702,6 +710,10 @@ export default {
 
     // install/versions/v25.12.0.1-beta.1.ts
     217: 'Nie znaleziono istniejącej konfiguracji. Zapisywanie wartości domyślnych',
+
+    // main.ts (emergency recovery)
+    218: 'Wykryto przywracanie kopii zapasowej',
+    219: 'Nie zaleca się dalszego korzystania z węzła Core Lightning po awaryjnym odzyskiwaniu. Wszystkie kanały zostaną zamknięte przymusowo, a środki zostaną przelane do portfela on-chain. Proszę poczekać na rozwiązanie wszystkich kanałów, a następnie przelać pozostałe środki do innego portfela. Następnie Core Lightning powinien zostać odinstalowany i zainstalowany ponownie, jeśli chcesz kontynuować korzystanie z niego.',
   },
   fr_FR: {
     0: 'Démarrage de Core Lightning !',
@@ -823,7 +835,7 @@ export default {
     112: 'Frais de base de routage',
     113: 'Les frais de base en millisatoshis que vous facturerez pour le transfert de paiements sur vos canaux. <b>Par défaut : 1000</b>',
     114: 'Taux de frais de routage',
-    115: "Le taux de frais utilisé lors du transfert de paiements sur vos canaux. Les frais totaux facturés sont les Frais de Base + (montant * Taux de Frais / 1 000 000), où le montant est le montant transféré. Mesuré en sats par million. <b>Par défaut : 1</b>",
+    115: "Le taux de frais utilisé lors du transfert de paiements sur vos canaux. Les frais totaux facturés sont les Frais de Base + (montant * Taux de Frais / 1 000 000), où le montant est le montant transféré. Mesuré en sats par million. <b>Par défaut : 10</b>",
     116: 'Capacité minimale du canal',
     117: "Cette valeur définit la capacité effective minimale du canal en satoshis pour accepter les demandes d'ouverture de canal. Cela rejettera toute ouverture de canal qui ne peut pas passer un HTLC d'au moins cette valeur. Habituellement, cela empêche un pair d'ouvrir un canal minuscule, mais cela peut aussi empêcher un canal que vous ouvrez avec un montant raisonnable et le pair demande une réserve si grande que la capacité du canal tombe en dessous de cette valeur. <b>Par défaut : 10 000</b>",
     118: 'Ignorer les limites de frais',
@@ -831,7 +843,7 @@ export default {
     120: 'Confirmations de financement requises',
     121: "Confirmations requises pour la transaction de financement lorsque l'autre partie ouvre un canal avant que le canal ne soit utilisable. <b>Par défaut : 3</b>",
     122: 'Delta de verrouillage temporel',
-    123: "Le nombre de blocs entre les paiements entrants et sortants : cela doit être suffisant pour s'assurer que, si nécessaire, Core Lightning puisse fermer le paiement sortant avant l'entrant, ou racheter l'entrant une fois le sortant racheté. <b>Par défaut : 40</b>",
+    123: "Le nombre de blocs entre les paiements entrants et sortants : cela doit être suffisant pour s'assurer que, si nécessaire, Core Lightning puisse fermer le paiement sortant avant l'entrant, ou racheter l'entrant une fois le sortant racheté. <b>Par défaut : 34</b>",
     124: 'Taille minimale HTLC (Msat)',
     125: "Définit la valeur HTLC minimale autorisée pour les canaux nouvellement créés. Si vous souhaitez modifier le htlc_minimum_msat pour les canaux existants, utilisez l'appel RPC lightning-setchannel. <b>Par défaut : non défini (pas de minimum)</b>",
     126: 'Taille maximale HTLC (Msat)',
@@ -936,5 +948,9 @@ export default {
 
     // install/versions/v25.12.0.1-beta.1.ts
     217: 'Aucune configuration existante trouvée. Écriture des valeurs par défaut',
+
+    // main.ts (emergency recovery)
+    218: 'Restauration de sauvegarde détectée',
+    219: "Il n'est pas recommandé de continuer à utiliser un nœud Core Lightning après une récupération d'urgence. Tous les canaux seront fermés de force et les fonds seront transférés vers le portefeuille on-chain. Veuillez attendre que tous les canaux soient résolus, puis transférer les fonds restants vers un autre portefeuille. Ensuite, Core Lightning devrait être désinstallé et réinstallé si vous souhaitez continuer à l'utiliser.",
   },
 } satisfies Record<string, LangDict>

@@ -1,18 +1,15 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { SDKImageInputSpec } from '@start9labs/start-sdk/base/lib/types/ManifestTypes'
 import { alertInstall, alertUninstall, alertRestore, bitcoindTitle, short, long } from './i18n'
 
 export const manifest = setupManifest({
   id: 'c-lightning',
   title: 'Core Lightning',
   license: 'mit',
-  wrapperRepo: 'https://github.com/Start9Labs/cln-startos',
+  packageRepo: 'https://github.com/Start9Labs/cln-startos',
   upstreamRepo: 'https://github.com/ElementsProject/lightning',
-  supportSite: 'https://github.com/ElementsProject/lightning/issues',
-  marketingSite: 'https://blockstream.com/lightning',
+  marketingUrl: 'https://blockstream.com/lightning',
   donationUrl: null,
-  docsUrl:
-    'https://docs.corelightning.org/docs/home',
+  docsUrls: ['https://docs.corelightning.org/docs/home'],
   description: { short, long },
   volumes: ['main'],
   images: {

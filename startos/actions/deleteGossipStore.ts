@@ -1,7 +1,6 @@
+import * as fs from 'fs/promises'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
-import { rootDir } from '../utils'
-import * as fs from 'fs/promises'
 
 export const deleteGossipStore = sdk.Action.withoutInput(
   // id

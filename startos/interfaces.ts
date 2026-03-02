@@ -24,7 +24,6 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const uiMulti = sdk.MultiHost.of(effects, 'web-ui')
   const uiMultiOrigin = await uiMulti.bindPort(uiPort, {
     protocol: 'http',
-    preferredExternalPort: uiPort,
   })
   const ui = sdk.createInterface(effects, {
     name: i18n('Web UI'),
@@ -44,7 +43,6 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const rpcMulti = sdk.MultiHost.of(effects, 'rpc')
   const rpcMultiOrigin = await rpcMulti.bindPort(rpcPort, {
     protocol: 'http',
-    preferredExternalPort: rpcPort,
   })
   const rpc = sdk.createInterface(effects, {
     name: i18n('RPC'),
@@ -85,8 +83,8 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   // gRPC
   const grpcMulti = sdk.MultiHost.of(effects, 'grpc')
   const grpcMultiOrigin = await grpcMulti.bindPort(grpcPort, {
+    // @TODO is https correct?
     protocol: 'https',
-    preferredExternalPort: grpcPort,
     addSsl: {
       alpn: null,
       preferredExternalPort: grpcPort,
@@ -111,14 +109,13 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   const conf = await clnConfig
     .read((c) => ({
-      'clnrest-host': c['clnrest-host'],
-      'clnrest-port': c['clnrest-port'],
-      'bind-addr': c['bind-addr'],
+      clnrest: c.clnrest,
+      'clams-remote-websocket': c['clams-remote-websocket'],
     }))
     .const(effects)
 
   // clnrest
-  if (conf && conf['clnrest-host'] && conf['clnrest-port']) {
+  if (conf?.clnrest) {
     const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest')
     const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
       protocol: 'https',
@@ -160,7 +157,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   }
 
   // websocket (clams)
-  if (conf && conf['bind-addr'].includes('ws::7272')) {
+  if (conf?.['clams-remote-websocket']) {
     const websocketMulti = sdk.MultiHost.of(effects, 'websocket')
     const websocketMultiOrigin = await websocketMulti.bindPort(websocketPort, {
       protocol: 'http',

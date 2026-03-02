@@ -1,11 +1,8 @@
-import {
-  ActionResult,
-  ActionResultMember,
-} from '@start9labs/start-sdk/base/lib/osBindings'
-import { peerInterfaceId } from '../interfaces'
+import { ActionResultMember } from '@start9labs/start-sdk/base/lib/osBindings'
 import { i18n } from '../i18n'
+import { peerInterfaceId } from '../interfaces'
 import { sdk } from '../sdk'
-import { GetInfoResponse, mainMounts, rootDir } from '../utils'
+import { mainMounts, rootDir } from '../utils'
 
 export const nodeInfo = sdk.Action.withoutInput(
   // id
@@ -23,7 +20,9 @@ export const nodeInfo = sdk.Action.withoutInput(
 
   // the execution function
   async ({ effects }) => {
-    const nodeInfo: GetInfoResponse = await sdk.SubContainer.withTemp(
+    const nodeInfo: {
+      id: string
+    } = await sdk.SubContainer.withTemp(
       effects,
       {
         imageId: 'lightning',
