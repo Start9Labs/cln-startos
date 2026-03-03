@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icon.png" alt="Core Lightning Logo" width="21%">
+  <img src="icon.svg" alt="Core Lightning Logo" width="21%">
 </p>
 
 # Core Lightning on StartOS
@@ -35,36 +35,36 @@ An implementation of the Lightning Network protocol by [Blockstream](https://blo
 
 ## Image and Container Runtime
 
-| Property | Value |
-|----------|-------|
-| Image | Custom Dockerfile based on `elementsproject/lightningd:v25.12.1` |
-| Architectures | x86_64, aarch64 |
-| Entrypoint | `lightningd` with `--database-upgrade=true` |
+| Property      | Value                                                            |
+| ------------- | ---------------------------------------------------------------- |
+| Image         | Custom Dockerfile based on `elementsproject/lightningd:v25.12.1` |
+| Architectures | x86_64, aarch64                                                  |
+| Entrypoint    | `lightningd` with `--database-upgrade=true`                      |
 
 The custom Dockerfile adds the following plugins on top of the upstream CLN image:
 
-| Plugin | Source |
-|--------|--------|
-| **CLBOSS** | Built from source (automated channel management) |
-| **Sling** | Built from source (channel rebalancing) |
-| **TEOS watchtower-client** | Built from Rust (watchtower client plugin) |
-| **TEOS server** (`teosd` / `teos-cli`) | Built from Rust (watchtower server) |
+| Plugin                                 | Source                                           |
+| -------------------------------------- | ------------------------------------------------ |
+| **CLBOSS**                             | Built from source (automated channel management) |
+| **Sling**                              | Built from source (channel rebalancing)          |
+| **TEOS watchtower-client**             | Built from Rust (watchtower client plugin)       |
+| **TEOS server** (`teosd` / `teos-cli`) | Built from Rust (watchtower server)              |
 
 A second container runs the **CLN Application** web UI (`ghcr.io/elementsproject/cln-application:26.01.2`).
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose |
-|--------|-------------|---------|
+| Volume | Mount Point        | Purpose                                              |
+| ------ | ------------------ | ---------------------------------------------------- |
 | `main` | `/root/.lightning` | All CLN data (wallet, channels, DB, config, plugins) |
 
 StartOS-specific files on the `main` volume:
 
-| File | Purpose |
-|------|---------|
-| `store.json` | Persistent StartOS state (restore flag, plugin settings, watchtower config) |
-| `.commando-env` | Auto-generated commando rune for CLN Application UI |
-| `bitcoin/ca.pem`, `server.pem`, `client.pem` + keys | StartOS-managed TLS certificates for gRPC |
+| File                                                | Purpose                                                                     |
+| --------------------------------------------------- | --------------------------------------------------------------------------- |
+| `store.json`                                        | Persistent StartOS state (restore flag, plugin settings, watchtower config) |
+| `.commando-env`                                     | Auto-generated commando rune for CLN Application UI                         |
+| `bitcoin/ca.pem`, `server.pem`, `client.pem` + keys | StartOS-managed TLS certificates for gRPC                                   |
 
 The Bitcoin Core `main` volume is mounted read-only at `/mnt/bitcoin` for cookie authentication.
 
@@ -79,25 +79,25 @@ The Bitcoin Core `main` volume is mounted read-only at `/mnt/bitcoin` for cookie
 
 CLN is configured through **StartOS actions** that write to the `config` file (INI format) and `store.json` on the `main` volume.
 
-| StartOS-Managed (via Actions) | Details |
-|-------------------------------|---------|
-| General settings | Alias, color, fee base, fee rate, min capacity, CLTV delta, HTLC limits, funding confirms |
-| Autoclean | Cycle interval, age thresholds for forwards, pays, and invoices |
-| Plugins | CLNrest (toggle), Sling (toggle), CLBOSS (toggle + settings) |
-| Experimental features | Dual funding, splicing, shutdown-wrong-funding, xpay |
-| Watchtower server | Enable/disable TEOS watchtower server |
-| Watchtower client | Enable/disable, add tower URIs |
+| StartOS-Managed (via Actions) | Details                                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| General settings              | Alias, color, fee base, fee rate, min capacity, CLTV delta, HTLC limits, funding confirms |
+| Autoclean                     | Cycle interval, age thresholds for forwards, pays, and invoices                           |
+| Plugins                       | CLNrest (toggle), Sling (toggle), CLBOSS (toggle + settings)                              |
+| Experimental features         | Dual funding, splicing, shutdown-wrong-funding, xpay                                      |
+| Watchtower server             | Enable/disable TEOS watchtower server                                                     |
+| Watchtower client             | Enable/disable, add tower URIs                                                            |
 
 Settings **not** managed by StartOS (hardcoded):
 
-| Setting | Value | Reason |
-|---------|-------|--------|
-| `network` | `bitcoin` | Only mainnet supported |
+| Setting              | Value              | Reason                     |
+| -------------------- | ------------------ | -------------------------- |
+| `network`            | `bitcoin`          | Only mainnet supported     |
 | `bitcoin-rpcconnect` | `bitcoind.startos` | StartOS service networking |
-| `bitcoin-rpcport` | `8332` | StartOS service networking |
-| `bitcoin-datadir` | `/mnt/bitcoin` | Mounted dependency volume |
-| `clnrest-port` | `3010` | Fixed internal port |
-| `grpc-port` | `2106` | Fixed internal port |
+| `bitcoin-rpcport`    | `8332`             | StartOS service networking |
+| `bitcoin-datadir`    | `/mnt/bitcoin`     | Mounted dependency volume  |
+| `clnrest-port`       | `3010`             | Fixed internal port        |
+| `grpc-port`          | `2106`             | Fixed internal port        |
 
 ## Default Overrides
 
@@ -106,9 +106,9 @@ upstream CLN defaults. When a user leaves the field empty in the StartOS UI,
 CLN uses its own upstream default (shown in the **Upstream** column). The
 **Our Default** column shows what the StartOS form pre-fills.
 
-| Setting | Upstream | Our Default | Reason |
-|---------|----------|-------------|--------|
-| `clnrest` | Disabled (no host/port set) | Enabled | Most users want REST API access for wallet apps |
+| Setting   | Upstream                    | Our Default | Reason                                          |
+| --------- | --------------------------- | ----------- | ----------------------------------------------- |
+| `clnrest` | Disabled (no host/port set) | Enabled     | Most users want REST API access for wallet apps |
 
 All other numeric fields in the Experimental and Plugins actions use upstream
 CLN defaults as placeholders. When a field is left empty, CLN's own default
@@ -116,44 +116,44 @@ applies.
 
 ## Network Access and Interfaces
 
-| Interface | Port | Protocol | Purpose |
-|-----------|------|----------|---------|
-| Web UI (CLN Application) | 4500 | HTTP | Web-based node management UI |
-| RPC | 8080 | HTTP | JSON-RPC commands |
-| Peer | 9735 | TCP (raw) | Lightning peer-to-peer connections |
-| gRPC | 2106 | HTTPS | gRPC API (with TLS) |
-| CLNrest | 3010 | HTTPS | REST API with `clnrest://` URIs and embedded rune (when enabled) |
-| Websocket (Clams) | 7272 | HTTP | Websocket for Clams Remote (when `ws::7272` bind-addr configured) |
-| TEOS Watchtower | 9814 | TCP (raw) | Watchtower server (when enabled) |
+| Interface                | Port | Protocol  | Purpose                                                           |
+| ------------------------ | ---- | --------- | ----------------------------------------------------------------- |
+| Web UI (CLN Application) | 4500 | HTTP      | Web-based node management UI                                      |
+| RPC                      | 8080 | HTTP      | JSON-RPC commands                                                 |
+| Peer                     | 9735 | TCP (raw) | Lightning peer-to-peer connections                                |
+| gRPC                     | 2106 | HTTPS     | gRPC API (with TLS)                                               |
+| CLNrest                  | 3010 | HTTPS     | REST API with `clnrest://` URIs and embedded rune (when enabled)  |
+| Websocket (Clams)        | 7272 | HTTP      | Websocket for Clams Remote (when `ws::7272` bind-addr configured) |
+| TEOS Watchtower          | 9814 | TCP (raw) | Watchtower server (when enabled)                                  |
 
 ## Actions (StartOS UI)
 
 ### Information
 
-| Action | Purpose | Availability | Inputs |
-|--------|---------|-------------|--------|
-| **Node Info** | Display node ID and peer URI(s) | Running only | None |
-| **Display BIP-39 Seed** | Display the wallet's 12-word BIP-39 seed | Any (disabled/hidden if no seed or legacy wallet) | None |
-| **Create Rune** | Generate an unrestricted rune for app integrations | Running only | None |
-| **Watchtower Info** | Display watchtower server URI and stats | Running only (disabled if watchtower server inactive) | None |
-| **Watchtower Client Info** | Display registered tower details | Running only (disabled if no watchtower clients configured) | None |
+| Action                     | Purpose                                            | Availability                                                | Inputs |
+| -------------------------- | -------------------------------------------------- | ----------------------------------------------------------- | ------ |
+| **Node Info**              | Display node ID and peer URI(s)                    | Running only                                                | None   |
+| **Display BIP-39 Seed**    | Display the wallet's 12-word BIP-39 seed           | Any (disabled/hidden if no seed or legacy wallet)           | None   |
+| **Create Rune**            | Generate an unrestricted rune for app integrations | Running only                                                | None   |
+| **Watchtower Info**        | Display watchtower server URI and stats            | Running only (disabled if watchtower server inactive)       | None   |
+| **Watchtower Client Info** | Display registered tower details                   | Running only (disabled if no watchtower clients configured) | None   |
 
 ### Configuration
 
-| Action | Purpose | Availability |
-|--------|---------|-------------|
-| **General Settings** | Alias, color, fees, HTLC limits, routing settings | Any |
-| **Autoclean** | Configure automatic cleanup of old forwards, payments, invoices | Any |
-| **Plugins** | Enable/disable CLNrest, Sling, CLBOSS (with sub-settings) | Any |
-| **Experimental Features** | Dual funding (incognito/merchant strategies), splicing, xpay, shutdown-wrong-funding | Any |
-| **Watchtower Settings** | Enable/disable server and client, add tower URIs | Any |
+| Action                    | Purpose                                                                              | Availability |
+| ------------------------- | ------------------------------------------------------------------------------------ | ------------ |
+| **General Settings**      | Alias, color, fees, HTLC limits, routing settings                                    | Any          |
+| **Autoclean**             | Configure automatic cleanup of old forwards, payments, invoices                      | Any          |
+| **Plugins**               | Enable/disable CLNrest, Sling, CLBOSS (with sub-settings)                            | Any          |
+| **Experimental Features** | Dual funding (incognito/merchant strategies), splicing, xpay, shutdown-wrong-funding | Any          |
+| **Watchtower Settings**   | Enable/disable server and client, add tower URIs                                     | Any          |
 
 ### Maintenance
 
-| Action | Purpose | Availability |
-|--------|---------|-------------|
-| **Rescan Blockchain** | Rescan from a specified height or depth | Any |
-| **Reset UI Password** | Clear the CLN Application UI password | Any |
+| Action                  | Purpose                                                          | Availability |
+| ----------------------- | ---------------------------------------------------------------- | ------------ |
+| **Rescan Blockchain**   | Rescan from a specified height or depth                          | Any          |
+| **Reset UI Password**   | Clear the CLN Application UI password                            | Any          |
 | **Delete Gossip Store** | Delete corrupted gossip_store (rebuilt from peers on next start) | Stopped only |
 
 ## Backups and Restore
@@ -164,17 +164,17 @@ applies.
 
 ## Health Checks
 
-| Check | Method | Messages |
-|-------|--------|----------|
-| **RPC Interface** | `lightning-cli getinfo` | Ready: "The RPC interface is ready" |
-| **Web Interface** | Port listening (4500) | Ready: "The Web Interface is ready" |
-| **Synced** | `lightning-cli getinfo` (warnings check) | Synced / Syncing to chain (with block progress) / Bitcoind not synced |
-| **TEOS Watchtower Server** | `teos-cli gettowerinfo` | Online: "The Watchtower Server is online" (when enabled) |
+| Check                      | Method                                   | Messages                                                              |
+| -------------------------- | ---------------------------------------- | --------------------------------------------------------------------- |
+| **RPC Interface**          | `lightning-cli getinfo`                  | Ready: "The RPC interface is ready"                                   |
+| **Web Interface**          | Port listening (4500)                    | Ready: "The Web Interface is ready"                                   |
+| **Synced**                 | `lightning-cli getinfo` (warnings check) | Synced / Syncing to chain (with block progress) / Bitcoind not synced |
+| **TEOS Watchtower Server** | `teos-cli gettowerinfo`                  | Online: "The Watchtower Server is online" (when enabled)              |
 
 ## Dependencies
 
-| Dependency | Required | Version | Purpose |
-|------------|----------|---------|---------|
+| Dependency   | Required | Version           | Purpose                                                  |
+| ------------ | -------- | ----------------- | -------------------------------------------------------- |
 | Bitcoin Core | Required | `>=29.1:1-beta.0` | Block data, transaction broadcasting via RPC cookie auth |
 
 CLN requires Bitcoin Core to be running and synced (health checks `sync-progress` and `primary` must pass).
