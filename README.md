@@ -7,7 +7,7 @@
 > **Upstream docs:** <https://docs.corelightning.org/docs/home>
 >
 > Everything not listed in this document should behave the same as upstream
-> Core Lightning v25.12.1. If a feature, setting, or behavior is not mentioned
+> Core Lightning. If a feature, setting, or behavior is not mentioned
 > here, the upstream documentation is accurate and fully applicable.
 
 An implementation of the Lightning Network protocol by [Blockstream](https://blockstream.com/lightning). See the [upstream repo](https://github.com/ElementsProject/lightning) for general CLN documentation.
@@ -37,7 +37,7 @@ An implementation of the Lightning Network protocol by [Blockstream](https://blo
 
 | Property      | Value                                                            |
 | ------------- | ---------------------------------------------------------------- |
-| Image         | Custom Dockerfile based on `elementsproject/lightningd:v25.12.1` |
+| Image         | Custom Dockerfile based on `elementsproject/lightningd`          |
 | Architectures | x86_64, aarch64                                                  |
 | Entrypoint    | `lightningd` with `--database-upgrade=true`                      |
 
@@ -50,7 +50,7 @@ The custom Dockerfile adds the following plugins on top of the upstream CLN imag
 | **TEOS watchtower-client**             | Built from Rust (watchtower client plugin)       |
 | **TEOS server** (`teosd` / `teos-cli`) | Built from Rust (watchtower server)              |
 
-A second container runs the **CLN Application** web UI (`ghcr.io/elementsproject/cln-application:26.01.2`).
+A second container runs the **CLN Application** web UI (`ghcr.io/elementsproject/cln-application`).
 
 ## Volume and Data Layout
 
@@ -173,9 +173,9 @@ applies.
 
 ## Dependencies
 
-| Dependency   | Required | Version           | Purpose                                                  |
-| ------------ | -------- | ----------------- | -------------------------------------------------------- |
-| Bitcoin Core | Required | `>=29.1:1-beta.0` | Block data, transaction broadcasting via RPC cookie auth |
+| Dependency   | Required | Purpose                                                  |
+| ------------ | -------- | -------------------------------------------------------- |
+| Bitcoin Core | Required | Block data, transaction broadcasting via RPC cookie auth |
 
 CLN requires Bitcoin Core to be running and synced (health checks `sync-progress` and `primary` must pass).
 
@@ -213,9 +213,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 
 ```yaml
 package_id: c-lightning
-upstream_version: 25.12.1
-image: custom Dockerfile (based on elementsproject/lightningd:v25.12.1)
-ui_image: ghcr.io/elementsproject/cln-application:26.01.2
+image: custom Dockerfile (based on elementsproject/lightningd)
+ui_image: ghcr.io/elementsproject/cln-application
 architectures: [x86_64, aarch64]
 volumes:
   main: /root/.lightning
@@ -228,7 +227,7 @@ ports:
   websocket: 7272
   watchtower: 9814
 dependencies:
-  - bitcoind (required, >=29.1:1-beta.0)
+  - bitcoind (required)
 startos_managed_env_vars: []
 startos_managed_files:
   - store.json
