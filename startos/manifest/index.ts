@@ -1,5 +1,12 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { alertInstall, alertUninstall, alertRestore, bitcoindTitle, short, long } from './i18n'
+import {
+  alertInstall,
+  alertRestore,
+  alertUninstall,
+  depBitcoindDescription,
+  long,
+  short,
+} from './i18n'
 
 export const manifest = setupManifest({
   id: 'c-lightning',
@@ -41,11 +48,11 @@ export const manifest = setupManifest({
   },
   dependencies: {
     bitcoind: {
-      description: 'Used to subscribe to new block events.',
+      description: depBitcoindDescription,
       optional: false,
       metadata: {
-        title: bitcoindTitle,
-        icon: 'https://bitcoin.org/img/icons/opengraph.png',
+        title: 'Bitcoin',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/feec0b1dae42961a257948fe39b40caf8672fce1/dep-icon.svg',
       },
     },
   },

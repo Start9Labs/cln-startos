@@ -8,7 +8,7 @@ export const alertInstall = {
   pl_PL:
     'PRZECZYTAJ UWAŻNIE! Core Lightning i Lightning Network są uważane za oprogramowanie w wersji beta. Używaj ostrożnie i nie ryzykuj więcej pieniędzy niż jesteś gotów stracić. Zachęcamy do częstych kopii zapasowych. Jeśli z jakiegokolwiek powodu będziesz musiał przywrócić CLN z kopii zapasowej, Twój portfel on-chain zostanie przywrócony, ale pieniądze zablokowane w Twoich kanałach pozostaną w tych kanałach przez nieokreślony czas, jeśli w ogóle zostaną Ci zwrócone. Zależy to od współpracy Twoich peerów. Wybieraj peerów z rozwagą.',
   fr_FR:
-    'LISEZ ATTENTIVEMENT ! Core Lightning et le Lightning Network sont considérés comme des logiciels bêta. Veuillez les utiliser avec prudence et ne risquez pas plus d\'argent que vous n\'êtes prêt à perdre. Nous encourageons les sauvegardes fréquentes. Si pour une raison quelconque vous devez restaurer CLN à partir d\'une sauvegarde, votre portefeuille on-chain sera restauré, mais l\'argent verrouillé dans vos canaux restera bloqué dans ces canaux pour une durée indéterminée, s\'il vous est retourné. Cela dépend de la coopération de vos pairs. Choisissez vos pairs avec discernement.',
+    "LISEZ ATTENTIVEMENT ! Core Lightning et le Lightning Network sont considérés comme des logiciels bêta. Veuillez les utiliser avec prudence et ne risquez pas plus d'argent que vous n'êtes prêt à perdre. Nous encourageons les sauvegardes fréquentes. Si pour une raison quelconque vous devez restaurer CLN à partir d'une sauvegarde, votre portefeuille on-chain sera restauré, mais l'argent verrouillé dans vos canaux restera bloqué dans ces canaux pour une durée indéterminée, s'il vous est retourné. Cela dépend de la coopération de vos pairs. Choisissez vos pairs avec discernement.",
 }
 
 export const alertUninstall = {
@@ -21,7 +21,7 @@ export const alertUninstall = {
   pl_PL:
     'PRZECZYTAJ UWAŻNIE! Odinstalowanie Core Lightning spowoduje trwałą utratę danych, w tym kluczy prywatnych portfela on-chain i wszystkich stanów kanałów. Wykonaj kopię zapasową, jeśli masz jakiekolwiek środki w portfelu on-chain lub w jakichkolwiek kanałach. Odzyskiwanie z kopii zapasowej przywróci Twój portfel on-chain, ale ze względu na architekturę Lightning Network Twoje kanały nie mogą zostać odzyskane. Wszystkie środki z Twoich kanałów pozostaną zablokowane w tych kanałach przez nieokreślony czas, a jeśli Twoi peerzy nie będą współpracować, nie będą w ogóle do odzyskania.',
   fr_FR:
-    'LISEZ ATTENTIVEMENT ! La désinstallation de Core Lightning entraînera la perte permanente de données, y compris ses clés privées pour son portefeuille on-chain et tous les états des canaux. Veuillez faire une sauvegarde si vous avez des fonds dans votre portefeuille on-chain ou dans des canaux. La récupération à partir d\'une sauvegarde restaurera votre portefeuille on-chain, mais en raison de l\'architecture du Lightning Network, vos canaux ne peuvent pas être récupérés. Tous les fonds de vos canaux resteront bloqués dans ces canaux pour une durée indéterminée, et si vos pairs ne coopèrent pas, ils ne seront pas récupérables du tout.',
+    "LISEZ ATTENTIVEMENT ! La désinstallation de Core Lightning entraînera la perte permanente de données, y compris ses clés privées pour son portefeuille on-chain et tous les états des canaux. Veuillez faire une sauvegarde si vous avez des fonds dans votre portefeuille on-chain ou dans des canaux. La récupération à partir d'une sauvegarde restaurera votre portefeuille on-chain, mais en raison de l'architecture du Lightning Network, vos canaux ne peuvent pas être récupérés. Tous les fonds de vos canaux resteront bloqués dans ces canaux pour une durée indéterminée, et si vos pairs ne coopèrent pas, ils ne seront pas récupérables du tout.",
 }
 
 export const alertRestore = {
@@ -44,16 +44,7 @@ export const short = {
   de_DE:
     'Eine Implementierung des Lightning-Netzwerk-Protokolls von Blockstream.',
   pl_PL: 'Implementacja protokołu Lightning Network przez Blockstream.',
-  fr_FR:
-    'Une implémentation du protocole Lightning Network par Blockstream.',
-}
-
-export const bitcoindTitle = {
-  en_US: 'A Bitcoin Full Node',
-  es_ES: 'Un nodo completo de Bitcoin',
-  de_DE: 'Ein Bitcoin-Full-Node',
-  pl_PL: 'Pełny węzeł Bitcoin',
-  fr_FR: 'Un noeud complet Bitcoin',
+  fr_FR: 'Une implémentation du protocole Lightning Network par Blockstream.',
 }
 
 export const long = {
@@ -66,5 +57,13 @@ export const long = {
   pl_PL:
     'Core Lightning (CLN) (dawniej c-lightning) to lekka, wysoce konfigurowalna i zgodna ze standardami implementacja protokołu Lightning Network. Jest zoptymalizowany pod kątem wydajności i rozszerzalności.',
   fr_FR:
-    'Core Lightning (CLN) (anciennement c-lightning) est une implémentation légère, hautement personnalisable et conforme aux standards du protocole Lightning Network. Il est optimisé pour la performance et l\'extensibilité.',
+    "Core Lightning (CLN) (anciennement c-lightning) est une implémentation légère, hautement personnalisable et conforme aux standards du protocole Lightning Network. Il est optimisé pour la performance et l'extensibilité.",
+}
+
+export const depBitcoindDescription = {
+  en_US: 'Used to subscribe to new block events.',
+  es_ES: 'Utilizado para suscribirse a eventos de nuevos bloques.',
+  de_DE: 'Wird verwendet, um neue Block-Ereignisse zu abonnieren.',
+  pl_PL: 'Używany do subskrybowania wydarzeń nowych bloków.',
+  fr_FR: "Utilisé pour s'abonner aux événements de nouveaux blocs.",
 }
