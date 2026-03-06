@@ -5,8 +5,8 @@ import { clnConfig } from '../../fileModels/config'
 import { teosToml } from '../../fileModels/teos.toml'
 import { i18n } from '../../i18n'
 
-export const v25_12_1_2 = VersionInfo.of({
-  version: '25.12.1:2-beta.0',
+export const v25_12_1_3 = VersionInfo.of({
+  version: '25.12.1:3-beta.0',
   releaseNotes: {
     en_US: 'Revamped for StartOS 0.4.0',
     es_ES: 'Renovado para StartOS 0.4.0',
@@ -112,6 +112,6 @@ export const v25_12_1_2 = VersionInfo.of({
         console.error,
       )
     },
-    down: IMPOSSIBLE,
+    down: async ({ effects }) => {},
   },
 })
