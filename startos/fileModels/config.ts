@@ -56,67 +56,63 @@ export const clbossZerobasefees = [
   'disallow',
 ] as const
 
-export const shape = z
-  .object({
-    // Enforced by StartOS
-    network: z.literal('bitcoin').catch('bitcoin'),
-    'bitcoin-rpcconnect': z
-      .literal('bitcoind.startos')
-      .catch('bitcoind.startos'),
-    'bitcoin-rpcport': z.literal(8332).catch(8332),
-    'bitcoin-datadir': z.literal(bitcoinDataDir).catch(bitcoinDataDir),
-    'bind-addr': z
-      .union([z.array(z.string()), z.string().transform((s) => [s])])
-      .catch([`0.0.0.0:${peerPort}`, `ws::${wsPort}`]),
-    'bitcoin-rpcuser': z.undefined().catch(undefined),
-    'bitcoin-rpcpassword': z.undefined().catch(undefined),
-    'grpc-port': z.literal(grpcPort).catch(grpcPort),
+export const shape = z.object({
+  // Enforced by StartOS
+  network: z.literal('bitcoin').catch('bitcoin'),
+  'bitcoin-rpcconnect': z.literal('bitcoind.startos').catch('bitcoind.startos'),
+  'bitcoin-rpcport': z.literal(8332).catch(8332),
+  'bitcoin-datadir': z.literal(bitcoinDataDir).catch(bitcoinDataDir),
+  'bind-addr': z
+    .union([z.array(z.string()), z.string().transform((s) => [s])])
+    .catch([`0.0.0.0:${peerPort}`, `ws::${wsPort}`]),
+  'bitcoin-rpcuser': z.undefined().catch(undefined),
+  'bitcoin-rpcpassword': z.undefined().catch(undefined),
+  'grpc-port': z.literal(grpcPort).catch(grpcPort),
 
-    // Dynamic (set at runtime)
-    'announce-addr': iniStringArray,
-    proxy: iniString,
+  // Dynamic (set at runtime)
+  'announce-addr': iniStringArray,
+  proxy: iniString,
 
-    // User-configurable
-    'always-use-proxy': iniBoolean,
-    alias: iniString,
-    rgb: iniString,
-    'clnrest-host': iniString,
-    'clnrest-port': iniNumber,
-    'fee-base': iniNumber,
-    'fee-per-satoshi': iniNumber,
-    'min-capacity-sat': iniNumber,
-    'funding-confirms': iniNumber,
-    'xpay-handle-pay': iniBoolean,
-    plugin: iniStringArray,
-    'funder-lease-requests-only': iniBoolean,
-    'funder-policy': iniEnum([...funderPolicies]),
-    'lease-fee-base-sat': iniNumber,
-    'lease-fee-basis': iniNumber,
-    'lease-funding-weight': iniNumber,
-    'channel-fee-max-base-msat': iniNumber,
-    'channel-fee-max-proportional-thousandths': iniNumber,
-    'funder-fuzz-percent': iniNumber,
-    'funder-fund-probability': iniNumber,
-    'funder-policy-mod': iniNumber,
-    'funder-min-their-funding': iniNumber,
-    'funder-max-their-funding': iniNumber,
-    'funder-per-channel-min': iniNumber,
-    'funder-per-channel-max': iniNumber,
-    'funder-reserve-tank': iniNumber,
+  // User-configurable
+  'always-use-proxy': iniBoolean,
+  alias: iniString,
+  rgb: iniString,
+  'clnrest-host': iniString,
+  'clnrest-port': iniNumber,
+  'fee-base': iniNumber,
+  'fee-per-satoshi': iniNumber,
+  'min-capacity-sat': iniNumber,
+  'funding-confirms': iniNumber,
+  'xpay-handle-pay': iniBoolean,
+  plugin: iniStringArray,
+  'funder-lease-requests-only': iniBoolean,
+  'funder-policy': iniEnum([...funderPolicies]),
+  'lease-fee-base-sat': iniNumber,
+  'lease-fee-basis': iniNumber,
+  'lease-funding-weight': iniNumber,
+  'channel-fee-max-base-msat': iniNumber,
+  'channel-fee-max-proportional-thousandths': iniNumber,
+  'funder-fuzz-percent': iniNumber,
+  'funder-fund-probability': iniNumber,
+  'funder-policy-mod': iniNumber,
+  'funder-min-their-funding': iniNumber,
+  'funder-max-their-funding': iniNumber,
+  'funder-per-channel-min': iniNumber,
+  'funder-per-channel-max': iniNumber,
+  'funder-reserve-tank': iniNumber,
 
-    // Experimental
-    'experimental-dual-fund': iniBoolean,
-    'experimental-splicing': iniBoolean,
-    'experimental-shutdown-wrong-funding': iniBoolean,
+  // Experimental
+  'experimental-dual-fund': iniBoolean,
+  'experimental-splicing': iniBoolean,
+  'experimental-shutdown-wrong-funding': iniBoolean,
 
-    // CLBOSS (plugin options, read from config when plugin is loaded at startup)
-    'clboss-min-onchain': iniNumber,
-    'clboss-auto-close': iniBoolean,
-    'clboss-zerobasefee': iniEnum([...clbossZerobasefees]),
-    'clboss-min-channel': iniNumber,
-    'clboss-max-channel': iniNumber,
-  })
-  .loose()
+  // CLBOSS (plugin options, read from config when plugin is loaded at startup)
+  'clboss-min-onchain': iniNumber,
+  'clboss-auto-close': iniBoolean,
+  'clboss-zerobasefee': iniEnum([...clbossZerobasefees]),
+  'clboss-min-channel': iniNumber,
+  'clboss-max-channel': iniNumber,
+})
 
 const { InputSpec, Value } = sdk
 
