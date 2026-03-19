@@ -58,39 +58,42 @@ export const v_25_12_1_4_b1 = VersionInfo.of({
       ).then(YAML.parse, () => undefined)
 
       if (!store && configYaml) {
-        if (configYaml.watchtowers['wt-server']) {
+        const watchtowers = configYaml.watchtowers
+        const wtServer = watchtowers?.['wt-server'] ?? false
+        const wtClient = watchtowers?.['wt-client']
+        const experimental = configYaml.advanced?.experimental
+        const clboss = configYaml.advanced?.plugins?.clboss
+
+        if (wtServer) {
           await teosToml.merge(effects, {})
         }
 
         await storeJson.write(effects, {
-          watchtowerServer: configYaml.watchtowers['wt-server'],
+          watchtowerServer: wtServer,
           watchtowerClients:
-            configYaml.watchtowers['wt-client'].enabled === 'enabled'
-              ? configYaml.watchtowers['wt-client']['add-watchtowers']
+            wtClient?.enabled === 'enabled'
+              ? wtClient['add-watchtowers']
               : [],
         })
 
         // Migrate experimental flags and clboss settings into CLN config
         const configRaw: Record<string, unknown> = {}
-        if (
-          configYaml.advanced.experimental['dual-fund'].enabled === 'enabled'
-        ) {
+        if (experimental?.['dual-fund']?.enabled === 'enabled') {
           configRaw['experimental-dual-fund'] = true
         }
-        if (configYaml.advanced.experimental['shutdown-wrong-funding']) {
+        if (experimental?.['shutdown-wrong-funding']) {
           configRaw['experimental-shutdown-wrong-funding'] = true
         }
-        if (configYaml.advanced.experimental.splicing) {
+        if (experimental?.splicing) {
           configRaw['experimental-splicing'] = true
         }
-        if (configYaml.advanced.plugins.clboss.enabled === 'enabled') {
-          const cb = configYaml.advanced.plugins.clboss
-          configRaw['clboss-min-onchain'] = cb['min-onchain'] || undefined
-          configRaw['clboss-auto-close'] = cb['auto-close'] || undefined
+        if (clboss?.enabled === 'enabled') {
+          configRaw['clboss-min-onchain'] = clboss['min-onchain'] || undefined
+          configRaw['clboss-auto-close'] = clboss['auto-close'] || undefined
           configRaw['clboss-zerobasefee'] =
-            cb.zerobasefee === 'default' ? undefined : cb.zerobasefee
-          configRaw['clboss-min-channel'] = cb['min-channel'] || undefined
-          configRaw['clboss-max-channel'] = cb['max-channel'] || undefined
+            clboss.zerobasefee === 'default' ? undefined : clboss.zerobasefee
+          configRaw['clboss-min-channel'] = clboss['min-channel'] || undefined
+          configRaw['clboss-max-channel'] = clboss['max-channel'] || undefined
         }
 
         if (!config) {
