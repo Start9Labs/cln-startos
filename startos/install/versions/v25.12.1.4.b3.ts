@@ -1,12 +1,12 @@
-import { VersionInfo, IMPOSSIBLE, YAML } from '@start9labs/start-sdk'
+import { VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
-import { storeJson } from '../../fileModels/store.json'
 import { clnConfig } from '../../fileModels/config'
+import { storeJson } from '../../fileModels/store.json'
 import { teosToml } from '../../fileModels/teos.toml'
 import { i18n } from '../../i18n'
 
-export const v_25_12_1_4_b2 = VersionInfo.of({
-  version: '25.12.1:4-beta.2',
+export const v_25_12_1_4_b3 = VersionInfo.of({
+  version: '25.12.1:4-beta.3',
   releaseNotes: {
     en_US: 'Update to StartOS SDK beta.60',
     es_ES: 'Actualización a StartOS SDK beta.60',
@@ -71,9 +71,7 @@ export const v_25_12_1_4_b2 = VersionInfo.of({
         await storeJson.write(effects, {
           watchtowerServer: wtServer,
           watchtowerClients:
-            wtClient?.enabled === 'enabled'
-              ? wtClient['add-watchtowers']
-              : [],
+            wtClient?.enabled === 'enabled' ? wtClient['add-watchtowers'] : [],
         })
 
         // Migrate experimental flags and clboss settings into CLN config
