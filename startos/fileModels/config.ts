@@ -34,7 +34,7 @@ const iniNumber = z
 
 const iniBoolean = z
   .union([
-    z.string().transform((s) => !!Number(s)),
+    z.string().transform((s) => s === 'true' || s === '1'),
     z.number().transform((n) => !!n),
     z.boolean(),
   ])
@@ -253,7 +253,7 @@ function stringifyPrimitives(a: unknown): any {
       Object.entries(a).map(([k, v]) => [k, stringifyPrimitives(v)]),
     )
   } else if (typeof a === 'boolean') {
-    return a ? 1 : 0
+    return a ? 'true' : 'false'
   }
   return a
 }
