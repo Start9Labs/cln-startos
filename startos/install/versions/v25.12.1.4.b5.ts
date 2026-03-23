@@ -5,14 +5,14 @@ import { storeJson } from '../../fileModels/store.json'
 import { teosToml } from '../../fileModels/teos.toml'
 import { i18n } from '../../i18n'
 
-export const v_25_12_1_4_b4 = VersionInfo.of({
-  version: '25.12.1:4-beta.4',
+export const v_25_12_1_4_b5 = VersionInfo.of({
+  version: '25.12.1:4-beta.5',
   releaseNotes: {
-    en_US: 'Update to StartOS SDK beta.60',
-    es_ES: 'Actualización a StartOS SDK beta.60',
-    de_DE: 'Update auf StartOS SDK beta.60',
-    pl_PL: 'Aktualizacja do StartOS SDK beta.60',
-    fr_FR: 'Mise à jour vers StartOS SDK beta.60',
+    en_US: 'Update to StartOS SDK beta.65',
+    es_ES: 'Actualización a StartOS SDK beta.65',
+    de_DE: 'Update auf StartOS SDK beta.65',
+    pl_PL: 'Aktualizacja do StartOS SDK beta.65',
+    fr_FR: 'Mise à jour vers StartOS SDK beta.65',
   },
   migrations: {
     up: async ({ effects }) => {
