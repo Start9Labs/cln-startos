@@ -4,22 +4,12 @@ import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
 
 export const seedFiles = sdk.setupOnInit(async (effects, kind) => {
-  if (kind !== 'install') return
+  await storeJson.merge(effects, {})
+  await configJson.merge(effects, {})
 
-  await clnConfig.write(effects, { clnrest: true })
-
-  await storeJson.write(effects, {
-    watchtowerServer: false,
-    watchtowerClients: [],
-  })
-
-  await configJson.write(effects, {
-    unit: 'SATS',
-    fiatUnit: 'USD',
-    appMode: 'DARK',
-    isLoading: false,
-    error: null,
-    singleSignOn: false,
-    password: '',
-  })
+  if (kind === 'install') {
+    await clnConfig.merge(effects, { clnrest: true })
+  } else {
+    await clnConfig.merge(effects, {})
+  }
 })

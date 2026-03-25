@@ -1,12 +1,12 @@
 import { VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
-import { clnConfig } from '../../fileModels/config'
-import { storeJson } from '../../fileModels/store.json'
-import { teosToml } from '../../fileModels/teos.toml'
-import { i18n } from '../../i18n'
+import { clnConfig } from '../fileModels/config'
+import { storeJson } from '../fileModels/store.json'
+import { teosToml } from '../fileModels/teos.toml'
+import { i18n } from '../i18n'
 
-export const v_25_12_1_4_b5 = VersionInfo.of({
-  version: '25.12.1:4-beta.5',
+export const v_25_12_1_4_b6 = VersionInfo.of({
+  version: '25.12.1:4-beta.6',
   releaseNotes: {
     en_US: 'Update to StartOS SDK beta.65',
     es_ES: 'Actualización a StartOS SDK beta.65',
