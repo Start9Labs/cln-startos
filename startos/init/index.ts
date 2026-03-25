@@ -10,8 +10,8 @@ import { watchHosts } from './watchHosts'
 
 export const init = sdk.setupInit(
   restoreInit,
-  seedFiles,
   versionGraph,
+  seedFiles,
   setupCerts,
   setInterfaces,
   setDependencies,
