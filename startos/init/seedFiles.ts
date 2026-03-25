@@ -1,6 +1,7 @@
 import { clnConfig } from '../fileModels/config'
 import { configJson } from '../fileModels/config.json'
 import { storeJson } from '../fileModels/store.json'
+import { teosToml } from '../fileModels/teos.toml'
 import { sdk } from '../sdk'
 
 export const seedFiles = sdk.setupOnInit(async (effects, kind) => {
@@ -12,4 +13,6 @@ export const seedFiles = sdk.setupOnInit(async (effects, kind) => {
   } else {
     await clnConfig.merge(effects, {})
   }
+
+  await teosToml.merge(effects, {})
 })

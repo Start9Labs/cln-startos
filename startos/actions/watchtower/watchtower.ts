@@ -4,10 +4,8 @@ import {
   Value,
   Variants,
 } from '@start9labs/start-sdk/base/lib/actions/input/builder'
-import { mkdir } from 'fs/promises'
 import { clnConfig } from '../../fileModels/config'
 import { storeJson } from '../../fileModels/store.json'
-import { teosToml } from '../../fileModels/teos.toml'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
 
@@ -113,11 +111,6 @@ async function write(effects: any, input: WatchtowerSpec) {
         ? input['wt-client'].value['add-watchtowers']
         : [],
   }
-  if (watchtowerSettings.watchtowerServer) {
-    await mkdir(`/media/startos/volumes/main/.teos`, { recursive: true })
-    await teosToml.merge(effects, {})
-  }
-
   const form = await clnConfig.read().once()
   const plugins = [...(form?.raw?.plugin || [])].filter(
     (p): p is string => typeof p === 'string',
