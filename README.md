@@ -81,8 +81,7 @@ CLN is configured through **StartOS actions** that write to the `config` file (I
 
 | StartOS-Managed (via Actions) | Details                                                                                   |
 | ----------------------------- | ----------------------------------------------------------------------------------------- |
-| General settings              | Alias, color, fee base, fee rate, min capacity, CLTV delta, HTLC limits, funding confirms |
-| Autoclean                     | Cycle interval, age thresholds for forwards, pays, and invoices                           |
+| General settings              | Alias, color, fee base, fee rate, min capacity, funding confirms, Tor-only, Clams WebSocket |
 | Plugins                       | CLNrest (toggle), Sling (toggle), CLBOSS (toggle + settings)                              |
 | Experimental features         | Dual funding, splicing, shutdown-wrong-funding, xpay                                      |
 | Watchtower server             | Enable/disable TEOS watchtower server                                                     |
@@ -142,8 +141,7 @@ applies.
 
 | Action                    | Purpose                                                                              | Availability |
 | ------------------------- | ------------------------------------------------------------------------------------ | ------------ |
-| **General Settings**      | Alias, color, fees, HTLC limits, routing settings                                    | Any          |
-| **Autoclean**             | Configure automatic cleanup of old forwards, payments, invoices                      | Any          |
+| **General Settings**      | Alias, color, fees, routing settings, Tor-only, Clams WebSocket                      | Any          |
 | **Plugins**               | Enable/disable CLNrest, Sling, CLBOSS (with sub-settings)                            | Any          |
 | **Experimental Features** | Dual funding (incognito/merchant strategies), splicing, xpay, shutdown-wrong-funding | Any          |
 | **Watchtower Settings**   | Enable/disable server and client, add tower URIs                                     | Any          |
@@ -158,7 +156,14 @@ applies.
 
 ## Backups and Restore
 
-**Backed up:** The entire `main` volume, **excluding** `bitcoin/lightning-rpc` (Unix socket) and `bitcoin/lightningd.sqlite3` (active database lock file).
+**Backed up:** The entire `main` volume, **excluding:**
+
+- `bitcoin/lightning-rpc` (Unix socket)
+- `bitcoin/lightningd.sqlite3` (active database — rebuilt on start)
+- `bitcoin/lightningd.sqlite3-wal` (WAL file)
+- `bitcoin/lightningd.sqlite3-shm` (shared memory)
+- `bitcoin/gossip_store` (rebuilt from peers on start)
+- `data/app/application-cln.log` (log file)
 
 **Restore behavior:** After restore, CLN runs `emergencyrecover` to attempt recovery of channel funds. Channel recovery depends on peer cooperation — funds may be stuck for an indeterminate period.
 
@@ -173,11 +178,17 @@ applies.
 
 ## Dependencies
 
-| Dependency   | Required | Purpose                                                  |
-| ------------ | -------- | -------------------------------------------------------- |
-| Bitcoin Core | Required | Block data, transaction broadcasting via RPC cookie auth |
+### Bitcoin Core (required)
 
-CLN requires Bitcoin Core to be running and synced (health checks `sync-progress` and `primary` must pass).
+| Property | Value |
+|----------|-------|
+| Version constraint | `>= 28.3` |
+| Required state | Running |
+| Health checks | `bitcoind`, `sync-progress` |
+| Mounted volume | `main` → `/mnt/bitcoin` (read-only) |
+| Purpose | Block data, transaction broadcasting via RPC cookie auth |
+
+CLN requires Bitcoin Core to be running and fully synced before it will start.
 
 ## Limitations and Differences
 
@@ -237,7 +248,6 @@ startos_managed_files:
   - bitcoin/client.pem
 actions:
   - config
-  - autoclean
   - plugins
   - experimental
   - watchtower
@@ -260,5 +270,5 @@ health_checks:
   - lightning-cli_getinfo: synced
   - teos-cli_gettowerinfo: watchtower (conditional)
 backup_volumes:
-  - main (excluding bitcoin/lightning-rpc, bitcoin/lightningd.sqlite3)
+  - main (excluding lightning-rpc, lightningd.sqlite3*, gossip_store, application-cln.log)
 ```
