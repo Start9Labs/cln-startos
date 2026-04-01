@@ -1,7 +1,8 @@
-**/*.rs.bk
 *.s9pk
-scripts/embassy.js
-.vscode/*.log
-instructions.md
+startos/*.js
+node_modules/
 .DS_Store
+.vscode/
 docker-images
+javascript
+ncc-cache
