@@ -12,7 +12,7 @@ export const manifest = setupManifest({
   id: 'c-lightning',
   title: 'Core Lightning',
   license: 'mit',
-  packageRepo: 'https://github.com/Start9Labs/cln-startos/tree/update/040',
+  packageRepo: 'https://github.com/Start9Labs/cln-startos',
   upstreamRepo: 'https://github.com/ElementsProject/lightning',
   marketingUrl: 'https://blockstream.com/lightning',
   donationUrl: null,
