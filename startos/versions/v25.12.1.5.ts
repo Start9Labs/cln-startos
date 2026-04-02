@@ -4,8 +4,8 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 
-export const v_25_12_1_4 = VersionInfo.of({
-  version: '25.12.1:4',
+export const v_25_12_1_5 = VersionInfo.of({
+  version: '25.12.1:5',
   releaseNotes: {
     en_US: 'Update to StartOS SDK beta.65',
     es_ES: 'Actualización a StartOS SDK beta.65',
