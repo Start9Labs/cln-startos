@@ -1,4 +1,5 @@
 import { FileHelper, T, z } from '@start9labs/start-sdk'
+import * as INI from 'ini'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import {
@@ -244,18 +245,32 @@ export const fullConfigSpec = InputSpec.of({
   }),
 })
 
-function stringifyPrimitives(a: unknown): any {
-  if (a && typeof a === 'object') {
-    if (Array.isArray(a)) {
-      return a.map(stringifyPrimitives)
+// CLN uses bare flags for boolean options (e.g. `experimental-dual-fund` not
+// `experimental-dual-fund=true`). The `ini` package always writes `key=value`,
+// so we use a custom serializer that extracts boolean true values as bare flags.
+function clnIniStringify(data: Record<string, unknown>): string {
+  const bareFlags: string[] = []
+  const iniData: Record<string, unknown> = {}
+
+  for (const [key, val] of Object.entries(data)) {
+    if (val === undefined || val === false) continue
+    if (val === true) {
+      bareFlags.push(key)
+    } else if (Array.isArray(val)) {
+      const filtered = val.filter((v) => v !== undefined)
+      if (filtered.length > 0) iniData[key] = filtered
+    } else {
+      iniData[key] = val
     }
-    return Object.fromEntries(
-      Object.entries(a).map(([k, v]) => [k, stringifyPrimitives(v)]),
-    )
-  } else if (typeof a === 'boolean') {
-    return a ? 'true' : 'false'
   }
-  return a
+
+  let result = INI.stringify(iniData, { bracketedArray: false })
+
+  for (const flag of bareFlags) {
+    result += `${flag}\n`
+  }
+
+  return result
 }
 
 export function fileToForm(
@@ -355,17 +370,15 @@ function formToFile(
   }
 }
 
-export const clnConfig = FileHelper.ini(
+type FormData = T.DeepPartial<typeof fullConfigSpec._TYPE>
+
+export const clnConfig = FileHelper.raw<FormData>(
   { base: sdk.volumes.main, subpath: '/config' },
-  fullConfigSpec.partialValidator,
-  { bracketedArray: false },
-  {
-    onRead: (a) => {
-      const base = shape.parse(a)
-      return fileToForm(base)
-    },
-    onWrite: (a) => {
-      return stringifyPrimitives(formToFile(a))
-    },
+  (formData) =>
+    clnIniStringify(formToFile(formData) as Record<string, unknown>),
+  (iniString) => {
+    const base = shape.parse(INI.parse(iniString, { bracketedArray: false }))
+    return fileToForm(base)
   },
+  (data) => fullConfigSpec.partialValidator.parse(data),
 )
