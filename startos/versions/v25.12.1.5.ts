@@ -106,6 +106,11 @@ export const v_25_12_1_5 = VersionInfo.of({
       await rm('/media/startos/volumes/main/start9', { recursive: true }).catch(
         console.error,
       )
+
+      // remove old config.main leftover
+      await rm('/media/startos/volumes/main/config.main').catch(
+        console.error,
+      )
     },
     down: async ({ effects }) => {},
   },
