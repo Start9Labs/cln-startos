@@ -16,6 +16,8 @@ const shape = z.object({
   btc_rpc_cookie: z
     .literal(`${bitcoinDataDir}/.cookie`)
     .catch(`${bitcoinDataDir}/.cookie`),
+  btc_rpc_user: z.literal(undefined).catch(undefined),
+  btc_rpc_password: z.literal(undefined).catch(undefined),
 
   debug: z.literal(false).catch(false),
   deps_debug: z.literal(false).catch(false),
