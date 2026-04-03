@@ -33,12 +33,24 @@ const iniNumber = z
   .optional()
   .catch(undefined)
 
+// for bare keys: i.e. experimental-dual-fund
 const iniBoolean = z
   .union([
     z.string().transform((s) => s === 'true' || s === '1'),
     z.number().transform((n) => !!n),
     z.boolean(),
   ])
+  .optional()
+  .catch(undefined)
+
+// for keys with boolean values (=true/false)
+const iniStringBoolean = z
+  .union([
+    z.string().transform((s) => s === 'true' || s === '1'),
+    z.number().transform((n) => !!n),
+    z.boolean(),
+  ])
+  .transform((x) => `${x}` as 'true' | 'false')
   .optional()
   .catch(undefined)
 
@@ -75,7 +87,7 @@ export const shape = z.object({
   proxy: iniString,
 
   // User-configurable
-  'always-use-proxy': iniBoolean,
+  'always-use-proxy': iniStringBoolean,
   alias: iniString,
   rgb: iniString,
   'clnrest-host': iniString,
@@ -84,9 +96,9 @@ export const shape = z.object({
   'fee-per-satoshi': iniNumber,
   'min-capacity-sat': iniNumber,
   'funding-confirms': iniNumber,
-  'xpay-handle-pay': iniBoolean,
+  'xpay-handle-pay': iniStringBoolean,
   plugin: iniStringArray,
-  'funder-lease-requests-only': iniBoolean,
+  'funder-lease-requests-only': iniStringBoolean,
   'funder-policy': iniEnum([...funderPolicies]),
   'lease-fee-base-sat': iniNumber,
   'lease-fee-basis': iniNumber,
@@ -294,13 +306,13 @@ export function fileToForm(
     raw: input ?? {},
     alias,
     color: rgb,
-    'tor-only': alwaysUseProxy,
+    'tor-only': alwaysUseProxy === 'true',
     'clams-remote-websocket': bindAddr?.includes(`ws::${websocketPort}`),
     'fee-base': feeBase,
     'fee-rate': feePerSatoshi,
     'min-capacity': minCapacitySat,
     'funding-confirms': fundingConfirms,
-    'xpay-handle-pay': xpayHandlePay,
+    'xpay-handle-pay': xpayHandlePay === 'true',
     clnrest: !!clnrestHost && !!clnrestPort,
   }
 }
@@ -347,7 +359,7 @@ function formToFile(
     rgb: color,
 
     // Network
-    'always-use-proxy': torOnly,
+    'always-use-proxy': torOnly ? 'true' : 'false',
     'bind-addr': [
       `0.0.0.0:${peerPort}`,
       `ws::${wsPort}`,
@@ -361,7 +373,7 @@ function formToFile(
     'funding-confirms': fundingConfirms ?? undefined,
 
     // Payments
-    'xpay-handle-pay': xpayHandlePay,
+    'xpay-handle-pay': xpayHandlePay ? 'true' : 'false',
 
     // Plugins
     plugin: plugins.length > 0 ? plugins : undefined,

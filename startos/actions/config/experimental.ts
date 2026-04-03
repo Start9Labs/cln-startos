@@ -347,8 +347,7 @@ export const experimental = sdk.Action.withInput(
       raw: {
         ...(form?.raw ?? {}),
         ...funderFields,
-        'experimental-dual-fund':
-          dualFund.selection === 'enabled' || undefined,
+        'experimental-dual-fund': dualFund.selection === 'enabled' || undefined,
         'experimental-shutdown-wrong-funding':
           input['shutdown-wrong-funding'] || undefined,
         'experimental-splicing': input.splicing || undefined,
@@ -458,9 +457,11 @@ function dualFundToRaw(
     return {
       'funder-lease-requests-only': undefined,
       'funder-policy': strategy.value.policy.selection,
-      'funder-policy-mod': strategy.value.policy.value['policy-mod'] ?? undefined,
+      'funder-policy-mod':
+        strategy.value.policy.value['policy-mod'] ?? undefined,
       'funder-fuzz-percent': strategy.value['fuzz-percent'] ?? undefined,
-      'funder-fund-probability': strategy.value['fund-probability'] ?? undefined,
+      'funder-fund-probability':
+        strategy.value['fund-probability'] ?? undefined,
       'lease-fee-base-sat': undefined,
       'lease-fee-basis': undefined,
       'lease-funding-weight': undefined,
@@ -472,7 +473,7 @@ function dualFundToRaw(
 
   // merchant
   return {
-    'funder-lease-requests-only': true,
+    'funder-lease-requests-only': 'true',
     'funder-policy': 'match',
     'funder-policy-mod': 100,
     'funder-fuzz-percent': 0,
