@@ -8,6 +8,7 @@ import { manifest } from './manifest'
 import { sdk } from './sdk'
 import {
   bitcoinDataDir,
+  clnrestPort,
   grpcPort,
   mainMounts,
   rootDir,
@@ -157,8 +158,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         'cln-application-sub',
       ),
       exec: {
-        command: ['npm', 'run', 'start'],
-        // @TODO add REST and GRPC env variables so wallet connect screen in UI shows the correct url
+        command: ['node', '/app/apps/backend/dist/server.js'],
         env: {
           BITCOIN_NETWORK: 'bitcoin',
           LIGHTNING_DATA_DIR: rootDir,
@@ -169,6 +169,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           APP_LOG_FILE: `${rootDir}/data/app/application-cln.log`,
           LIGHTNING_VARS_FILE: `${rootDir}/.commando-env`,
           LIGHTNING_WS_PORT: String(wsPort),
+          LIGHTNING_REST_PORT: String(clnrestPort),
           LIGHTNING_GRPC_PORT: String(grpcPort),
         },
       },

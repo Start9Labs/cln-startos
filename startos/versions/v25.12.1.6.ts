@@ -4,8 +4,8 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 
-export const v_25_12_1_5 = VersionInfo.of({
-  version: '25.12.1:5',
+export const v_25_12_1_6 = VersionInfo.of({
+  version: '25.12.1:6',
   releaseNotes: {
     en_US: 'Update to StartOS SDK beta.65',
     es_ES: 'Actualización a StartOS SDK beta.65',
@@ -108,9 +108,7 @@ export const v_25_12_1_5 = VersionInfo.of({
       )
 
       // remove old config.main leftover
-      await rm('/media/startos/volumes/main/config.main').catch(
-        console.error,
-      )
+      await rm('/media/startos/volumes/main/config.main').catch(console.error)
     },
     down: async ({ effects }) => {},
   },
