@@ -30,9 +30,17 @@ RUN autoreconf -i && \
     make install && \
     strip /usr/local/bin/clboss
 
-# rust builder
+# sling - download prebuilt binary
+FROM base AS sling
+ARG TARGETARCH
+ARG SLING_VERSION=v3.0.3
+RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/* && \
+    if [ "$TARGETARCH" = "amd64" ]; then SLING_ARCH=x86_64; else SLING_ARCH=aarch64; fi && \
+    curl -fSL "https://github.com/daywalker90/sling/releases/download/${SLING_VERSION}/sling-${SLING_VERSION}-${SLING_ARCH}-linux-gnu.tar.gz" \
+    | tar xz -C /usr/local/bin/
+
+# rust-teos builder
 FROM base AS builder-rust
-ARG ARCH
 ENV RUST_PROFILE=release \
     PATH="/root/.cargo/bin:/root/.local/bin:$PATH" \
     PROTOBUF_VERSION=21.12 \
@@ -53,11 +61,7 @@ RUN apt-get update -qq && \
     cp -r protobuf-${PROTOBUF_VERSION}/src/google /usr/local/include/ && \
     rm -rf protobuf*
 
-# Build both rust projects
-COPY ./plugins/sling /tmp/sling
 COPY ./rust-teos /tmp/rust-teos
-WORKDIR /tmp/sling
-RUN cargo build --release
 WORKDIR /tmp/rust-teos
 RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
@@ -72,4 +76,4 @@ RUN apt-get update && \
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 COPY --from=builder-rust /root/.cargo/bin/teos* /usr/local/bin/
 COPY --from=builder-rust /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/
-COPY --from=builder-rust /tmp/sling/target/release/sling /usr/local/libexec/c-lightning/plugins/
+COPY --from=sling /usr/local/bin/sling /usr/local/libexec/c-lightning/plugins/
