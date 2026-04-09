@@ -146,13 +146,14 @@ export const plugins = sdk.Action.withInput(
 
   // the execution function
   async ({ effects, input }) => {
+    const { sling, clboss, ...rest } = input
     const form = await clnConfig.read().once()
     const rawPlugins = [...(form?.raw?.plugin || [])].filter(
       (p): p is string => typeof p === 'string',
     )
 
     // Manage sling plugin path
-    if (input.sling) {
+    if (sling) {
       if (!rawPlugins.includes(slingPlugin)) rawPlugins.push(slingPlugin)
     } else {
       const idx = rawPlugins.indexOf(slingPlugin)
@@ -161,9 +162,9 @@ export const plugins = sdk.Action.withInput(
 
     // Manage clboss plugin path and config keys
     const clbossConfig: Record<string, unknown> = {}
-    if (input.clboss.selection === 'enabled') {
+    if (clboss.selection === 'enabled') {
       if (!rawPlugins.includes(clbossPlugin)) rawPlugins.push(clbossPlugin)
-      const { value } = input.clboss
+      const { value } = clboss
       clbossConfig['clboss-min-onchain'] = value['min-onchain'] || undefined
       clbossConfig['clboss-auto-close'] = value['auto-close'] || undefined
       clbossConfig['clboss-zerobasefee'] =
@@ -181,7 +182,7 @@ export const plugins = sdk.Action.withInput(
     }
 
     await clnConfig.merge(effects, {
-      ...input,
+      ...rest,
       raw: { ...(form?.raw ?? {}), ...clbossConfig, plugin: rawPlugins },
     })
   },
