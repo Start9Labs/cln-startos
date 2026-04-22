@@ -1,4 +1,5 @@
 import { Daemons, FileHelper } from '@start9labs/start-sdk'
+import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { readFile, writeFile } from 'fs/promises'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
@@ -51,7 +52,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   const lightningSub = await sdk.SubContainer.of(
     effects,
     { imageId: 'lightning' },
-    mainMounts.mountDependency({
+    mainMounts.mountDependency<typeof bitcoinManifest>({
       dependencyId: 'bitcoind',
       mountpoint: bitcoinDataDir,
       subpath: null,

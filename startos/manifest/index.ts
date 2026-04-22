@@ -32,7 +32,7 @@ export const manifest = setupManifest({
     },
     ui: {
       source: {
-        dockerTag: 'ghcr.io/elementsproject/cln-application:26.01.2',
+        dockerTag: 'ghcr.io/elementsproject/cln-application:26.04',
       },
       arch: ['x86_64', 'aarch64'],
       emulateMissingAs: 'aarch64',

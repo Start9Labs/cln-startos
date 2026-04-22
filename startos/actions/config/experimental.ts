@@ -11,19 +11,21 @@ import { sdk } from '../../sdk'
 const experimentalSpec = fullConfigSpec
   .filter({ 'xpay-handle-pay': true })
   .add({
-    'shutdown-wrong-funding': Value.toggle({
+    'shutdown-wrong-funding': Value.triState({
       name: i18n('Shutdown Wrong Funding'),
-      default: false,
+      default: null,
       description: i18n(
         "Allow channel shutdown with alternate txids.  If a remote node has opened a channel, but claims it used the incorrect txid (and the channel hasn't yet been used) this allows them to negotiate a clean shutdown with the txid they offer.  <b>Default: False</b>",
       ),
+      footnote: `${i18n('Default')}: false`,
     }),
-    splicing: Value.toggle({
+    splicing: Value.triState({
       name: i18n('Splicing'),
-      default: false,
+      default: null,
       description: i18n(
         'Enables support for the splicing protocol (bolt #863), allowing both parties to dynamically adjust the size a channel. These changes can be built interactively using PSBT and combined with other channel actions including dual fund, additional channel splices, or generic transaction activity. The operations will be bundled into a single transaction. The channel will remain active while awaiting splice confirmation, however you can only spend the smaller of the prior channel balance and the new one.  <b>Default: Disabled</b>',
       ),
+      footnote: `${i18n('Default')}: false`,
     }),
     'dual-fund': Value.union({
       name: i18n('Dual Funding And Liquidity Ads'),
@@ -73,7 +75,7 @@ const experimentalSpec = fullConfigSpec
                               max: 200,
                               integer: true,
                               units: 'percent',
-                              placeholder: '100',
+                              footnote: `${i18n('Default')}: 100 percent`,
                             }),
                           }),
                         },
@@ -93,7 +95,7 @@ const experimentalSpec = fullConfigSpec
                               max: 100,
                               integer: true,
                               units: 'percent',
-                              placeholder: '100',
+                              footnote: `${i18n('Default')}: 100 percent`,
                             }),
                           }),
                         },
@@ -111,7 +113,7 @@ const experimentalSpec = fullConfigSpec
                               max: 10_000_000_000,
                               integer: true,
                               units: 'satoshis',
-                              placeholder: '100',
+                              footnote: `${i18n('Default')}: 10000 satoshis`,
                             }),
                           }),
                         },
@@ -128,7 +130,7 @@ const experimentalSpec = fullConfigSpec
                       max: 100,
                       integer: true,
                       units: 'percent',
-                      placeholder: '0',
+                      footnote: `${i18n('Default')}: 0 percent`,
                     }),
                     'fund-probability': Value.number({
                       name: i18n('Fund Probability'),
@@ -141,7 +143,7 @@ const experimentalSpec = fullConfigSpec
                       max: 100,
                       integer: true,
                       units: 'percent',
-                      placeholder: '100',
+                      footnote: `${i18n('Default')}: 100 percent`,
                     }),
                   }),
                 },
@@ -159,7 +161,7 @@ const experimentalSpec = fullConfigSpec
                       max: 10_000_000_000,
                       integer: true,
                       units: 'satoshis',
-                      placeholder: '2000',
+                      footnote: `${i18n('Default')}: 2000 satoshis`,
                     }),
                     'lease-fee-basis': Value.number({
                       name: i18n('Fee as Percentage of Requested Funds'),
@@ -172,7 +174,7 @@ const experimentalSpec = fullConfigSpec
                       max: 1_000_000,
                       integer: true,
                       units: 'basis points (hundredths of a percent)',
-                      placeholder: '65',
+                      footnote: `${i18n('Default')}: 65 basis points`,
                     }),
                     'funding-weight': Value.number({
                       name: i18n('Funding Weight'),
@@ -185,7 +187,7 @@ const experimentalSpec = fullConfigSpec
                       max: 10_000,
                       integer: true,
                       units: 'weight units',
-                      placeholder: '584',
+                      footnote: `${i18n('Default')}: dynamically calculated`,
                     }),
                     'channel-fee-max-base-msat': Value.number({
                       name: i18n('Channel Fee Max Base'),
@@ -198,7 +200,7 @@ const experimentalSpec = fullConfigSpec
                       max: 10_000_000_000_000,
                       integer: true,
                       units: 'millisatoshis',
-                      placeholder: '5000000',
+                      footnote: `${i18n('Default')}: 5000000 millisatoshis`,
                     }),
                     'channel-fee-max-proportional-thousandths': Value.number({
                       name: i18n('Channel Fee Max Proportional'),
@@ -211,7 +213,7 @@ const experimentalSpec = fullConfigSpec
                       max: 1_000,
                       integer: true,
                       units: 'thousandths',
-                      placeholder: '100',
+                      footnote: `${i18n('Default')}: 100 thousandths`,
                     }),
                   }),
                 },
@@ -236,7 +238,7 @@ const experimentalSpec = fullConfigSpec
                   max: 10_000_000_000_000,
                   integer: true,
                   units: 'millisatoshis',
-                  placeholder: '10000000',
+                  footnote: `${i18n('Default')}: 10000000 millisatoshis`,
                 }),
                 'max-their-funding-msat': Value.number({
                   name: i18n('Maximum Their Funding'),
@@ -249,7 +251,7 @@ const experimentalSpec = fullConfigSpec
                   max: 10_000_000_000_000,
                   integer: true,
                   units: 'millisatoshis',
-                  placeholder: '4294967295',
+                  footnote: `${i18n('Default')}: no maximum`,
                 }),
                 'per-channel-min-msat': Value.number({
                   name: i18n('Per-Channel Minimum'),
@@ -262,7 +264,7 @@ const experimentalSpec = fullConfigSpec
                   max: 10_000_000_000_000,
                   integer: true,
                   units: 'millisatoshis',
-                  placeholder: '10000000',
+                  footnote: `${i18n('Default')}: 10000000 millisatoshis`,
                 }),
                 'per-channel-max-msat': Value.number({
                   name: i18n('Per-Channel Maximum'),
@@ -275,7 +277,7 @@ const experimentalSpec = fullConfigSpec
                   max: 10_000_000_000_000,
                   integer: true,
                   units: 'millisatoshis',
-                  placeholder: '4294967295',
+                  footnote: `${i18n('Default')}: 10000000 millisatoshis`,
                 }),
                 'reserve-tank-msat': Value.number({
                   name: i18n('Reserve Tank'),
@@ -288,7 +290,7 @@ const experimentalSpec = fullConfigSpec
                   max: 10_000_000_000_000,
                   integer: true,
                   units: 'millisatoshis',
-                  placeholder: '0',
+                  footnote: `${i18n('Default')}: 0 millisatoshis`,
                 }),
               }),
             ),

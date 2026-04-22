@@ -148,6 +148,7 @@ export const fullConfigSpec = InputSpec.of({
         ),
       },
     ],
+    footnote: `${i18n('Default')}: start9-[random alphanumerics]`,
   }),
   color: Value.text({
     name: i18n('Color'),
@@ -167,15 +168,17 @@ export const fullConfigSpec = InputSpec.of({
         ),
       },
     ],
+    footnote: `${i18n('Default')}: randomly generated`,
   }),
 
   // Network
-  'tor-only': Value.toggle({
+  'tor-only': Value.triState({
     name: i18n('Tor Only'),
-    default: false,
+    default: null,
     description: i18n(
       'Only use tor connections.  This increases privacy, at the cost of some performance and reliability.  <b>Default: False</b>',
     ),
+    footnote: `${i18n('Default')}: false`,
   }),
   'clams-remote-websocket': Value.toggle({
     name: i18n('Clams Remote'),
@@ -196,7 +199,7 @@ export const fullConfigSpec = InputSpec.of({
     min: 0,
     integer: true,
     units: 'millisatoshis',
-    placeholder: '1000',
+    footnote: `${i18n('Default')}: 1000 millisatoshis`,
   }),
   'fee-rate': Value.number({
     name: i18n('Routing Fee Rate'),
@@ -209,7 +212,7 @@ export const fullConfigSpec = InputSpec.of({
     max: 1_000_000,
     integer: true,
     units: 'sats per million',
-    placeholder: '10',
+    footnote: `${i18n('Default')}: 10 sats per million`,
   }),
   'min-capacity': Value.number({
     name: i18n('Minimum Channel Capacity'),
@@ -222,7 +225,7 @@ export const fullConfigSpec = InputSpec.of({
     max: 16_777_215,
     integer: true,
     units: 'satoshis',
-    placeholder: '10000',
+    footnote: `${i18n('Default')}: 10000 satoshis`,
   }),
   'funding-confirms': Value.number({
     name: i18n('Required Funding Confirmations'),
@@ -235,16 +238,17 @@ export const fullConfigSpec = InputSpec.of({
     max: 6,
     integer: true,
     units: 'blocks',
-    placeholder: '3',
+    footnote: `${i18n('Default')}: 3 blocks`,
   }),
 
   // Payments
-  'xpay-handle-pay': Value.toggle({
+  'xpay-handle-pay': Value.triState({
     name: i18n('Xpay'),
-    default: false,
+    default: null,
     description: i18n(
       'Setting this makes xpay intercept simply pay commands (default false). Note that the response will be different from the normal pay command, however.  <b>Default: Disabled</b>',
     ),
+    footnote: `${i18n('Default')}: false`,
   }),
 
   // Plugins
@@ -306,13 +310,15 @@ export function fileToForm(
     raw: input ?? {},
     alias,
     color: rgb,
-    'tor-only': alwaysUseProxy === 'true',
+    'tor-only':
+      alwaysUseProxy === undefined ? null : alwaysUseProxy === 'true',
     'clams-remote-websocket': bindAddr?.includes(`ws::${websocketPort}`),
     'fee-base': feeBase,
     'fee-rate': feePerSatoshi,
     'min-capacity': minCapacitySat,
     'funding-confirms': fundingConfirms,
-    'xpay-handle-pay': xpayHandlePay === 'true',
+    'xpay-handle-pay':
+      xpayHandlePay === undefined ? null : xpayHandlePay === 'true',
     clnrest: !!clnrestHost && !!clnrestPort,
   }
 }
@@ -359,7 +365,8 @@ function formToFile(
     rgb: color,
 
     // Network
-    'always-use-proxy': torOnly ? 'true' : 'false',
+    'always-use-proxy':
+      torOnly == null ? undefined : torOnly ? 'true' : 'false',
     'bind-addr': [
       `0.0.0.0:${peerPort}`,
       `ws::${wsPort}`,
@@ -373,7 +380,8 @@ function formToFile(
     'funding-confirms': fundingConfirms ?? undefined,
 
     // Payments
-    'xpay-handle-pay': xpayHandlePay ? 'true' : 'false',
+    'xpay-handle-pay':
+      xpayHandlePay == null ? undefined : xpayHandlePay ? 'true' : 'false',
 
     // Plugins
     plugin: plugins.length > 0 ? plugins : undefined,

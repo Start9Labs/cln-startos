@@ -47,15 +47,16 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
             max: 10_000_000_000,
             integer: true,
             units: 'satoshis',
-            placeholder: '30000',
+            footnote: `${i18n('Default')}: 30000 satoshis`,
           }),
-          'auto-close': Value.toggle({
+          'auto-close': Value.triState({
             name: i18n('Auto Close'),
-            default: false,
+            default: null,
             description: i18n(
               'Enable if you want CLBOSS to have the ability to close channels it deems unprofitable.  This can be costly, please understand the ramifications before enabling.  <b>Default: False</b>',
             ),
             warning: i18n('This feature is EXPERIMENTAL AND DANGEROUS!'),
+            footnote: `${i18n('Default')}: false`,
           }),
           zerobasefee: Value.select({
             name: i18n('Zero Base Fee'),
@@ -81,6 +82,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
             integer: true,
             units: 'satoshis',
             placeholder: null,
+            footnote: `${i18n('Default')}: no minimum`,
           }),
           'max-channel': Value.number({
             name: i18n('Max Channel Size'),
@@ -94,6 +96,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
             integer: true,
             units: 'satoshis',
             placeholder: null,
+            footnote: `${i18n('Default')}: no maximum`,
           }),
         }),
       },

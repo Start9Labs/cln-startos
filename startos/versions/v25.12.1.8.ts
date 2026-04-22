@@ -3,19 +3,14 @@ import { readFile, rm } from 'fs/promises'
 import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
-export const v_25_12_1_7 = VersionInfo.of({
-  version: '25.12.1:7',
+export const v_25_12_1_8 = VersionInfo.of({
+  version: '25.12.1:8',
   releaseNotes: {
-    en_US:
-      'Fix migration crash for users upgrading from pre-v25.02 CLN with c-lightning-REST enabled. Fix plugin config action failing with unrecognized keys error.',
-    es_ES:
-      'Corrección del fallo de migración para usuarios que actualizan desde CLN anterior a v25.02 con c-lightning-REST habilitado. Corrección del error de claves no reconocidas en la acción de configuración de plugins.',
-    de_DE:
-      'Behebung des Migrationsfehlers für Benutzer, die von CLN vor v25.02 mit aktiviertem c-lightning-REST aktualisieren. Behebung des Fehlers mit nicht erkannten Schlüsseln in der Plugin-Konfigurationsaktion.',
-    pl_PL:
-      'Naprawa błędu migracji dla użytkowników aktualizujących z CLN przed v25.02 z włączonym c-lightning-REST. Naprawa błędu nierozpoznanych kluczy w akcji konfiguracji wtyczek.',
-    fr_FR:
-      'Correction du plantage de migration pour les utilisateurs mettant à jour depuis CLN pré-v25.02 avec c-lightning-REST activé. Correction de l\'erreur de clés non reconnues dans l\'action de configuration des plugins.',
+    en_US: 'Update CLN UI to v26.04',
+    es_ES: 'Actualización de la interfaz de CLN a v26.04',
+    de_DE: 'Update der CLN-UI auf v26.04',
+    pl_PL: 'Aktualizacja interfejsu CLN do v26.04',
+    fr_FR: "Mise à jour de l'interface CLN vers v26.04",
   },
   migrations: {
     up: async ({ effects }) => {
