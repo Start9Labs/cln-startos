@@ -126,7 +126,7 @@ interfaces:
     protocols:
       - tcp
       - lightning
-   clnrest:
+  clnrest:
     name: CLNRest
     description: CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.
     tor-config:
