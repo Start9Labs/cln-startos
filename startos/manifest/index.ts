@@ -16,7 +16,6 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/ElementsProject/lightning',
   marketingUrl: 'https://blockstream.com/lightning',
   donationUrl: null,
-  docsUrls: ['https://docs.corelightning.org/docs/home'],
   description: { short, long },
   volumes: ['main'],
   images: {
