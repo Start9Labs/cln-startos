@@ -89,6 +89,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       alpn: null,
       preferredExternalPort: grpcPort,
       addXForwardedHeaders: false,
+      auth: null,
     },
   })
   const grpc = sdk.createInterface(effects, {
@@ -124,6 +125,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
         alpn: null,
         preferredExternalPort: clnrestPort,
         addXForwardedHeaders: false,
+        auth: null,
       },
     })
 
