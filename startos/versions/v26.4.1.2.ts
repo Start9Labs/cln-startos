@@ -9,23 +9,68 @@ export const v_26_4_1_2 = VersionInfo.of({
     en_US: `**Bumps**
 
 - clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1`,
+- sling → 4.2.1
+
+**Fixes**
+
+- sling now correctly reads CLN's compacted gossip store on v26.04+ (could degrade routing on the previous version).
+
+**Behavior changes**
+
+- clboss internal rebalancing fee cap default dropped from 0.5% to 0.1%.
+- sling no longer accepts your own channels or node id in \`sling-except-chan\`; if you set this manually, remove those entries before upgrading.`,
     es_ES: `**Cambios**
 
 - clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1`,
+- sling → 4.2.1
+
+**Correcciones**
+
+- sling ahora lee correctamente el gossip store compactado de CLN en v26.04+ (podía degradar el enrutamiento en la versión anterior).
+
+**Cambios de comportamiento**
+
+- El tope por defecto de la comisión de rebalanceo interno de clboss se redujo del 0,5% al 0,1%.
+- sling ya no acepta tus propios canales ni tu node id en \`sling-except-chan\`; si los configuraste manualmente, elimina esas entradas antes de actualizar.`,
     de_DE: `**Aktualisierungen**
 
 - clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1`,
+- sling → 4.2.1
+
+**Korrekturen**
+
+- sling liest jetzt den kompaktierten Gossip-Store von CLN auf v26.04+ korrekt (konnte zuvor das Routing beeinträchtigen).
+
+**Verhaltensänderungen**
+
+- Der Standardwert der internen Rebalancing-Gebührenobergrenze von clboss wurde von 0,5 % auf 0,1 % gesenkt.
+- sling akzeptiert keine eigenen Kanäle oder die eigene Node-ID mehr in \`sling-except-chan\`; falls Sie diese manuell gesetzt haben, entfernen Sie die Einträge vor dem Upgrade.`,
     pl_PL: `**Aktualizacje**
 
 - clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1`,
+- sling → 4.2.1
+
+**Poprawki**
+
+- sling poprawnie odczytuje teraz skompaktowany gossip store CLN w wersji v26.04+ (mogło to wcześniej pogarszać routing).
+
+**Zmiany zachowania**
+
+- Domyślny limit opłaty wewnętrznego rebalansowania clboss obniżony z 0,5% do 0,1%.
+- sling nie akceptuje już własnych kanałów ani własnego node id w \`sling-except-chan\`; jeśli ustawiłeś to ręcznie, usuń te wpisy przed aktualizacją.`,
     fr_FR: `**Mises à jour**
 
 - clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1`,
+- sling → 4.2.1
+
+**Corrections**
+
+- sling lit désormais correctement le gossip store compacté de CLN sur v26.04+ (pouvait dégrader le routage dans la version précédente).
+
+**Changements de comportement**
+
+- Le plafond par défaut des frais de rééquilibrage interne de clboss est passé de 0,5 % à 0,1 %.
+- sling n'accepte plus vos propres canaux ni votre node id dans \`sling-except-chan\` ; si vous les avez configurés manuellement, supprimez ces entrées avant la mise à niveau.`,
   },
   migrations: {
     up: async ({ effects }) => {
