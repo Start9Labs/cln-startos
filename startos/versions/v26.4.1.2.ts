@@ -3,49 +3,29 @@ import { readFile, rm } from 'fs/promises'
 import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
-export const v_26_4_1_1 = VersionInfo.of({
-  version: '26.4.1:1',
+export const v_26_4_1_2 = VersionInfo.of({
+  version: '26.4.1:2',
   releaseNotes: {
     en_US: `**Bumps**
 
-- Core Lightning → 26.04.1 (Negative Routing Fees II)
-- @start9labs/start-sdk → 1.5.0
-
-**Internal**
-
-- Adapt to SDK \`AddSslOptions.auth\` requirement.`,
+- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
+- sling → 4.2.1`,
     es_ES: `**Cambios**
 
-- Core Lightning → 26.04.1 (Tarifas de Enrutamiento Negativas II)
-- @start9labs/start-sdk → 1.5.0
-
-**Interno**
-
-- Adaptación al nuevo requisito \`AddSslOptions.auth\` del SDK.`,
+- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
+- sling → 4.2.1`,
     de_DE: `**Aktualisierungen**
 
-- Core Lightning → 26.04.1 (Negative Routing-Gebühren II)
-- @start9labs/start-sdk → 1.5.0
-
-**Intern**
-
-- Anpassung an die neue \`AddSslOptions.auth\`-Anforderung des SDK.`,
+- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
+- sling → 4.2.1`,
     pl_PL: `**Aktualizacje**
 
-- Core Lightning → 26.04.1 (Ujemne opłaty routingowe II)
-- @start9labs/start-sdk → 1.5.0
-
-**Wewnętrzne**
-
-- Dostosowanie do nowego wymogu \`AddSslOptions.auth\` w SDK.`,
+- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
+- sling → 4.2.1`,
     fr_FR: `**Mises à jour**
 
-- Core Lightning → 26.04.1 (Frais de Routage Négatifs II)
-- @start9labs/start-sdk → 1.5.0
-
-**Interne**
-
-- Adaptation à la nouvelle exigence \`AddSslOptions.auth\` du SDK.`,
+- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
+- sling → 4.2.1`,
   },
   migrations: {
     up: async ({ effects }) => {
