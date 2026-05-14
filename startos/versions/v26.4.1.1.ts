@@ -3,14 +3,49 @@ import { readFile, rm } from 'fs/promises'
 import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
-export const v_25_12_1_9 = VersionInfo.of({
-  version: '25.12.1:9',
+export const v_26_4_1_1 = VersionInfo.of({
+  version: '26.4.1:1',
   releaseNotes: {
-    en_US: 'Internal updates (start-sdk 1.3.3)',
-    es_ES: 'Actualizaciones internas (start-sdk 1.3.3)',
-    de_DE: 'Interne Aktualisierungen (start-sdk 1.3.3)',
-    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 1.3.3)',
-    fr_FR: 'Mises à jour internes (start-sdk 1.3.3)',
+    en_US: `**Bumps**
+
+- Core Lightning → 26.04.1 (Negative Routing Fees II)
+- @start9labs/start-sdk → 1.5.0
+
+**Internal**
+
+- Adapt to SDK \`AddSslOptions.auth\` requirement.`,
+    es_ES: `**Cambios**
+
+- Core Lightning → 26.04.1 (Tarifas de Enrutamiento Negativas II)
+- @start9labs/start-sdk → 1.5.0
+
+**Interno**
+
+- Adaptación al nuevo requisito \`AddSslOptions.auth\` del SDK.`,
+    de_DE: `**Aktualisierungen**
+
+- Core Lightning → 26.04.1 (Negative Routing-Gebühren II)
+- @start9labs/start-sdk → 1.5.0
+
+**Intern**
+
+- Anpassung an die neue \`AddSslOptions.auth\`-Anforderung des SDK.`,
+    pl_PL: `**Aktualizacje**
+
+- Core Lightning → 26.04.1 (Ujemne opłaty routingowe II)
+- @start9labs/start-sdk → 1.5.0
+
+**Wewnętrzne**
+
+- Dostosowanie do nowego wymogu \`AddSslOptions.auth\` w SDK.`,
+    fr_FR: `**Mises à jour**
+
+- Core Lightning → 26.04.1 (Frais de Routage Négatifs II)
+- @start9labs/start-sdk → 1.5.0
+
+**Interne**
+
+- Adaptation à la nouvelle exigence \`AddSslOptions.auth\` du SDK.`,
   },
   migrations: {
     up: async ({ effects }) => {
