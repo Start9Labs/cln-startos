@@ -2,7 +2,7 @@
 
 ## Documentation
 
-- [Core Lightning documentation](https://docs.corelightning.org/docs/home) — the upstream operator and developer reference.
+- [Core Lightning documentation](https://docs.corelightning.org/docs/) — the upstream operator and developer reference.
 
 ## What you get on StartOS
 
