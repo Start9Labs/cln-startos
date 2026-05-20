@@ -1,50 +1,40 @@
 # Contributing
 
-This repo packages [Core Lightning](https://github.com/ElementsProject/lightning) for StartOS.
+## Keep these in sync
 
-## Documentation — keep it in sync
+- **[`README.md`](./README.md)** — what this package is and how it's built (image, volumes, interfaces). Technical reference for developers and AI assistants.
+- **[`instructions.md`](./instructions.md)** — the user-facing instructions packed into the `.s9pk` and shown on the **Instructions** tab in StartOS, for the person running the service.
+- **[`TODO.md`](./TODO.md)** — pending work on this package.
 
-- **`README.md`** — what this package is and how it's built (image, volumes, interfaces). For developers and AI assistants.
-- **`instructions.md`** — the user-facing instructions packed into the `.s9pk` and shown on the **Instructions** tab in StartOS, for the person running the service.
-- **`CONTRIBUTING.md`** — this file.
-- **`CLAUDE.md`** — operating rules for AI developers working in this repo.
+**Read all three before starting any work.** Any code change that affects user-visible behavior must update `README.md` and `instructions.md` in the same change; add to `TODO.md` when you defer work, and remove items when complete. Content rules: [Writing READMEs](https://docs.start9.com/packaging/writing-readmes.html), [Writing Instructions](https://docs.start9.com/packaging/writing-instructions.html).
 
-**Any code change that warrants it must update `README.md` and `instructions.md` in the same change** — a new or renamed action, an added or removed volume / port / interface / dependency, a changed default, a new limitation, any altered user-visible behavior. Don't defer: a package that ships with a stale README or stale instructions is not done, even if the code is perfect. Content rules live in the packaging guide: [Writing READMEs](https://docs.start9.com/packaging/writing-readmes.html) and [Writing Service Instructions](https://docs.start9.com/packaging/writing-instructions.html).
+## Environment setup
+
+See [Environment Setup](https://docs.start9.com/packaging/environment-setup.html)
 
 ## Building
-
-See the [StartOS Packaging Guide](https://docs.start9.com/packaging/) for environment setup, then:
 
 ```bash
 npm ci    # install dependencies
 make      # build the universal .s9pk
 ```
 
+For a complete list of build options, see [Makefile](https://docs.start9.com/packaging/makefile.html).
+
 ## Updating the upstream version
 
-Core Lightning is built from a custom `Dockerfile` (the `lightning` image) layered on top of the official `elementsproject/lightningd` image, plus a sidecar `ui` image pulled by tag. Several upstream components feed into the build, and a bump usually touches more than one.
+1. Apply the upstream bump per [UPDATING.md](./UPDATING.md).
+2. Update `version` and `releaseNotes` in the file under `startos/versions/`, renaming it to the new version string. A _new_ version file is only needed when the bump requires a migration, or when you want the old release notes preserved in git history — see [Versions](https://docs.start9.com/packaging/versions.html).
 
-### lightningd
+## CI/CD
 
-1. Update the `FROM elementsproject/lightningd:v<version>` tag in `Dockerfile`.
-2. Bump `version` in the file under `startos/versions/`, renaming it to the new version string. A new version file is only needed when the bump carries an `up`/`down` migration, or when you want the old release notes preserved in git history — see [Versions](https://docs.start9.com/packaging/versions.html).
-3. Update `releaseNotes` to summarize what changed for the user.
+Three workflows under `.github/workflows/` wrap reusable workflows in [`start9labs/shared-workflows`](https://github.com/Start9Labs/shared-workflows):
 
-### CLN Application (Web UI)
+- **`build.yml`** — on PR, builds the `.s9pk` and uploads per-arch artifacts for sideload testing.
+- **`release.yml`** — on `v*` tag, builds per arch and publishes to the test registry.
+- **`tagAndRelease.yml`** — on push to `master`, tags `v<version>` and runs `release.yml`, skipping if already in production.
 
-Bump the `dockerTag` for the `ui` image in `startos/manifest/index.ts` to `ghcr.io/elementsproject/cln-application:<new version>`.
-
-### Bundled plugins
-
-- **CLBOSS** lives at the `clboss/` git submodule. To bump it: `cd clboss && git fetch && git checkout <ref> && cd .. && git add clboss`.
-- **TEOS** (watchtower server + client plugin) lives at the `rust-teos/` git submodule. Bump the same way.
-- The miscellaneous **`plugins/`** submodule pins the set of upstream plugin sources used elsewhere in the build; bump it the same way when one of those plugins needs an update.
-- **Sling** is downloaded as a prebuilt binary inside the Dockerfile. Update the `SLING_VERSION` ARG in `Dockerfile` to bump it.
-
-### After bumping
-
-1. Rebuild (`make`), sideload the `.s9pk`, and confirm it starts.
-2. Review `README.md` and `instructions.md` for anything the bump changed.
+Promotion to `beta` and `prod` is a separate, manual step.
 
 ## How to contribute
 
