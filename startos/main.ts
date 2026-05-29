@@ -41,6 +41,18 @@ export const main = sdk.setupMain(async ({ effects }) => {
     await storeJson.merge(effects, { rescan: undefined })
   }
 
+  // `restore` is a one-time trigger set by the post-restore backup hook (backups.ts).
+  // Clear it now — before the reactive store watch near the end of main — so the
+  // emergency-recover oneshot (lightning-cli emergencyrecover) and the "Backup
+  // Restoration Detected" health warning fire exactly once after a restore, not on
+  // every subsequent restart. The local `store.restore` snapshot read above still
+  // drives the oneshot this session; clearing only the on-disk value here mirrors how
+  // `rescan` is handled and keeps the clear ahead of the `.const` watch at line ~288,
+  // so it doesn't re-trigger main.
+  if (store.restore) {
+    await storeJson.merge(effects, { restore: undefined })
+  }
+
   /**
    * ======================== Daemons ========================
    *

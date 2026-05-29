@@ -3,8 +3,8 @@ import { readFile, rm } from 'fs/promises'
 import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
-export const v_26_4_1_2 = VersionInfo.of({
-  version: '26.4.1:2',
+export const current = VersionInfo.of({
+  version: '26.4.1:3',
   releaseNotes: {
     en_US: `**Bumps**
 
@@ -13,6 +13,7 @@ export const v_26_4_1_2 = VersionInfo.of({
 
 **Fixes**
 
+- Restoring from backup no longer re-runs emergency recovery or re-shows the "Backup Restoration Detected" warning on every restart — it now happens once, right after the restore.
 - sling now correctly reads CLN's compacted gossip store on v26.04+ (could degrade routing on the previous version).
 
 **Behavior changes**
@@ -26,6 +27,7 @@ export const v_26_4_1_2 = VersionInfo.of({
 
 **Correcciones**
 
+- Restaurar desde una copia de seguridad ya no vuelve a ejecutar la recuperación de emergencia ni a mostrar la advertencia «Restauración de copia de seguridad detectada» en cada reinicio: ahora ocurre una sola vez, justo después de la restauración.
 - sling ahora lee correctamente el gossip store compactado de CLN en v26.04+ (podía degradar el enrutamiento en la versión anterior).
 
 **Cambios de comportamiento**
@@ -39,6 +41,7 @@ export const v_26_4_1_2 = VersionInfo.of({
 
 **Korrekturen**
 
+- Das Wiederherstellen aus einem Backup führt die Notfallwiederherstellung nicht mehr bei jedem Neustart erneut aus und zeigt die Warnung „Backup-Wiederherstellung erkannt“ nicht mehr erneut an – es geschieht jetzt einmalig, direkt nach der Wiederherstellung.
 - sling liest jetzt den kompaktierten Gossip-Store von CLN auf v26.04+ korrekt (konnte zuvor das Routing beeinträchtigen).
 
 **Verhaltensänderungen**
@@ -52,6 +55,7 @@ export const v_26_4_1_2 = VersionInfo.of({
 
 **Poprawki**
 
+- Przywracanie z kopii zapasowej nie uruchamia już ponownie odzyskiwania awaryjnego ani nie pokazuje ponownie ostrzeżenia „Wykryto przywracanie z kopii zapasowej” przy każdym restarcie — następuje to teraz raz, zaraz po przywróceniu.
 - sling poprawnie odczytuje teraz skompaktowany gossip store CLN w wersji v26.04+ (mogło to wcześniej pogarszać routing).
 
 **Zmiany zachowania**
@@ -65,6 +69,7 @@ export const v_26_4_1_2 = VersionInfo.of({
 
 **Corrections**
 
+- La restauration depuis une sauvegarde ne relance plus la récupération d'urgence et n'affiche plus l'avertissement « Restauration de sauvegarde détectée » à chaque redémarrage — cela se produit désormais une seule fois, juste après la restauration.
 - sling lit désormais correctement le gossip store compacté de CLN sur v26.04+ (pouvait dégrader le routage dans la version précédente).
 
 **Changements de comportement**
