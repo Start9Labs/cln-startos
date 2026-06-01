@@ -1,11 +1,10 @@
-import { Daemons, FileHelper } from '@start9labs/start-sdk'
+import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { readFile, writeFile } from 'fs/promises'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
-import { manifest } from './manifest'
 import { sdk } from './sdk'
 import {
   bitcoinDataDir,
@@ -39,6 +38,18 @@ export const main = sdk.setupMain(async ({ effects }) => {
   if (store.rescan) {
     lightningdArgs.push(`--rescan=${store.rescan}`)
     await storeJson.merge(effects, { rescan: undefined })
+  }
+
+  // `restore` is a one-time trigger set by the post-restore backup hook (backups.ts).
+  // Clear it now — before the reactive store watch near the end of main — so the
+  // emergency-recover oneshot (lightning-cli emergencyrecover) and the "Backup
+  // Restoration Detected" health warning fire exactly once after a restore, not on
+  // every subsequent restart. The local `store.restore` snapshot read above still
+  // drives the oneshot this session; clearing only the on-disk value here mirrors how
+  // `rescan` is handled and keeps the clear ahead of the `.const` watch at line ~288,
+  // so it doesn't re-trigger main.
+  if (store.restore) {
+    await storeJson.merge(effects, { restore: undefined })
   }
 
   /**
@@ -248,77 +259,73 @@ export const main = sdk.setupMain(async ({ effects }) => {
       requires: ['lightningd'],
     })
 
-  let daemons: Daemons<
-    typeof manifest,
-    | 'lightningd'
-    | 'commando-config'
-    | 'cln-application'
-    | 'check-synced'
-    | 'emergency-recover'
-    | 'watchtower-server'
-  > = baseDaemons
-
-  if (store.restore) {
-    daemons = baseDaemons.addOneshot('emergency-recover', {
-      subcontainer: lightningSub,
-      exec: {
-        fn: async () => {
-          await sdk.setHealth(effects, {
-            id: 'restored',
-            name: i18n('Backup Restoration Detected'),
-            message: i18n(
-              'It is not recommended to continue using a Core Lightning node after emergency recovery. All channels will be force-closed and funds swept to the on-chain wallet. Please wait for all channels to resolve, then sweep remaining funds to another wallet. Afterwards, Core Lightning should be uninstalled and re-installed fresh if you would like to continue using it.',
-            ),
-            result: 'failure',
-          })
-          return {
-            command: [
-              'lightning-cli',
-              `--lightning-dir=${rootDir}`,
-              'emergencyrecover',
-            ],
-          }
-        },
-      },
-      requires: ['lightningd'],
-    })
-  }
-
   // restart on changes to store or config
   await storeJson.read().const(effects)
 
-  if (store.watchtowerServer) {
-    daemons = baseDaemons.addDaemon('watchtower-server', {
-      subcontainer: lightningSub,
-      exec: {
-        command: ['teosd', '--datadir=/root/.lightning/.teos'],
-      },
-      ready: {
-        display: i18n('TEOS Watchtower Server'),
-        fn: async () => {
-          const gettowerinfoRes = await lightningSub.exec([
-            'teos-cli',
-            '--datadir=/root/.lightning/.teos',
-            'gettowerinfo',
-          ])
-          if (gettowerinfoRes.exitCode === 0) {
-            return {
-              result: 'success',
-              message: i18n('The Watchtower Server is online'),
-            }
+  // emergency-recover and watchtower-server are added conditionally via thunks so
+  // both can coexist in a single chain. (Previously each `if` rebuilt from
+  // `baseDaemons`, so enabling the watchtower server silently dropped the
+  // emergency-recover oneshot after a restore.)
+  return baseDaemons
+    .addOneshot('emergency-recover', () =>
+      store.restore
+        ? {
+            subcontainer: lightningSub,
+            exec: {
+              fn: async () => {
+                await sdk.setHealth(effects, {
+                  id: 'restored',
+                  name: i18n('Backup Restoration Detected'),
+                  message: i18n(
+                    'It is not recommended to continue using a Core Lightning node after emergency recovery. All channels will be force-closed and funds swept to the on-chain wallet. Please wait for all channels to resolve, then sweep remaining funds to another wallet. Afterwards, Core Lightning should be uninstalled and re-installed fresh if you would like to continue using it.',
+                  ),
+                  result: 'failure',
+                })
+                return {
+                  command: [
+                    'lightning-cli',
+                    `--lightning-dir=${rootDir}`,
+                    'emergencyrecover',
+                  ],
+                }
+              },
+            },
+            requires: ['lightningd'],
           }
+        : null,
+    )
+    .addDaemon('watchtower-server', () =>
+      store.watchtowerServer
+        ? {
+            subcontainer: lightningSub,
+            exec: {
+              command: ['teosd', '--datadir=/root/.lightning/.teos'],
+            },
+            ready: {
+              display: i18n('TEOS Watchtower Server'),
+              fn: async () => {
+                const gettowerinfoRes = await lightningSub.exec([
+                  'teos-cli',
+                  '--datadir=/root/.lightning/.teos',
+                  'gettowerinfo',
+                ])
+                if (gettowerinfoRes.exitCode === 0) {
+                  return {
+                    result: 'success',
+                    message: i18n('The Watchtower Server is online'),
+                  }
+                }
 
-          return {
-            result: 'starting',
-            message: i18n('TEOSd is starting...'),
+                return {
+                  result: 'starting',
+                  message: i18n('TEOSd is starting...'),
+                }
+              },
+            },
+            requires: ['lightningd'],
           }
-        },
-      },
-      requires: ['lightningd'],
-    })
-  }
-
-  return daemons
+        : null,
+    )
     .addOneshot('watchtower-client', {
       subcontainer: lightningSub,
       exec: {
