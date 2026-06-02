@@ -4,78 +4,18 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
-  version: '26.4.1:3',
+  version: '26.6:0',
   releaseNotes: {
-    en_US: `**Bumps**
-
-- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1
-
-**Fixes**
-
-- Restoring from backup no longer re-runs emergency recovery or re-shows the "Backup Restoration Detected" warning on every restart — it now happens once, right after the restore.
-- sling now correctly reads CLN's compacted gossip store on v26.04+ (could degrade routing on the previous version).
-
-**Behavior changes**
-
-- clboss internal rebalancing fee cap default dropped from 0.5% to 0.1%.
-- sling no longer accepts your own channels or node id in \`sling-except-chan\`; if you set this manually, remove those entries before upgrading.`,
-    es_ES: `**Cambios**
-
-- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1
-
-**Correcciones**
-
-- Restaurar desde una copia de seguridad ya no vuelve a ejecutar la recuperación de emergencia ni a mostrar la advertencia «Restauración de copia de seguridad detectada» en cada reinicio: ahora ocurre una sola vez, justo después de la restauración.
-- sling ahora lee correctamente el gossip store compactado de CLN en v26.04+ (podía degradar el enrutamiento en la versión anterior).
-
-**Cambios de comportamiento**
-
-- El tope por defecto de la comisión de rebalanceo interno de clboss se redujo del 0,5% al 0,1%.
-- sling ya no acepta tus propios canales ni tu node id en \`sling-except-chan\`; si los configuraste manualmente, elimina esas entradas antes de actualizar.`,
-    de_DE: `**Aktualisierungen**
-
-- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1
-
-**Korrekturen**
-
-- Das Wiederherstellen aus einem Backup führt die Notfallwiederherstellung nicht mehr bei jedem Neustart erneut aus und zeigt die Warnung „Backup-Wiederherstellung erkannt“ nicht mehr erneut an – es geschieht jetzt einmalig, direkt nach der Wiederherstellung.
-- sling liest jetzt den kompaktierten Gossip-Store von CLN auf v26.04+ korrekt (konnte zuvor das Routing beeinträchtigen).
-
-**Verhaltensänderungen**
-
-- Der Standardwert der internen Rebalancing-Gebührenobergrenze von clboss wurde von 0,5 % auf 0,1 % gesenkt.
-- sling akzeptiert keine eigenen Kanäle oder die eigene Node-ID mehr in \`sling-except-chan\`; falls Sie diese manuell gesetzt haben, entfernen Sie die Einträge vor dem Upgrade.`,
-    pl_PL: `**Aktualizacje**
-
-- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1
-
-**Poprawki**
-
-- Przywracanie z kopii zapasowej nie uruchamia już ponownie odzyskiwania awaryjnego ani nie pokazuje ponownie ostrzeżenia „Wykryto przywracanie z kopii zapasowej” przy każdym restarcie — następuje to teraz raz, zaraz po przywróceniu.
-- sling poprawnie odczytuje teraz skompaktowany gossip store CLN w wersji v26.04+ (mogło to wcześniej pogarszać routing).
-
-**Zmiany zachowania**
-
-- Domyślny limit opłaty wewnętrznego rebalansowania clboss obniżony z 0,5% do 0,1%.
-- sling nie akceptuje już własnych kanałów ani własnego node id w \`sling-except-chan\`; jeśli ustawiłeś to ręcznie, usuń te wpisy przed aktualizacją.`,
-    fr_FR: `**Mises à jour**
-
-- clboss → 0.16.0 (Darkness on the Edge of the Mempool)
-- sling → 4.2.1
-
-**Corrections**
-
-- La restauration depuis une sauvegarde ne relance plus la récupération d'urgence et n'affiche plus l'avertissement « Restauration de sauvegarde détectée » à chaque redémarrage — cela se produit désormais une seule fois, juste après la restauration.
-- sling lit désormais correctement le gossip store compacté de CLN sur v26.04+ (pouvait dégrader le routage dans la version précédente).
-
-**Changements de comportement**
-
-- Le plafond par défaut des frais de rééquilibrage interne de clboss est passé de 0,5 % à 0,1 %.
-- sling n'accepte plus vos propres canaux ni votre node id dans \`sling-except-chan\` ; si vous les avez configurés manuellement, supprimez ces entrées avant la mise à niveau.`,
+    en_US: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
+- xpay now handles \`pay\` by default; set \`xpay-handle-pay=false\` to keep the old behavior.`,
+    es_ES: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
+- xpay ahora gestiona \`pay\` de forma predeterminada; establece \`xpay-handle-pay=false\` para mantener el comportamiento anterior.`,
+    de_DE: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
+- xpay verarbeitet \`pay\` jetzt standardmäßig; setzen Sie \`xpay-handle-pay=false\`, um das alte Verhalten beizubehalten.`,
+    pl_PL: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
+- xpay domyślnie obsługuje teraz \`pay\`; ustaw \`xpay-handle-pay=false\`, aby zachować poprzednie zachowanie.`,
+    fr_FR: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
+- xpay gère désormais \`pay\` par défaut ; définissez \`xpay-handle-pay=false\` pour conserver l'ancien comportement.`,
   },
   migrations: {
     up: async ({ effects }) => {
