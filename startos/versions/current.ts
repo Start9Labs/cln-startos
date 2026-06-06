@@ -4,18 +4,17 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
-  version: '26.6:0',
+  version: '26.6.1:0',
   releaseNotes: {
-    en_US: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
-- xpay now handles \`pay\` by default; set \`xpay-handle-pay=false\` to keep the old behavior.`,
-    es_ES: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
-- xpay ahora gestiona \`pay\` de forma predeterminada; establece \`xpay-handle-pay=false\` para mantener el comportamiento anterior.`,
-    de_DE: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
-- xpay verarbeitet \`pay\` jetzt standardmäßig; setzen Sie \`xpay-handle-pay=false\`, um das alte Verhalten beizubehalten.`,
-    pl_PL: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
-- xpay domyślnie obsługuje teraz \`pay\`; ustaw \`xpay-handle-pay=false\`, aby zachować poprzednie zachowanie.`,
-    fr_FR: `- Core Lightning → 26.06 (Quantum-Resistant Lightning Channel)
-- xpay gère désormais \`pay\` par défaut ; définissez \`xpay-handle-pay=false\` pour conserver l'ancien comportement.`,
+    en_US: 'Core Lightning → 26.06.1 (fixes bwatch plugin registration failure).',
+    es_ES:
+      'Core Lightning → 26.06.1 (corrige el fallo de registro del plugin bwatch).',
+    de_DE:
+      'Core Lightning → 26.06.1 (behebt den Registrierungsfehler des bwatch-Plugins).',
+    pl_PL:
+      'Core Lightning → 26.06.1 (naprawia błąd rejestracji wtyczki bwatch).',
+    fr_FR:
+      'Core Lightning → 26.06.1 (corrige l’échec d’enregistrement du plugin bwatch).',
   },
   migrations: {
     up: async ({ effects }) => {
