@@ -6,18 +6,59 @@ import { storeJson } from '../fileModels/store.json'
 export const current = VersionInfo.of({
   version: '26.6.1:0',
   releaseNotes: {
-    en_US: 'Core Lightning → 26.06.1 (fixes bwatch plugin registration failure).',
-    es_ES:
-      'Core Lightning → 26.06.1 (corrige el fallo de registro del plugin bwatch).',
-    de_DE:
-      'Core Lightning → 26.06.1 (behebt den Registrierungsfehler des bwatch-Plugins).',
-    pl_PL:
-      'Core Lightning → 26.06.1 (naprawia błąd rejestracji wtyczki bwatch).',
-    fr_FR:
-      'Core Lightning → 26.06.1 (corrige l’échec d’enregistrement du plugin bwatch).',
+    en_US: `**Bumps**
+
+- Core Lightning → 26.06.1 (fixes bwatch plugin registration failure)
+
+**Fixes**
+
+- gRPC is now reachable by other services on this server, fixing connections from apps like Alby Hub`,
+    es_ES: `**Actualizaciones**
+
+- Core Lightning → 26.06.1 (corrige el fallo de registro del plugin bwatch)
+
+**Correcciones**
+
+- gRPC ahora es accesible por otros servicios de este servidor, lo que corrige las conexiones desde aplicaciones como Alby Hub`,
+    de_DE: `**Aktualisierungen**
+
+- Core Lightning → 26.06.1 (behebt den Registrierungsfehler des bwatch-Plugins)
+
+**Fehlerbehebungen**
+
+- gRPC ist jetzt für andere Dienste auf diesem Server erreichbar, was Verbindungen von Apps wie Alby Hub behebt`,
+    pl_PL: `**Aktualizacje**
+
+- Core Lightning → 26.06.1 (naprawia błąd rejestracji wtyczki bwatch)
+
+**Poprawki**
+
+- gRPC jest teraz osiągalny przez inne usługi na tym serwerze, co naprawia połączenia z aplikacji takich jak Alby Hub`,
+    fr_FR: `**Mises à jour**
+
+- Core Lightning → 26.06.1 (corrige l’échec d’enregistrement du plugin bwatch)
+
+**Corrections**
+
+- gRPC est désormais accessible par les autres services de ce serveur, corrigeant les connexions depuis des applications comme Alby Hub`,
   },
   migrations: {
     up: async ({ effects }) => {
+      // Remove the legacy StartOS-issued gRPC certs (older versions wrote certs
+      // for c-lightning.startos here) so cln-grpc regenerates its native "cln"
+      // certs, which is the TLS identity gRPC clients like Alby Hub expect.
+      const grpcCertDir = '/media/startos/volumes/main/bitcoin'
+      await Promise.all(
+        [
+          'ca.pem',
+          'ca-key.pem',
+          'server.pem',
+          'server-key.pem',
+          'client.pem',
+          'client-key.pem',
+        ].map((file) => rm(`${grpcCertDir}/${file}`, { force: true })),
+      )
+
       // get old config.yaml
       const configYaml:
         | {

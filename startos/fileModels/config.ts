@@ -81,6 +81,7 @@ export const shape = z.object({
   'bitcoin-rpcuser': z.undefined().catch(undefined),
   'bitcoin-rpcpassword': z.undefined().catch(undefined),
   'grpc-port': z.literal(grpcPort).catch(grpcPort),
+  'grpc-host': z.literal('0.0.0.0').catch('0.0.0.0'),
 
   // Dynamic (set at runtime)
   'announce-addr': iniStringArray,
@@ -359,6 +360,7 @@ function formToFile(
     'bitcoin-rpcuser': undefined,
     'bitcoin-rpcpassword': undefined,
     'grpc-port': grpcPort,
+    'grpc-host': '0.0.0.0',
 
     // Node identity
     alias: alias || undefined,
