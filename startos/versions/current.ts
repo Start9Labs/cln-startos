@@ -4,43 +4,13 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
-  version: '26.6.1:0',
+  version: '26.6.1:1',
   releaseNotes: {
-    en_US: `**Bumps**
-
-- Core Lightning → 26.06.1 (fixes bwatch plugin registration failure)
-
-**Fixes**
-
-- gRPC is now reachable by other services on this server, fixing connections from apps like Alby Hub`,
-    es_ES: `**Actualizaciones**
-
-- Core Lightning → 26.06.1 (corrige el fallo de registro del plugin bwatch)
-
-**Correcciones**
-
-- gRPC ahora es accesible por otros servicios de este servidor, lo que corrige las conexiones desde aplicaciones como Alby Hub`,
-    de_DE: `**Aktualisierungen**
-
-- Core Lightning → 26.06.1 (behebt den Registrierungsfehler des bwatch-Plugins)
-
-**Fehlerbehebungen**
-
-- gRPC ist jetzt für andere Dienste auf diesem Server erreichbar, was Verbindungen von Apps wie Alby Hub behebt`,
-    pl_PL: `**Aktualizacje**
-
-- Core Lightning → 26.06.1 (naprawia błąd rejestracji wtyczki bwatch)
-
-**Poprawki**
-
-- gRPC jest teraz osiągalny przez inne usługi na tym serwerze, co naprawia połączenia z aplikacji takich jak Alby Hub`,
-    fr_FR: `**Mises à jour**
-
-- Core Lightning → 26.06.1 (corrige l’échec d’enregistrement du plugin bwatch)
-
-**Corrections**
-
-- gRPC est désormais accessible par les autres services de ce serveur, corrigeant les connexions depuis des applications comme Alby Hub`,
+    en_US: `Updated the Sling rebalancing plugin to 4.3.0: it now reads BLIP-18 inbound fees from the gossip store and accounts for them when rebalancing channels. Full notes: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
+    es_ES: `Se actualizó el complemento de reequilibrio Sling a 4.3.0: ahora lee las tarifas de entrada BLIP-18 del almacén de gossip y las tiene en cuenta al reequilibrar los canales. Notas completas: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
+    de_DE: `Das Sling-Rebalancing-Plugin wurde auf 4.3.0 aktualisiert: Es liest jetzt BLIP-18-Eingangsgebühren aus dem Gossip-Speicher und berücksichtigt sie beim Rebalancing der Kanäle. Vollständige Hinweise: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
+    pl_PL: `Zaktualizowano wtyczkę równoważenia Sling do wersji 4.3.0: odczytuje teraz opłaty przychodzące BLIP-18 z magazynu gossip i uwzględnia je podczas równoważenia kanałów. Pełne informacje: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
+    fr_FR: `Le plugin de rééquilibrage Sling a été mis à jour vers 4.3.0 : il lit désormais les frais entrants BLIP-18 depuis le magasin de gossip et en tient compte lors du rééquilibrage des canaux. Notes complètes : https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
   },
   migrations: {
     up: async ({ effects }) => {
