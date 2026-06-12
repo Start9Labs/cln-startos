@@ -82,12 +82,16 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // gRPC
   const grpcMulti = sdk.MultiHost.of(effects, 'grpc')
-  // cln-grpc terminates its own (mutual) TLS, so StartOS must pass the port
-  // through rather than add its own SSL layer (which would strip the client
-  // cert). protocol 'https' with no addSsl = passthrough.
+  // cln-grpc terminates its own mutual TLS, so StartOS must pass the port
+  // through untouched rather than terminate at the edge (which would present
+  // the device cert and strip the client cert). protocol/addSsl null +
+  // secure.ssl routes raw TCP / SNI passthrough; protocol 'https' does NOT —
+  // the SDK still synthesizes an addSsl config for it, terminating the TLS.
   const grpcMultiOrigin = await grpcMulti.bindPort(grpcPort, {
-    protocol: 'https',
+    protocol: null,
+    addSsl: null,
     preferredExternalPort: grpcPort,
+    secure: { ssl: true },
   })
   const grpc = sdk.createInterface(effects, {
     name: i18n('grpc'),
