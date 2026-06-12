@@ -115,14 +115,16 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   // clnrest
   if (conf?.clnrest) {
     const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest')
+    // clnrest is forced to plaintext (clnrest-protocol=http in the config) so
+    // that a plain-HTTP endpoint exists for Tor onion services — Tor already
+    // encrypts, and wallets like Zeus can't validate StartOS-issued certs.
+    // LAN/clearnet still gets HTTPS via the StartOS-terminated SSL listener.
     const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
-      protocol: 'https',
+      protocol: 'http',
       preferredExternalPort: clnrestPort,
       addSsl: {
-        alpn: null,
         preferredExternalPort: clnrestPort,
         addXForwardedHeaders: false,
-        auth: null,
       },
     })
 
@@ -143,7 +145,10 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
         ),
         type: 'api',
         masked: false,
-        schemeOverride: { ssl: 'clnrest', noSsl: 'clnrest' },
+        // Zeus's clnrest parser reads the transport protocol from the scheme:
+        // clnrest+https:// / clnrest+http://. A bare clnrest:// is treated as
+        // https, so the http (Tor) URL must carry the +http marker.
+        schemeOverride: { ssl: 'clnrest+https', noSsl: 'clnrest+http' },
         username: null,
         path: '',
         query: { rune: rune ? rune : 'Error parsing Rune' },

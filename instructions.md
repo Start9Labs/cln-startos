@@ -28,7 +28,7 @@
 - **RPC** — JSON-RPC over HTTP for `lightning-cli` and scripts.
 - **Peer** — the Lightning peer-to-peer port; share this address with peers who want to open channels with you.
 - **grpc** — the gRPC API for apps and plugins that prefer typed RPC.
-- **CLNrest** — REST API. When enabled, the published URL contains the rune wallet apps need to authenticate; the scheme is `clnrest://`.
+- **CLNrest** — REST API. When enabled, the published URL contains the rune wallet apps need to authenticate. The scheme tells wallets like Zeus which protocol to use: `clnrest+http://` for plain-HTTP addresses (use this for Tor onion addresses — Tor already encrypts) and `clnrest+https://` for SSL addresses (LAN/clearnet).
 - **Clams Websocket** — websocket endpoint for Clams Remote, shown when the `clams-remote-websocket` option is on.
 - **TEOS Watchtower** — present only when the watchtower server is enabled.
 

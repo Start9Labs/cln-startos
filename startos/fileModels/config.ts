@@ -93,6 +93,9 @@ export const shape = z.object({
   rgb: iniString,
   'clnrest-host': iniString,
   'clnrest-port': iniNumber,
+  // Enforced to plaintext (CLN defaults to https) so the Tor onion path can
+  // serve plain HTTP; StartOS adds SSL for LAN/clearnet. See interfaces.ts.
+  'clnrest-protocol': z.literal('http').optional().catch('http'),
   'fee-base': iniNumber,
   'fee-per-satoshi': iniNumber,
   'min-capacity-sat': iniNumber,
@@ -311,8 +314,7 @@ export function fileToForm(
     raw: input ?? {},
     alias,
     color: rgb,
-    'tor-only':
-      alwaysUseProxy === undefined ? null : alwaysUseProxy === 'true',
+    'tor-only': alwaysUseProxy === undefined ? null : alwaysUseProxy === 'true',
     'clams-remote-websocket': bindAddr?.includes(`ws::${websocketPort}`),
     'fee-base': feeBase,
     'fee-rate': feePerSatoshi,
@@ -389,6 +391,7 @@ function formToFile(
     plugin: plugins.length > 0 ? plugins : undefined,
     'clnrest-host': clnrest ? '0.0.0.0' : undefined,
     'clnrest-port': clnrest ? clnrestPort : undefined,
+    'clnrest-protocol': clnrest ? 'http' : undefined,
   }
 }
 
