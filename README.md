@@ -95,6 +95,7 @@ Settings **not** managed by StartOS (hardcoded):
 | `bitcoin-rpcport`    | `8332`             | StartOS service networking |
 | `bitcoin-datadir`    | `/mnt/bitcoin`     | Mounted dependency volume  |
 | `clnrest-port`       | `3010`             | Fixed internal port        |
+| `clnrest-protocol`   | `http`             | Plain HTTP inside the container; Tor onions serve it directly (Tor already encrypts) and StartOS adds SSL for LAN/clearnet |
 | `grpc-port`          | `2106`             | Fixed internal port        |
 
 ## Default Overrides
@@ -120,7 +121,7 @@ applies.
 | RPC                      | 8080 | HTTP      | JSON-RPC commands                                                 |
 | Peer                     | 9735 | TCP (raw) | Lightning peer-to-peer connections                                |
 | gRPC                     | 2106 | HTTPS     | gRPC API (with TLS)                                               |
-| CLNrest                  | 3010 | HTTPS     | REST API with `clnrest://` URIs and embedded rune (when enabled)  |
+| CLNrest                  | 3010 | HTTP + HTTPS | REST API with `clnrest+http://` (Tor) / `clnrest+https://` (LAN) URIs and embedded rune (when enabled) |
 | Websocket (Clams)        | 7272 | HTTP      | Websocket for Clams Remote (when `ws::7272` bind-addr configured) |
 | TEOS Watchtower          | 9814 | TCP (raw) | Watchtower server (when enabled)                                  |
 

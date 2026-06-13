@@ -4,43 +4,38 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
-  version: '26.6.1:0',
+  version: '26.6.1:1',
   releaseNotes: {
-    en_US: `**Bumps**
+    en_US: `**Fixes**
 
-- Core Lightning → 26.06.1 (fixes bwatch plugin registration failure)
+- CLNrest is reachable again: the previous release's certificate change broke all CLNrest connections through StartOS (LAN and Tor)
+- CLNrest now serves plain HTTP, so Tor onion services can expose it without TLS — restoring Zeus-over-Tor connections. LAN/clearnet access remains HTTPS via StartOS
+- CLNrest URLs now use the \`clnrest+http://\` / \`clnrest+https://\` schemes so wallets like Zeus connect with the correct protocol
+- gRPC now passes through StartOS untouched so cln-grpc's native mutual-TLS certificate is used end-to-end, fixing gRPC connections from apps like Alby Hub`,
+    es_ES: `**Correcciones**
 
-**Fixes**
+- CLNrest vuelve a ser accesible: el cambio de certificados de la versión anterior rompió todas las conexiones CLNrest a través de StartOS (LAN y Tor)
+- CLNrest ahora sirve HTTP plano, de modo que los servicios onion de Tor pueden exponerlo sin TLS — restaurando las conexiones de Zeus por Tor. El acceso LAN/clearnet sigue siendo HTTPS a través de StartOS
+- Las URL de CLNrest ahora usan los esquemas \`clnrest+http://\` / \`clnrest+https://\` para que carteras como Zeus se conecten con el protocolo correcto
+- gRPC ahora pasa a través de StartOS sin modificaciones, de modo que el certificado TLS mutuo nativo de cln-grpc se usa de extremo a extremo, corrigiendo las conexiones gRPC desde aplicaciones como Alby Hub`,
+    de_DE: `**Fehlerbehebungen**
 
-- gRPC is now reachable by other services on this server, fixing connections from apps like Alby Hub`,
-    es_ES: `**Actualizaciones**
+- CLNrest ist wieder erreichbar: die Zertifikatsänderung der vorherigen Version hat alle CLNrest-Verbindungen über StartOS unterbrochen (LAN und Tor)
+- CLNrest liefert jetzt einfaches HTTP, sodass Tor-Onion-Dienste es ohne TLS bereitstellen können — Zeus-über-Tor-Verbindungen funktionieren wieder. LAN-/Clearnet-Zugriff bleibt HTTPS über StartOS
+- CLNrest-URLs verwenden jetzt die Schemata \`clnrest+http://\` / \`clnrest+https://\`, damit Wallets wie Zeus sich mit dem richtigen Protokoll verbinden
+- gRPC wird jetzt unverändert durch StartOS durchgereicht, sodass das native gegenseitige TLS-Zertifikat von cln-grpc durchgängig verwendet wird — das behebt gRPC-Verbindungen von Apps wie Alby Hub`,
+    pl_PL: `**Poprawki**
 
-- Core Lightning → 26.06.1 (corrige el fallo de registro del plugin bwatch)
+- CLNrest jest znów osiągalny: zmiana certyfikatów w poprzednim wydaniu zepsuła wszystkie połączenia CLNrest przez StartOS (LAN i Tor)
+- CLNrest serwuje teraz czysty HTTP, dzięki czemu usługi onion Tora mogą go udostępniać bez TLS — przywracając połączenia Zeus przez Tor. Dostęp LAN/clearnet pozostaje HTTPS przez StartOS
+- Adresy URL CLNrest używają teraz schematów \`clnrest+http://\` / \`clnrest+https://\`, dzięki czemu portfele takie jak Zeus łączą się właściwym protokołem
+- gRPC jest teraz przekazywane przez StartOS bez zmian, dzięki czemu natywny wzajemny certyfikat TLS cln-grpc jest używany od końca do końca, co naprawia połączenia gRPC z aplikacji takich jak Alby Hub`,
+    fr_FR: `**Corrections**
 
-**Correcciones**
-
-- gRPC ahora es accesible por otros servicios de este servidor, lo que corrige las conexiones desde aplicaciones como Alby Hub`,
-    de_DE: `**Aktualisierungen**
-
-- Core Lightning → 26.06.1 (behebt den Registrierungsfehler des bwatch-Plugins)
-
-**Fehlerbehebungen**
-
-- gRPC ist jetzt für andere Dienste auf diesem Server erreichbar, was Verbindungen von Apps wie Alby Hub behebt`,
-    pl_PL: `**Aktualizacje**
-
-- Core Lightning → 26.06.1 (naprawia błąd rejestracji wtyczki bwatch)
-
-**Poprawki**
-
-- gRPC jest teraz osiągalny przez inne usługi na tym serwerze, co naprawia połączenia z aplikacji takich jak Alby Hub`,
-    fr_FR: `**Mises à jour**
-
-- Core Lightning → 26.06.1 (corrige l’échec d’enregistrement du plugin bwatch)
-
-**Corrections**
-
-- gRPC est désormais accessible par les autres services de ce serveur, corrigeant les connexions depuis des applications comme Alby Hub`,
+- CLNrest est de nouveau accessible : le changement de certificats de la version précédente avait cassé toutes les connexions CLNrest via StartOS (LAN et Tor)
+- CLNrest sert désormais du HTTP en clair, afin que les services onion Tor puissent l'exposer sans TLS — rétablissant les connexions Zeus via Tor. L'accès LAN/clearnet reste en HTTPS via StartOS
+- Les URL CLNrest utilisent désormais les schémas \`clnrest+http://\` / \`clnrest+https://\` pour que les portefeuilles comme Zeus se connectent avec le bon protocole
+- gRPC est désormais transmis par StartOS sans modification, afin que le certificat TLS mutuel natif de cln-grpc soit utilisé de bout en bout — corrigeant les connexions gRPC depuis des applications comme Alby Hub`,
   },
   migrations: {
     up: async ({ effects }) => {

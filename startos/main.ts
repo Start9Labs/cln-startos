@@ -182,6 +182,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
           LIGHTNING_VARS_FILE: `${rootDir}/.commando-env`,
           LIGHTNING_WS_PORT: String(wsPort),
           LIGHTNING_REST_PORT: String(clnrestPort),
+          // clnrest runs plaintext (clnrest-protocol=http); the app defaults
+          // this to https and would otherwise look for TLS certs.
+          LIGHTNING_REST_PROTOCOL: 'http',
           LIGHTNING_GRPC_PORT: String(grpcPort),
         },
       },

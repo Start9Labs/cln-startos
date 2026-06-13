@@ -82,12 +82,16 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // gRPC
   const grpcMulti = sdk.MultiHost.of(effects, 'grpc')
-  // cln-grpc terminates its own (mutual) TLS, so StartOS must pass the port
-  // through rather than add its own SSL layer (which would strip the client
-  // cert). protocol 'https' with no addSsl = passthrough.
+  // cln-grpc terminates its own mutual TLS, so StartOS must pass the port
+  // through untouched rather than terminate at the edge (which would present
+  // the device cert and strip the client cert). protocol/addSsl null +
+  // secure.ssl routes raw TCP / SNI passthrough; protocol 'https' does NOT —
+  // the SDK still synthesizes an addSsl config for it, terminating the TLS.
   const grpcMultiOrigin = await grpcMulti.bindPort(grpcPort, {
-    protocol: 'https',
+    protocol: null,
+    addSsl: null,
     preferredExternalPort: grpcPort,
+    secure: { ssl: true },
   })
   const grpc = sdk.createInterface(effects, {
     name: i18n('grpc'),
@@ -115,14 +119,16 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   // clnrest
   if (conf?.clnrest) {
     const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest')
+    // clnrest is forced to plaintext (clnrest-protocol=http in the config) so
+    // that a plain-HTTP endpoint exists for Tor onion services — Tor already
+    // encrypts, and wallets like Zeus can't validate StartOS-issued certs.
+    // LAN/clearnet still gets HTTPS via the StartOS-terminated SSL listener.
     const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
-      protocol: 'https',
+      protocol: 'http',
       preferredExternalPort: clnrestPort,
       addSsl: {
-        alpn: null,
         preferredExternalPort: clnrestPort,
         addXForwardedHeaders: false,
-        auth: null,
       },
     })
 
@@ -143,7 +149,10 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
         ),
         type: 'api',
         masked: false,
-        schemeOverride: { ssl: 'clnrest', noSsl: 'clnrest' },
+        // Zeus's clnrest parser reads the transport protocol from the scheme:
+        // clnrest+https:// / clnrest+http://. A bare clnrest:// is treated as
+        // https, so the http (Tor) URL must carry the +http marker.
+        schemeOverride: { ssl: 'clnrest+https', noSsl: 'clnrest+http' },
         username: null,
         path: '',
         query: { rune: rune ? rune : 'Error parsing Rune' },
