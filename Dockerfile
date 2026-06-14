@@ -33,7 +33,7 @@ RUN autoreconf -i && \
 # sling - download prebuilt binary
 FROM base AS sling
 ARG TARGETARCH
-ARG SLING_VERSION=v4.2.1
+ARG SLING_VERSION=v4.3.0
 RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/* && \
     if [ "$TARGETARCH" = "amd64" ]; then SLING_ARCH=x86_64; else SLING_ARCH=aarch64; fi && \
     curl -fSL "https://github.com/daywalker90/sling/releases/download/${SLING_VERSION}/sling-${SLING_VERSION}-${SLING_ARCH}-linux-gnu.tar.gz" \
