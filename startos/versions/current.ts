@@ -4,13 +4,13 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
-  version: '26.6.1:2',
+  version: '26.6.2:0',
   releaseNotes: {
-    en_US: `Updated the Sling rebalancing plugin to 4.3.0 — it now reads BLIP-18 inbound fees from the gossip store and uses them to improve rebalance routing. Full notes: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
-    es_ES: `Se actualizó el plugin de reequilibrio Sling a 4.3.0 — ahora lee las tarifas de entrada BLIP-18 del almacén de gossip y las usa para mejorar el enrutamiento del reequilibrio. Notas completas: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
-    de_DE: `Das Sling-Rebalancing-Plugin wurde auf 4.3.0 aktualisiert — es liest jetzt BLIP-18-Inbound-Gebühren aus dem Gossip-Store und nutzt sie, um das Rebalancing-Routing zu verbessern. Vollständige Hinweise: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
-    pl_PL: `Zaktualizowano wtyczkę równoważącą Sling do 4.3.0 — odczytuje teraz opłaty przychodzące BLIP-18 z magazynu gossip i wykorzystuje je do poprawy trasowania równoważenia. Pełne informacje: https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
-    fr_FR: `Le plugin de rééquilibrage Sling a été mis à jour vers 4.3.0 — il lit désormais les frais entrants BLIP-18 depuis le magasin de gossip et les utilise pour améliorer le routage du rééquilibrage. Notes complètes : https://github.com/daywalker90/sling/releases/tag/v4.3.0`,
+    en_US: `Updated Core Lightning to 26.06.2. A small point release that bundles root TLS certificates so the cln-currencyrate plugin works on minimal images that ship without them; no other functional changes. Full notes: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    es_ES: `Se actualizó Core Lightning a 26.06.2. Una pequeña versión correctiva que incluye los certificados raíz TLS para que el plugin cln-currencyrate funcione en imágenes mínimas que no los incluyen; sin otros cambios funcionales. Notas completas: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    de_DE: `Core Lightning wurde auf 26.06.2 aktualisiert. Eine kleine Wartungsversion, die Root-TLS-Zertifikate bündelt, damit das Plugin cln-currencyrate auf minimalen Images ohne diese Zertifikate funktioniert; keine weiteren funktionalen Änderungen. Vollständige Hinweise: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    pl_PL: `Zaktualizowano Core Lightning do 26.06.2. Niewielka wersja poprawkowa dołączająca główne certyfikaty TLS, dzięki czemu wtyczka cln-currencyrate działa na minimalnych obrazach, które ich nie zawierają; brak innych zmian funkcjonalnych. Pełne informacje: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    fr_FR: `Core Lightning a été mis à jour vers 26.06.2. Une petite version corrective qui intègre les certificats racine TLS afin que le plugin cln-currencyrate fonctionne sur les images minimales qui en sont dépourvues ; aucun autre changement fonctionnel. Notes complètes : https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
   },
   migrations: {
     up: async ({ effects }) => {
