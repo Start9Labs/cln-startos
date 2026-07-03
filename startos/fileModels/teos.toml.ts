@@ -11,8 +11,8 @@ const shape = z.object({
   rpc_port: z.literal(8814).catch(8814),
 
   btc_network: z.literal('mainnet').catch('mainnet'),
-  btc_rpc_connect: z.literal('bitcoind.startos').catch('bitcoind.startos'),
-  btc_rpc_port: z.literal(8332).catch(8332),
+  btc_rpc_connect: z.string().catch('bitcoind.startos'),
+  btc_rpc_port: z.number().catch(8332),
   btc_rpc_cookie: z
     .literal(`${bitcoinDataDir}/.cookie`)
     .catch(`${bitcoinDataDir}/.cookie`),

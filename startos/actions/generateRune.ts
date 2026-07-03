@@ -53,7 +53,7 @@ export const createRune = sdk.Action.withoutInput(
     return {
       version: '1',
       title: i18n('Failed to Create Rune'),
-      message: `Error: ${runeRes.stderr}`,
+      message: `Error: ${String(runeRes.stderr)}`,
       result: null,
     }
   },

@@ -14,6 +14,11 @@ import {
 } from './utils'
 import { FileHelper } from '@start9labs/start-sdk'
 
+// Host ids (the `sdk.MultiHost.of` groups) for the hosts we look up via
+// `sdk.host.getOwn`; distinct from the interface ids exported on them.
+export const peerHostId = 'peer'
+export const watchtowerHostId = 'watchtower'
+
 export const peerInterfaceId = 'peer'
 export const teosInterfaceId = 'watchtower'
 
@@ -59,7 +64,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   receipts.push(rpcReceipt)
 
   // Peer
-  const peerMulti = sdk.MultiHost.of(effects, 'peer')
+  const peerMulti = sdk.MultiHost.of(effects, peerHostId)
   const peerMultiOrigin = await peerMulti.bindPort(peerPort, {
     protocol: null,
     addSsl: null,
@@ -192,7 +197,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // watchtower
   if (watchtowerServerEnabled) {
-    const watchtowerMulti = sdk.MultiHost.of(effects, 'watchtower')
+    const watchtowerMulti = sdk.MultiHost.of(effects, watchtowerHostId)
     const watchtowerMultiOrigin = await watchtowerMulti.bindPort(
       watchtowerPort,
       {

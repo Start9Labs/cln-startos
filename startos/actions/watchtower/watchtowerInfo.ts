@@ -1,6 +1,6 @@
-import { ActionResultMember } from '@start9labs/start-sdk/base/lib/osBindings'
+import { T } from '@start9labs/start-sdk'
 import { storeJson } from '../../fileModels/store.json'
-import { teosInterfaceId } from '../../interfaces'
+import { teosInterfaceId, watchtowerHostId } from '../../interfaces'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
 import { mainMounts, rootDir } from '../../utils'
@@ -52,11 +52,18 @@ export const watchtowerInfo = sdk.Action.withoutInput(
 
     if (res.exitCode === 0) {
       const towerInfo: GetTowerInfo = JSON.parse(res.stdout as string)
-      const watchtowerAddresses = (
-        await sdk.serviceInterface.getOwn(effects, teosInterfaceId).const()
-      )?.addressInfo?.public.format()
+      const watchtowerAddresses = await sdk.host
+        .getOwn(effects, watchtowerHostId, (host) => {
+          const iface =
+            host &&
+            Object.values(host.bindings)
+              .flatMap((b) => Object.values(b.interfaces))
+              .find((i) => i.id === teosInterfaceId)
+          return iface ? iface.addressInfo.public.format() : undefined
+        })
+        .const()
 
-      const watchtowerUrls: ActionResultMember[] =
+      const watchtowerUrls: T.ActionResultMember[] =
         watchtowerAddresses?.map((tower, idx) => {
           return {
             name: `Tower #${idx + 1}`,
@@ -133,7 +140,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
     return {
       version: '1',
       title: i18n('Failure'),
-      message: `Error running 'gettowerinfo': ${res.stderr}`,
+      message: `Error running 'gettowerinfo': ${String(res.stderr)}`,
       result: null,
     }
   },

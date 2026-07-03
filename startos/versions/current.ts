@@ -7,21 +7,11 @@ import { storeJson } from '../fileModels/store.json'
 export const current = VersionInfo.of({
   version: '26.6.1:2',
   releaseNotes: {
-    en_US: `**Fixes**
-
-- The Synced health check now reports the real error from lightningd when \`getinfo\` fails, instead of failing with "Unexpected end of JSON input"`,
-    es_ES: `**Correcciones**
-
-- La comprobación de salud «Synced» ahora informa del error real de lightningd cuando \`getinfo\` falla, en lugar de fallar con «Unexpected end of JSON input»`,
-    de_DE: `**Fehlerbehebungen**
-
-- Die Gesundheitsprüfung „Synced" meldet jetzt den tatsächlichen Fehler von lightningd, wenn \`getinfo\` fehlschlägt, statt mit „Unexpected end of JSON input" zu scheitern`,
-    pl_PL: `**Poprawki**
-
-- Kontrola stanu „Synced" zgłasza teraz rzeczywisty błąd lightningd, gdy \`getinfo\` się nie powiedzie, zamiast kończyć się błędem „Unexpected end of JSON input"`,
-    fr_FR: `**Corrections**
-
-- Le contrôle de santé « Synced » signale désormais l'erreur réelle de lightningd lorsque \`getinfo\` échoue, au lieu d'échouer avec « Unexpected end of JSON input »`,
+    en_US: 'Internal updates (start-sdk 2.0.x)',
+    es_ES: 'Actualizaciones internas (start-sdk 2.0.x)',
+    de_DE: 'Interne Aktualisierungen (start-sdk 2.0.x)',
+    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 2.0.x)',
+    fr_FR: 'Mises à jour internes (start-sdk 2.0.x)',
   },
   migrations: {
     up: async ({ effects }) => {

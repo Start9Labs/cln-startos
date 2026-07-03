@@ -8,6 +8,7 @@ import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
   bitcoinDataDir,
+  bitcoindRpcBridge,
   clnrestPort,
   grpcPort,
   mainMounts,
@@ -26,6 +27,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   // watch cln config for changes
   await clnConfig.read().const(effects)
+
+  // bitcoind's RPC over the bridge, for the sync-progress bitcoin-cli below.
+  const bitcoind = await bitcoindRpcBridge(effects)
 
   // get store.json but don't watch for changes
   const store = await storeJson.read().once()
@@ -60,7 +64,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
    * Each daemon defines its own health check, which can optionally be exposed to the user.
    */
 
-  const lightningSub = await sdk.SubContainer.of(
+  const lightningSub = sdk.SubContainer.of(
     effects,
     { imageId: 'lightning' },
     mainMounts.mountDependency<typeof bitcoinManifest>({
@@ -74,7 +78,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   )
 
   // Restart if Bitcoin .cookie changes
-  await FileHelper.string(`${lightningSub.rootfs}/mnt/bitcoin/.cookie`)
+  await FileHelper.string(`${await lightningSub.rootfs}/mnt/bitcoin/.cookie`)
     .read()
     .const(effects)
 
@@ -115,13 +119,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
       subcontainer: lightningSub,
       exec: {
         fn: async (subcontainer) => {
-          const commandoEnv = `${lightningSub.rootfs}${rootDir}/.commando-env`
+          const commandoEnv = `${await lightningSub.rootfs}${rootDir}/.commando-env`
           const cliBase = ['lightning-cli', `--lightning-dir=${rootDir}`]
 
           // Get current pubkey
           const getinfoRes = await subcontainer.exec([...cliBase, 'getinfo'])
           if (getinfoRes.exitCode !== 0) {
-            throw new Error(`getinfo failed: ${getinfoRes.stderr}`)
+            throw new Error(`getinfo failed: ${String(getinfoRes.stderr)}`)
           }
           const { id: pubkey } = JSON.parse(getinfoRes.stdout as string)
 
@@ -146,7 +150,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
             '[["For Application#"]]',
           ])
           if (runeRes.exitCode !== 0) {
-            throw new Error(`createrune failed: ${runeRes.stderr}`)
+            throw new Error(`createrune failed: ${String(runeRes.stderr)}`)
           }
           const { rune } = JSON.parse(runeRes.stdout as string)
 
@@ -161,7 +165,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       requires: ['lightningd'],
     })
     .addDaemon('cln-application', {
-      subcontainer: await sdk.SubContainer.of(
+      subcontainer: sdk.SubContainer.of(
         effects,
         {
           imageId: 'ui',
@@ -246,7 +250,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
           } else if (warning_lightningd_sync) {
             const bitcoinGetblockcount = await lightningSub.exec([
               'bitcoin-cli',
-              '--rpcconnect=bitcoind.startos',
+              `--rpcconnect=${bitcoind?.host ?? 'bitcoind.startos'}`,
+              `--rpcport=${bitcoind?.port ?? 8332}`,
               '--rpccookiefile=/mnt/bitcoin/.cookie',
               'getblockcount',
             ])
@@ -259,7 +264,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               }
             }
             return {
-              message: `Catching up to blocks from bitcoind. This may take several hours. Progress: ${blockheight} of ${bitcoinGetblockcount.stdout}`,
+              message: `Catching up to blocks from bitcoind. This may take several hours. Progress: ${blockheight} of ${String(bitcoinGetblockcount.stdout)}`,
               result: 'loading',
             }
           }
@@ -379,7 +384,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
                 ) {
                   console.log(`Result adding tower ${tower}: ${res.stdout}`)
                 } else {
-                  console.log(`Error adding tower ${tower}: ${res.stderr}`)
+                  console.log(`Error adding tower ${tower}: ${String(res.stderr)}`)
                 }
               }
             }
@@ -431,7 +436,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
                 ) {
                   console.log(`Result adding tower ${tower}: ${res.stdout}`)
                 } else {
-                  console.log(`Error adding tower ${tower}: ${res.stderr}`)
+                  console.log(`Error adding tower ${tower}: ${String(res.stderr)}`)
                 }
               }
             }
@@ -444,6 +449,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
           return null
         },
       },
-      requires: ['lightningd', 'watchtower-server'],
+      // Client-side tower cleanup: runs after watchtower-client (both unconditional)
+      // to remove towers no longer in the store. Does NOT need the conditional
+      // watchtower *server* (teosd) — requiring it broke the chain when the
+      // server was disabled (SDK 2.0's Daemons.build enforces requires-ordering).
+      requires: ['lightningd', 'watchtower-client'],
     })
 })

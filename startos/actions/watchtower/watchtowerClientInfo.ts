@@ -1,4 +1,4 @@
-import { ActionResultMember } from '@start9labs/start-sdk/base/lib/osBindings'
+import { T } from '@start9labs/start-sdk'
 import { storeJson } from '../../fileModels/store.json'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
@@ -53,7 +53,7 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
     if (res.exitCode === 0) {
       const towerInfo: ListTowers = JSON.parse(res.stdout as string)
 
-      const towers: ActionResultMember[] =
+      const towers: T.ActionResultMember[] =
         Object.entries(towerInfo).map((tower) => {
           return {
             name: `Watchtower Pubkey #${tower[0]}`,
@@ -124,7 +124,7 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
     return {
       version: '1',
       title: i18n('Failure'),
-      message: `Error running 'listtowers': ${res.stderr}`,
+      message: `Error running 'listtowers': ${String(res.stderr)}`,
       result: null,
     }
   },
