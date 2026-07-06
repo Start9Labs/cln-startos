@@ -32,8 +32,9 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
     })
     .const()
 
-  // bitcoind's RPC over the bridge; loopback placeholder until it resolves so a
-  // null (bitcoind absent) reconfigures rather than latching a stale address.
+  // bitcoind's RPC over the bridge; absent until it resolves. Writing undefined
+  // clears the keys when bitcoind is uninstalled so no stale address latches,
+  // and lightningd fails to connect naturally until the .const() heal fires.
   const bitcoind = await bitcoindRpcBridge(effects)
 
   await clnConfig.merge(
@@ -42,8 +43,8 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
       raw: {
         proxy,
         'announce-addr': peerAddresses,
-        'bitcoin-rpcconnect': bitcoind?.host ?? '127.0.0.1',
-        'bitcoin-rpcport': bitcoind?.port ?? 8332,
+        'bitcoin-rpcconnect': bitcoind?.host,
+        'bitcoin-rpcport': bitcoind?.port,
       },
     },
     { allowWriteAfterConst: true },

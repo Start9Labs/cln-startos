@@ -15,11 +15,12 @@ export const seedFiles = sdk.setupOnInit(async (effects, kind) => {
     await clnConfig.merge(effects, {})
   }
 
-  // teos (watchtower) reaches bitcoind over the bridge too; loopback placeholder
-  // until bitcoind's binding resolves.
+  // teos (watchtower) reaches bitcoind over the bridge too; absent until
+  // bitcoind's binding resolves, so teosd fails to connect naturally rather
+  // than dialing a placeholder.
   const bitcoind = await bitcoindRpcBridge(effects)
   await teosToml.merge(effects, {
-    btc_rpc_connect: bitcoind?.host ?? '127.0.0.1',
-    btc_rpc_port: bitcoind?.port ?? 8332,
+    btc_rpc_connect: bitcoind?.host,
+    btc_rpc_port: bitcoind?.port,
   })
 })

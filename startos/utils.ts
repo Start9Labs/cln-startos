@@ -65,7 +65,8 @@ export function bridgeAddress(
         const port =
           host?.bindings[opts.internalPort]?.net.assignedPort ??
           opts.fallbackPort
-        return port != null ? `${osIp}:${port}` : null
+        if (port == null) return null
+        return `${osIp}:${port}`
       },
     )
   }
@@ -81,7 +82,7 @@ export function bridgeAddress(
  * sync health check consume. `.const()` stays churn-free: bitcoind's assigned
  * RPC port persists across its updates/restarts, so CLN restarts only if
  * bitcoind is (re)installed on a new port. `null` while bitcoind's binding is
- * absent, so callers fall back to the `127.0.0.1` loopback placeholder.
+ * absent, so callers omit the address rather than writing a placeholder.
  */
 export const bitcoindRpcBridge = async (effects: T.Effects) => {
   const addr = await bridgeAddress(effects, {

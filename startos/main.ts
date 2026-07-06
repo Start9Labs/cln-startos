@@ -248,10 +248,17 @@ export const main = sdk.setupMain(async ({ effects }) => {
               result: 'loading',
             }
           } else if (warning_lightningd_sync) {
+            if (!bitcoind) {
+              return {
+                message:
+                  'Lightningd is still loading latest blocks, but bitcoind is not yet reachable over the bridge',
+                result: 'loading',
+              }
+            }
             const bitcoinGetblockcount = await lightningSub.exec([
               'bitcoin-cli',
-              `--rpcconnect=${bitcoind?.host ?? '127.0.0.1'}`,
-              `--rpcport=${bitcoind?.port ?? 8332}`,
+              `--rpcconnect=${bitcoind.host}`,
+              `--rpcport=${bitcoind.port}`,
               '--rpccookiefile=/mnt/bitcoin/.cookie',
               'getblockcount',
             ])
@@ -384,7 +391,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
                 ) {
                   console.log(`Result adding tower ${tower}: ${res.stdout}`)
                 } else {
-                  console.log(`Error adding tower ${tower}: ${String(res.stderr)}`)
+                  console.log(
+                    `Error adding tower ${tower}: ${String(res.stderr)}`,
+                  )
                 }
               }
             }
@@ -436,7 +445,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
                 ) {
                   console.log(`Result adding tower ${tower}: ${res.stdout}`)
                 } else {
-                  console.log(`Error adding tower ${tower}: ${String(res.stderr)}`)
+                  console.log(
+                    `Error adding tower ${tower}: ${String(res.stderr)}`,
+                  )
                 }
               }
             }
