@@ -72,7 +72,7 @@ export const clbossZerobasefees = [
 export const shape = z.object({
   // Enforced by StartOS
   network: z.literal('bitcoin').catch('bitcoin'),
-  'bitcoin-rpcconnect': z.string().catch('bitcoind.startos'),
+  'bitcoin-rpcconnect': z.string().catch('127.0.0.1'),
   'bitcoin-rpcport': z.number().catch(8332),
   'bitcoin-datadir': z.literal(bitcoinDataDir).catch(bitcoinDataDir),
   'bind-addr': z
@@ -357,9 +357,9 @@ function formToFile(
     // Enforced
     network: 'bitcoin' as const,
     // bitcoin-rpcconnect / bitcoin-rpcport come from `raw` (set to bitcoind's
-    // bridge address by watchHosts), preserved across config-action writes
-    // instead of being re-pinned to bitcoind.startos.
-    'bitcoin-rpcconnect': raw?.['bitcoin-rpcconnect'] ?? 'bitcoind.startos',
+    // bridge address by watchHosts), preserved across config-action writes;
+    // the 127.0.0.1 loopback is only a placeholder until watchHosts resolves.
+    'bitcoin-rpcconnect': raw?.['bitcoin-rpcconnect'] ?? '127.0.0.1',
     'bitcoin-rpcport': raw?.['bitcoin-rpcport'] ?? 8332,
     'bitcoin-datadir': bitcoinDataDir,
     'bitcoin-rpcuser': undefined,

@@ -91,8 +91,8 @@ Settings **not** managed by StartOS (hardcoded):
 | Setting              | Value              | Reason                     |
 | -------------------- | ------------------ | -------------------------- |
 | `network`            | `bitcoin`          | Only mainnet supported     |
-| `bitcoin-rpcconnect` | `bitcoind.startos` | StartOS service networking |
-| `bitcoin-rpcport`    | `8332`             | StartOS service networking |
+| `bitcoin-rpcconnect` | bitcoind bridge address | Resolved to bitcoind's RPC over the LXC bridge |
+| `bitcoin-rpcport`    | `8332`             | bitcoind's RPC port over the bridge |
 | `bitcoin-datadir`    | `/mnt/bitcoin`     | Mounted dependency volume  |
 | `clnrest-port`       | `3010`             | Fixed internal port        |
 | `clnrest-protocol`   | `http`             | Plain HTTP inside the container; Tor onions serve it directly (Tor already encrypts) and StartOS adds SSL for LAN/clearnet |

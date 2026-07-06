@@ -250,7 +250,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           } else if (warning_lightningd_sync) {
             const bitcoinGetblockcount = await lightningSub.exec([
               'bitcoin-cli',
-              `--rpcconnect=${bitcoind?.host ?? 'bitcoind.startos'}`,
+              `--rpcconnect=${bitcoind?.host ?? '127.0.0.1'}`,
               `--rpcport=${bitcoind?.port ?? 8332}`,
               '--rpccookiefile=/mnt/bitcoin/.cookie',
               'getblockcount',

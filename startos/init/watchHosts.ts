@@ -1,10 +1,21 @@
+import { socksHostId, socksPort } from 'tor-startos/startos/utils'
 import { clnConfig } from '../fileModels/config'
 import { peerHostId, peerInterfaceId } from '../interfaces'
 import { sdk } from '../sdk'
-import { bitcoindRpcBridge } from '../utils'
+import { bitcoindRpcBridge, bridgeAddress } from '../utils'
 
 export const watchHosts = sdk.setupOnInit(async (effects, _) => {
-  const torIp = await sdk.getContainerIp(effects, { packageId: 'tor' }).const()
+  // Tor SOCKS over the bridge. With the 9050 fallback the mapped value is a
+  // constant, non-null `<osIp>:9050` across tor install/update/uninstall, so
+  // lightningd's `proxy` is always set and this never restarts CLN on tor
+  // churn. A dead bridge address is just connection-refused; `always-use-proxy`
+  // is unset by default, so clearnet peers still connect when tor is absent.
+  const proxy = await bridgeAddress(effects, {
+    packageId: 'tor',
+    hostId: socksHostId,
+    internalPort: socksPort,
+    fallbackPort: socksPort,
+  }).const()
 
   const peerAddresses = await sdk.host
     .getOwn(effects, peerHostId, (host) => {
@@ -21,19 +32,18 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
     })
     .const()
 
-  // bitcoind's RPC over the bridge (replaces the enforced bitcoind.startos:8332).
+  // bitcoind's RPC over the bridge; loopback placeholder until it resolves so a
+  // null (bitcoind absent) reconfigures rather than latching a stale address.
   const bitcoind = await bitcoindRpcBridge(effects)
 
   await clnConfig.merge(
     effects,
     {
       raw: {
-        proxy: torIp ? `${torIp}:9050` : undefined,
+        proxy,
         'announce-addr': peerAddresses,
-        ...(bitcoind && {
-          'bitcoin-rpcconnect': bitcoind.host,
-          'bitcoin-rpcport': bitcoind.port,
-        }),
+        'bitcoin-rpcconnect': bitcoind?.host ?? '127.0.0.1',
+        'bitcoin-rpcport': bitcoind?.port ?? 8332,
       },
     },
     { allowWriteAfterConst: true },
