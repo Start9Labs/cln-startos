@@ -208,15 +208,35 @@ export const main = sdk.setupMain(async ({ effects }) => {
             'getinfo',
           ])
 
+          // Check the exit code before parsing: when lightningd's RPC is not
+          // answering, lightning-cli exits non-zero with empty stdout, and
+          // JSON.parse('') would fail the check with the unhelpful
+          // "Unexpected end of JSON input" instead of the real error.
+          if (getinfoRes.exitCode !== 0) {
+            return {
+              result: 'failure',
+              message: `Error calling 'lightning-cli getinfo': ${getinfoRes.stderr}`,
+            }
+          }
+
+          let getinfo: {
+            warning_lightningd_sync?: string
+            warning_bitcoind_sync?: string
+            blockheight: number
+          }
+          try {
+            getinfo = JSON.parse(getinfoRes.stdout as string)
+          } catch {
+            return {
+              result: 'failure',
+              message: `'lightning-cli getinfo' returned unparseable output: ${getinfoRes.stdout}`,
+            }
+          }
           const {
             warning_lightningd_sync,
             warning_bitcoind_sync,
             blockheight,
-          }: {
-            warning_lightningd_sync?: string
-            warning_bitcoind_sync?: string
-            blockheight: number
-          } = JSON.parse(getinfoRes.stdout as string)
+          } = getinfo
 
           if (warning_bitcoind_sync) {
             return {
@@ -244,18 +264,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
             }
           }
 
-          if (getinfoRes.exitCode === 0) {
-            return {
-              result: 'success',
-              message: i18n(
-                'Synced to chain and ready to perform on-chain operations',
-              ),
-            }
-          }
-
           return {
-            result: 'failure',
-            message: `Error calling 'lightning-cli getinfo': ${getinfoRes.stderr}`,
+            result: 'success',
+            message: i18n(
+              'Synced to chain and ready to perform on-chain operations',
+            ),
           }
         },
       },
