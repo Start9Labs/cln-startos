@@ -1,58 +1,72 @@
 import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
+import { X509Certificate } from 'crypto'
 import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
-  version: '26.6.1:1',
+  version: '26.6.1:2',
   releaseNotes: {
     en_US: `**Fixes**
 
-- CLNrest is reachable again: the previous release's certificate change broke all CLNrest connections through StartOS (LAN and Tor)
-- CLNrest now serves plain HTTP, so Tor onion services can expose it without TLS — restoring Zeus-over-Tor connections. LAN/clearnet access remains HTTPS via StartOS
-- CLNrest URLs now use the \`clnrest+http://\` / \`clnrest+https://\` schemes so wallets like Zeus connect with the correct protocol
-- gRPC now passes through StartOS untouched so cln-grpc's native mutual-TLS certificate is used end-to-end, fixing gRPC connections from apps like Alby Hub`,
+- The Synced health check now reports the real error from lightningd when \`getinfo\` fails, instead of failing with "Unexpected end of JSON input"`,
     es_ES: `**Correcciones**
 
-- CLNrest vuelve a ser accesible: el cambio de certificados de la versión anterior rompió todas las conexiones CLNrest a través de StartOS (LAN y Tor)
-- CLNrest ahora sirve HTTP plano, de modo que los servicios onion de Tor pueden exponerlo sin TLS — restaurando las conexiones de Zeus por Tor. El acceso LAN/clearnet sigue siendo HTTPS a través de StartOS
-- Las URL de CLNrest ahora usan los esquemas \`clnrest+http://\` / \`clnrest+https://\` para que carteras como Zeus se conecten con el protocolo correcto
-- gRPC ahora pasa a través de StartOS sin modificaciones, de modo que el certificado TLS mutuo nativo de cln-grpc se usa de extremo a extremo, corrigiendo las conexiones gRPC desde aplicaciones como Alby Hub`,
+- La comprobación de salud «Synced» ahora informa del error real de lightningd cuando \`getinfo\` falla, en lugar de fallar con «Unexpected end of JSON input»`,
     de_DE: `**Fehlerbehebungen**
 
-- CLNrest ist wieder erreichbar: die Zertifikatsänderung der vorherigen Version hat alle CLNrest-Verbindungen über StartOS unterbrochen (LAN und Tor)
-- CLNrest liefert jetzt einfaches HTTP, sodass Tor-Onion-Dienste es ohne TLS bereitstellen können — Zeus-über-Tor-Verbindungen funktionieren wieder. LAN-/Clearnet-Zugriff bleibt HTTPS über StartOS
-- CLNrest-URLs verwenden jetzt die Schemata \`clnrest+http://\` / \`clnrest+https://\`, damit Wallets wie Zeus sich mit dem richtigen Protokoll verbinden
-- gRPC wird jetzt unverändert durch StartOS durchgereicht, sodass das native gegenseitige TLS-Zertifikat von cln-grpc durchgängig verwendet wird — das behebt gRPC-Verbindungen von Apps wie Alby Hub`,
+- Die Gesundheitsprüfung „Synced" meldet jetzt den tatsächlichen Fehler von lightningd, wenn \`getinfo\` fehlschlägt, statt mit „Unexpected end of JSON input" zu scheitern`,
     pl_PL: `**Poprawki**
 
-- CLNrest jest znów osiągalny: zmiana certyfikatów w poprzednim wydaniu zepsuła wszystkie połączenia CLNrest przez StartOS (LAN i Tor)
-- CLNrest serwuje teraz czysty HTTP, dzięki czemu usługi onion Tora mogą go udostępniać bez TLS — przywracając połączenia Zeus przez Tor. Dostęp LAN/clearnet pozostaje HTTPS przez StartOS
-- Adresy URL CLNrest używają teraz schematów \`clnrest+http://\` / \`clnrest+https://\`, dzięki czemu portfele takie jak Zeus łączą się właściwym protokołem
-- gRPC jest teraz przekazywane przez StartOS bez zmian, dzięki czemu natywny wzajemny certyfikat TLS cln-grpc jest używany od końca do końca, co naprawia połączenia gRPC z aplikacji takich jak Alby Hub`,
+- Kontrola stanu „Synced" zgłasza teraz rzeczywisty błąd lightningd, gdy \`getinfo\` się nie powiedzie, zamiast kończyć się błędem „Unexpected end of JSON input"`,
     fr_FR: `**Corrections**
 
-- CLNrest est de nouveau accessible : le changement de certificats de la version précédente avait cassé toutes les connexions CLNrest via StartOS (LAN et Tor)
-- CLNrest sert désormais du HTTP en clair, afin que les services onion Tor puissent l'exposer sans TLS — rétablissant les connexions Zeus via Tor. L'accès LAN/clearnet reste en HTTPS via StartOS
-- Les URL CLNrest utilisent désormais les schémas \`clnrest+http://\` / \`clnrest+https://\` pour que les portefeuilles comme Zeus se connectent avec le bon protocole
-- gRPC est désormais transmis par StartOS sans modification, afin que le certificat TLS mutuel natif de cln-grpc soit utilisé de bout en bout — corrigeant les connexions gRPC depuis des applications comme Alby Hub`,
+- Le contrôle de santé « Synced » signale désormais l'erreur réelle de lightningd lorsque \`getinfo\` échoue, au lieu d'échouer avec « Unexpected end of JSON input »`,
   },
   migrations: {
     up: async ({ effects }) => {
-      // Remove the legacy StartOS-issued gRPC certs (older versions wrote certs
-      // for c-lightning.startos here) so cln-grpc regenerates its native "cln"
-      // certs, which is the TLS identity gRPC clients like Alby Hub expect.
+      // Reset the legacy StartOS-issued gRPC certs so cln-grpc regenerates its
+      // native "cln" certs — the TLS identity clients like Alby Hub expect. The
+      // since-removed setupCerts init (0.4.0-beta releases 25.12.1:x … 26.6:0)
+      // overwrote cln-grpc's certs with StartOS-issued ones bearing a
+      // `c-lightning.startos` SAN; we key on that SAN so the reset is idempotent
+      // and safe to run on every update — native certs (already-fixed installs,
+      // and installs predating setupCerts such as 0.3.5.1) are left untouched, so
+      // it never deletes a live identity or breaks an existing pairing.
+      //
+      // TODO: delete this block once 0.4.0 is out of beta. The only installs that
+      // carry these certs are from the beta setupCerts era; by GA they will all
+      // have migrated through a reset and the SAN guard will match nothing.
       const grpcCertDir = '/media/startos/volumes/main/bitcoin'
-      await Promise.all(
-        [
-          'ca.pem',
-          'ca-key.pem',
-          'server.pem',
-          'server-key.pem',
-          'client.pem',
-          'client-key.pem',
-        ].map((file) => rm(`${grpcCertDir}/${file}`, { force: true })),
-      )
+      const serverCert = await readFile(
+        `${grpcCertDir}/server.pem`,
+        'utf-8',
+      ).catch(() => null)
+      const certBlocks =
+        serverCert?.match(
+          /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g,
+        ) ?? []
+      const startOsIssued = certBlocks.some((pem) => {
+        try {
+          return !!new X509Certificate(pem).subjectAltName?.includes(
+            'c-lightning.startos',
+          )
+        } catch {
+          return false
+        }
+      })
+      if (startOsIssued) {
+        await Promise.all(
+          [
+            'ca.pem',
+            'ca-key.pem',
+            'server.pem',
+            'server-key.pem',
+            'client.pem',
+            'client-key.pem',
+          ].map((file) => rm(`${grpcCertDir}/${file}`, { force: true })),
+        )
+      }
 
       // get old config.yaml
       const configYaml:
