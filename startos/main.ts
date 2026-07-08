@@ -219,7 +219,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           if (getinfoRes.exitCode !== 0) {
             return {
               result: 'failure',
-              message: `Error calling 'lightning-cli getinfo': ${getinfoRes.stderr}`,
+              message: `Error calling 'lightning-cli getinfo': ${String(getinfoRes.stderr)}`,
             }
           }
 
@@ -233,7 +233,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           } catch {
             return {
               result: 'failure',
-              message: `'lightning-cli getinfo' returned unparseable output: ${getinfoRes.stdout}`,
+              message: `'lightning-cli getinfo' returned unparseable output: ${String(getinfoRes.stdout)}`,
             }
           }
           const {
