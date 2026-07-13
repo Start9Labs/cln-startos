@@ -5,13 +5,38 @@ import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
 export const current = VersionInfo.of({
-  version: '26.6.1:3',
+  version: '26.6.2:0',
   releaseNotes: {
-    en_US: 'Internal updates (start-sdk 2.0.x)',
-    es_ES: 'Actualizaciones internas (start-sdk 2.0.x)',
-    de_DE: 'Interne Aktualisierungen (start-sdk 2.0.x)',
-    pl_PL: 'Aktualizacje wewnętrzne (start-sdk 2.0.x)',
-    fr_FR: 'Mises à jour internes (start-sdk 2.0.x)',
+    en_US: `Updated Core Lightning to 26.06.2.
+
+- Fixes the currency-rate plugin on minimal systems by including root certificates, so it can make TLS requests.
+- Updates the Sling rebalancing plugin to 4.3.0, which reads BLIP-18 inbound fees from the gossip store and uses them when planning rebalances.
+
+Core Lightning release notes: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    es_ES: `Se actualizó Core Lightning a 26.06.2.
+
+- Corrige el complemento de tipos de cambio en sistemas mínimos al incluir los certificados raíz, de modo que pueda realizar solicitudes TLS.
+- Actualiza el complemento de reequilibrio Sling a 4.3.0, que lee las tarifas entrantes BLIP-18 del almacén de gossip y las utiliza al planificar los reequilibrios.
+
+Notas de la versión de Core Lightning: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    de_DE: `Core Lightning wurde auf 26.06.2 aktualisiert.
+
+- Behebt das Wechselkurs-Plugin auf minimalen Systemen, indem Stammzertifikate eingebunden werden, sodass es TLS-Anfragen stellen kann.
+- Aktualisiert das Rebalancing-Plugin Sling auf 4.3.0, das eingehende BLIP-18-Gebühren aus dem Gossip-Speicher liest und sie bei der Planung von Rebalancings berücksichtigt.
+
+Core-Lightning-Versionshinweise: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    pl_PL: `Zaktualizowano Core Lightning do wersji 26.06.2.
+
+- Naprawia wtyczkę kursów walut na systemach minimalnych, dołączając certyfikaty główne, dzięki czemu może wykonywać żądania TLS.
+- Aktualizuje wtyczkę równoważącą Sling do wersji 4.3.0, która odczytuje przychodzące opłaty BLIP-18 z magazynu gossip i wykorzystuje je przy planowaniu równoważenia.
+
+Informacje o wydaniu Core Lightning: https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
+    fr_FR: `Core Lightning a été mis à jour vers 26.06.2.
+
+- Corrige le plugin de taux de change sur les systèmes minimaux en y incluant les certificats racine, afin qu'il puisse effectuer des requêtes TLS.
+- Met à jour le plugin de rééquilibrage Sling vers 4.3.0, qui lit les frais entrants BLIP-18 depuis le stockage gossip et les utilise lors de la planification des rééquilibrages.
+
+Notes de version de Core Lightning : https://github.com/ElementsProject/lightning/releases/tag/v26.06.2`,
   },
   migrations: {
     up: async ({ effects }) => {
