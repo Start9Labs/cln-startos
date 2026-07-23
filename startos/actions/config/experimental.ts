@@ -1,12 +1,9 @@
 import { z } from '@start9labs/start-sdk'
-import {
-  InputSpec,
-  Value,
-  Variants,
-} from '@start9labs/start-sdk/base/lib/actions/input/builder'
 import { clnConfig, fullConfigSpec, shape } from '../../fileModels/config'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
+
+const { InputSpec, Value, Variants } = sdk
 
 const experimentalSpec = fullConfigSpec
   .filter({ 'xpay-handle-pay': true })

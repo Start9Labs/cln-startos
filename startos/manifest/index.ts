@@ -1,12 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import {
-  alertInstall,
-  alertRestore,
-  alertUninstall,
-  depBitcoindDescription,
-  long,
-  short,
-} from './i18n'
+import { depBitcoindDescription, long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'c-lightning',
@@ -36,14 +29,6 @@ export const manifest = setupManifest({
       arch: ['x86_64', 'aarch64'],
       emulateMissingAs: 'aarch64',
     },
-  },
-  alerts: {
-    install: alertInstall,
-    uninstall: alertUninstall,
-    restore: alertRestore,
-    update: null,
-    start: null,
-    stop: null,
   },
   dependencies: {
     bitcoind: {

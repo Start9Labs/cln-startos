@@ -1,25 +1,50 @@
+import { socksHostId, socksPort } from 'tor-startos/startos/utils'
 import { clnConfig } from '../fileModels/config'
-import { peerInterfaceId } from '../interfaces'
+import { peerHostId, peerInterfaceId } from '../interfaces'
 import { sdk } from '../sdk'
+import { bitcoindRpcBridge, bridgeAddress } from '../utils'
 
 export const watchHosts = sdk.setupOnInit(async (effects, _) => {
-  const torIp = await sdk.getContainerIp(effects, { packageId: 'tor' }).const()
+  // Tor SOCKS over the bridge. With the 9050 fallback the mapped value is a
+  // constant, non-null `<osIp>:9050` across tor install/update/uninstall, so
+  // lightningd's `proxy` is always set and this never restarts CLN on tor
+  // churn. A dead bridge address is just connection-refused; `always-use-proxy`
+  // is unset by default, so clearnet peers still connect when tor is absent.
+  const proxy = await bridgeAddress(effects, {
+    packageId: 'tor',
+    hostId: socksHostId,
+    internalPort: socksPort,
+    fallbackPort: socksPort,
+  }).const()
 
-  const peerAddresses =
-    (await sdk.serviceInterface
-      .getOwn(effects, peerInterfaceId, (i) =>
-        i?.addressInfo?.public
-          .filter({ exclude: { kind: 'domain' } })
-          .format(),
-      )
-      .const()) || []
+  const peerAddresses = await sdk.host
+    .getOwn(effects, peerHostId, (host) => {
+      const iface =
+        host &&
+        Object.values(host.bindings)
+          .flatMap((b) => Object.values(b.interfaces))
+          .find((i) => i.id === peerInterfaceId)
+      return iface
+        ? iface.addressInfo.public
+            .filter({ exclude: { kind: 'domain' } })
+            .format()
+        : []
+    })
+    .const()
+
+  // bitcoind's RPC over the bridge; absent until it resolves. Writing undefined
+  // clears the keys when bitcoind is uninstalled so no stale address latches,
+  // and lightningd fails to connect naturally until the .const() heal fires.
+  const bitcoind = await bitcoindRpcBridge(effects)
 
   await clnConfig.merge(
     effects,
     {
       raw: {
-        proxy: torIp ? `${torIp}:9050` : undefined,
+        proxy,
         'announce-addr': peerAddresses,
+        'bitcoin-rpcconnect': bitcoind?.host,
+        'bitcoin-rpcport': bitcoind?.port,
       },
     },
     { allowWriteAfterConst: true },

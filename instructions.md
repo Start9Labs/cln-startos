@@ -11,11 +11,11 @@
 - A **JSON-RPC** interface, a **gRPC** interface, and (when enabled) a **CLNrest** REST interface that publishes a URL containing a pre-generated rune for wallet apps.
 - An optional **Clams Websocket** endpoint for Clams Remote.
 - A bundled set of plugins built into the image: **CLBOSS** (automated channel management), **Sling** (channel rebalancing), and **TEOS** for watchtower client and server functionality.
-- A required dependency on **Bitcoin Core** — install and fully sync Bitcoin Core first; CLN will not start without it.
+- A required dependency on **Bitcoin** — install and fully sync Bitcoin first; CLN will not start without it.
 
 ## Getting set up
 
-1. Install and fully sync **Bitcoin Core** if you haven't already.
+1. Install and fully sync **Bitcoin** if you haven't already.
 2. Start Core Lightning. The wallet is created automatically on first start; no seed phrase setup is required.
 3. Open the **Web UI** interface and set the UI password on first access. Save this password — it is independent of your StartOS credentials.
 4. To connect a wallet app or other client, run the **Create Rune** action to generate an unrestricted rune, or use the rune embedded in the **CLNrest** interface URL.
@@ -54,5 +54,5 @@ StartOS backs up the `main` volume, excluding live database files and the gossip
 ## Limitations
 
 - **Mainnet only.** Testnet, signet, and regtest are not exposed.
-- **Bitcoin authentication is cookie-based.** `bitcoin-rpcuser` and `bitcoin-rpcpassword` are intentionally not configurable; CLN uses the mounted Bitcoin Core cookie file.
+- **Bitcoin authentication is cookie-based.** `bitcoin-rpcuser` and `bitcoin-rpcpassword` are intentionally not configurable; CLN uses the mounted Bitcoin cookie file.
 - **The `config` file is managed through actions.** Manual edits will be overwritten on the next config sync.

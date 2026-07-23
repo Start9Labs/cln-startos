@@ -1,165 +1,33 @@
-import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
-import { readFile, rm } from 'fs/promises'
-import { X509Certificate } from 'crypto'
-import { clnConfig } from '../fileModels/config'
-import { storeJson } from '../fileModels/store.json'
+import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.1:2',
+  version: '26.6.6:0',
   releaseNotes: {
-    en_US: `**Fixes**
+    en_US: `Updated Core Lightning to 26.06.6, rolling up the 26.06.3–26.06.6 maintenance releases (bug fixes and stability improvements).
 
-- The Synced health check now reports the real error from lightningd when \`getinfo\` fails, instead of failing with "Unexpected end of JSON input"`,
-    es_ES: `**Correcciones**
+This release also migrates the package to start-sdk 2.0 (requires StartOS 0.4.0-beta.10 or later).
 
-- La comprobación de salud «Synced» ahora informa del error real de lightningd cuando \`getinfo\` falla, en lugar de fallar con «Unexpected end of JSON input»`,
-    de_DE: `**Fehlerbehebungen**
+Full release notes: https://github.com/ElementsProject/lightning/releases`,
+    es_ES: `Actualiza Core Lightning a 26.06.6, incorporando las versiones de mantenimiento 26.06.3–26.06.6 (correcciones de errores y mejoras de estabilidad).
 
-- Die Gesundheitsprüfung „Synced" meldet jetzt den tatsächlichen Fehler von lightningd, wenn \`getinfo\` fehlschlägt, statt mit „Unexpected end of JSON input" zu scheitern`,
-    pl_PL: `**Poprawki**
+Esta versión también migra el paquete a start-sdk 2.0 (requiere StartOS 0.4.0-beta.10 o posterior).
 
-- Kontrola stanu „Synced" zgłasza teraz rzeczywisty błąd lightningd, gdy \`getinfo\` się nie powiedzie, zamiast kończyć się błędem „Unexpected end of JSON input"`,
-    fr_FR: `**Corrections**
+Notas de la versión completas: https://github.com/ElementsProject/lightning/releases`,
+    de_DE: `Aktualisiert Core Lightning auf 26.06.6 und fasst die Wartungsversionen 26.06.3–26.06.6 zusammen (Fehlerbehebungen und Stabilitätsverbesserungen).
 
-- Le contrôle de santé « Synced » signale désormais l'erreur réelle de lightningd lorsque \`getinfo\` échoue, au lieu d'échouer avec « Unexpected end of JSON input »`,
+Diese Version stellt das Paket außerdem auf start-sdk 2.0 um (erfordert StartOS 0.4.0-beta.10 oder neuer).
+
+Vollständige Versionshinweise: https://github.com/ElementsProject/lightning/releases`,
+    pl_PL: `Aktualizuje Core Lightning do 26.06.6, obejmując wydania konserwacyjne 26.06.3–26.06.6 (poprawki błędów i usprawnienia stabilności).
+
+Ta wersja przenosi też pakiet na start-sdk 2.0 (wymaga StartOS 0.4.0-beta.10 lub nowszego).
+
+Pełne informacje o wydaniu: https://github.com/ElementsProject/lightning/releases`,
+    fr_FR: `Met à jour Core Lightning vers 26.06.6, en intégrant les versions de maintenance 26.06.3 à 26.06.6 (corrections de bogues et améliorations de stabilité).
+
+Cette version fait également passer le paquet à start-sdk 2.0 (nécessite StartOS 0.4.0-beta.10 ou une version ultérieure).
+
+Notes de version complètes : https://github.com/ElementsProject/lightning/releases`,
   },
-  migrations: {
-    up: async ({ effects }) => {
-      // Reset the legacy StartOS-issued gRPC certs so cln-grpc regenerates its
-      // native "cln" certs — the TLS identity clients like Alby Hub expect. The
-      // since-removed setupCerts init (0.4.0-beta releases 25.12.1:x … 26.6:0)
-      // overwrote cln-grpc's certs with StartOS-issued ones bearing a
-      // `c-lightning.startos` SAN; we key on that SAN so the reset is idempotent
-      // and safe to run on every update — native certs (already-fixed installs,
-      // and installs predating setupCerts such as 0.3.5.1) are left untouched, so
-      // it never deletes a live identity or breaks an existing pairing.
-      //
-      // TODO: delete this block once 0.4.0 is out of beta. The only installs that
-      // carry these certs are from the beta setupCerts era; by GA they will all
-      // have migrated through a reset and the SAN guard will match nothing.
-      const grpcCertDir = '/media/startos/volumes/main/bitcoin'
-      const serverCert = await readFile(
-        `${grpcCertDir}/server.pem`,
-        'utf-8',
-      ).catch(() => null)
-      const certBlocks =
-        serverCert?.match(
-          /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g,
-        ) ?? []
-      const startOsIssued = certBlocks.some((pem) => {
-        try {
-          return !!new X509Certificate(pem).subjectAltName?.includes(
-            'c-lightning.startos',
-          )
-        } catch {
-          return false
-        }
-      })
-      if (startOsIssued) {
-        await Promise.all(
-          [
-            'ca.pem',
-            'ca-key.pem',
-            'server.pem',
-            'server-key.pem',
-            'client.pem',
-            'client-key.pem',
-          ].map((file) => rm(`${grpcCertDir}/${file}`, { force: true })),
-        )
-      }
-
-      // get old config.yaml
-      const configYaml:
-        | {
-            watchtowers: {
-              'wt-server': boolean
-              'wt-client':
-                | { enabled: 'disabled' }
-                | { enabled: 'enabled'; 'add-watchtowers': string[] }
-            }
-            advanced: {
-              experimental: {
-                'dual-fund': {
-                  enabled: 'disabled' | 'enabled'
-                }
-                'shutdown-wrong-funding': boolean
-                splicing: boolean
-              }
-              plugins: {
-                clboss:
-                  | {
-                      enabled: 'disabled'
-                    }
-                  | {
-                      enabled: 'enabled'
-                      'min-onchain': number | null
-                      'auto-close': boolean
-                      zerobasefee: 'default' | 'required' | 'allow' | 'disallow'
-                      'min-channel': number | null
-                      'max-channel': number | null
-                    }
-              }
-            }
-          }
-        | undefined = await readFile(
-        '/media/startos/volumes/main/start9/config.yaml',
-        'utf-8',
-      ).then(YAML.parse, () => undefined)
-
-      // Migrate settings from old 0.3.5.1 config.yaml if present.
-      // The old entrypoint wrote config.main -> config on the volume,
-      // so the existing INI config persists and is preserved by merge().
-      if (configYaml) {
-        const watchtowers = configYaml.watchtowers
-        const wtClient = watchtowers?.['wt-client']
-        const experimental = configYaml.advanced?.experimental
-        const clboss = configYaml.advanced?.plugins?.clboss
-
-        await storeJson.merge(effects, {
-          watchtowerServer: watchtowers?.['wt-server'] ?? false,
-          watchtowerClients:
-            wtClient?.enabled === 'enabled' ? wtClient['add-watchtowers'] : [],
-        })
-
-        const configRaw: Record<string, unknown> = {}
-        if (experimental?.['dual-fund']?.enabled === 'enabled') {
-          configRaw['experimental-dual-fund'] = true
-        }
-        if (experimental?.['shutdown-wrong-funding']) {
-          configRaw['experimental-shutdown-wrong-funding'] = true
-        }
-        if (experimental?.splicing) {
-          configRaw['experimental-splicing'] = true
-        }
-        if (clboss?.enabled === 'enabled') {
-          configRaw['clboss-min-onchain'] = clboss['min-onchain'] || undefined
-          configRaw['clboss-auto-close'] = clboss['auto-close'] || undefined
-          configRaw['clboss-zerobasefee'] =
-            clboss.zerobasefee === 'default' ? undefined : clboss.zerobasefee
-          configRaw['clboss-min-channel'] = clboss['min-channel'] || undefined
-          configRaw['clboss-max-channel'] = clboss['max-channel'] || undefined
-        }
-
-        // Clean up c-lightning-REST plugin path from pre-v25.02 configs
-        const existing = await clnConfig.read().once()
-        const plugins = (existing?.raw?.plugin ?? []).filter(
-          (p) =>
-            p !==
-            '/usr/local/libexec/c-lightning/plugins/c-lightning-REST/clrest.js',
-        )
-        configRaw.plugin = plugins.length > 0 ? plugins : undefined
-
-        await clnConfig.merge(effects, { clnrest: true, raw: configRaw })
-      }
-
-      // remove old start9 dir
-      await rm('/media/startos/volumes/main/start9', { recursive: true }).catch(
-        console.error,
-      )
-
-      // remove old config.main leftover
-      await rm('/media/startos/volumes/main/config.main').catch(console.error)
-    },
-    down: IMPOSSIBLE,
-  },
+  migrations: {},
 })

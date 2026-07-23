@@ -1,10 +1,8 @@
-import {
-  InputSpec,
-  Value,
-} from '@start9labs/start-sdk/base/lib/actions/input/builder'
 import { storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
+
+const { InputSpec, Value } = sdk
 
 const rescanBlockchainSpec = InputSpec.of({
   rescan: Value.number({

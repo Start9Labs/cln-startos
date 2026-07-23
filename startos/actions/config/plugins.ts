@@ -1,15 +1,12 @@
 import {
-  InputSpec,
-  Value,
-  Variants,
-} from '@start9labs/start-sdk/base/lib/actions/input/builder'
-import {
   clnConfig,
   clbossZerobasefees,
   fullConfigSpec,
 } from '../../fileModels/config'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
+
+const { InputSpec, Value, Variants } = sdk
 
 const slingPlugin = '/usr/local/libexec/c-lightning/plugins/sling'
 const clbossPlugin = '/usr/local/libexec/c-lightning/plugins/clboss'

@@ -1,6 +1,6 @@
-import { ActionResultMember } from '@start9labs/start-sdk/base/lib/osBindings'
+import { T } from '@start9labs/start-sdk'
 import { i18n } from '../i18n'
-import { peerInterfaceId } from '../interfaces'
+import { peerHostId, peerInterfaceId } from '../interfaces'
 import { sdk } from '../sdk'
 import { mainMounts, rootDir } from '../utils'
 
@@ -38,11 +38,18 @@ export const nodeInfo = sdk.Action.withoutInput(
       },
     )
 
-    const peerAddresses = (
-      await sdk.serviceInterface.getOwn(effects, peerInterfaceId).const()
-    )?.addressInfo?.public.format()
+    const peerAddresses = await sdk.host
+      .getOwn(effects, peerHostId, (host) => {
+        const iface =
+          host &&
+          Object.values(host.bindings)
+            .flatMap((b) => Object.values(b.interfaces))
+            .find((i) => i.id === peerInterfaceId)
+        return iface ? iface.addressInfo.public.format() : undefined
+      })
+      .const()
 
-    const uriActionResultMembers: ActionResultMember[] =
+    const uriActionResultMembers: T.ActionResultMember[] =
       peerAddresses?.map((url, idx) => {
         return {
           name: `URI $${idx + 1}`,

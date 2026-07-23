@@ -1,13 +1,9 @@
-import {
-  InputSpec,
-  List,
-  Value,
-  Variants,
-} from '@start9labs/start-sdk/base/lib/actions/input/builder'
 import { clnConfig } from '../../fileModels/config'
 import { storeJson } from '../../fileModels/store.json'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
+
+const { InputSpec, List, Value, Variants } = sdk
 
 const watchtowerClientPlugin =
   '/usr/local/libexec/c-lightning/plugins/watchtower-client'
