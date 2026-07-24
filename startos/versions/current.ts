@@ -1,7 +1,7 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.6:0',
+  version: '26.6.6:1',
   releaseNotes: {
     en_US: `Updated Core Lightning to 26.06.6, rolling up the 26.06.3–26.06.6 maintenance releases (bug fixes and stability improvements).
 
