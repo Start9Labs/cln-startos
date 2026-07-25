@@ -21,8 +21,9 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
   // metadata
   async ({ effects }) => ({
     name: i18n('Watchtower Client Info'),
-    description:
-      i18n('Display information about the watchtower clients configured for this node.'),
+    description: i18n(
+      'Display information about the watchtower clients configured for this node.',
+    ),
     warning: null,
     allowedStatuses: 'only-running',
     group: i18n('Watchtower'),
@@ -57,8 +58,9 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
         Object.entries(towerInfo).map((tower) => {
           return {
             name: `Watchtower Pubkey #${tower[0]}`,
-            description:
-              i18n('Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower'),
+            description: i18n(
+              'Share this Watchtower Server URI to allow other CLN nodes to register their watchtower clients with your watchtower',
+            ),
             value: [
               {
                 name: i18n('Network Address'),
@@ -90,7 +92,9 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
               {
                 name: i18n('Subscription Expiry'),
                 value: `${tower[1].subscription_expiry}`,
-                description: i18n('Block height when the subscription will expire'),
+                description: i18n(
+                  'Block height when the subscription will expire',
+                ),
                 copyable: false,
                 qr: false,
                 masked: false,

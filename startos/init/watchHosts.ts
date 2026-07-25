@@ -2,7 +2,7 @@ import { socksHostId, socksPort } from 'tor-startos/startos/utils'
 import { clnConfig } from '../fileModels/config'
 import { peerHostId, peerInterfaceId } from '../interfaces'
 import { sdk } from '../sdk'
-import { bitcoindRpcBridge, bridgeAddress } from '../utils'
+import { bitcoindRpcBridge } from '../utils'
 
 export const watchHosts = sdk.setupOnInit(async (effects, _) => {
   // Tor SOCKS over the bridge. With the 9050 fallback the mapped value is a
@@ -10,12 +10,14 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
   // lightningd's `proxy` is always set and this never restarts CLN on tor
   // churn. A dead bridge address is just connection-refused; `always-use-proxy`
   // is unset by default, so clearnet peers still connect when tor is absent.
-  const proxy = await bridgeAddress(effects, {
-    packageId: 'tor',
-    hostId: socksHostId,
-    internalPort: socksPort,
-    fallbackPort: socksPort,
-  }).const()
+  const proxy = await sdk.host
+    .getBridgeAddress(effects, {
+      packageId: 'tor',
+      hostId: socksHostId,
+      internalPort: socksPort,
+      fallbackPort: socksPort,
+    })
+    .const()
 
   const peerAddresses = await sdk.host
     .getOwn(effects, peerHostId, (host) => {
