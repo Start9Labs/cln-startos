@@ -5,8 +5,8 @@ import { sdk } from '../sdk'
 import { bitcoindRpcBridge } from '../utils'
 
 export const watchHosts = sdk.setupOnInit(async (effects, _) => {
-  // Tor SOCKS over the bridge. With the 9050 fallback the mapped value is a
-  // constant, non-null `<osIp>:9050` across tor install/update/uninstall, so
+  // Tor SOCKS over the bridge. With the 9050 fallback the resolved address is
+  // a constant, non-null `<osIp>:9050` across tor install/update/uninstall, so
   // lightningd's `proxy` is always set and this never restarts CLN on tor
   // churn. A dead bridge address is just connection-refused; `always-use-proxy`
   // is unset by default, so clearnet peers still connect when tor is absent.
