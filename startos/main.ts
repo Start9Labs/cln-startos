@@ -77,9 +77,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'lightning-sub',
   )
 
-  // Restart if Bitcoin .cookie changes
+  // Restart only when bitcoind writes a replacement cookie — an absent cookie
+  // means bitcoind is down, and stopping lightningd then hangs its shutdown.
   await FileHelper.string(`${await lightningSub.rootfs}/mnt/bitcoin/.cookie`)
-    .read()
+    .read(
+      (cookie) => cookie,
+      (prev, next) => next === null || prev === next,
+    )
     .const(effects)
 
   const baseDaemons = sdk.Daemons.of(effects)
