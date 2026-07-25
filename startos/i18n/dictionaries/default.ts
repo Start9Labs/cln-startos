@@ -9,7 +9,7 @@ const dict = {
   'Web Interface': 4,
   'The Web Interface is ready': 5,
   'The Web Interface is not ready': 6,
-  'Synced': 7,
+  Synced: 7,
   'TEOS Watchtower Server': 8,
   'The Watchtower Server is online': 9,
   'TEOSd is starting...': 10,
@@ -19,13 +19,13 @@ const dict = {
   // interfaces.ts
   'Web UI': 13,
   'The web interface of CLN': 14,
-  'RPC': 15,
+  RPC: 15,
   'Listens for JSON-RPC commands over HTTP.': 16,
-  'Peer': 17,
+  Peer: 17,
   'Listens for incoming connections from lightning peers.': 18,
-  'grpc': 19,
+  grpc: 19,
   'gRPC is a Rust-based plugin that provides a standardized API that apps, plugins, and other tools could use to interact with Core Lightning securely.': 20,
-  'CLNrest': 21,
+  CLNrest: 21,
   'CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.': 22,
   'Clams Websocket': 23,
   'Websocket endpoint for Clams Remote.': 24,
@@ -35,7 +35,7 @@ const dict = {
   // actions/resetPassword.ts
   'Reset UI Password': 27,
   'Reset UI Password in the event it is lost or forgotten': 28,
-  'Success': 29,
+  Success: 29,
   'Launch the CLN UI to set a new password': 30,
 
   // actions/generateRune.ts
@@ -75,10 +75,10 @@ const dict = {
   // actions/config/config.ts
   'Other Config Options': 55,
   'Set other configuration options for CLN': 56,
-  'Configuration': 57,
+  Configuration: 57,
 
   // actions/config/plugins.ts
-  'Plugins': 60,
+  Plugins: 60,
   'Plugins are subprocesses that provide extra functionality and run alongside the lightningd process inside the main Core Lightning container in order to communicate directly with it. Their source is maintained separately from that of Core Lightning itself.': 61,
 
   // actions/config/experimental.ts
@@ -89,7 +89,7 @@ const dict = {
   // actions/watchtower/watchtower.ts
   'Watchtower Settings': 65,
   'Connect to external watchtower servers to protect your node from misbehaving channel peers. You can also run a watchtower server and share your server URI (found in properties) with friends/family to watch over their nodes.  You can learn more about watchtowers at https://docs.corelightning.org/docs/watchtowers.': 66,
-  'Watchtower': 67,
+  Watchtower: 67,
 
   // actions/watchtower/watchtowerInfo.ts
   'Watchtower Info': 68,
@@ -106,7 +106,7 @@ const dict = {
   'Number of active breaches in the process of being resolved.': 79,
   'Bitcoind Reachable': 80,
   'Whether your tower has an active connection to the blockchain backend.': 81,
-  'Failure': 82,
+  Failure: 82,
 
   // actions/watchtower/watchtowerClientInfo.ts
   'Watchtower Client Info': 83,
@@ -121,7 +121,7 @@ const dict = {
   'Block height when the subscription started': 92,
   'Subscription Expiry': 93,
   'Block height when the subscription will expire': 94,
-  'Status': 95,
+  Status: 95,
   'Whether the tower is reachable': 96,
 
   // main.ts (health check)
@@ -132,10 +132,10 @@ const dict = {
   'Depth expressed as a positive number or blockheight prefixed with a hyphen.': 99,
 
   // actions/config/config.ts (InputSpec fields)
-  'Alias': 100,
+  Alias: 100,
   'A custom, human-readable name for your node.  This is publicly visible to the Lightning Network.  <b>Default: Unique id of pattern: start9-[random alphanumerics]</b>': 101,
   'Must be at least 1 character and no more than 32 characters': 102,
-  'Color': 103,
+  Color: 103,
   'The public color of your node on the Lightning Network in hexadecimal.  <b>Default: Random color</b>': 104,
   'Must be a valid 6 digit hexadecimal RGB value. The first two digits are red, the middle two are green, and the final two are blue.': 105,
   'Tor Only': 106,
@@ -152,14 +152,14 @@ const dict = {
   'Confirmations required for the funding transaction when the other side opens a channel before the channel is usable.  <b>Default: 3</b>': 121,
 
   // actions/config/plugins.ts (InputSpec fields)
-  'Sling': 142,
+  Sling: 142,
   'Automatically rebalance multiple channels. This is a CLI-only tool.  <b>Default: Disabled</b><br><b>Source:  https://github.com/daywalker90/sling</b>': 143,
   "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.  <b>Default: True</b>": 144,
   'CLBOSS settings': 145,
   'CLBOSS is an automated manager for Core Lightning forwarding nodes.  <b>Default: Disabled</b><br><b>Source: https://github.com/ZmnSCPxj/clboss</b>': 146,
   "CLBOSS automatically manages your CLN node. It is experimental software and will probably not be profitable to run. It will automatically open channels, buy incoming liquidity, rebalance channels, and set forwarding fees. If you don't want this behavior or don't understand what this means, please keep this option disabled. Source: https://github.com/ZmnSCPxj/clboss#operating": 147,
-  'Disabled': 148,
-  'Enabled': 149,
+  Disabled: 148,
+  Enabled: 149,
   'Minimum On-Chain': 150,
   'The minimum amount that CLBOSS will leave in the on-chain wallet. The intent is that this amount will be used in the future, by your node, to manage anchor-commitment channels, or post-Taproot Decker-Russell-Osuntokun channels. These channel types need some small amount of on-chain funds to unilaterally close, so it is not recommended to set it to 0. The amount specified is a ballpark figure, and CLBOSS may leave slightly lower or slightly higher than this amount.  <b>Default: 30000</b>': 151,
   'Auto Close': 152,
@@ -175,25 +175,25 @@ const dict = {
   // actions/config/experimental.ts (InputSpec fields)
   'Shutdown Wrong Funding': 161,
   "Allow channel shutdown with alternate txids.  If a remote node has opened a channel, but claims it used the incorrect txid (and the channel hasn't yet been used) this allows them to negotiate a clean shutdown with the txid they offer.  <b>Default: False</b>": 162,
-  'Splicing': 163,
+  Splicing: 163,
   'Enables support for the splicing protocol (bolt #863), allowing both parties to dynamically adjust the size a channel. These changes can be built interactively using PSBT and combined with other channel actions including dual fund, additional channel splices, or generic transaction activity. The operations will be bundled into a single transaction. The channel will remain active while awaiting splice confirmation, however you can only spend the smaller of the prior channel balance and the new one.  <b>Default: Disabled</b>': 164,
-  'Xpay': 165,
+  Xpay: 165,
   'Setting this makes xpay intercept simply pay commands (default false). Note that the response will be different from the normal pay command, however.  <b>Default: Disabled</b>': 166,
   'Dual Funding And Liquidity Ads': 167,
   'Dual Funding enables use of the channel opening protocol v2, in which both channel parties commit funds into the channel at opening. This potentially solves all sorts of problems with liquidity on the Lightning Network, but is currently experimental and only implemented by Core Lightning so far.<br>See https://blog.blockstream.com/setting-up-liquidity-ads-in-c-lightning/ for more details.  <b>Default: Disabled</b>': 168,
   'Dual funding is an experimental feature which can cause your node to automatically commit on-chain funds into channels that may or may not be profitable. <b>Use at your own risk!</b>': 169,
   'Dual-Funding Channel Acceptance Strategy': 170,
   "Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings.<br><ul><li><b>Incognito: </b>Wait for others to stumble upon your unadvertised node and open a dual-fund request, then react in a more complex way</li><li><b>Liquidity Merchant: </b>Advertise and sell liquidity on the market in a straightforward way (i.e., always match 100% of requested funds, and don't accept dual-funding requests that aren't channel lease requests).</li></ul><br><b>Default: Incognito</b>": 171,
-  'Incognito': 172,
-  'Policy': 173,
+  Incognito: 172,
+  Policy: 173,
   '<ul><li><b>Match: </b>Contribute a percentage of their requested funds.</li><li><b>Available: </b>Contribute policy_mod percent of our available node wallet funds.</li><li><b>Fixed: </b>Contribute a fixed number of sats to v2 channel open requests.</li></ul><br><b>Default: Fixed</b>': 174,
-  'Match': 175,
+  Match: 175,
   'Percentage of Requested Funds to Commit': 176,
   'Percentage of requested funds to commit to the channel. If this is a channel lease request, we match based on their requested funds. If it is not a channel lease request (and leases only is false, which is is by default), then we match their funding amount. Note: any lease match less than 100 will likely fail, as clients will not accept a lease less than their request.  <b>Default: 100</b>': 177,
-  'Available': 178,
+  Available: 178,
   'Percentage of Available Funds to Commit': 179,
   'Percentage of available on-chain funds to commit to the channel.  <b>Default: 100</b>': 180,
-  'Fixed': 181,
+  Fixed: 181,
   'Fixed Number of Satoshis to Commit': 182,
   'Fixed number of sats to contribute to the channel.  <b>Default: 10000</b>': 183,
   'Fuzz Percentage': 184,

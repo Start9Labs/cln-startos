@@ -1,33 +1,23 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.6:1',
+  version: '26.6.6:2',
   releaseNotes: {
-    en_US: `Updated Core Lightning to 26.06.6, rolling up the 26.06.3–26.06.6 maintenance releases (bug fixes and stability improvements).
+    en_US: `Resolves the addresses of connected services more reliably.
 
-This release also migrates the package to start-sdk 2.0 (requires StartOS 0.4.0-beta.10 or later).
+Core Lightning looked up where to reach its dependencies through a field that only applies to one of the two ways a service can publish a port. It now reads the address itself, so a dependency changing how it serves TLS can no longer leave Core Lightning unable to find it. Nothing changes in normal operation.`,
+    es_ES: `Resuelve de forma más fiable las direcciones de los servicios conectados.
 
-Full release notes: https://github.com/ElementsProject/lightning/releases`,
-    es_ES: `Actualiza Core Lightning a 26.06.6, incorporando las versiones de mantenimiento 26.06.3–26.06.6 (correcciones de errores y mejoras de estabilidad).
+Core Lightning localizaba sus dependencias mediante un campo que solo se aplica a una de las dos formas en que un servicio puede publicar un puerto. Ahora lee la dirección en sí, de modo que si una dependencia cambia su forma de servir TLS, Core Lightning seguirá encontrándola. En funcionamiento normal no cambia nada.`,
+    de_DE: `Ermittelt die Adressen verbundener Dienste zuverlässiger.
 
-Esta versión también migra el paquete a start-sdk 2.0 (requiere StartOS 0.4.0-beta.10 o posterior).
+Core Lightning suchte seine Abhängigkeiten über ein Feld, das nur für eine der beiden Arten gilt, auf die ein Dienst einen Port veröffentlichen kann. Jetzt wird die Adresse selbst gelesen, sodass eine Abhängigkeit, die ihre TLS-Bereitstellung ändert, für Core Lightning auffindbar bleibt. Im normalen Betrieb ändert sich nichts.`,
+    pl_PL: `Pewniej ustala adresy połączonych usług.
 
-Notas de la versión completas: https://github.com/ElementsProject/lightning/releases`,
-    de_DE: `Aktualisiert Core Lightning auf 26.06.6 und fasst die Wartungsversionen 26.06.3–26.06.6 zusammen (Fehlerbehebungen und Stabilitätsverbesserungen).
+Core Lightning wyszukiwał swoje zależności przez pole, które dotyczy tylko jednego z dwóch sposobów publikowania portu przez usługę. Teraz odczytuje sam adres, więc zależność zmieniająca sposób udostępniania TLS nadal pozostanie odnajdywalna dla Core Lightning. W normalnej pracy nic się nie zmienia.`,
+    fr_FR: `Détermine plus fiablement les adresses des services connectés.
 
-Diese Version stellt das Paket außerdem auf start-sdk 2.0 um (erfordert StartOS 0.4.0-beta.10 oder neuer).
-
-Vollständige Versionshinweise: https://github.com/ElementsProject/lightning/releases`,
-    pl_PL: `Aktualizuje Core Lightning do 26.06.6, obejmując wydania konserwacyjne 26.06.3–26.06.6 (poprawki błędów i usprawnienia stabilności).
-
-Ta wersja przenosi też pakiet na start-sdk 2.0 (wymaga StartOS 0.4.0-beta.10 lub nowszego).
-
-Pełne informacje o wydaniu: https://github.com/ElementsProject/lightning/releases`,
-    fr_FR: `Met à jour Core Lightning vers 26.06.6, en intégrant les versions de maintenance 26.06.3 à 26.06.6 (corrections de bogues et améliorations de stabilité).
-
-Cette version fait également passer le paquet à start-sdk 2.0 (nécessite StartOS 0.4.0-beta.10 ou une version ultérieure).
-
-Notes de version complètes : https://github.com/ElementsProject/lightning/releases`,
+Core Lightning localisait ses dépendances via un champ qui ne s'applique qu'à l'un des deux modes de publication d'un port par un service. Il lit désormais l'adresse elle-même : une dépendance qui change sa façon de servir TLS reste donc trouvable par Core Lightning. Rien ne change en fonctionnement normal.`,
   },
   migrations: {},
 })
