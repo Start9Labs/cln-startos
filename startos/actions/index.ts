@@ -1,6 +1,7 @@
 import { sdk } from '../sdk'
 import { experimental } from './config/experimental'
 import { config } from './config/config'
+import { customExternalHostConfig } from './config/customExternalHost'
 import { plugins } from './config/plugins'
 import { watchtower } from './watchtower/watchtower'
 import { createRune } from './generateRune'
@@ -14,6 +15,7 @@ import { displaySeed } from './displaySeed'
 
 export const actions = sdk.Actions.of()
   .addAction(config)
+  .addAction(customExternalHostConfig)
   .addAction(displaySeed)
   .addAction(experimental)
   .addAction(plugins)

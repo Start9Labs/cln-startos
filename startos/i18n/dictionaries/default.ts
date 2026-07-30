@@ -238,6 +238,12 @@ const dict = {
 
   // Footnote label for showing upstream default value
   Default: 220,
+
+  // Custom External Host
+  'Custom External Host': 221,
+  'Advertise an additional public address (e.g. a Tunnelsats or VPN endpoint) alongside your Tor and StartOS-managed addresses': 222,
+  'An additional public domain at which your node can be reached, advertised to the network alongside any Tor or StartOS-managed addresses. Use this for an external tunnel or VPN endpoint, such as Tunnelsats. Enter a domain, optionally followed by a port (e.g. example.com:22222); the port defaults to 9735. A static IP does not belong here — StartOS advertises detected public IPs automatically.': 223,
+  'Must be a domain name, optionally followed by :port (e.g. example.com:9735).': 224,
 } as const
 
 /**

@@ -1,5 +1,6 @@
 import { socksHostId, socksPort } from 'tor-startos/startos/utils'
 import { clnConfig } from '../fileModels/config'
+import { storeJson } from '../fileModels/store.json'
 import { peerHostId, peerInterfaceId } from '../interfaces'
 import { sdk } from '../sdk'
 import { bitcoindRpcBridge } from '../utils'
@@ -34,6 +35,9 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
     })
     .const()
 
+  const customExternalHosts =
+    (await storeJson.read((s) => s.customExternalHosts).const(effects)) ?? []
+
   // bitcoind's RPC over the bridge; absent until it resolves. Writing undefined
   // clears the keys when bitcoind is uninstalled so no stale address latches,
   // and lightningd fails to connect naturally until the .const() heal fires.
@@ -44,7 +48,7 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
     {
       raw: {
         proxy,
-        'announce-addr': peerAddresses,
+        'announce-addr': [...peerAddresses, ...customExternalHosts],
         'bitcoin-rpcconnect': bitcoind?.host,
         'bitcoin-rpcport': bitcoind?.port,
       },

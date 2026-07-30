@@ -208,6 +208,10 @@ export default {
     218: 'Restauración de copia de seguridad detectada',
     219: 'No se recomienda continuar usando un nodo Core Lightning después de una recuperación de emergencia. Todos los canales se cerrarán forzosamente y los fondos se enviarán a la billetera on-chain. Espere a que se resuelvan todos los canales, luego transfiera los fondos restantes a otra billetera. Después, Core Lightning debe ser desinstalado y reinstalado de nuevo si desea seguir usándolo.',
     220: 'Valor por defecto',
+    221: 'Host Externo Personalizado',
+    222: 'Anuncie una dirección pública adicional (ej. un extremo de Tunnelsats o VPN) junto con sus direcciones Tor y administradas por StartOS',
+    223: 'Un dominio público adicional en el que se puede contactar a su nodo, anunciado a la red junto con cualquier dirección Tor o administrada por StartOS. Use esto para un túnel externo o punto final VPN, como Tunnelsats. Ingrese un dominio, opcionalmente seguido de un puerto (ej. ejemplo.com:22222); el puerto por defecto es 9735.',
+    224: 'Debe ser un nombre de dominio, opcionalmente seguido de :puerto (ej. ejemplo.com:9735).',
   },
   de_DE: {
     0: 'Core Lightning wird gestartet!',
@@ -416,6 +420,10 @@ export default {
     218: 'Sicherungswiederherstellung erkannt',
     219: 'Es wird nicht empfohlen, einen Core Lightning-Knoten nach einer Notfallwiederherstellung weiter zu verwenden. Alle Kanäle werden zwangsgeschlossen und die Mittel werden an die On-Chain-Wallet überwiesen. Bitte warten Sie, bis alle Kanäle aufgelöst sind, und überweisen Sie dann die verbleibenden Mittel an eine andere Wallet. Danach sollte Core Lightning deinstalliert und bei Bedarf neu installiert werden.',
     220: 'Standardwert',
+    221: 'Benutzerdefinierter externer Host',
+    222: 'Ankündigen einer zusätzlichen öffentlichen Adresse (z. B. Tunnelsats- oder VPN-Endpunkt) neben Ihren Tor- und StartOS-verwalteten Adressen',
+    223: 'Eine zusätzliche öffentliche Domäne, unter der Ihr Knoten erreichbar ist und die dem Netzwerk neben allen Tor- oder StartOS-verwalteten Adressen angekündigt wird. Verwenden Sie dies für einen externen Tunnel oder VPN-Endpunkt wie Tunnelsats.',
+    224: 'Muss ein Domänenname sein, optional gefolgt von :Port (z. B. example.com:9735).',
   },
   pl_PL: {
     0: 'Uruchamianie Core Lightning!',
@@ -624,6 +632,10 @@ export default {
     218: 'Wykryto przywracanie kopii zapasowej',
     219: 'Nie zaleca się dalszego korzystania z węzła Core Lightning po awaryjnym odzyskiwaniu. Wszystkie kanały zostaną zamknięte przymusowo, a środki zostaną przelane do portfela on-chain. Proszę poczekać na rozwiązanie wszystkich kanałów, a następnie przelać pozostałe środki do innego portfela. Następnie Core Lightning powinien zostać odinstalowany i zainstalowany ponownie, jeśli chcesz kontynuować korzystanie z niego.',
     220: 'Domyślnie',
+    221: 'Niestandardowy host zewnętrzny',
+    222: 'Ogłoś dodatkowy adres publiczny (np. punkt końcowy Tunnelsats lub VPN) obok adresów Tor i zarządzanych przez StartOS',
+    223: 'Dodatkowa domena publiczna, pod którą Twój węzeł jest osiągalny, ogłaszana w sieci obok wszelkich adresów Tor lub zarządzanych przez StartOS. Użyj tego dla zewnętrznego tunelu lub punktu końcowego VPN, takiego jak Tunnelsats.',
+    224: 'Musi być nazwą domeny, opcjonalnie z portem :port (np. example.com:9735).',
   },
   fr_FR: {
     0: 'Démarrage de Core Lightning !',
@@ -832,5 +844,9 @@ export default {
     218: 'Restauration de sauvegarde détectée',
     219: "Il n'est pas recommandé de continuer à utiliser un nœud Core Lightning après une récupération d'urgence. Tous les canaux seront fermés de force et les fonds seront transférés vers le portefeuille on-chain. Veuillez attendre que tous les canaux soient résolus, puis transférer les fonds restants vers un autre portefeuille. Ensuite, Core Lightning devrait être désinstallé et réinstallé si vous souhaitez continuer à l'utiliser.",
     220: 'Par défaut',
+    221: 'Hôte externe personnalisé',
+    222: 'Annoncer une adresse publique supplémentaire (ex. un point de terminaison Tunnelsats ou VPN) aux côtés de vos adresses Tor et gérées par StartOS',
+    223: 'Un domaine public supplémentaire sur lequel votre nœud peut être atteint, annoncé sur le réseau aux côtés de toutes les adresses Tor ou gérées par StartOS. Utilisez ceci pour un tunnel externe ou un point de terminaison VPN, tel que Tunnelsats.',
+    224: 'Doit être un nom de domaine, optionnellement suivi de :port (ex. exemple.com:9735).',
   },
 } satisfies Record<string, LangDict>
