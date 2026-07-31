@@ -196,7 +196,7 @@ export const fullConfigSpec = InputSpec.of({
     default: null,
     required: false,
     description: i18n(
-      'An additional public domain at which your node can be reached, advertised to the network alongside any Tor or StartOS-managed addresses. Use this for an external tunnel or VPN endpoint, such as Tunnelsats. Enter a domain, optionally followed by a port (e.g. example.com:22222); the port defaults to 9735. A static IP does not belong here — StartOS advertises detected public IPs automatically.',
+      'A public address at which your node can be reached through an external tunnel or VPN endpoint, such as Tunnelsats. Enter a domain, optionally followed by a port (e.g. example.com:22222); the port defaults to 9735. This is announced in place of any public IP address StartOS detects, so peers are not handed the home IP the tunnel exists to hide. Your Tor address is still announced.',
     ),
     placeholder: 'example.tunnelsatsv2.com:22222',
     patterns: [
@@ -207,6 +207,9 @@ export const fullConfigSpec = InputSpec.of({
         ),
       },
     ],
+    footnote: i18n(
+      'Core Lightning resolves this name once at startup and announces the address it resolves to, so restart Core Lightning if the endpoint moves to a new address. It is not announced while Tor Only is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy.',
+    ),
   }),
 
   // Channels
