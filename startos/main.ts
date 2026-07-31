@@ -26,7 +26,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting Core Lightning!'))
 
   // watch cln config for changes
-  await clnConfig.read().const(effects)
+  const conf = await clnConfig.read().const(effects)
 
   // bitcoind's RPC over the bridge, for the sync-progress bitcoin-cli below.
   const bitcoind = await bitcoindRpcBridge(effects)
@@ -470,4 +470,23 @@ export const main = sdk.setupMain(async ({ effects }) => {
       // server was disabled (SDK 2.0's Daemons.build enforces requires-ordering).
       requires: ['lightningd', 'watchtower-client'],
     })
+    .addHealthCheck('custom-external-host', () =>
+      conf?.['tor-only'] === true && store.customExternalHosts.length
+        ? {
+            ready: {
+              display: i18n('Custom External Host'),
+              // Nothing here initializes, so the default grace period would
+              // only show this as "starting" for its first 10 seconds.
+              gracePeriod: 0,
+              fn: async () => ({
+                result: 'failure' as const,
+                message: i18n(
+                  'Your custom external host is not being announced, because Core Lightning cannot resolve a hostname while Tor Only is enabled. In General Settings, either turn off Tor Only or clear the custom external host.',
+                ),
+              }),
+            },
+            requires: [],
+          }
+        : null,
+    )
 })

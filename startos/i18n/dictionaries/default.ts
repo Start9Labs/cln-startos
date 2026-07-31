@@ -73,8 +73,8 @@ const dict = {
   'The gossip_store has been deleted. On the next service start Core Lightning will rebuild gossip_store from peers': 54,
 
   // actions/config/config.ts
-  'Other Config Options': 55,
-  'Set other configuration options for CLN': 56,
+  'General Settings': 55,
+  'Set general configuration options for Core Lightning': 56,
   Configuration: 57,
 
   // actions/config/plugins.ts
@@ -238,6 +238,13 @@ const dict = {
 
   // Footnote label for showing upstream default value
   Default: 220,
+
+  // Custom External Host
+  'Custom External Host': 221,
+  'A public address at which your node can be reached through an external tunnel or VPN endpoint, such as Tunnelsats. Enter a domain, optionally followed by a port (e.g. example.com:22222); the port defaults to 9735. This is announced in place of any public IP address StartOS detects, so peers are not handed the home IP the tunnel exists to hide. Your Tor address is still announced.': 223,
+  'Must be a domain name, optionally followed by :port (e.g. example.com:9735).': 224,
+  'Core Lightning resolves this name once at startup and announces the address it resolves to, so restart Core Lightning if the endpoint moves to a new address. It is not announced while Tor Only is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy.': 225,
+  'Your custom external host is not being announced, because Core Lightning cannot resolve a hostname while Tor Only is enabled. In General Settings, either turn off Tor Only or clear the custom external host.': 226,
 } as const
 
 /**

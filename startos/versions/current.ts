@@ -1,23 +1,23 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.6:4',
+  version: '26.6.6:5',
   releaseNotes: {
-    en_US: `Stops Core Lightning reloading at the moment Bitcoin goes away.
+    en_US: `Adds a Custom External Host setting for announcing a tunnel or VPN endpoint, and renames "Other Config Options" to "General Settings".
 
-Core Lightning reloads when Bitcoin issues new RPC credentials, which it does on every restart. That reload was previously triggered as soon as Bitcoin *began* shutting down — while its RPC was already unreachable — so Core Lightning was stopped and restarted into a backend that was not there yet. It now reloads only once Bitcoin is back up and has published new credentials.`,
-    es_ES: `Evita que Core Lightning se recargue justo cuando Bitcoin desaparece.
+Enter an external endpoint — a Tunnelsats address, for example — and Core Lightning announces it in place of any public IP address StartOS detects, so peers are not handed the home IP the tunnel exists to hide. Your Tor address is still announced. The endpoint is not announced while Tor Only is enabled, because Core Lightning cannot resolve a hostname with every connection forced through the proxy.`,
+    es_ES: `Añade un ajuste Host Externo Personalizado para anunciar un túnel o punto final VPN, y renombra «Otras opciones de configuración» a «Configuración general».
 
-Core Lightning se recarga cuando Bitcoin emite nuevas credenciales RPC, algo que hace en cada reinicio. Esa recarga se activaba en cuanto Bitcoin *empezaba* a apagarse — cuando su RPC ya era inalcanzable —, así que Core Lightning se detenía y arrancaba contra un backend que todavía no estaba. Ahora se recarga solo cuando Bitcoin ha vuelto y ha publicado nuevas credenciales.`,
-    de_DE: `Verhindert, dass Core Lightning genau dann neu lädt, wenn Bitcoin verschwindet.
+Introduzca un punto final externo — una dirección de Tunnelsats, por ejemplo — y Core Lightning lo anunciará en lugar de cualquier dirección IP pública que StartOS detecte, de modo que los pares no reciben la IP doméstica que el túnel existe para ocultar. Su dirección Tor se sigue anunciando. El punto final no se anuncia mientras Solo Tor esté activado, porque Core Lightning no puede resolver un nombre de host con todas las conexiones forzadas a través del proxy.`,
+    de_DE: `Fügt die Einstellung „Benutzerdefinierter externer Host“ hinzu, um einen Tunnel- oder VPN-Endpunkt bekannt zu geben, und benennt „Weitere Konfigurationsoptionen“ in „Allgemeine Einstellungen“ um.
 
-Core Lightning lädt neu, sobald Bitcoin neue RPC-Zugangsdaten ausgibt — was bei jedem Neustart geschieht. Dieses Neuladen wurde bisher ausgelöst, sobald Bitcoin mit dem Herunterfahren *begann* — während dessen RPC bereits nicht mehr erreichbar war. Core Lightning wurde also gestoppt und startete gegen ein Backend, das noch nicht da war. Es lädt jetzt erst neu, wenn Bitcoin wieder läuft und neue Zugangsdaten veröffentlicht hat.`,
-    pl_PL: `Zapobiega przeładowaniu Core Lightning dokładnie w chwili, gdy znika Bitcoin.
+Geben Sie einen externen Endpunkt an — etwa eine Tunnelsats-Adresse — und Core Lightning gibt ihn anstelle jeder von StartOS erkannten öffentlichen IP-Adresse bekannt, sodass Peers nicht die Heim-IP erhalten, die der Tunnel verbergen soll. Ihre Tor-Adresse wird weiterhin bekannt gegeben. Solange „Nur Tor“ aktiviert ist, wird der Endpunkt nicht bekannt gegeben, denn Core Lightning kann keinen Hostnamen auflösen, wenn jede Verbindung über den Proxy erzwungen wird.`,
+    pl_PL: `Dodaje ustawienie Niestandardowy host zewnętrzny do ogłaszania tunelu lub punktu końcowego VPN oraz zmienia nazwę „Inne opcje konfiguracji” na „Ustawienia ogólne”.
 
-Core Lightning przeładowuje się, gdy Bitcoin wydaje nowe dane uwierzytelniające RPC, co robi przy każdym restarcie. Dotąd to przeładowanie uruchamiało się, gdy tylko Bitcoin *zaczynał* się wyłączać — a jego RPC było już nieosiągalne — więc Core Lightning było zatrzymywane i startowało wobec backendu, którego jeszcze nie było. Teraz przeładowuje się dopiero wtedy, gdy Bitcoin wróci i opublikuje nowe dane uwierzytelniające.`,
-    fr_FR: `Empêche Core Lightning de se recharger au moment précis où Bitcoin disparaît.
+Podaj zewnętrzny punkt końcowy — na przykład adres Tunnelsats — a Core Lightning ogłosi go zamiast jakiegokolwiek publicznego adresu IP wykrytego przez StartOS, więc peery nie otrzymają domowego IP, które tunel ma ukrywać. Twój adres Tor jest nadal ogłaszany. Punkt końcowy nie jest ogłaszany, gdy włączona jest opcja Tylko Tor, ponieważ Core Lightning nie może rozwiązać nazwy hosta, gdy każde połączenie jest wymuszane przez proxy.`,
+    fr_FR: `Ajoute un réglage Hôte externe personnalisé pour annoncer un tunnel ou un point de terminaison VPN, et renomme « Autres options de configuration » en « Paramètres généraux ».
 
-Core Lightning se recharge lorsque Bitcoin émet de nouveaux identifiants RPC, ce qu'il fait à chaque redémarrage. Ce rechargement était jusqu'ici déclenché dès que Bitcoin *commençait* à s'arrêter — alors que son RPC était déjà injoignable —, si bien que Core Lightning était arrêté puis redémarré face à un backend encore absent. Il ne se recharge désormais qu'une fois Bitcoin revenu et de nouveaux identifiants publiés.`,
+Saisissez un point de terminaison externe — une adresse Tunnelsats, par exemple — et Core Lightning l'annonce à la place de toute adresse IP publique détectée par StartOS, afin que les pairs ne reçoivent pas l'IP domestique que le tunnel sert à masquer. Votre adresse Tor reste annoncée. Le point de terminaison n'est pas annoncé tant que Tor uniquement est activé, car Core Lightning ne peut pas résoudre un nom d'hôte lorsque chaque connexion est forcée par le proxy.`,
   },
   migrations: {},
 })

@@ -6,6 +6,7 @@ const shape = z.object({
   watchtowerServer: z.boolean().catch(false),
   watchtowerClients: z.array(z.string()).catch([]),
   restore: z.boolean().optional().catch(undefined),
+  customExternalHosts: z.array(z.string()).catch([]),
 })
 
 export const storeJson = FileHelper.json(

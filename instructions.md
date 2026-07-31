@@ -37,7 +37,8 @@
 - **Node Info** — display your node ID and peer URI(s) to share with channel partners.
 - **Display BIP-39 Seed** — show the 12-word BIP-39 seed for on-chain recovery. Hidden if your wallet predates BIP-39 support in CLN; the seed alone does not recover channel state.
 - **Create Rune** — generate an unrestricted rune for app integrations.
-- **Other Config Options** — set alias, color, fee base and rate, minimum channel capacity, funding confirmations, Tor-only mode, and Clams Websocket.
+- **General Settings** — set alias, color, fee base and rate, minimum channel capacity, funding confirmations, Tor-only mode, Clams Websocket, and a custom external host.
+  - **Custom External Host** announces an external tunnel or VPN endpoint, such as Tunnelsats, as your node's public address. It is announced in place of any public IP StartOS detects, so peers are not handed the home IP the tunnel exists to hide; your Tor address is still announced. Core Lightning resolves the name once at startup, so restart it if the endpoint moves to a new address. Nothing is announced while Tor-only mode is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy — a failing **Custom External Host** health check appears while both are set, to tell you so.
 - **Plugins** — enable or disable CLNrest, Sling, and CLBOSS, with sub-settings for CLBOSS (min on-chain reserve, auto-close, zero base fee, channel size limits).
 - **Experimental Features** — toggle splicing, shutdown-wrong-funding, and dual funding / liquidity ads (with policy, fuzz percentage, fund probability, and merchant lease-fee settings).
 - **Watchtower Settings** — enable the TEOS watchtower server, enable the watchtower client, and add tower URIs to register with.

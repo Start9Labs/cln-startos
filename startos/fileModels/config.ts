@@ -191,6 +191,26 @@ export const fullConfigSpec = InputSpec.of({
       'Accept incoming connections on port 7272, allowing Clams Remote to connect to Core Lightning.',
     ),
   }),
+  'custom-external-host': Value.text({
+    name: i18n('Custom External Host'),
+    default: null,
+    required: false,
+    description: i18n(
+      'A public address at which your node can be reached through an external tunnel or VPN endpoint, such as Tunnelsats. Enter a domain, optionally followed by a port (e.g. example.com:22222); the port defaults to 9735. This is announced in place of any public IP address StartOS detects, so peers are not handed the home IP the tunnel exists to hide. Your Tor address is still announced.',
+    ),
+    placeholder: 'example.tunnelsatsv2.com:22222',
+    patterns: [
+      {
+        regex: '^([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(:[0-9]{1,5})?$',
+        description: i18n(
+          'Must be a domain name, optionally followed by :port (e.g. example.com:9735).',
+        ),
+      },
+    ],
+    footnote: i18n(
+      'Core Lightning resolves this name once at startup and announces the address it resolves to, so restart Core Lightning if the endpoint moves to a new address. It is not announced while Tor Only is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy.',
+    ),
+  }),
 
   // Channels
   'fee-base': Value.number({
