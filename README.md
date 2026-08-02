@@ -91,8 +91,8 @@ Settings **not** managed by StartOS (hardcoded):
 | Setting              | Value                   | Reason                                                                                                                     |
 | -------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `network`            | `bitcoin`               | Only mainnet supported                                                                                                     |
-| `bitcoin-rpcconnect` | bitcoind bridge address | Resolved to bitcoind's RPC over the LXC bridge                                                                             |
-| `bitcoin-rpcport`    | `8332`                  | bitcoind's RPC port over the bridge                                                                                        |
+| `bitcoin-rpcconnect` | bitcoind bridge address | Resolved to bitcoind's RPC over the LXC bridge; re-asserted into the config on every start by `main` (and on init by `watchHosts`) |
+| `bitcoin-rpcport`    | bitcoind bridge port    | Dynamic — assigned by the bridge, not 8332; re-asserted alongside `bitcoin-rpcconnect`                                     |
 | `bitcoin-datadir`    | `/mnt/bitcoin`          | Mounted dependency volume                                                                                                  |
 | `clnrest-port`       | `3010`                  | Fixed internal port                                                                                                        |
 | `clnrest-protocol`   | `http`                  | Plain HTTP inside the container; Tor onions serve it directly (Tor already encrypts) and StartOS adds SSL for LAN/clearnet |

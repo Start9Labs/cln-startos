@@ -73,7 +73,7 @@ export const shape = z.object({
   // Enforced by StartOS
   network: z.literal('bitcoin').catch('bitcoin'),
   'bitcoin-rpcconnect': z.string().optional().catch(undefined),
-  'bitcoin-rpcport': z.number().optional().catch(undefined),
+  'bitcoin-rpcport': iniNumber,
   'bitcoin-datadir': z.literal(bitcoinDataDir).catch(bitcoinDataDir),
   'bind-addr': z
     .union([z.array(z.string()), z.string().transform((s) => [s])])

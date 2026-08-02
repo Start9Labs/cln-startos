@@ -31,6 +31,25 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // bitcoind's RPC over the bridge, for the sync-progress bitcoin-cli below.
   const bitcoind = await bitcoindRpcBridge(effects)
 
+  // Re-assert bitcoind's bridge address into the config file. watchHosts also
+  // writes these keys, but only on container init — a plain service restart
+  // skips init, so a config file that lost them (or went stale while CLN was
+  // stopped) would otherwise stay broken until the next full Stop/Start.
+  // merge() skips the write when the file already matches; when it does
+  // repair, the config const above restarts main once and the rerun no-ops.
+  if (bitcoind) {
+    await clnConfig.merge(
+      effects,
+      {
+        raw: {
+          'bitcoin-rpcconnect': bitcoind.host,
+          'bitcoin-rpcport': bitcoind.port,
+        },
+      },
+      { allowWriteAfterConst: true },
+    )
+  }
+
   // get store.json but don't watch for changes
   const store = await storeJson.read().once()
   if (!store) {
