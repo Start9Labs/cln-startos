@@ -91,7 +91,7 @@ Settings **not** managed by StartOS (hardcoded):
 | Setting              | Value                   | Reason                                                                                                                     |
 | -------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `network`            | `bitcoin`               | Only mainnet supported                                                                                                     |
-| `bitcoin-rpcconnect` | bitcoind bridge address | Resolved to bitcoind's RPC over the LXC bridge; re-asserted into the config on every start by `main` (and on init by `watchHosts`) |
+| `bitcoin-rpcconnect` | bitcoind bridge address | Resolved to bitcoind's RPC over the LXC bridge; written by `watchHosts` and re-asserted by `main` on every start           |
 | `bitcoin-rpcport`    | bitcoind bridge port    | Dynamic — assigned by the bridge, not 8332; re-asserted alongside `bitcoin-rpcconnect`                                     |
 | `bitcoin-datadir`    | `/mnt/bitcoin`          | Mounted dependency volume                                                                                                  |
 | `clnrest-port`       | `3010`                  | Fixed internal port                                                                                                        |
