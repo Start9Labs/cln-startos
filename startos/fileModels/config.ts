@@ -377,8 +377,8 @@ function formToFile(
     // Enforced
     network: 'bitcoin' as const,
     // bitcoin-rpcconnect / bitcoin-rpcport come from `raw` (set to bitcoind's
-    // bridge address by watchHosts and main), preserved across config-action
-    // writes; absent until bitcoind's binding resolves.
+    // bridge address by watchHosts), preserved across config-action writes;
+    // absent until bitcoind's binding resolves.
     'bitcoin-rpcconnect': raw?.['bitcoin-rpcconnect'],
     'bitcoin-rpcport': raw?.['bitcoin-rpcport'],
     'bitcoin-datadir': bitcoinDataDir,

@@ -25,25 +25,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
    */
   console.info(i18n('Starting Core Lightning!'))
 
-  // bitcoind's RPC over the bridge, for the sync-progress bitcoin-cli below.
-  const bitcoind = await bitcoindRpcBridge(effects)
-
-  // watchHosts writes these keys too, but init does not re-run on a plain start
-  // or restart, so a config that lost them — or went stale while CLN was
-  // stopped — would otherwise stay broken. merge() skips the write when the
-  // serialized file already matches, so this is a no-op on a healthy start. It
-  // must stay ahead of the const below, which would restart main on a repair.
-  if (bitcoind) {
-    await clnConfig.merge(effects, {
-      raw: {
-        'bitcoin-rpcconnect': bitcoind.host,
-        'bitcoin-rpcport': bitcoind.port,
-      },
-    })
-  }
-
   // watch cln config for changes
   const conf = await clnConfig.read().const(effects)
+
+  // bitcoind's RPC over the bridge, for the sync-progress bitcoin-cli below.
+  const bitcoind = await bitcoindRpcBridge(effects)
 
   // get store.json but don't watch for changes
   const store = await storeJson.read().once()
