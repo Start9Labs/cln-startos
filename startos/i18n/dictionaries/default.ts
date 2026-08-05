@@ -245,6 +245,7 @@ const dict = {
   'Must be a domain name, optionally followed by :port (e.g. example.com:9735).': 224,
   'Core Lightning resolves this name once at startup and announces the address it resolves to, so restart Core Lightning if the endpoint moves to a new address. It is not announced while Tor Only is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy.': 225,
   'Your custom external host is not being announced, because Core Lightning cannot resolve a hostname while Tor Only is enabled. In General Settings, either turn off Tor Only or clear the custom external host.': 226,
+  'After restoring from backup, your on-chain balance reads zero until the blockchain is rescanned. Run this action with a blockheight from before your node was first created, prefixed with a hyphen (for example -800000). The rescan takes hours; the Synced health check stays red while it works — leave Core Lightning and Bitcoin running until it turns green.': 227,
 } as const
 
 /**

@@ -44,13 +44,26 @@
 - **Watchtower Settings** — enable the TEOS watchtower server, enable the watchtower client, and add tower URIs to register with.
 - **Watchtower Info** — visible when the watchtower server is enabled; shows the server URI and stats.
 - **Watchtower Client Info** — visible when at least one tower is configured; shows registered towers and subscription state. Towers you add are registered automatically the next time Core Lightning starts, and stay registered across restarts and updates. If this list is empty, give the service a minute after startup and check it again — registration runs shortly after Core Lightning is up. Tower URIs are usually `.onion` addresses, which need Tor installed and running to reach.
-- **Rescan Blockchain** — rescan the blockchain from a given depth or block height. Useful after restoring an on-chain wallet.
+- **Rescan Blockchain** — rescan the blockchain from a given depth or block height. **Required after restoring from backup** — the wallet balance reads zero until a rescan completes.
 - **Reset UI Password** — clear the CLN Application UI password so you can set a new one on the next visit.
 - **Delete Gossip Store** — delete a corrupted `gossip_store`; CLN will rebuild it from peers on next start. Available when the service is stopped.
 
 ### Backups and restore
 
-StartOS backs up the `main` volume, excluding live database files and the gossip store. After a restore, CLN automatically runs `emergencyrecover` to attempt to recover channel funds via peer cooperation. Recovery is best-effort and depends on peers responding — once channels have resolved, sweep remaining funds to another wallet and reinstall fresh if you want to keep using the node.
+StartOS backs up the `main` volume, excluding live database files and the gossip store. Restoring brings back your keys and settings, but **not** the wallet's record of its own coins — so right after a restore, your on-chain balance reads **zero**. This is expected and your funds are not lost.
+
+After a restore, Core Lightning automatically:
+
+- runs `emergencyrecover` to attempt recovery of channel funds via peer cooperation (best-effort — it depends on peers responding),
+- pre-registers your wallet's addresses so the rescan below finds all of your coins,
+- saves an untouched copy of the channel-recovery file as `bitcoin/emergency.recover.restored-<date>` for support and manual recovery,
+- prompts you with a task to run **Rescan Blockchain**.
+
+Run the rescan with a blockheight from before your node was created, prefixed with a hyphen (e.g. `-800000`). It takes hours; the **Synced** health check stays red while it works — leave Core Lightning and Bitcoin running until it turns green, then check your balance.
+
+If the balance is still missing funds after the rescan completes, contact support: your funds are recoverable — the wallet's public descriptors can locate every coin exactly, even ones the rescan missed.
+
+Once any recovered channels have resolved, sweep remaining funds to another wallet and reinstall fresh if you want to keep using the node. Restore only what you must: restoring an old backup over a working node replaces its live records with stale ones.
 
 ## Limitations
 

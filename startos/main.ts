@@ -41,20 +41,18 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   if (store.rescan) {
     lightningdArgs.push(`--rescan=${store.rescan}`)
-    await storeJson.merge(effects, { rescan: undefined })
   }
 
-  // `restore` is a one-time trigger set by the post-restore backup hook (backups.ts).
-  // Clear it now — before the reactive store watch near the end of main — so the
-  // emergency-recover oneshot (lightning-cli emergencyrecover) and the "Backup
-  // Restoration Detected" health warning fire exactly once after a restore, not on
-  // every subsequent restart. The local `store.restore` snapshot read above still
-  // drives the oneshot this session; clearing only the on-disk value here mirrors how
-  // `rescan` is handled and keeps the clear ahead of the `.const` watch at line ~288,
-  // so it doesn't re-trigger main.
-  if (store.restore) {
-    await storeJson.merge(effects, { restore: undefined })
-  }
+  // `rescan` and `restore` are one-shot request flags (rescan set by the
+  // Rescan Blockchain action, restore by the post-restore hook in backups.ts).
+  // They are deliberately NOT cleared here: a session where lightningd never
+  // comes up must not consume them, or the user's request silently vanishes
+  // (a rescan requested during a crash loop used to be lost this way). The
+  // consume-flags oneshot at the end of the chain clears both once lightningd
+  // answers RPC — which happens early in a rescan, so a mid-scan crash still
+  // resumes from where it got to rather than re-running the whole scan. The
+  // store watch below ignores flag *clears*, so that write doesn't bounce
+  // main.
 
   /**
    * ======================== Daemons ========================
@@ -296,8 +294,26 @@ export const main = sdk.setupMain(async ({ effects }) => {
       requires: ['lightningd'],
     })
 
-  // restart on changes to store or config
-  await storeJson.read().const(effects)
+  // Restart on store changes that reconfigure the daemon chain (watchtower
+  // server/clients, custom external hosts) or on a NEW rescan/restore request
+  // — setting a flag is what restarts a running service so main can consume
+  // it. A rescan/restore transition back to undefined is the consume-flags
+  // oneshot clearing an already-consumed request, treated as equal so the
+  // clear doesn't restart the service. When main starts consuming another
+  // store field, add it to this comparison.
+  await storeJson
+    .read(
+      (s) => s,
+      (prev, next) =>
+        prev?.watchtowerServer === next?.watchtowerServer &&
+        JSON.stringify(prev?.watchtowerClients) ===
+          JSON.stringify(next?.watchtowerClients) &&
+        JSON.stringify(prev?.customExternalHosts) ===
+          JSON.stringify(next?.customExternalHosts) &&
+        (next?.rescan === undefined || prev?.rescan === next?.rescan) &&
+        (next?.restore === undefined || prev?.restore === next?.restore),
+    )
+    .const(effects)
 
   // emergency-recover and watchtower-server are added conditionally via thunks so
   // both can coexist in a single chain. (Previously each `if` rebuilt from
@@ -328,6 +344,56 @@ export const main = sdk.setupMain(async ({ effects }) => {
               },
             },
             requires: ['lightningd'],
+          }
+        : null,
+    )
+    .addOneshot('address-pregen', () =>
+      store.restore
+        ? {
+            subcontainer: lightningSub,
+            exec: {
+              // A restored database restarts the wallet's address counter at
+              // zero, and CLN only recognizes addresses up to 50 past the
+              // highest known-used index (keyscan_gap, hardcoded upstream).
+              // The node's previous life burned indexes far faster than
+              // on-chain hits advance that window — the web UIs issue a fresh
+              // address per Receive view, observed in the field at ~140/day
+              // (index 4,838 within five weeks of node birth) — so without
+              // this a post-restore rescan silently misses wallet outputs
+              // beyond the first >50-index gap. newaddr persists
+              // bip32_max_index, so pre-registering 10,000 addresses widens
+              // the window for every later rescan. (1,000 was field-tested
+              // and proven too shallow.)
+              command: [
+                'sh',
+                '-c',
+                `i=0; while [ $i -lt 10000 ]; do lightning-cli --lightning-dir=${rootDir} newaddr all > /dev/null || exit 1; i=$((i+1)); done`,
+              ],
+            },
+            requires: ['lightningd'],
+          }
+        : null,
+    )
+    .addOneshot('consume-flags', () =>
+      store.rescan || store.restore
+        ? {
+            subcontainer: lightningSub,
+            exec: {
+              fn: async () => {
+                // lightningd is up (and the restore oneshots above are done),
+                // so the request can no longer be lost to a failed start. The
+                // store watch in main ignores these clears, so this write
+                // doesn't restart the service.
+                await storeJson.merge(effects, {
+                  rescan: undefined,
+                  restore: undefined,
+                })
+                return null
+              },
+            },
+            requires: store.restore
+              ? ['lightningd', 'emergency-recover', 'address-pregen']
+              : ['lightningd'],
           }
         : null,
     )
