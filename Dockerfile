@@ -67,10 +67,19 @@ RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
 # Final stage - simplified
+#
+# `ca-certificates` is required, not cosmetic: upstream dropped it from
+# elementsproject/lightningd between v25.05 and v26.06.6, leaving the image with
+# no /etc/ssl/certs and no /usr/lib/ssl. rust-teos's watchtower-client links
+# reqwest -> native-tls -> OpenSSL, and native-tls probes those paths for a CA
+# store; finding none it calls SSL_CTX_load_verify_locations(NULL, NULL), which
+# fails with an *empty* OpenSSL error queue. Every HTTP client build then dies as
+# "builder error: OpenSSL error" before any network I/O, so no tower ever
+# registers. None of the -dev packages below pull ca-certificates in transitively.
 FROM elementsproject/lightningd:v26.06.6 AS final
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev && \
+    ca-certificates libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
