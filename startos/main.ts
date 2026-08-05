@@ -96,13 +96,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
           `--conf=${rootDir}/config`,
           ...lightningdArgs,
         ],
-        // The watchtower-client plugin keeps its identity key *and*
-        // watchtowers_db.sql3 — the database `listtowers` reads — in
-        // $TOWERS_DATA_DIR, falling back to $HOME/.watchtower. $HOME is /root,
-        // which is outside the only persistent mount (`main` at rootDir), so
-        // without this the client re-keys and forgets every registered tower
-        // each time the container is rebuilt. The 0.3.5.1 entrypoint exported
-        // the same path; the SDK rewrite dropped it.
+        // watchtower-client keeps its identity key and registered towers in
+        // watchtowers_db.sql3 under $TOWERS_DATA_DIR, defaulting to
+        // $HOME/.watchtower — outside the only persistent mount. Without this
+        // it re-keys and forgets every tower on each container rebuild.
         env: { TOWERS_DATA_DIR: `${rootDir}/.watchtower` },
       },
       ready: {
