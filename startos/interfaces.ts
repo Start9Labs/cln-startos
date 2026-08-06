@@ -204,7 +204,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
         protocol: null,
         addSsl: null,
         preferredExternalPort: watchtowerPort,
-        secure: null,
+        secure: { ssl: false },
       },
     )
     const watchtower = sdk.createInterface(effects, {
