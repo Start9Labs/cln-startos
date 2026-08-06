@@ -202,7 +202,13 @@ settings are both set, and fails, so the drop is visible rather than silent.
 - `bitcoin/gossip_store` (rebuilt from peers on start)
 - `data/app/application-cln.log` (log file)
 
-**Restore behavior:** After restore, CLN runs `emergencyrecover` to attempt recovery of channel funds. Channel recovery depends on peer cooperation — funds may be stuck for an indeterminate period.
+**Restore behavior:** `setPostRestore` (backups.ts) snapshots the restored `emergency.recover` to `bitcoin/emergency.recover.restored-<date>` (CLN's chanbackup rewrites the live file as the old channels are processed and forgotten, so the snapshot is the last copy describing them), sets the one-shot `store.restore` flag, and raises an `important` task prompting the user to run Rescan Blockchain.
+
+On the next start, `main` consumes the flag to run three restore oneshots after `lightningd` is ready: `emergency-recover` (runs `lightning-cli emergencyrecover`; recovery depends on peer cooperation and channel funds may be stuck indefinitely), `address-pregen` (issues 10,000 `newaddr` calls so the fresh database's address-recognition window — `bip32_max_index + keyscan_gap`, where the gap is hardcoded to 50 upstream — covers every address the node's previous life used; without it a rescan silently misses wallet outputs), and `consume-flags`, which clears `store.rescan`/`store.restore` only once the others are done.
+
+10,000 is a heuristic sized from field data (a node whose web UIs were visited regularly burned ~140 indexes/day; its funds sat at indexes up to ~4,800 within five weeks of birth — UIs generate a fresh address per Receive view, used or not). A node that ran a busy UI for years can exceed it. The escape hatch, which locates funds at **any** depth without a rescan: `lightning-hsmtool dumponchaindescriptors <lightning-dir>/bitcoin/hsm_secret` prints the wallet's public descriptors (`.../0/0/*`); deriving addresses from them (or feeding them to `bitcoind`'s `scantxoutset`, which works on pruned nodes) pinpoints every funded index, after which `newaddr` to that depth plus one rescan recovers everything. Close payouts always sit at low indexes relative to the channel's era: CLN fixes the close-to address at channel *open* time.
+
+**Flag lifecycle:** `rescan` and `restore` are one-shot request flags in `store.json`. Setting one restarts a running service (the store const in `main` fires); main consumes them at startup but they are cleared only by `consume-flags` after `lightningd` answers RPC, so a request made while the service is crash-looping survives to the next successful start. The store const's custom equality ignores flag *clears* so that write doesn't bounce main; a mid-rescan crash resumes from the wallet's recorded height rather than re-running the scan, because the flag is already cleared moments after `lightningd` comes up.
 
 ## Health Checks
 

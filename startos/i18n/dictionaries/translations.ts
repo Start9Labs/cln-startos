@@ -213,6 +213,7 @@ export default {
     224: 'Debe ser un nombre de dominio, opcionalmente seguido de :puerto (ej. example.com:9735).',
     225: 'Core Lightning resuelve este nombre una sola vez al arrancar y anuncia la dirección obtenida, así que reinicie Core Lightning si el punto final cambia de dirección. No se anuncia mientras Solo Tor esté activado, porque Core Lightning no puede resolver un nombre de host con todas las conexiones forzadas a través del proxy.',
     226: 'Su host externo personalizado no se está anunciando, porque Core Lightning no puede resolver un nombre de host mientras Solo Tor esté activado. En Configuración general, desactive Solo Tor o borre el host externo personalizado.',
+    227: 'Después de restaurar desde una copia de seguridad, su saldo on-chain marca cero hasta que se reescanee la blockchain. Ejecute esta acción con una altura de bloque anterior a la creación de su nodo, precedida de un guion (por ejemplo -800000). El reescaneo tarda horas; la comprobación de salud Sincronizado permanece en rojo mientras trabaja — deje Core Lightning y Bitcoin en ejecución hasta que vuelva a verde.',
   },
   de_DE: {
     0: 'Core Lightning wird gestartet!',
@@ -426,6 +427,7 @@ export default {
     224: 'Muss ein Domänenname sein, optional gefolgt von :Port (z. B. example.com:9735).',
     225: 'Core Lightning löst diesen Namen einmalig beim Start auf und gibt die ermittelte Adresse bekannt; starten Sie Core Lightning daher neu, wenn der Endpunkt seine Adresse wechselt. Solange „Nur Tor“ aktiviert ist, wird sie nicht bekannt gegeben, denn Core Lightning kann keinen Hostnamen auflösen, wenn jede Verbindung über den Proxy erzwungen wird.',
     226: 'Ihr benutzerdefinierter externer Host wird nicht bekannt gegeben, weil Core Lightning bei aktiviertem „Nur Tor“ keinen Hostnamen auflösen kann. Schalten Sie in den Allgemeinen Einstellungen entweder „Nur Tor“ aus oder leeren Sie den benutzerdefinierten externen Host.',
+    227: 'Nach dem Wiederherstellen aus einem Backup zeigt Ihr On-Chain-Guthaben null an, bis die Blockchain neu gescannt wurde. Führen Sie diese Aktion mit einer Blockhöhe von vor der Erstellung Ihres Nodes aus, mit vorangestelltem Bindestrich (zum Beispiel -800000). Der Rescan dauert Stunden; die Synchronisiert-Prüfung bleibt währenddessen rot — lassen Sie Core Lightning und Bitcoin laufen, bis sie wieder grün wird.',
   },
   pl_PL: {
     0: 'Uruchamianie Core Lightning!',
@@ -639,6 +641,7 @@ export default {
     224: 'Musi być nazwą domeny, opcjonalnie z portem :port (np. example.com:9735).',
     225: 'Core Lightning rozwiązuje tę nazwę jednorazowo przy starcie i ogłasza uzyskany adres, więc zrestartuj Core Lightning, jeśli punkt końcowy zmieni adres. Nie jest ogłaszany, gdy włączona jest opcja Tylko Tor, ponieważ Core Lightning nie może rozwiązać nazwy hosta, gdy każde połączenie jest wymuszane przez proxy.',
     226: 'Twój niestandardowy host zewnętrzny nie jest ogłaszany, ponieważ Core Lightning nie może rozwiązać nazwy hosta, gdy włączona jest opcja Tylko Tor. W Ustawieniach ogólnych wyłącz opcję Tylko Tor albo wyczyść niestandardowy host zewnętrzny.',
+    227: 'Po przywróceniu z kopii zapasowej saldo on-chain pokazuje zero, dopóki blockchain nie zostanie ponownie przeskanowany. Uruchom tę akcję z wysokością bloku sprzed utworzenia węzła, poprzedzoną myślnikiem (na przykład -800000). Ponowne skanowanie trwa godzinami; kontrola stanu Zsynchronizowano pozostaje w tym czasie czerwona — zostaw Core Lightning i Bitcoin uruchomione, aż znów będzie zielona.',
   },
   fr_FR: {
     0: 'Démarrage de Core Lightning !',
@@ -852,5 +855,6 @@ export default {
     224: 'Doit être un nom de domaine, optionnellement suivi de :port (ex. example.com:9735).',
     225: "Core Lightning résout ce nom une seule fois au démarrage et annonce l'adresse obtenue ; redémarrez donc Core Lightning si le point de terminaison change d'adresse. Elle n'est pas annoncée tant que Tor uniquement est activé, car Core Lightning ne peut pas résoudre un nom d'hôte lorsque chaque connexion est forcée par le proxy.",
     226: "Votre hôte externe personnalisé n'est pas annoncé, car Core Lightning ne peut pas résoudre un nom d'hôte tant que Tor uniquement est activé. Dans les Paramètres généraux, désactivez Tor uniquement ou effacez l'hôte externe personnalisé.",
+    227: "Après une restauration depuis une sauvegarde, votre solde on-chain affiche zéro jusqu'à ce que la blockchain soit rescannée. Lancez cette action avec une hauteur de bloc antérieure à la création de votre nœud, précédée d'un tiret (par exemple -800000). Le rescan prend des heures ; le contrôle Synchronisé reste rouge pendant ce temps — laissez Core Lightning et Bitcoin tourner jusqu'à ce qu'il redevienne vert.",
   },
 } satisfies Record<string, LangDict>
