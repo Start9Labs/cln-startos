@@ -43,7 +43,7 @@
 - **Experimental Features** — toggle splicing, shutdown-wrong-funding, and dual funding / liquidity ads (with policy, fuzz percentage, fund probability, and merchant lease-fee settings).
 - **Watchtower Settings** — enable the TEOS watchtower server, enable the watchtower client, and add tower URIs to register with.
 - **Watchtower Info** — visible when the watchtower server is enabled; shows the server URI and stats.
-- **Watchtower Client Info** — visible when at least one tower is configured; shows registered towers and subscription state.
+- **Watchtower Client Info** — visible when at least one tower is configured; shows registered towers and subscription state. Towers you add are registered automatically the next time Core Lightning starts, and stay registered across restarts and updates. If this list is empty, give the service a minute after startup and check it again — registration runs shortly after Core Lightning is up. Tower URIs are usually `.onion` addresses, which need Tor installed and running to reach.
 - **Rescan Blockchain** — rescan the blockchain from a given depth or block height. Useful after restoring an on-chain wallet.
 - **Reset UI Password** — clear the CLN Application UI password so you can set a new one on the next visit.
 - **Delete Gossip Store** — delete a corrupted `gossip_store`; CLN will rebuild it from peers on next start. Available when the service is stopped.

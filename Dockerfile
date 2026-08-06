@@ -67,10 +67,14 @@ RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
 # Final stage - simplified
+#
+# `ca-certificates` is load-bearing: the upstream image carries no CA store, and
+# none of the -dev packages below pull one in. Without it watchtower-client
+# cannot build an HTTPS client, so no tower ever registers (see README.md).
 FROM elementsproject/lightningd:v26.06.6 AS final
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev && \
+    ca-certificates libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/

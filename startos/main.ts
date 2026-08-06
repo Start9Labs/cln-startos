@@ -96,6 +96,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
           `--conf=${rootDir}/config`,
           ...lightningdArgs,
         ],
+        // watchtower-client keeps its identity key and registered towers in
+        // watchtowers_db.sql3 under $TOWERS_DATA_DIR, defaulting to
+        // $HOME/.watchtower — outside the only persistent mount. Without this
+        // it re-keys and forgets every tower on each container rebuild.
+        env: { TOWERS_DATA_DIR: `${rootDir}/.watchtower` },
       },
       ready: {
         display: i18n('RPC Interface'),
