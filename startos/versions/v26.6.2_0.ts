@@ -1,6 +1,5 @@
 import { IMPOSSIBLE, VersionInfo, YAML } from '@start9labs/start-sdk'
 import { readFile, rm } from 'fs/promises'
-import { X509Certificate } from 'crypto'
 import { clnConfig } from '../fileModels/config'
 import { storeJson } from '../fileModels/store.json'
 
@@ -40,49 +39,6 @@ Notes de version de Core Lightning : https://github.com/ElementsProject/lightnin
   },
   migrations: {
     up: async ({ effects }) => {
-      // Reset the legacy StartOS-issued gRPC certs so cln-grpc regenerates its
-      // native "cln" certs — the TLS identity clients like Alby Hub expect. The
-      // since-removed setupCerts init (0.4.0-beta releases 25.12.1:x … 26.6:0)
-      // overwrote cln-grpc's certs with StartOS-issued ones bearing a
-      // `c-lightning.startos` SAN; we key on that SAN so the reset is idempotent
-      // and safe to run on every update — native certs (already-fixed installs,
-      // and installs predating setupCerts such as 0.3.5.1) are left untouched, so
-      // it never deletes a live identity or breaks an existing pairing.
-      //
-      // TODO: delete this block once 0.4.0 is out of beta. The only installs that
-      // carry these certs are from the beta setupCerts era; by GA they will all
-      // have migrated through a reset and the SAN guard will match nothing.
-      const grpcCertDir = '/media/startos/volumes/main/bitcoin'
-      const serverCert = await readFile(
-        `${grpcCertDir}/server.pem`,
-        'utf-8',
-      ).catch(() => null)
-      const certBlocks =
-        serverCert?.match(
-          /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g,
-        ) ?? []
-      const startOsIssued = certBlocks.some((pem) => {
-        try {
-          return !!new X509Certificate(pem).subjectAltName?.includes(
-            'c-lightning.startos',
-          )
-        } catch {
-          return false
-        }
-      })
-      if (startOsIssued) {
-        await Promise.all(
-          [
-            'ca.pem',
-            'ca-key.pem',
-            'server.pem',
-            'server-key.pem',
-            'client.pem',
-            'client-key.pem',
-          ].map((file) => rm(`${grpcCertDir}/${file}`, { force: true })),
-        )
-      }
-
       // get old config.yaml
       const configYaml:
         | {

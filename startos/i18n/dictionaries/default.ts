@@ -246,6 +246,14 @@ const dict = {
   'Core Lightning resolves this name once at startup and announces the address it resolves to, so restart Core Lightning if the endpoint moves to a new address. It is not announced while Tor Only is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy.': 225,
   'Your custom external host is not being announced, because Core Lightning cannot resolve a hostname while Tor Only is enabled. In General Settings, either turn off Tor Only or clear the custom external host.': 226,
   'After restoring from backup, your on-chain balance reads zero until the blockchain is rescanned. Run this action with a blockheight from before your node was first created, prefixed with a hyphen (for example -800000). The rescan takes hours; the Synced health check stays red while it works — leave Core Lightning and Bitcoin running until it turns green.': 227,
+
+  // actions/revokeRunes.ts
+  'Revoke All Runes': 228,
+  'Blacklists every rune this node has issued, so none of them can authenticate again. Use this if a rune may have been copied or exposed, or if an app with RPC access to this node may have created one without your knowledge.': 229,
+  'This revokes every rune, including ones you still rely on. Any integration that authenticates with a rune loses access until you issue it a new one with Create Rune.': 230,
+  'Every rune this node had issued is now revoked, and Core Lightning is restarting to issue the web UI a fresh one. Any other integration that used a rune needs a new one from the "Create Rune" action.': 231,
+  'This node has not issued any runes, so there was nothing to revoke.': 232,
+  'Failed to Revoke Runes': 233,
 } as const
 
 /**

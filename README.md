@@ -88,7 +88,7 @@ The Bitcoin `main` volume is mounted read-only at `/mnt/bitcoin` for cookie auth
 ## Installation and First-Run Flow
 
 1. The CLN wallet is **automatically created** on first start by `lightningd` — no manual setup required
-2. A **commando rune** is auto-generated on startup for the CLN Application web UI
+2. A **commando rune** is auto-generated on startup for the CLN Application web UI. The `commando-config` oneshot reuses the cached rune while `.commando-env` exists and its recorded pubkey still matches, so anything that invalidates that rune — notably **Revoke All Runes** — must delete the file as well, or the UI is locked out with no way back.
 3. The CLN Application web UI prompts the user to set a password on first access
 
 ## Configuration Management
@@ -171,6 +171,7 @@ settings are both set, and fails, so the drop is visible rather than silent.
 | **Node Info**              | Display node ID and peer URI(s)                    | Running only                                                | None   |
 | **Display BIP-39 Seed**    | Display the wallet's 12-word BIP-39 seed           | Any (disabled/hidden if no seed or legacy wallet)           | None   |
 | **Create Rune**            | Generate an unrestricted rune for app integrations | Running only                                                | None   |
+| **Revoke All Runes**       | Blacklist every rune the node has issued           | Running only                                                | None   |
 | **Watchtower Info**        | Display watchtower server URI and stats            | Running only (disabled if watchtower server inactive)       | None   |
 | **Watchtower Client Info** | Display registered tower details                   | Running only (disabled if no watchtower clients configured) | None   |
 
