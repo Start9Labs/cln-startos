@@ -8,6 +8,7 @@ import {
   rpcPort,
   peerPort,
   clnrestPort,
+  commandoEnv,
   watchtowerPort,
   grpcPort,
   websocketPort,
@@ -137,11 +138,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       },
     })
 
-    const contents = await FileHelper.string(
-      '/media/startos/volumes/main/.commando-env',
-    )
-      .read()
-      .const(effects)
+    const contents = await FileHelper.string(commandoEnv).read().const(effects)
 
     if (contents) {
       const rune = parse(contents)['LIGHTNING_RUNE']

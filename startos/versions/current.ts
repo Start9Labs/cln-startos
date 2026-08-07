@@ -1,33 +1,33 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.6:8',
+  version: '26.6.6:9',
   releaseNotes: {
-    en_US: `Makes restoring from a backup recover funds reliably.
+    en_US: `Adds a **Revoke All Runes** action.
 
-A restored node starts with an empty wallet database, and previously nothing said so: the balance read zero until a blockchain rescan, the rescan could silently miss older wallet addresses, and a rescan or restore requested while Core Lightning was failing to start was silently forgotten. After a restore, StartOS now prompts you to run Rescan Blockchain, pre-registers the wallet's first 10,000 addresses so the rescan finds everything, preserves a snapshot of the channel-recovery file (emergency.recover) before the node can rewrite it, and holds rescan/restore requests until Core Lightning has actually started.
+Runes are the credential apps use to authenticate to your node, and until now there was no way to take one back. The new action blacklists every rune this node has issued, so none of them work again; re-issue the ones you still need with Create Rune.
 
-Also lets the Watchtower Server address be offered on more of your network addresses. The service did not declare that watchtower connections secure themselves — the tower's identity key is part of the address you hand out, and everything sent to it is encrypted — so StartOS restricted where that address could be served.`,
-    es_ES: `Hace que restaurar desde una copia de seguridad recupere los fondos de forma fiable.
+Run it if a rune may have been copied or exposed — or if an app with RPC access to your node may have created one without your knowledge. That applies if you run BTCPay Server, which reaches Core Lightning over its admin RPC socket and shipped an actively exploited vulnerability in versions before 2.4.2.`,
+    es_ES: `Añade una acción **Revocar todas las runas**.
 
-Un nodo restaurado arranca con una base de datos de cartera vacía, y antes nada lo indicaba: el saldo marcaba cero hasta reescanear la blockchain, el reescaneo podía omitir silenciosamente direcciones antiguas de la cartera, y una petición de reescaneo o restauración hecha mientras Core Lightning no conseguía arrancar se olvidaba sin aviso. Tras una restauración, StartOS ahora le pide ejecutar Reescanear Blockchain, prerregistra las primeras 10.000 direcciones de la cartera para que el reescaneo lo encuentre todo, conserva una instantánea del archivo de recuperación de canales (emergency.recover) antes de que el nodo pueda reescribirlo, y retiene las peticiones de reescaneo/restauración hasta que Core Lightning haya arrancado de verdad.
+Las runas son la credencial con la que las aplicaciones se autentican ante tu nodo, y hasta ahora no había forma de retirar ninguna. La nueva acción incluye en la lista negra todas las runas emitidas por este nodo, de modo que ninguna vuelve a funcionar; vuelve a emitir las que sigas necesitando con «Crear runa».
 
-Además, permite ofrecer la dirección del Servidor de Watchtower en más de tus direcciones de red. El servicio no declaraba que las conexiones de watchtower se protegen por sí solas — la clave de identidad de la torre forma parte de la dirección que compartes y todo lo que se le envía va cifrado —, por lo que StartOS restringía dónde podía servirse esa dirección.`,
-    de_DE: `Macht die Wiederherstellung aus einem Backup zuverlässig.
+Ejecútala si alguna runa pudo ser copiada o quedar expuesta, o si una aplicación con acceso RPC a tu nodo pudo crear una sin que lo supieras. Es el caso si usas BTCPay Server, que se comunica con Core Lightning por su socket RPC de administración y tuvo una vulnerabilidad explotada activamente en las versiones anteriores a la 2.4.2.`,
+    de_DE: `Fügt eine Aktion **Alle Runes widerrufen** hinzu.
 
-Ein wiederhergestellter Node startet mit einer leeren Wallet-Datenbank, und bisher wies nichts darauf hin: Das Guthaben zeigte bis zu einem Blockchain-Rescan null an, der Rescan konnte ältere Wallet-Adressen stillschweigend übersehen, und ein Rescan- oder Restore-Auftrag, der gestellt wurde, während Core Lightning nicht startete, ging stillschweigend verloren. Nach einer Wiederherstellung fordert StartOS Sie jetzt auf, Rescan Blockchain auszuführen, registriert die ersten 10.000 Wallet-Adressen vor, damit der Rescan alles findet, sichert einen Schnappschuss der Kanal-Wiederherstellungsdatei (emergency.recover), bevor der Node sie überschreiben kann, und hält Rescan-/Restore-Aufträge fest, bis Core Lightning tatsächlich gestartet ist.
+Runes sind die Zugangsdaten, mit denen sich Apps bei Ihrem Node authentifizieren, und bisher gab es keine Möglichkeit, eine zurückzuziehen. Die neue Aktion setzt jede von diesem Node ausgestellte Rune auf die Blacklist, sodass keine mehr funktioniert; stellen Sie die weiterhin benötigten mit „Rune erstellen“ neu aus.
 
-Außerdem kann die Adresse des Watchtower-Servers jetzt auf mehr Ihrer Netzwerkadressen angeboten werden. Der Dienst gab nicht an, dass Watchtower-Verbindungen sich selbst absichern — der Identitätsschlüssel des Towers ist Teil der Adresse, die Sie weitergeben, und alles, was an ihn gesendet wird, ist verschlüsselt. Deshalb schränkte StartOS ein, wo diese Adresse bereitgestellt werden konnte.`,
-    pl_PL: `Sprawia, że przywracanie z kopii zapasowej niezawodnie odzyskuje środki.
+Führen Sie sie aus, wenn eine Rune kopiert oder offengelegt worden sein könnte — oder wenn eine App mit RPC-Zugriff auf Ihren Node ohne Ihr Wissen eine erstellt haben könnte. Das betrifft Sie, wenn Sie BTCPay Server betreiben, das Core Lightning über dessen Admin-RPC-Socket erreicht und in Versionen vor 2.4.2 eine aktiv ausgenutzte Sicherheitslücke hatte.`,
+    pl_PL: `Dodaje akcję **Unieważnij wszystkie runy**.
 
-Przywrócony węzeł startuje z pustą bazą portfela, a wcześniej nic o tym nie informowało: saldo pokazywało zero aż do ponownego przeskanowania blockchaina, skan mógł po cichu pominąć starsze adresy portfela, a żądanie skanu lub przywrócenia złożone, gdy Core Lightning nie mógł wystartować, było po cichu zapominane. Po przywróceniu StartOS prosi teraz o uruchomienie Rescan Blockchain, wstępnie rejestruje pierwsze 10 000 adresów portfela, aby skan znalazł wszystko, zachowuje migawkę pliku odzyskiwania kanałów (emergency.recover), zanim węzeł zdąży go nadpisać, i przechowuje żądania skanu/przywrócenia, dopóki Core Lightning faktycznie nie wystartuje.
+Runy to poświadczenia, którymi aplikacje uwierzytelniają się w twoim węźle, a do tej pory nie było sposobu, aby którąś wycofać. Nowa akcja umieszcza na czarnej liście każdą runę wydaną przez ten węzeł, więc żadna nie działa ponownie; te, których nadal potrzebujesz, wydaj na nowo akcją „Utwórz runę”.
 
-Ponadto adres Serwera Watchtower może być teraz udostępniany na większej liczbie adresów sieciowych. Usługa nie deklarowała, że połączenia watchtower zabezpieczają się same — klucz tożsamości wieży jest częścią udostępnianego adresu, a wszystko, co jest do niej wysyłane, jest szyfrowane — więc StartOS ograniczał, gdzie ten adres może być serwowany.`,
-    fr_FR: `Rend la restauration depuis une sauvegarde fiable pour récupérer les fonds.
+Uruchom ją, jeśli któraś runa mogła zostać skopiowana lub ujawniona — albo jeśli aplikacja z dostępem RPC do twojego węzła mogła utworzyć runę bez twojej wiedzy. Dotyczy to sytuacji, gdy korzystasz z BTCPay Server, który łączy się z Core Lightning przez jego administracyjne gniazdo RPC i w wersjach starszych niż 2.4.2 zawierał aktywnie wykorzystywaną lukę.`,
+    fr_FR: `Ajoute une action **Révoquer toutes les runes**.
 
-Un nœud restauré démarre avec une base de portefeuille vide, et rien ne le signalait auparavant : le solde affichait zéro jusqu'à un rescan de la blockchain, le rescan pouvait manquer silencieusement d'anciennes adresses du portefeuille, et une demande de rescan ou de restauration faite pendant que Core Lightning n'arrivait pas à démarrer était silencieusement oubliée. Après une restauration, StartOS vous invite désormais à lancer Rescan Blockchain, pré-enregistre les 10 000 premières adresses du portefeuille pour que le rescan trouve tout, conserve un instantané du fichier de récupération des canaux (emergency.recover) avant que le nœud ne puisse le réécrire, et retient les demandes de rescan/restauration jusqu'à ce que Core Lightning ait réellement démarré.
+Les runes sont l'identifiant avec lequel les applications s'authentifient auprès de votre nœud, et jusqu'ici rien ne permettait d'en retirer une. La nouvelle action met sur liste noire toutes les runes émises par ce nœud, si bien qu'aucune ne fonctionne plus ; réémettez celles dont vous avez encore besoin avec « Créer une rune ».
 
-Par ailleurs, l'adresse du serveur Watchtower peut désormais être proposée sur davantage de vos adresses réseau. Le service ne déclarait pas que les connexions watchtower se sécurisent elles-mêmes — la clé d'identité de la tour fait partie de l'adresse que vous partagez, et tout ce qui lui est envoyé est chiffré —, si bien que StartOS restreignait les endroits où cette adresse pouvait être servie.`,
+Lancez-la si une rune a pu être copiée ou exposée — ou si une application disposant d'un accès RPC à votre nœud a pu en créer une à votre insu. C'est le cas si vous utilisez BTCPay Server, qui atteint Core Lightning via son socket RPC d'administration et présentait une vulnérabilité activement exploitée dans les versions antérieures à 2.4.2.`,
   },
   migrations: {},
 })
