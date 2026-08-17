@@ -6,14 +6,13 @@ Develop it inside a StartOS packaging workspace created by `start-cli s9pk init-
 which provides the packaging guide and agent context one level up. If you're reading this in a
 bare clone with no workspace, the full guide is at <https://docs.start9.com/packaging>.
 
-Work this package's `TODO.md` from top to bottom. Keep `README.md` (architecture, for developers and LLMs) and `instructions.md` (end-user docs) in sync with your changes.
+Work this package's `TODO.md` from top to bottom. Keep `README.md` (technical reference for an AI support or administering agent) and `instructions.md` (end-user docs) in sync with your changes.
 
 ## This repo
 
-- **Package id is `c-lightning`** (the manifest id in `startos/manifest/index.ts` — not `cln`, which is only the repo shorthand); dependents and `effects` calls must reference `c-lightning`. Host ids `peer` and `watchtower` (with interface ids `peer` and `watchtower`) are exported from `startos/interfaces.ts` — sibling lightning packages import them, so treat them as a small API: renaming one means updating the dependents in the same change.
-- **bitcoind is reached over the LXC bridge**, resolved by `bitcoindRpcBridge` in `startos/utils.ts` (`sdk.host.getBridgeAddress`) from bitcoin-core's exported `rpcHostId`/`rpcPort` (imported from `bitcoin-core-startos/startos/utils`). The config file model types `bitcoin-rpcconnect`/`bitcoin-rpcport` as optional (`.optional().catch(undefined)`) because the address is dynamic and absent until the binding resolves — never a fabricated placeholder.
-- **Daemons requires-ordering gotcha:** `watchtower-server` (teosd) is added conditionally — unconditional entries must never `require` it (client-side oneshots require `watchtower-client` instead). SDK 2.0's `Daemons.build()` enforces this at runtime, not compile time.
-
-## Inspecting a running install
-
-To run a command inside the service's container (read its generated config, grep app logs), use `start-cli package attach c-lightning -n lightning-sub -- <cmd>`. Select the subcontainer by **name** with `-n` (the name passed to `SubContainer.of` in `main.ts` — here `lightning-sub` for lightningd, `cln-application-sub` for the UI) or by image with `-i`. Note: `-s/--subcontainer` matches the internal **Guid**, not the name, so passing a name to `-s` fails with "no matching subcontainers".
+- **Package id is `c-lightning`, not `cln`.** Dependents, `effects` calls, and `start-cli` all take `c-lightning`; several sibling packages import from `cln-startos/startos/utils` for its ports.
+- **Nothing loads a CLN plugin from the volume at runtime.** `plugins/`, `clboss/` and `rust-teos/` are compiled into the image by the `Dockerfile`, so a plugin change is an image rebuild.
+- **`rescan` and `restore` in `store.json` must not be cleared where they are read.** A session where `lightningd` never starts must not consume the request — that is how a rescan asked for during a crash loop used to disappear. The `consume-flags` oneshot clears them only once the node answers RPC, and `main`'s store watch treats a clear-to-`undefined` as equal so that write does not restart the service. Keep both halves if you add another one-shot flag.
+- **`TOWERS_DATA_DIR` is set for a reason.** watchtower-client defaults its database to `$HOME/.watchtower`, which is not on the persistent volume, and the failure is silent: the client re-keys and forgets every registered tower on each container rebuild.
+- **`clnrest-protocol` is forced to `http` deliberately** — upstream defaults it to https. Tor already encrypts and its clients cannot validate a StartOS certificate; LAN and clearnet get TLS from the edge listener instead.
+- **`abandontowers` requires `watchtower-client`, never the conditional `watchtower-server`.** Requiring a daemon that may be absent breaks the chain when the server is disabled, since `Daemons.build` enforces requires-ordering.
