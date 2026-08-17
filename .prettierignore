@@ -1,0 +1,4 @@
+# vendored upstream (git submodule)
+clboss/
+plugins/
+rust-teos/
