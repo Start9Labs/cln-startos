@@ -27,7 +27,7 @@ verified, tried, and decided belongs in the commit message and the PR body.
 ## This repo
 
 - **Package id is `c-lightning`, not `cln`.** Dependents, `effects` calls, and `start-cli` all take `c-lightning`; several sibling packages import from `cln-startos/startos/utils` for its ports.
-- **Nothing loads a CLN plugin from the volume at runtime.** `plugins/`, `clboss/` and `rust-teos/` are compiled into the image by the `Dockerfile`, so a plugin change is an image rebuild.
+- **Nothing loads a CLN plugin from the volume at runtime.** The `Dockerfile` compiles `clboss/` and `rust-teos/` into the image and installs `sling` from an upstream release binary, so changing any of the three means rebuilding the image. Nothing is copied out of the `plugins/` submodule.
 - **`rescan` and `restore` in `store.json` must not be cleared where they are read.** A session where `lightningd` never starts must not consume the request — that is how a rescan asked for during a crash loop used to disappear. The `consume-flags` oneshot clears them only once the node answers RPC, and `main`'s store watch treats a clear-to-`undefined` as equal so that write does not restart the service. Keep both halves if you add another one-shot flag.
 - **`TOWERS_DATA_DIR` is set for a reason.** watchtower-client defaults its database to `$HOME/.watchtower`, which is not on the persistent volume, and the failure is silent: the client re-keys and forgets every registered tower on each container rebuild.
 - **`clnrest-protocol` is forced to `http` deliberately** — upstream defaults it to https. Tor already encrypts and its clients cannot validate a StartOS certificate; LAN and clearnet get TLS from the edge listener instead.
