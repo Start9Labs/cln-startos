@@ -1,6 +1,3 @@
-[submodule "plugins"]
-	path = plugins
-	url = https://github.com/lightningd/plugins
 [submodule "clboss"]
 	path = clboss
 	url = https://github.com/ZmnSCPxj/clboss

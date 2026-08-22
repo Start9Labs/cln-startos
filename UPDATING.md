@@ -56,16 +56,6 @@ For each independent upstream source below: a link to its canonical repo, one co
   ```
 - Current pin: commit checked out in the `rust-teos/` git submodule. Inspect with `git -C rust-teos describe --tags --always` — the `-N-g<sha>` suffix is how far ahead of the last release it is.
 
-### Plugins meta-submodule
-
-- Upstream: [lightningd/plugins](https://github.com/lightningd/plugins). This repo has no release/tag concept — it tracks `master`.
-- The `Dockerfile` copies nothing out of this submodule, so moving the pin changes no shipped byte. Let it ride along with a release that has its own reason to exist, and leave its release notes alone.
-- Latest upstream `master` commit:
-  ```sh
-  git -C plugins ls-remote origin HEAD
-  ```
-- Current pin: commit checked out in the `plugins/` git submodule. Inspect with `git -C plugins rev-parse HEAD`.
-
 ### Sling
 
 - Upstream: [daywalker90/sling](https://github.com/daywalker90/sling) (consumed as a prebuilt release binary).
@@ -92,10 +82,6 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### TEOS
 
 - `cd rust-teos && git fetch --tags && git checkout <new ref> && cd .. && git add rust-teos`.
-
-### Plugins
-
-- `cd plugins && git fetch && git checkout <new ref> && cd .. && git add plugins`. Use the upstream `master` HEAD commit unless you have a specific reason to pin elsewhere.
 
 ### Sling
 
