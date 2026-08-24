@@ -9,7 +9,7 @@
 > upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[Core Lightning](https://github.com/ElementsProject/lightning) is a Lightning Network node implementation. This package builds it with three plugins compiled in, runs a web UI alongside it, and can act as — or subscribe to — a BOLT13 watchtower.
+[Core Lightning](https://github.com/ElementsProject/lightning) is a Lightning Network node implementation. This package builds it with three plugins built into the image, runs a web UI alongside it, and can act as — or subscribe to — a BOLT13 watchtower.
 
 - **Upstream repo:** <https://github.com/ElementsProject/lightning>
 - **Wrapper repo:** <https://github.com/Start9Labs/cln-startos>
@@ -35,7 +35,7 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here because three plugins are compiled from source and copied into upstream's image; the web UI's is pulled as published.
+Two images. The node's is built here because three plugins are added to upstream's image at build time; the web UI's is pulled as published.
 
 | Property      | Value                                                                                                   |
 | ------------- | ------------------------------------------------------------------------------------------------------- |
@@ -43,7 +43,7 @@ Two images. The node's is built here because three plugins are compiled from sou
 | Architectures | x86_64, aarch64 — both images declare `emulateMissingAs: 'aarch64'`                                     |
 | Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                                   |
 
-Three plugins are built from git submodules and dropped into the plugin directory: **CLBOSS** (automated channel management), **watchtower-client** and **teosd** from rust-teos (BOLT13 watchtower, both client and server), and **sling** (rebalancing). They are compiled in rather than downloaded at runtime, so the image is self-contained.
+Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
 
 | Subcontainer          | Purpose                                                                         |
 | --------------------- | ------------------------------------------------------------------------------- |
@@ -144,7 +144,7 @@ Thirteen actions. Four configure the node, three concern the watchtower, and the
 Three actions writing `/config`, grouped together. Each writes only the fields it presents, costs seconds plus a restart, and is safe to re-run — the forms are pre-filled from the current file.
 
 - **General Settings** carries node identity, fee policy, channel minimums, Tor Only, the custom external host, and the CLNrest and Clams toggles. Two combinations produce a visible consequence rather than an error: Tor Only with a custom external host drops the host and raises a health check, and the Clams toggle changes the bind addresses.
-- **Plugins** selects which of the compiled-in plugins load, and carries CLBOSS's tuning.
+- **Plugins** selects which of the built-in plugins load, and carries CLBOSS's tuning.
 - **Experimental Features** exposes upstream's experimental flags, which are not standardized across implementations and may break between releases.
 
 ### Watchtower Server, Watchtower Info, Watchtower Client Info
@@ -246,7 +246,7 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 4. **gRPC cannot be reached through a TLS-terminating path**, because the plugin authenticates clients with their own certificates.
 5. **A custom external host is incompatible with Tor Only** and is dropped while both are set.
 6. **The watchtower is not configurable.** Its ports, bind addresses, and subscription parameters are fixed.
-7. **Plugins are those compiled into the image.** Adding another means changing the image, not dropping a file on the volume.
+7. **Plugins are those built into the image.** Adding another means changing the image, not dropping a file on the volume.
 8. **No riscv64 build**, and on hardware without a native image the aarch64 build runs emulated.
 
 ---

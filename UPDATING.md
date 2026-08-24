@@ -49,24 +49,12 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### TEOS (watchtower)
 
 - Upstream: [talaia-labs/rust-teos](https://github.com/talaia-labs/rust-teos).
-- Latest release tag:
+- The newest release, `v0.2.0`, is from 2023 and the pin sits well past it on `master`, so move the pin along `master` and check any candidate is a descendant of the current one:
   ```sh
-  gh release view -R talaia-labs/rust-teos --json tagName -q .tagName
+  git -C rust-teos ls-remote origin HEAD
+  git -C rust-teos merge-base --is-ancestor HEAD <candidate> && echo "safe to advance"
   ```
-- Fallback to tags if no release is cut:
-  ```sh
-  gh api repos/talaia-labs/rust-teos/tags --jq '.[0].name'
-  ```
-- Current pin: commit checked out in the `rust-teos/` git submodule. Inspect with `git -C rust-teos describe --tags --always`.
-
-### Plugins meta-submodule
-
-- Upstream: [lightningd/plugins](https://github.com/lightningd/plugins). This repo has no release/tag concept — it tracks `master`.
-- Latest upstream `master` commit:
-  ```sh
-  git -C plugins ls-remote origin HEAD
-  ```
-- Current pin: commit checked out in the `plugins/` git submodule. Inspect with `git -C plugins rev-parse HEAD`.
+- Current pin: commit checked out in the `rust-teos/` git submodule. Inspect with `git -C rust-teos describe --tags --always` — the `-N-g<sha>` suffix is how far ahead of the last release it is.
 
 ### Sling
 
@@ -94,10 +82,6 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### TEOS
 
 - `cd rust-teos && git fetch --tags && git checkout <new ref> && cd .. && git add rust-teos`.
-
-### Plugins
-
-- `cd plugins && git fetch && git checkout <new ref> && cd .. && git add plugins`. Use the upstream `master` HEAD commit unless you have a specific reason to pin elsewhere.
 
 ### Sling
 
