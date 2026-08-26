@@ -41,7 +41,7 @@ Two images. The node's is built here because three plugins are added to upstream
 | ------------- | ------------------------------------------------------------------------------------------------------- |
 | Images        | Built from `Dockerfile` on `elementsproject/lightningd`, plus `ghcr.io/elementsproject/cln-application` |
 | Architectures | x86_64, aarch64 — both images declare `emulateMissingAs: 'aarch64'`                                     |
-| Entrypoint    | `lightningd` with an explicit config path and `--offline`; the UI runs its own server                   |
+| Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                                   |
 
 Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
 
@@ -242,8 +242,6 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 
 ## Limitations and Differences
 
-> **Temporary — this release runs `lightningd` with `--offline`**, as a precaution against a security issue reported by the Core Lightning developers. The node accepts no incoming connections and reconnects to no peers, so nothing listens on the `peer` interface and no payment can be sent, received, or forwarded. On-chain funds, channel state, RPC, and the web UI are unaffected; a peer may force-close a channel whose HTLC expires meanwhile. Dependents reach the node normally and see it with no peers. The next release removes the flag.
-
 1. **A restore is a recovery, not a resumption.** Channels are force-closed by design; plan to sweep the funds and reinstall.
 2. **The channel database is excluded from backups**, deliberately.
 3. **CLNrest is served as plaintext by the node**, with TLS added at the edge for LAN and clearnet only.
@@ -292,7 +290,7 @@ dependencies:
 interfaces:
   ui: { type: ui, port: 4500 }
   rpc: { type: api, port: 8080 }
-  peer: { type: p2p, port: 9735 } # nothing listens while --offline is forced
+  peer: { type: p2p, port: 9735 }
   grpc: { type: api, port: 2106 } # TLS passthrough, not terminated
   clnrest: { type: api, port: 3010 } # when enabled; URL carries the rune
   websocket: { type: api, port: 7272 } # when the Clams websocket is enabled
