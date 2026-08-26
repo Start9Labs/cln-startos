@@ -94,7 +94,7 @@ if [ -e /root/.lightning/bitcoin/lightning-rpc ]; then
 fi
 
 echo "Starting lightningd"
-lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL$RESCAN &
+lightningd --database-upgrade=true$MIN_ONCHAIN$AUTO_CLOSE$ZEROBASEFEE$MIN_CHANNEL$MAX_CHANNEL$RESCAN --offline &
 lightningd_child=$!
 
 if [ "$(yq ".watchtowers.wt-server" /root/.lightning/start9/config.yaml)" = "true" ]; then

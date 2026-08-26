@@ -499,7 +499,7 @@ export const migration: T.ExpectedExports.migration =
         },
       },
     },
-    "25.12.1.1",
+    "25.12.1.2",
   );
 
 function generateRandomString(length: number) {
