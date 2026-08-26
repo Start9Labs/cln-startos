@@ -68,6 +68,7 @@ Once any recovered channels have resolved, sweep remaining funds to another wall
 
 ## Limitations
 
+- **This release keeps your node offline.** Core Lightning accepts no incoming connections and does not reconnect to peers, as a precaution against a security issue reported by the Core Lightning developers. Your funds and channels are untouched and the web interface still works, but you cannot send, receive, or forward payments until the next release restores normal operation.
 - **Mainnet only.** Testnet, signet, and regtest are not exposed.
 - **Bitcoin authentication is cookie-based.** `bitcoin-rpcuser` and `bitcoin-rpcpassword` are intentionally not configurable; CLN uses the mounted Bitcoin cookie file.
 - **The `config` file is managed through actions.** Manual edits will be overwritten on the next config sync.
