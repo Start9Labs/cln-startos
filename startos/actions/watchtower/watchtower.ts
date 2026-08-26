@@ -37,7 +37,7 @@ const watchtowerSpec = InputSpec.of({
                 maxLength: null,
                 default: [],
                 description: i18n(
-                  "Add URIs of watchtower servers to connect to. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158",
+                  "Add URIs of watchtower servers to connect to, in the form <pubkey>@<host>:<port>. Prefix the host with https:// if the tower serves its API over TLS. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158",
                 ),
                 warning: null,
               },

@@ -1,6 +1,11 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { readFile, writeFile } from 'fs/promises'
+import {
+  parseTowerUri,
+  towerKey,
+  towerNetAddr,
+} from './actions/watchtower/towerUri'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
@@ -443,34 +448,54 @@ export const main = sdk.setupMain(async ({ effects }) => {
             const parsedTowers: ListTowers = JSON.parse(
               listtowersRes.stdout as string,
             )
-            const registeredTowers = Object.entries(parsedTowers).map((t) => {
-              return `${t[0]}@${t[1].net_addr.split('://')[1]}`
-            })
-            for (const tower of store.watchtowerClients || []) {
+            const registered = new Set(
+              Object.entries(parsedTowers).map(([id, t]) =>
+                towerKey(id, t.net_addr),
+              ),
+            )
+            for (const entry of store.watchtowerClients || []) {
               if (abort.aborted) break
-              if (!registeredTowers.includes(tower)) {
-                console.log(`Watchtower client adding ${tower}`)
-                let res = await subcontainer.exec(
-                  ['lightning-cli', 'registertower', tower],
-                  { cwd: rootDir },
-                  undefined,
-                  {
-                    abort: abort.reason,
-                    signal: abort,
-                  },
+              const tower = parseTowerUri(entry)
+              if (!tower) {
+                console.log(
+                  `Watchtower client cannot read ${entry} as <tower id>@<host>:<port>`,
                 )
+                continue
+              }
+              if (registered.has(towerKey(tower.id, towerNetAddr(tower)))) {
+                continue
+              }
 
-                if (
-                  res.exitCode === 0 &&
-                  res.stdout !== '' &&
-                  typeof res.stdout === 'string'
-                ) {
-                  console.log(`Result adding tower ${tower}: ${res.stdout}`)
-                } else {
-                  console.log(
-                    `Error adding tower ${tower}: ${String(res.stderr)}`,
-                  )
-                }
+              console.log(`Watchtower client adding ${entry}`)
+              // The host goes over as a JSON string literal because
+              // lightning-cli leaves an argument that reads as a number
+              // unquoted, which would send an IPv4 host as malformed JSON.
+              const res = await subcontainer.exec(
+                [
+                  'lightning-cli',
+                  'registertower',
+                  tower.id,
+                  JSON.stringify(tower.host),
+                  String(tower.port),
+                ],
+                { cwd: rootDir },
+                undefined,
+                {
+                  abort: abort.reason,
+                  signal: abort,
+                },
+              )
+
+              if (
+                res.exitCode === 0 &&
+                res.stdout !== '' &&
+                typeof res.stdout === 'string'
+              ) {
+                console.log(`Result adding tower ${entry}: ${res.stdout}`)
+              } else {
+                console.log(
+                  `Error adding tower ${entry}: ${String(res.stderr)}`,
+                )
               }
             }
           } else {
@@ -494,37 +519,38 @@ export const main = sdk.setupMain(async ({ effects }) => {
             const parsedTowers: ListTowers = JSON.parse(
               listtowersRes.stdout as string,
             )
-            const registeredTowers = Object.entries(parsedTowers).map((t) => {
-              return `${t[0]}@${t[1].net_addr.split('://')[1]}`
-            })
-            for (const tower of registeredTowers) {
+            const configured = new Set(
+              (store.watchtowerClients || []).flatMap((entry) => {
+                const tower = parseTowerUri(entry)
+                return tower ? [towerKey(tower.id, towerNetAddr(tower))] : []
+              }),
+            )
+            for (const [id, t] of Object.entries(parsedTowers)) {
               if (abort.aborted) break
-              if (
-                store.watchtowerClients === undefined ||
-                !store.watchtowerClients.includes(tower)
-              ) {
-                console.log(`Watchtower client removing ${tower}`)
-                let res = await subcontainer.exec(
-                  ['lightning-cli', 'abandontower', tower.split('@')[0]],
-                  { cwd: rootDir },
-                  undefined,
-                  {
-                    abort: abort.reason,
-                    signal: abort,
-                  },
-                )
+              if (configured.has(towerKey(id, t.net_addr))) continue
 
-                if (
-                  res.exitCode === 0 &&
-                  res.stdout !== '' &&
-                  typeof res.stdout === 'string'
-                ) {
-                  console.log(`Result adding tower ${tower}: ${res.stdout}`)
-                } else {
-                  console.log(
-                    `Error adding tower ${tower}: ${String(res.stderr)}`,
-                  )
-                }
+              const tower = `${id}@${t.net_addr}`
+              console.log(`Watchtower client removing ${tower}`)
+              const res = await subcontainer.exec(
+                ['lightning-cli', 'abandontower', id],
+                { cwd: rootDir },
+                undefined,
+                {
+                  abort: abort.reason,
+                  signal: abort,
+                },
+              )
+
+              if (
+                res.exitCode === 0 &&
+                res.stdout !== '' &&
+                typeof res.stdout === 'string'
+              ) {
+                console.log(`Result removing tower ${tower}: ${res.stdout}`)
+              } else {
+                console.log(
+                  `Error removing tower ${tower}: ${String(res.stderr)}`,
+                )
               }
             }
           } else {
