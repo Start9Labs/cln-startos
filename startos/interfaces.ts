@@ -138,7 +138,14 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       },
     })
 
-    const contents = await FileHelper.string(commandoEnv).read().const(effects)
+    // Revoke Runes deletes .commando-env before the commando-config oneshot
+    // mints a replacement, so an absent file is a gap, not a removal.
+    const contents = await FileHelper.string(commandoEnv)
+      .read(
+        (env) => env,
+        (prev, next) => next === null || prev === next,
+      )
+      .const(effects)
 
     if (contents) {
       const rune = parse(contents)['LIGHTNING_RUNE']
