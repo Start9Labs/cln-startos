@@ -42,8 +42,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     throw new Error('no store.json')
   }
 
-  // Forced offline pending the upstream Core Lightning security release; drop on that bump.
-  const lightningdArgs: string[] = ['--database-upgrade=true', '--offline']
+  const lightningdArgs: string[] = ['--database-upgrade=true']
 
   if (store.rescan) {
     lightningdArgs.push(`--rescan=${store.rescan}`)

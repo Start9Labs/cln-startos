@@ -71,7 +71,7 @@ RUN cargo install --locked --path teos && \
 # `ca-certificates` is load-bearing: the upstream image carries no CA store, and
 # none of the -dev packages below pull one in. Without it watchtower-client
 # cannot build an HTTPS client, so no tower ever registers (see README.md).
-FROM elementsproject/lightningd:v26.06.6 AS final
+FROM elementsproject/lightningd:v26.06.7 AS final
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev && \
