@@ -498,8 +498,37 @@ export const migration: T.ExpectedExports.migration =
           throw new Error("Cannot downgrade");
         },
       },
+      "26.6.7": {
+        up: compat.migrations.updateConfig(
+          (config) => {
+            // Splicing is enabled by default as of CLN v26.04 and the
+            // `experimental-splicing` option is deprecated there, so the toggle
+            // has been removed from the config spec.
+            if (
+              matches
+                .shape({
+                  advanced: matches.shape({
+                    experimental: matches.shape(
+                      { splicing: matches.unknown },
+                      ["splicing"],
+                    ),
+                  }),
+                })
+                .test(config)
+            ) {
+              delete config.advanced.experimental.splicing;
+            }
+            return config;
+          },
+          true,
+          { version: "26.6.7", type: "up"},
+        ),
+        down: () => {
+          throw new Error("Cannot downgrade");
+        },
+      },
     },
-    "25.12.1.2",
+    "26.6.7",
   );
 
 function generateRandomString(length: number) {

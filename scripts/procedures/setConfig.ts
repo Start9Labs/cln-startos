@@ -299,12 +299,11 @@ function configMaker(alias: Alias, config: SetConfig) {
   const enableWatchtowerClientPlugin = config.watchtowers["wt-client"].enabled === "enabled"
     ? "plugin=/usr/local/libexec/c-lightning/plugins/watchtower-client"
     : "";
-  const enableSplicing = config.advanced.experimental.splicing
-    ? "experimental-splicing"
-    : "";
-  const enableXpay = config.advanced.experimental["xpay-handle-pay"]
-    ? "xpay-handle-pay=true"
-    : "";
+  // Splicing is enabled by default as of CLN v26.04, and `experimental-splicing`
+  // is deprecated there; we no longer emit it.
+  // xpay handles `pay` by default as of CLN v26.06, so this must always be
+  // emitted explicitly for the toggle to be able to turn it off.
+  const enableXpay = `xpay-handle-pay=${config.advanced.experimental["xpay-handle-pay"]}`;
 
   return `
 network=bitcoin
@@ -339,7 +338,6 @@ ${enableSlingPlugin}
 ${enableCLNRestPlugin}
 ${enableClbossPlugin}
 ${enableWatchtowerClientPlugin}
-${enableSplicing}
 ${enableXpay}
 
 autoclean-cycle=${config.autoclean["autoclean-cycle"]}

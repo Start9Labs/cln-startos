@@ -1,7 +1,7 @@
 #!/bin/sh
 
 	nodehost=$(lightning-cli getinfo | jq -r '. as $r | .address[0] | "\($r.id)@\(.address):\(.port)"')
-	token=$(lightning-cli commando-rune "$@" | jq -r '.rune | @uri')
+	token=$(lightning-cli createrune "$@" | jq -r '.rune | @uri')
 	LN_LINK="lnlink:$nodehost?token=$token"
 
   action_result="    {

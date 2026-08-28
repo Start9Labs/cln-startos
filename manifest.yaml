@@ -1,5 +1,5 @@
 id: c-lightning
-version: 25.12.1.2
+version: 26.6.7
 title: Core Lightning
 license: BSD-MIT
 wrapper-repo: https://github.com/Start9Labs/cln-startos
@@ -7,7 +7,12 @@ upstream-repo: https://github.com/ElementsProject/lightning
 support-site: https://github.com/ElementsProject/lightning/issues
 marketing-site: https://blockstream.com/lightning
 release-notes: |-
-  * Start lightningd with --offline option pending upstream fixes for undisclosed issues
+  * Update CLN to [26.6.7](https://github.com/ElementsProject/lightning/releases/tag/v26.06.7)
+  * Update CLBOSS to 0.16.3, fixing crashes on newer CLN and a rebalancing fee-budget race
+  * Update Sling to 4.3.1, fixing gossip store reading on CLN 26.04+
+  * Remove the Splicing toggle - splicing is now enabled by default upstream
+  * Xpay now handles pay commands by default, matching upstream
+  * Fix the Generate LNLink action, which used an RPC removed upstream
 build: ["make"]
 description:
   short: "An implementation of the Lightning Network protocol by Blockstream."
