@@ -230,7 +230,7 @@ const dict = {
   'Watchtower Client': 213,
   'Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>': 214,
   'Add Watchtower Servers': 215,
-  "Add URIs of watchtower servers to connect to. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158": 216,
+  "Add URIs of watchtower servers to connect to, in the form <pubkey>@<host>:<port>. Prefix the host with https:// if the tower serves its API over TLS. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158": 216,
 
   // main.ts (emergency recovery)
   'Backup Restoration Detected': 218,

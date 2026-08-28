@@ -42,7 +42,7 @@
   - **Custom External Host** announces an external tunnel or VPN endpoint, such as Tunnelsats, as your node's public address. It is announced in place of any public IP StartOS detects, so peers are not handed the home IP the tunnel exists to hide; your Tor address is still announced. Core Lightning resolves the name once at startup, so restart it if the endpoint moves to a new address. Nothing is announced while Tor-only mode is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy — a failing **Custom External Host** health check appears while both are set, to tell you so.
 - **Plugins** — enable or disable CLNrest, Sling, and CLBOSS, with sub-settings for CLBOSS (min on-chain reserve, auto-close, zero base fee, channel size limits).
 - **Experimental Features** — toggle splicing, shutdown-wrong-funding, and dual funding / liquidity ads (with policy, fuzz percentage, fund probability, and merchant lease-fee settings).
-- **Watchtower Settings** — enable the TEOS watchtower server, enable the watchtower client, and add tower URIs to register with.
+- **Watchtower Settings** — enable the TEOS watchtower server, enable the watchtower client, and add tower URIs to register with. A tower URI is `<pubkey>@<host>:<port>`, reached over plain HTTP; prefix the host with `https://` for a tower that serves its API over TLS.
 - **Watchtower Info** — visible when the watchtower server is enabled; shows the server URI and stats.
 - **Watchtower Client Info** — visible when at least one tower is configured; shows registered towers and subscription state. Towers you add are registered automatically the next time Core Lightning starts, and stay registered across restarts and updates. If this list is empty, give the service a minute after startup and check it again — registration runs shortly after Core Lightning is up. Tower URIs are usually `.onion` addresses, which need Tor installed and running to reach.
 - **Rescan Blockchain** — rescan the blockchain from a given depth or block height. **Required after restoring from backup** — the wallet balance reads zero until a rescan completes.
@@ -68,7 +68,6 @@ Once any recovered channels have resolved, sweep remaining funds to another wall
 
 ## Limitations
 
-- **This release keeps your node offline.** Core Lightning accepts no incoming connections and does not reconnect to peers, as a precaution against a security issue reported by the Core Lightning developers. Your funds and channels are untouched and the web interface still works, but you cannot send, receive, or forward payments until the next release restores normal operation.
 - **Mainnet only.** Testnet, signet, and regtest are not exposed.
 - **Bitcoin authentication is cookie-based.** `bitcoin-rpcuser` and `bitcoin-rpcpassword` are intentionally not configurable; CLN uses the mounted Bitcoin cookie file.
 - **The `config` file is managed through actions.** Manual edits will be overwritten on the next config sync.

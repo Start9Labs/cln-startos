@@ -202,7 +202,7 @@ export default {
     213: 'Cliente Watchtower',
     214: 'Habilitar el cliente y conectarse a servidor(es) watchtower de su elección para usar las funciones de watchtower. <b>Por defecto: Deshabilitado</b>',
     215: 'Agregar servidores Watchtower',
-    216: 'Agregue URIs de servidores watchtower a los que conectarse. Si no conoce a nadie con un servidor, puede encontrar algunos en esta lista pública: https://github.com/talaia-labs/rust-teos/discussions/158',
+    216: 'Agregue URIs de servidores watchtower a los que conectarse, con el formato <clave pública>@<host>:<puerto>. Anteponga https:// al host si la torre ofrece su API sobre TLS. Si no conoce a nadie con un servidor, puede encontrar algunos en esta lista pública: https://github.com/talaia-labs/rust-teos/discussions/158',
 
     // main.ts (emergency recovery)
     218: 'Restauración de copia de seguridad detectada',
@@ -422,7 +422,7 @@ export default {
     213: 'Watchtower-Client',
     214: 'Den Client aktivieren und sich mit Watchtower-Server(n) Ihrer Wahl verbinden, um Watchtower-Funktionen zu nutzen. <b>Standard: Deaktiviert</b>',
     215: 'Watchtower-Server hinzufügen',
-    216: 'URIs von Watchtower-Servern hinzufügen, mit denen eine Verbindung hergestellt werden soll. Wenn Sie niemanden mit einem Server kennen, können Sie einige in dieser öffentlichen Liste finden: https://github.com/talaia-labs/rust-teos/discussions/158',
+    216: 'URIs von Watchtower-Servern hinzufügen, mit denen eine Verbindung hergestellt werden soll, in der Form <öffentlicher Schlüssel>@<Host>:<Port>. Stellen Sie dem Host https:// voran, wenn der Tower seine API über TLS bereitstellt. Wenn Sie niemanden mit einem Server kennen, können Sie einige in dieser öffentlichen Liste finden: https://github.com/talaia-labs/rust-teos/discussions/158',
 
     // main.ts (emergency recovery)
     218: 'Sicherungswiederherstellung erkannt',
@@ -642,7 +642,7 @@ export default {
     213: 'Klient Watchtower',
     214: 'Włącz klienta i połącz się z wybranym serwerem(ami) watchtower, aby korzystać z funkcji watchtower. <b>Domyślnie: Wyłączony</b>',
     215: 'Dodaj serwery Watchtower',
-    216: 'Dodaj URI serwerów watchtower, z którymi chcesz się połączyć. Jeśli nie znasz nikogo z serwerem, możesz znaleźć kilka na tej publicznej liście: https://github.com/talaia-labs/rust-teos/discussions/158',
+    216: 'Dodaj URI serwerów watchtower, z którymi chcesz się połączyć, w postaci <klucz publiczny>@<host>:<port>. Poprzedź host przedrostkiem https://, jeśli serwer udostępnia swoje API przez TLS. Jeśli nie znasz nikogo z serwerem, możesz znaleźć kilka na tej publicznej liście: https://github.com/talaia-labs/rust-teos/discussions/158',
 
     // main.ts (emergency recovery)
     218: 'Wykryto przywracanie kopii zapasowej',
@@ -862,7 +862,7 @@ export default {
     213: 'Client Watchtower',
     214: 'Activer le client et se connecter à un ou plusieurs serveurs watchtower de votre choix pour utiliser les fonctionnalités watchtower. <b>Par défaut : Désactivé</b>',
     215: 'Ajouter des serveurs Watchtower',
-    216: 'Ajoutez des URI de serveurs watchtower auxquels vous connecter. Si vous ne connaissez personne avec un serveur, vous pouvez en trouver sur cette liste publique : https://github.com/talaia-labs/rust-teos/discussions/158',
+    216: "Ajoutez des URI de serveurs watchtower auxquels vous connecter, sous la forme <clé publique>@<hôte>:<port>. Préfixez l'hôte par https:// si la tour expose son API en TLS. Si vous ne connaissez personne avec un serveur, vous pouvez en trouver sur cette liste publique : https://github.com/talaia-labs/rust-teos/discussions/158",
 
     // main.ts (emergency recovery)
     218: 'Restauration de sauvegarde détectée',
