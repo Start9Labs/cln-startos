@@ -149,7 +149,7 @@ Three actions writing `/config`, grouped together. Each writes only the fields i
 
 ### Watchtower Server, Watchtower Info, Watchtower Client Info
 
-**Watchtower Server** turns this node into a BOLT13 tower for others, which starts the `teosd` daemon and publishes an interface. It also registers and de-registers the towers **this** node subscribes to: a tower removed from the list is abandoned on the next start.
+**Watchtower Server** turns this node into a BOLT13 tower for others, which starts the `teosd` daemon and publishes an interface. It also registers and de-registers the towers **this** node subscribes to: a tower removed from the list is abandoned on the next start. Once the client has been enabled, `watchtower-client` stays in the config's `plugin` list even after the last tower is removed — it is the only source of `abandontower`, so removing it would strand the registrations it still holds in `watchtowers_db.sql3`.
 
 Each subscribed tower is stored as the user typed it and parsed by `startos/actions/watchtower/towerUri.ts` into the tower id, host, and port that the `watchtower-client` oneshot passes to `registertower` as three arguments. The host keeps any `https://` prefix, which is what makes the plugin talk TLS to that tower; `lightning-cli` would send a bare IPv4 host as a JSON number, so the host is passed pre-quoted. The same module reconstructs the address `listtowers` reports a tower under, so that an entry written without a port or scheme matches the tower already registered instead of being abandoned and re-registered on every start.
 

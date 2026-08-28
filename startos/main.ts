@@ -6,6 +6,7 @@ import {
   towerKey,
   towerNetAddr,
 } from './actions/watchtower/towerUri'
+import { watchtowerClientPlugin } from './actions/watchtower/watchtower'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
@@ -41,6 +42,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
   if (!store) {
     throw new Error('no store.json')
   }
+
+  const watchtowerClientLoaded = !!conf?.raw?.plugin?.includes(
+    watchtowerClientPlugin,
+  )
 
   const lightningdArgs: string[] = ['--database-upgrade=true']
 
@@ -438,9 +443,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       subcontainer: lightningSub,
       exec: {
         fn: async (subcontainer, abort) => {
-          // listtowers exists only while the plugin is in the config, which
-          // the Watchtower action writes solely for a non-empty tower list.
-          if (!store.watchtowerClients?.length) return null
+          if (!watchtowerClientLoaded) return null
 
           const listtowersRes = await subcontainer.exec(
             ['lightning-cli', 'listtowers'],
@@ -513,7 +516,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       subcontainer: lightningSub,
       exec: {
         fn: async (subcontainer, abort) => {
-          if (!store.watchtowerClients?.length) return null
+          if (!watchtowerClientLoaded) return null
 
           const listtowersRes = await subcontainer.exec(
             ['lightning-cli', 'listtowers'],
@@ -568,8 +571,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
         },
       },
       // Client-side tower cleanup: runs after watchtower-client to remove towers
-      // no longer in the store. Both are always registered and skip their work
-      // internally, so this ordering holds. Does NOT need the conditional
+      // no longer in the store, down to and including an empty list. Both are
+      // always registered and skip their work internally, so this ordering
+      // holds. Does NOT need the conditional
       // watchtower *server* (teosd) — requiring it broke the chain when the
       // server was disabled (SDK 2.0's Daemons.build enforces requires-ordering).
       requires: ['lightningd', 'watchtower-client'],

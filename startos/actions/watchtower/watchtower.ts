@@ -5,7 +5,7 @@ import { sdk } from '../../sdk'
 
 const { InputSpec, List, Value, Variants } = sdk
 
-const watchtowerClientPlugin =
+export const watchtowerClientPlugin =
   '/usr/local/libexec/c-lightning/plugins/watchtower-client'
 
 const watchtowerSpec = InputSpec.of({
@@ -112,13 +112,13 @@ async function write(effects: any, input: WatchtowerSpec) {
     (p): p is string => typeof p === 'string',
   )
 
-  if (watchtowerSettings.watchtowerClients.length > 0) {
-    if (!plugins.includes(watchtowerClientPlugin)) {
-      plugins.push(watchtowerClientPlugin)
-    }
-  } else {
-    const index = plugins.indexOf(watchtowerClientPlugin)
-    if (index !== -1) plugins.splice(index, 1)
+  // Never removed: the plugin provides abandontower, and an emptied list is
+  // exactly what abandontowers has to act on at the next start.
+  if (
+    watchtowerSettings.watchtowerClients.length > 0 &&
+    !plugins.includes(watchtowerClientPlugin)
+  ) {
+    plugins.push(watchtowerClientPlugin)
   }
   await clnConfig.merge(effects, {
     raw: { ...(form?.raw ?? {}), plugin: plugins },
