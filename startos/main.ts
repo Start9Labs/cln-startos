@@ -438,6 +438,10 @@ export const main = sdk.setupMain(async ({ effects }) => {
       subcontainer: lightningSub,
       exec: {
         fn: async (subcontainer, abort) => {
+          // listtowers exists only while the plugin is in the config, which
+          // the Watchtower action writes solely for a non-empty tower list.
+          if (!store.watchtowerClients?.length) return null
+
           const listtowersRes = await subcontainer.exec(
             ['lightning-cli', 'listtowers'],
             { cwd: rootDir },
@@ -509,6 +513,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
       subcontainer: lightningSub,
       exec: {
         fn: async (subcontainer, abort) => {
+          if (!store.watchtowerClients?.length) return null
+
           const listtowersRes = await subcontainer.exec(
             ['lightning-cli', 'listtowers'],
             { cwd: rootDir },
@@ -561,8 +567,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
           return null
         },
       },
-      // Client-side tower cleanup: runs after watchtower-client (both unconditional)
-      // to remove towers no longer in the store. Does NOT need the conditional
+      // Client-side tower cleanup: runs after watchtower-client to remove towers
+      // no longer in the store. Both are always registered and skip their work
+      // internally, so this ordering holds. Does NOT need the conditional
       // watchtower *server* (teosd) — requiring it broke the chain when the
       // server was disabled (SDK 2.0's Daemons.build enforces requires-ordering).
       requires: ['lightningd', 'watchtower-client'],
