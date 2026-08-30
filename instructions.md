@@ -2,6 +2,7 @@
 
 ## Documentation
 
+- [Start9 Bitcoin Guides](https://docs.start9.com/bitcoin-guides/) — connecting wallets and dashboards to a Lightning node on StartOS, and how that node reaches Bitcoin.
 - [Core Lightning documentation](https://docs.corelightning.org/docs/) — the upstream operator and developer reference.
 
 ## What you get on StartOS
