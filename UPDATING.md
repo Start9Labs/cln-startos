@@ -22,6 +22,17 @@ For each independent upstream source below: a link to its canonical repo, one co
   Maintainer fingerprints are listed on the release page.
 - Current pin: `CLN_VERSION` plus the per-arch `CLN_SHA256_*` args in the `lightningd-dist` stage of `Dockerfile`.
 
+### bitcoin-cli
+
+- Upstream: [Bitcoin Core](https://bitcoincore.org/bin/). Only `bitcoin-cli` is taken; nothing else from the release is used.
+- **It is a hard runtime dependency, not a convenience.** CLN's own `plugin-bcli` execs it, and so does the `check-synced` health check. Without it `lightningd` exits at startup with `The Bitcoin backend died` and the service crash-loops. The upstream lightningd image bundled it, so this only became ours to supply once we stopped using that image.
+- It talks JSON-RPC to whatever `bitcoind` the user runs, so it does not need to track that package's version.
+- Checksums:
+  ```sh
+  curl -fsS https://bitcoincore.org/bin/bitcoin-core-<version>/SHA256SUMS | grep -E 'x86_64-linux-gnu.tar.gz|aarch64-linux-gnu.tar.gz'
+  ```
+- Current pin: `BITCOIN_VERSION` plus the `BITCOIN_SHA256_*` args in the `bitcoin-cli` stage of `Dockerfile`.
+
 ### CLN Application (Web UI)
 
 - Upstream: [ElementsProject/cln-application](https://github.com/ElementsProject/cln-application) (published as the `ghcr.io/elementsproject/cln-application` image).
@@ -73,6 +84,10 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### lightningd
 
 - Update `CLN_VERSION` and both `CLN_SHA256_*` args in the `lightningd-dist` stage of `Dockerfile`, taking the hashes from the GPG-verified `SHA256SUMS` for the `Ubuntu-22.04` tarballs. That build's glibc runs on the bookworm final stage, which is what every other binary in the image is compiled against — check that still holds if you move to a different tarball.
+
+### bitcoin-cli
+
+- Update `BITCOIN_VERSION` and both `BITCOIN_SHA256_*` args in the `bitcoin-cli` stage of `Dockerfile`.
 
 ### CLN Application (Web UI)
 

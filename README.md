@@ -35,7 +35,7 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image, whose v26.06.7 build omitted that release's security fixes while still reporting the new version — the tarball's checksum is pinned in the `lightningd-dist` stage and taken from a GPG-verified manifest.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image, whose v26.06.7 build omitted that release's security fixes while still reporting the new version — the tarball's checksum is pinned in the `lightningd-dist` stage and taken from a GPG-verified manifest. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage: `plugin-bcli` and the `check-synced` health check both exec it, and the image it used to come with no longer supplies it.
 
 | Property      | Value                                                                                             |
 | ------------- | ------------------------------------------------------------------------------------------------- |

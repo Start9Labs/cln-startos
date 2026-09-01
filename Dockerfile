@@ -95,6 +95,30 @@ RUN set -eu; \
     mkdir -p /dist/usr/local; \
     tar -xf "$TARBALL" -C /dist/usr/local --strip-components=2
 
+# bitcoin-cli, which CLN's own plugin-bcli and our check-synced health check
+# both exec. The upstream lightningd image bundled it (v27.1.0); a slim base
+# does not, and a missing one kills lightningd at startup with
+# "The Bitcoin backend died". Checksums are from bitcoincore.org's SHA256SUMS.
+FROM base AS bitcoin-cli
+ARG TARGETARCH
+ARG BITCOIN_VERSION=27.1
+ARG BITCOIN_SHA256_AMD64=c9840607d230d65f6938b81deaec0b98fe9cb14c3a41a5b13b2c05d044a48422
+ARG BITCOIN_SHA256_ARM64=bb878df4f8ff8fb8acfb94207c50f959c462c39e652f507c2a2db20acc6a1eee
+RUN apt-get update -qq && \
+    apt-get install -qq -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+RUN set -eu; \
+    case "$TARGETARCH" in \
+      amd64) SHA="$BITCOIN_SHA256_AMD64"; ARCH=x86_64 ;; \
+      arm64) SHA="$BITCOIN_SHA256_ARM64"; ARCH=aarch64 ;; \
+      *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
+    esac; \
+    TARBALL="bitcoin-${BITCOIN_VERSION}-${ARCH}-linux-gnu.tar.gz"; \
+    curl -fsSLO "https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/${TARBALL}"; \
+    echo "${SHA}  ${TARBALL}" | sha256sum -c -; \
+    tar -xf "$TARBALL" "bitcoin-${BITCOIN_VERSION}/bin/bitcoin-cli"; \
+    install -m 755 "bitcoin-${BITCOIN_VERSION}/bin/bitcoin-cli" /usr/bin/bitcoin-cli
+
 # Final stage - simplified
 #
 # `ca-certificates` is load-bearing: the slim base carries no CA store, and none
@@ -110,6 +134,7 @@ RUN apt-get update && \
     libpq5 libsodium23 && \
     rm -rf /var/lib/apt/lists/*
 
+COPY --from=bitcoin-cli /usr/bin/bitcoin-cli /usr/bin/bitcoin-cli
 COPY --from=lightningd-dist /dist/usr/local /usr/local
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 COPY --from=builder-rust /root/.cargo/bin/teos* /usr/local/bin/
