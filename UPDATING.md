@@ -1,6 +1,6 @@
 # Updating the upstream version
 
-Core Lightning is built from a custom `Dockerfile` (the `lightning` image) layered on top of the official `elementsproject/lightningd` image, plus a sidecar `ui` image pulled by tag. Several upstream components feed into the build, and a bump usually touches more than one.
+Core Lightning is built from a custom `Dockerfile` (the `lightning` image) that unpacks upstream's signed release tarball onto a `debian:bookworm-slim` base, plus a sidecar `ui` image pulled by tag. Several upstream components feed into the build, and a bump usually touches more than one.
 
 ## Determining the upstream version
 
@@ -8,16 +8,19 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 ### lightningd
 
-- Upstream: [ElementsProject/lightning](https://github.com/ElementsProject/lightning) (published as the [`elementsproject/lightningd`](https://hub.docker.com/r/elementsproject/lightningd) Docker image).
-- Latest release tag (source of truth for the image tag):
+- Upstream: [ElementsProject/lightning](https://github.com/ElementsProject/lightning).
+- **Take lightningd from the release tarballs, not the `elementsproject/lightningd` Docker image.** For v26.06.7 upstream published images built from the wrong tree that omitted the release's security fixes while still reporting the new version on startup. The tarballs are signed; the images are not.
+- Latest release tag:
   ```sh
   gh release view -R ElementsProject/lightning --json tagName -q .tagName
   ```
-- Cross-check that the matching Docker tag has been published:
+- Get the checksums and verify the manifest signature before trusting either:
   ```sh
-  curl -fsSL "https://hub.docker.com/v2/repositories/elementsproject/lightningd/tags?page_size=20&ordering=last_updated" | jq -r '.results[].name'
+  gh release download <tag> -R ElementsProject/lightning -p 'SHA256SUMS-*'
+  gpg --verify SHA256SUMS-<tag>.asc SHA256SUMS-<tag>
   ```
-- Current pin: `FROM elementsproject/lightningd:v<version>` in `Dockerfile`.
+  Maintainer fingerprints are listed on the release page.
+- Current pin: `CLN_VERSION` plus the per-arch `CLN_SHA256_*` args in the `lightningd-dist` stage of `Dockerfile`.
 
 ### CLN Application (Web UI)
 
@@ -69,7 +72,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 ### lightningd
 
-- Update the `FROM elementsproject/lightningd:v<version>` tag in `Dockerfile`.
+- Update `CLN_VERSION` and both `CLN_SHA256_*` args in the `lightningd-dist` stage of `Dockerfile`, taking the hashes from the GPG-verified `SHA256SUMS` for the `Ubuntu-22.04` tarballs. That build's glibc runs on the bookworm final stage, which is what every other binary in the image is compiled against — check that still holds if you move to a different tarball.
 
 ### CLN Application (Web UI)
 
