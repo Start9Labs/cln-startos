@@ -35,13 +35,13 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here because three plugins are added to upstream's image at build time; the web UI's is pulled as published.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image, whose v26.06.7 build omitted that release's security fixes while still reporting the new version — the tarball's checksum is pinned in the `lightningd-dist` stage and taken from a GPG-verified manifest.
 
-| Property      | Value                                                                                                   |
-| ------------- | ------------------------------------------------------------------------------------------------------- |
-| Images        | Built from `Dockerfile` on `elementsproject/lightningd`, plus `ghcr.io/elementsproject/cln-application` |
-| Architectures | x86_64, aarch64 — both images declare `emulateMissingAs: 'aarch64'`                                     |
-| Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                                   |
+| Property      | Value                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| Images        | Built from `Dockerfile` on `debian:bookworm-slim`, plus `ghcr.io/elementsproject/cln-application` |
+| Architectures | x86_64, aarch64 — both images declare `emulateMissingAs: 'aarch64'`                               |
+| Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                             |
 
 Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
 
@@ -257,7 +257,7 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 
 ```yaml
 package_id: c-lightning
-image: ./Dockerfile # on elementsproject/lightningd; plus ghcr.io/elementsproject/cln-application
+image: ./Dockerfile # on debian:bookworm-slim; plus ghcr.io/elementsproject/cln-application
 architectures:
   - x86_64
   - aarch64

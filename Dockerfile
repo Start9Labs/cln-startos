@@ -66,17 +66,51 @@ WORKDIR /tmp/rust-teos
 RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
+# lightningd, from the signed release tarballs rather than the published image.
+#
+# The v26.06.7 images upstream published were built by CI from the wrong tree and
+# do not contain the release's security fixes, though they report v26.06.7 on
+# startup. The tarballs are the release. These hashes come from
+# SHA256SUMS-v26.06.7, GPG-verified against maintainer key
+# 4E4A142F8BD3C38A56B362ED578CAC08472545C5.
+FROM base AS lightningd-dist
+ARG TARGETARCH
+ARG CLN_VERSION=v26.06.7
+ARG CLN_SHA256_AMD64=53ddf124fe7058b6a2fc059d104976cc54ba5be21dc55b295cd82d01cabeb39c
+ARG CLN_SHA256_ARM64=a6e89d49468dac83122d6b795796b7f2ebb55eab6181b419f1cf9a73aeae3965
+RUN apt-get update -qq && \
+    apt-get install -qq -y --no-install-recommends ca-certificates xz-utils && \
+    rm -rf /var/lib/apt/lists/*
+# Ubuntu 22.04 build: its glibc 2.35 runs on bookworm's 2.36, so the runtime
+# stays the distro every other binary here is compiled against.
+RUN set -eu; \
+    case "$TARGETARCH" in \
+      amd64) SHA="$CLN_SHA256_AMD64" ;; \
+      arm64) SHA="$CLN_SHA256_ARM64" ;; \
+      *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
+    esac; \
+    TARBALL="clightning-${CLN_VERSION}-Ubuntu-22.04-${TARGETARCH}.tar.xz"; \
+    curl -fsSLO "https://github.com/ElementsProject/lightning/releases/download/${CLN_VERSION}/${TARBALL}"; \
+    echo "${SHA}  ${TARBALL}" | sha256sum -c -; \
+    mkdir -p /dist/usr/local; \
+    tar -xf "$TARBALL" -C /dist/usr/local --strip-components=2
+
 # Final stage - simplified
 #
-# `ca-certificates` is load-bearing: the upstream image carries no CA store, and
-# none of the -dev packages below pull one in. Without it watchtower-client
-# cannot build an HTTPS client, so no tower ever registers (see README.md).
-FROM elementsproject/lightningd:v26.06.7 AS final
+# `ca-certificates` is load-bearing: the slim base carries no CA store, and none
+# of the -dev packages below pull one in. Without it watchtower-client cannot
+# build an HTTPS client, so no tower ever registers (see README.md).
+#
+# `libpq5` and `libsodium23` are lightningd's own runtime deps, previously
+# supplied by the upstream image.
+FROM debian:bookworm-slim AS final
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    ca-certificates libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev && \
+    ca-certificates libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev \
+    libpq5 libsodium23 && \
     rm -rf /var/lib/apt/lists/*
 
+COPY --from=lightningd-dist /dist/usr/local /usr/local
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 COPY --from=builder-rust /root/.cargo/bin/teos* /usr/local/bin/
 COPY --from=builder-rust /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/
