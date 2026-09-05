@@ -26,7 +26,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 - Upstream: [Bitcoin Core](https://bitcoincore.org/bin/). Only `bitcoin-cli` is taken; nothing else from the release is used.
 - **It is a hard runtime dependency, not a convenience.** CLN's own `plugin-bcli` execs it, and so does the `check-synced` health check. Without it `lightningd` exits at startup with `The Bitcoin backend died` and the service crash-loops. The upstream lightningd image bundled it, so this only became ours to supply once we stopped using that image.
-- It talks JSON-RPC to whatever `bitcoind` the user runs, so it does not need to track that package's version.
+- It talks JSON-RPC to whatever `bitcoind` the user runs, so it does not need to track that package's version. **A new Bitcoin Core release is not a bump on its own: refresh this pin only when `CLN_VERSION` moves.**
 - Checksums:
   ```sh
   curl -fsS https://bitcoincore.org/bin/bitcoin-core-<version>/SHA256SUMS | grep -E 'x86_64-linux-gnu.tar.gz|aarch64-linux-gnu.tar.gz'
@@ -87,7 +87,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 ### bitcoin-cli
 
-- Update `BITCOIN_VERSION` and both `BITCOIN_SHA256_*` args in the `bitcoin-cli` stage of `Dockerfile`.
+- Only alongside a lightningd bump. Update `BITCOIN_VERSION` and both `BITCOIN_SHA256_*` args in the `bitcoin-cli` stage of `Dockerfile`.
 
 ### CLN Application (Web UI)
 
