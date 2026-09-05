@@ -1,33 +1,23 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.7:2',
+  version: '26.6.7:3',
   releaseNotes: {
-    en_US: `Core Lightning is now installed from the signed release tarballs published by the Core Lightning developers.
+    en_US: `Updated the bundled Bitcoin Core RPC client (\`bitcoin-cli\`) to 31.1.
 
-The Docker images upstream published for 26.06.7 were built incorrectly and do not contain that release's security fixes, even though they report 26.06.7 on startup. The previous StartOS release, 26.6.7:1, was built from one of those images: a node running it reports 26.06.7 but does not have the fixes. Update as soon as you can.
+This refreshes the command-line client Core Lightning uses to communicate with your Bitcoin service. See the complete Bitcoin Core release notes: https://bitcoincore.org/en/releases/`,
+    es_ES: `Se actualizó el cliente RPC de Bitcoin Core incluido (\`bitcoin-cli\`) a la versión 31.1.
 
-Nothing about your node's configuration changes, and no action is needed beyond updating.`,
-    es_ES: `Core Lightning ahora se instala desde los archivos comprimidos de versión firmados que publican los desarrolladores de Core Lightning.
+Esto actualiza el cliente de línea de comandos que Core Lightning utiliza para comunicarse con tu servicio Bitcoin. Consulta las notas de versión completas de Bitcoin Core: https://bitcoincore.org/en/releases/`,
+    de_DE: `Der mitgelieferte Bitcoin-Core-RPC-Client (\`bitcoin-cli\`) wurde auf Version 31.1 aktualisiert.
 
-Las imágenes de Docker que el proyecto original publicó para la versión 26.06.7 se compilaron incorrectamente y no contienen las correcciones de seguridad de esa versión, aunque indiquen 26.06.7 al arrancar. La versión anterior de StartOS, 26.6.7:1, se construyó a partir de una de esas imágenes: un nodo que la ejecuta indica 26.06.7 pero no tiene las correcciones. Actualiza cuanto antes.
+Damit wird der Kommandozeilen-Client aktualisiert, über den Core Lightning mit Ihrem Bitcoin-Dienst kommuniziert. Die vollständigen Bitcoin-Core-Versionshinweise finden Sie unter: https://bitcoincore.org/en/releases/`,
+    pl_PL: `Dołączony klient RPC Bitcoin Core (\`bitcoin-cli\`) został zaktualizowany do wersji 31.1.
 
-La configuración de tu nodo no cambia y no hay que hacer nada más que actualizar.`,
-    de_DE: `Core Lightning wird jetzt aus den signierten Release-Archiven der Core-Lightning-Entwickler installiert.
+Aktualizacja obejmuje klienta wiersza poleceń, którego Core Lightning używa do komunikacji z usługą Bitcoin. Pełne informacje o wydaniach Bitcoin Core: https://bitcoincore.org/en/releases/`,
+    fr_FR: `Le client RPC Bitcoin Core inclus (\`bitcoin-cli\`) a été mis à jour vers la version 31.1.
 
-Die vom Upstream-Projekt für 26.06.7 veröffentlichten Docker-Images wurden fehlerhaft erstellt und enthalten die Sicherheitskorrekturen dieser Version nicht, obwohl sie beim Start 26.06.7 melden. Die vorherige StartOS-Version, 26.6.7:1, wurde aus einem dieser Images gebaut: Ein Node, der sie ausführt, meldet 26.06.7, hat die Korrekturen aber nicht. Aktualisieren Sie so bald wie möglich.
-
-An der Konfiguration Ihres Nodes ändert sich nichts, und außer dem Update ist nichts zu tun.`,
-    pl_PL: `Core Lightning jest teraz instalowany z podpisanych archiwów wydania publikowanych przez twórców Core Lightning.
-
-Obrazy Dockera opublikowane przez projekt źródłowy dla wersji 26.06.7 zostały zbudowane niepoprawnie i nie zawierają poprawek bezpieczeństwa z tego wydania, mimo że przy uruchomieniu podają 26.06.7. Poprzednie wydanie StartOS, 26.6.7:1, powstało na bazie jednego z tych obrazów: węzeł, który je uruchamia, podaje 26.06.7, ale nie ma poprawek. Zaktualizuj jak najszybciej.
-
-Konfiguracja twojego węzła się nie zmienia i poza aktualizacją nie trzeba nic robić.`,
-    fr_FR: `Core Lightning est désormais installé à partir des archives de version signées publiées par les développeurs de Core Lightning.
-
-Les images Docker publiées en amont pour la version 26.06.7 ont été construites de façon incorrecte et ne contiennent pas les correctifs de sécurité de cette version, bien qu'elles annoncent 26.06.7 au démarrage. La version précédente de StartOS, 26.6.7:1, a été construite à partir de l'une de ces images : un nœud qui l'exécute annonce 26.06.7 mais n'a pas les correctifs. Mettez à jour dès que possible.
-
-La configuration de votre nœud ne change pas et rien d'autre que la mise à jour n'est nécessaire.`,
+Cette mise à jour concerne le client en ligne de commande que Core Lightning utilise pour communiquer avec votre service Bitcoin. Consultez les notes de version complètes de Bitcoin Core : https://bitcoincore.org/en/releases/`,
   },
   migrations: {},
 })
