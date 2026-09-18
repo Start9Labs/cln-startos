@@ -254,6 +254,21 @@ const dict = {
   'Every rune this node had issued is now revoked, and Core Lightning is restarting to issue the web UI a fresh one. Any other integration that used a rune needs a new one from the "Create Rune" action.': 231,
   'This node has not issued any runes, so there was nothing to revoke.': 232,
   'Failed to Revoke Runes': 233,
+  'Clearnet VPN': 234,
+  "Route this node's clearnet traffic through a WireGuard tunnel and advertise the tunnel's public address.": 235,
+  'WireGuard Configuration': 236,
+  'The WireGuard client configuration for the tunnel. Leave it empty to turn the VPN off.': 237,
+  'Public Address': 238,
+  'The address peers reach this node at through the tunnel, as host:port.': 239,
+  'Unrecognized line in the WireGuard configuration: ${line}': 240,
+  'The WireGuard configuration needs a PrivateKey and an Address under [Interface].': 241,
+  'The WireGuard configuration needs exactly one [Peer] with a PublicKey and an Endpoint.': 242,
+  'AllowedIPs must include 0.0.0.0/0 so that all clearnet traffic uses the tunnel.': 243,
+  'The public address must be host:port.': 244,
+  'Waiting for the first WireGuard handshake.': 245,
+  'No WireGuard handshake for ${minutes} minutes. Clearnet traffic is held until the tunnel returns, not sent over your ISP connection.': 246,
+  'Tunnel up; last handshake ${seconds}s ago.': 247,
+  'The public address host does not resolve: ${host}': 248,
 } as const
 
 /**

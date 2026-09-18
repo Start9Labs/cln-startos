@@ -47,8 +47,12 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
     })
     .const()
 
-  const customExternalHosts =
-    (await storeJson.read((s) => s.customExternalHosts).const(effects)) ?? []
+  const storedHosts = await storeJson
+    .read((s) => ({
+      custom: s.customExternalHosts,
+      vpn: s.clearnetVpn?.announce ?? null,
+    }))
+    .const(effects)
 
   // `always-use-proxy` disables lightningd's DNS lookups, and an announce-addr
   // it cannot resolve is a fatal parse error, not a warning — writing the host
@@ -57,7 +61,12 @@ export const watchHosts = sdk.setupOnInit(async (effects, _) => {
   const torOnly = await clnConfig
     .read((c) => c['tor-only'] === true)
     .const(effects)
-  const externalHosts = torOnly ? [] : customExternalHosts
+  const externalHosts = torOnly
+    ? []
+    : [
+        ...(storedHosts?.custom ?? []),
+        ...(storedHosts?.vpn ? [storedHosts.vpn] : []),
+      ]
 
   // A tunnel endpoint stands in for this server's own address, so it replaces
   // the detected public IPs rather than joining them — announcing both hands
