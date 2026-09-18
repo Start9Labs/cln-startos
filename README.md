@@ -199,7 +199,7 @@ Not user-facing, and not a general VPN facility: it exists for the TunnelSats se
 
 ### Pay Invoice
 
-Pays a BOLT11 invoice from the node's own funds: paste the invoice, an amount if it carries none, and the most it may spend in routing fees as a percentage. It decodes the invoice first, then pays with a 60-second retry window, and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one prompt the user accepts; the node never hands out a rune for it.
+Pays a BOLT11 invoice from the node's own funds: paste the invoice, whether its amount is stated in it or entered here — an invoice that leaves the amount open requires one, one that states it refuses one — and the most it may spend in routing fees as a percentage. It decodes the invoice first, then pays with a 60-second retry window, and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one prompt the user accepts; the node never hands out a rune for it.
 
 ### Node Info
 
@@ -209,9 +209,9 @@ Read-only, running only: the node's identity and current state.
 
 One task, raised by a restore rather than at install.
 
-| Task              | Severity    | Raised when                        | Cleared when    |
-| ----------------- | ----------- | ---------------------------------- | --------------- |
-| Rescan Blockchain | `important` | Immediately after a backup restore | The action runs |
+| Task              | Severity    | Raised when                                                            | Cleared when                                              |
+| ----------------- | ----------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| Rescan Blockchain | `important` | Immediately after a backup restore                                     | The action runs                                           |
 | Clearnet VPN      | `important` | Only when the TunnelSats service raises it with a tunnel for this node | The stored configuration matches what TunnelSats proposes |
 
 The reason is that a restored node reports an **on-chain balance of zero** until the chain is rescanned, and nothing else in the interface explains why. `important` rather than `critical`: the node should keep running — indeed it must, for the rescan to proceed.

@@ -52,7 +52,7 @@
 
 ### Paying an invoice
 
-**Pay Invoice** pays a Lightning invoice from your node without a wallet app: paste it, set the most you are willing to pay in routing fees, and confirm. The result shows what was paid and the preimage. A service that needs a payment from you can raise the same prompt with the invoice filled in.
+**Pay Invoice** pays a Lightning invoice from your node without a wallet app: paste it, enter an amount only if the invoice leaves it open, set the most you are willing to pay in routing fees, and confirm. The result shows what was paid and the preimage. A service that needs a payment from you can raise the same prompt with the invoice filled in.
 
 ### Backups and restore
 
