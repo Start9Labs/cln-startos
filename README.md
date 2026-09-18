@@ -137,7 +137,7 @@ The ordering that matters is Bitcoin's: the node starts, but `check-synced` repo
 
 ## Actions
 
-Fourteen actions. Four configure the node, three concern the watchtower, one is hidden and exists for the TunnelSats service, and the rest are recovery and information.
+Fifteen actions. Four configure the node, three concern the watchtower, one pays an invoice, one is hidden and exists for the TunnelSats service, and the rest are recovery and information.
 
 ### Configuration — General Settings, Plugins, Experimental Features
 
@@ -196,6 +196,10 @@ Deletes the network gossip database, which the node rebuilds from peers. Run it 
 ### Clearnet VPN — hidden
 
 Not user-facing, and not a general VPN facility: it exists for the TunnelSats service, which raises it as a task with its tunnel configuration and public address filled in, so the user only ever sees that prompt. It stores both, sets `customExternalHosts` to the public address so `watchHosts` announces it, and turns Tor Only off, since Tor Only would suppress the announcement and proxy the clearnet peers the tunnel exists for. Costs a restart. A new configuration replaces the tunnel; an empty one turns it off and drops the address it had advertised. Safe to repeat.
+
+### Pay Invoice
+
+Pays a BOLT11 invoice from the node's own funds: paste the invoice, an amount if it carries none, and the most it may spend in routing fees as a percentage. It decodes the invoice first, then pays with a 60-second retry window, and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one prompt the user accepts; the node never hands out a rune for it.
 
 ### Node Info
 
@@ -319,6 +323,7 @@ actions:
   - reset-password
   - delete-gossip-store # only-stopped
   - node-info
+  - pay-invoice # only-running; a companion service may raise it as a task
   - clearnet-vpn # hidden; raised as a task by the tunnelsats service
 tasks:
   - { action: rescan-blockchain, severity: important } # raised after a restore

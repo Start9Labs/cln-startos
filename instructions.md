@@ -50,6 +50,10 @@
 - **Reset UI Password** — clear the CLN Application UI password so you can set a new one on the next visit.
 - **Delete Gossip Store** — delete a corrupted `gossip_store`; CLN will rebuild it from peers on next start. Available when the service is stopped.
 
+### Paying an invoice
+
+**Pay Invoice** pays a Lightning invoice from your node without a wallet app: paste it, set the most you are willing to pay in routing fees, and confirm. The result shows what was paid and the preimage. A service that needs a payment from you can raise the same prompt with the invoice filled in.
+
 ### Backups and restore
 
 StartOS backs up the `main` volume, excluding live database files and the gossip store. Restoring brings back your keys and settings, but **not** the wallet's record of its own coins — so right after a restore, your on-chain balance reads **zero**. This is expected and your funds are not lost.

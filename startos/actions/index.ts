@@ -13,6 +13,7 @@ import { rescanBlockchain } from './rescanBlockchain'
 import { nodeInfo } from './nodeInfo'
 import { displaySeed } from './displaySeed'
 import { clearnetVpn } from './clearnetVpn'
+import { payInvoice } from './payInvoice'
 
 export const actions = sdk.Actions.of()
   .addAction(config)
@@ -29,5 +30,6 @@ export const actions = sdk.Actions.of()
   .addAction(rescanBlockchain)
   .addAction(nodeInfo)
   .addAction(clearnetVpn)
+  .addAction(payInvoice)
 
 // @TODO generate-lnlink
