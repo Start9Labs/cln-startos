@@ -9,7 +9,7 @@ const { InputSpec, Value, Variants } = sdk
 const inputSpec = InputSpec.of({
   invoice: Value.text({
     name: i18n('Invoice'),
-    description: i18n('A BOLT11 payment request.'),
+    description: i18n('A Lightning invoice.'),
     required: true,
     default: null,
     placeholder: 'lnbc…',
