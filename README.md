@@ -197,9 +197,11 @@ Deletes the network gossip database, which the node rebuilds from peers. Run it 
 
 Not user-facing, and not a general VPN facility: it exists for the TunnelSats service, which raises it as a task with its tunnel configuration and public address filled in, so the user only ever sees that prompt. It stores both, sets `customExternalHosts` to the public address so `watchHosts` announces it, and turns Tor Only off, since Tor Only would suppress the announcement and proxy the clearnet peers the tunnel exists for. Costs a restart. A new configuration replaces the tunnel; an empty one turns it off and drops the address it had advertised. Safe to repeat.
 
-### Pay Invoice
+### Pay Invoice, Receive Payment
 
-Pays a BOLT11 invoice from the node's own funds: paste the invoice, whether its amount is stated in it or entered here — an invoice that leaves the amount open requires one, one that states it refuses one — and the most it may spend in routing fees as a percentage. It decodes the invoice first, then pays with a 60-second retry window, and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one prompt the user accepts; the node never hands out a rune for it.
+Grouped under Payments. **Pay Invoice** pays a BOLT11 invoice from the node's own funds: paste the invoice, whether its amount is stated in it or entered here — an invoice that leaves the amount open requires one, one that states it refuses one — and the most it may spend in routing fees as a percentage. It decodes the invoice first, then pays with a 60-second retry window, and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one prompt the user accepts; the node never hands out a rune for it.
+
+**Receive Payment** creates a BOLT11 invoice for this node: an optional amount (none makes an amount-less invoice the payer fills in), an optional description carried in the invoice, and an expiry in hours, default 24. Runs `lightning-cli invoice` under a generated `startos-<uuid>` label; lightningd chooses the route hints. Returns the invoice as text and QR code, plus the payment hash. Only while running. Safe to repeat — each run registers a new invoice and nothing is charged.
 
 ### Node Info
 
@@ -324,6 +326,7 @@ actions:
   - delete-gossip-store # only-stopped
   - node-info
   - pay-invoice # only-running; a companion service may raise it as a task
+  - receive-payment # only-running
   - clearnet-vpn # hidden; raised as a task by the tunnelsats service
 tasks:
   - { action: rescan-blockchain, severity: important } # raised after a restore

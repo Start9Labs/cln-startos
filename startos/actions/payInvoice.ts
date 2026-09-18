@@ -2,6 +2,7 @@ import { T } from '@start9labs/start-sdk'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { mainMounts, rootDir } from '../utils'
+import { errorMessage, row, sats } from './payments'
 
 const { InputSpec, Value, Variants } = sdk
 
@@ -73,19 +74,6 @@ type PayResult = {
   amount_sent_msat?: number
 }
 
-const sats = (msat: number | undefined) =>
-  msat === undefined ? '' : String(Math.floor(msat / 1000))
-
-// lightning-cli reports an RPC error as a JSON object on stdout, exit code 1, sometimes after `# …` progress lines.
-const errorMessage = (res: { stdout: unknown; stderr: unknown }) => {
-  const raw = String(res.stdout || res.stderr).trim()
-  try {
-    return String(JSON.parse(raw.slice(raw.indexOf('{'))).message ?? raw)
-  } catch {
-    return raw || 'unknown'
-  }
-}
-
 export const payInvoice = sdk.Action.withInput(
   'pay-invoice',
   async ({ effects }) => ({
@@ -93,7 +81,7 @@ export const payInvoice = sdk.Action.withInput(
     description: i18n('Pay a Lightning invoice from this node.'),
     warning: null,
     allowedStatuses: 'only-running',
-    group: null,
+    group: i18n('Payments'),
     visibility: 'enabled',
   }),
   inputSpec,
@@ -159,15 +147,6 @@ export const payInvoice = sdk.Action.withInput(
         const amount = sats(paid.amount_msat)
         const fee = sats((paid.amount_sent_msat ?? 0) - (paid.amount_msat ?? 0))
         const destination = paid.destination ?? decoded.payee ?? ''
-        const row = (name: string, value: string, copyable: boolean) => ({
-          name,
-          description: null,
-          copyable,
-          qr: false,
-          masked: false,
-          type: 'single' as const,
-          value,
-        })
         return {
           version: '1' as const,
           title: i18n('Payment sent'),
