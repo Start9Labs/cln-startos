@@ -11,6 +11,7 @@ export const manifest = setupManifest({
   donationUrl: null,
   description: { short, long },
   volumes: ['main'],
+  virtualNetworking: true,
   images: {
     lightning: {
       source: {
