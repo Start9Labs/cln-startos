@@ -1,33 +1,33 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.7:2',
+  version: '26.6.7:4',
   releaseNotes: {
-    en_US: `Core Lightning is now installed from the signed release tarballs published by the Core Lightning developers.
+    en_US: `Fixes apps that connect to Core Lightning over gRPC, such as Alby Hub, being refused with "tls: unrecognized name" on StartOS 0.4.0.2 and later.
 
-The Docker images upstream published for 26.06.7 were built incorrectly and do not contain that release's security fixes, even though they report 26.06.7 on startup. The previous StartOS release, 26.6.7:1, was built from one of those images: a node running it reports 26.06.7 but does not have the fixes. Update as soon as you can.
+Core Lightning's gRPC certificate is valid only for the name "cln", so every gRPC app asks for that name when it connects. StartOS now refuses a name that is not one of the interface's own addresses, which turned those apps away before they reached your node. The gRPC port is now forwarded straight to Core Lightning, which still authenticates every client with its own certificates.
 
-Nothing about your node's configuration changes, and no action is needed beyond updating.`,
-    es_ES: `Core Lightning ahora se instala desde los archivos comprimidos de versión firmados que publican los desarrolladores de Core Lightning.
+No action is needed beyond updating.`,
+    es_ES: `Corrige el rechazo con «tls: unrecognized name» que recibían las aplicaciones que se conectan a Core Lightning por gRPC, como Alby Hub, en StartOS 0.4.0.2 y versiones posteriores.
 
-Las imágenes de Docker que el proyecto original publicó para la versión 26.06.7 se compilaron incorrectamente y no contienen las correcciones de seguridad de esa versión, aunque indiquen 26.06.7 al arrancar. La versión anterior de StartOS, 26.6.7:1, se construyó a partir de una de esas imágenes: un nodo que la ejecuta indica 26.06.7 pero no tiene las correcciones. Actualiza cuanto antes.
+El certificado gRPC de Core Lightning solo es válido para el nombre «cln», así que toda aplicación gRPC pide ese nombre al conectarse. StartOS ahora rechaza cualquier nombre que no sea una de las direcciones propias de la interfaz, por lo que esas aplicaciones eran rechazadas antes de llegar a tu nodo. El puerto gRPC ahora se reenvía directamente a Core Lightning, que sigue autenticando a cada cliente con sus propios certificados.
 
-La configuración de tu nodo no cambia y no hay que hacer nada más que actualizar.`,
-    de_DE: `Core Lightning wird jetzt aus den signierten Release-Archiven der Core-Lightning-Entwickler installiert.
+No hay que hacer nada más que actualizar.`,
+    de_DE: `Behebt, dass Apps, die sich per gRPC mit Core Lightning verbinden, etwa Alby Hub, unter StartOS 0.4.0.2 und neuer mit „tls: unrecognized name“ abgewiesen wurden.
 
-Die vom Upstream-Projekt für 26.06.7 veröffentlichten Docker-Images wurden fehlerhaft erstellt und enthalten die Sicherheitskorrekturen dieser Version nicht, obwohl sie beim Start 26.06.7 melden. Die vorherige StartOS-Version, 26.6.7:1, wurde aus einem dieser Images gebaut: Ein Node, der sie ausführt, meldet 26.06.7, hat die Korrekturen aber nicht. Aktualisieren Sie so bald wie möglich.
+Das gRPC-Zertifikat von Core Lightning gilt nur für den Namen „cln“, daher fragt jede gRPC-App beim Verbinden nach diesem Namen. StartOS weist inzwischen jeden Namen ab, der keine eigene Adresse der Schnittstelle ist, sodass diese Apps abgewiesen wurden, bevor sie Ihren Node erreichten. Der gRPC-Port wird jetzt direkt an Core Lightning weitergeleitet, das weiterhin jeden Client mit seinen eigenen Zertifikaten authentifiziert.
 
-An der Konfiguration Ihres Nodes ändert sich nichts, und außer dem Update ist nichts zu tun.`,
-    pl_PL: `Core Lightning jest teraz instalowany z podpisanych archiwów wydania publikowanych przez twórców Core Lightning.
+Außer dem Update ist nichts zu tun.`,
+    pl_PL: `Naprawia odrzucanie aplikacji łączących się z Core Lightning przez gRPC, takich jak Alby Hub, z błędem „tls: unrecognized name” w StartOS 0.4.0.2 i nowszych.
 
-Obrazy Dockera opublikowane przez projekt źródłowy dla wersji 26.06.7 zostały zbudowane niepoprawnie i nie zawierają poprawek bezpieczeństwa z tego wydania, mimo że przy uruchomieniu podają 26.06.7. Poprzednie wydanie StartOS, 26.6.7:1, powstało na bazie jednego z tych obrazów: węzeł, który je uruchamia, podaje 26.06.7, ale nie ma poprawek. Zaktualizuj jak najszybciej.
+Certyfikat gRPC Core Lightning jest ważny tylko dla nazwy „cln”, więc każda aplikacja gRPC podaje tę nazwę przy łączeniu. StartOS odrzuca teraz każdą nazwę, która nie jest jednym z własnych adresów interfejsu, przez co aplikacje te były odrzucane, zanim dotarły do twojego węzła. Port gRPC jest teraz przekazywany bezpośrednio do Core Lightning, który nadal uwierzytelnia każdego klienta własnymi certyfikatami.
 
-Konfiguracja twojego węzła się nie zmienia i poza aktualizacją nie trzeba nic robić.`,
-    fr_FR: `Core Lightning est désormais installé à partir des archives de version signées publiées par les développeurs de Core Lightning.
+Poza aktualizacją nie trzeba nic robić.`,
+    fr_FR: `Corrige le refus, avec « tls: unrecognized name », des applications qui se connectent à Core Lightning en gRPC, comme Alby Hub, sous StartOS 0.4.0.2 et versions ultérieures.
 
-Les images Docker publiées en amont pour la version 26.06.7 ont été construites de façon incorrecte et ne contiennent pas les correctifs de sécurité de cette version, bien qu'elles annoncent 26.06.7 au démarrage. La version précédente de StartOS, 26.6.7:1, a été construite à partir de l'une de ces images : un nœud qui l'exécute annonce 26.06.7 mais n'a pas les correctifs. Mettez à jour dès que possible.
+Le certificat gRPC de Core Lightning n'est valable que pour le nom « cln », si bien que toute application gRPC demande ce nom en se connectant. StartOS refuse désormais tout nom qui n'est pas l'une des adresses propres de l'interface, ce qui écartait ces applications avant qu'elles n'atteignent votre nœud. Le port gRPC est maintenant transmis directement à Core Lightning, qui continue d'authentifier chaque client avec ses propres certificats.
 
-La configuration de votre nœud ne change pas et rien d'autre que la mise à jour n'est nécessaire.`,
+Rien d'autre que la mise à jour n'est nécessaire.`,
   },
   migrations: {},
 })

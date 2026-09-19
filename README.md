@@ -123,7 +123,7 @@ Four interfaces always, and three more depending on what is enabled.
 | Clams Websocket | `websocket`  | api  | 7272 | when the Clams remote websocket is enabled  |
 | TEOS Watchtower | `watchtower` | api  | 9814 | when the watchtower server is enabled       |
 
-**gRPC is passed through, not terminated.** The plugin performs its own mutual TLS, so StartOS must not terminate at the edge — doing so would present the device certificate and strip the client's. The binding is configured for raw passthrough deliberately; a conventional HTTPS binding would look correct and silently break client authentication.
+**gRPC is forwarded as a plain TCP port, with no StartOS TLS listener in front of it.** The plugin performs its own mutual TLS, and its certificate names only `cln` and `localhost`, so every client that verifies it sends `cln` as the TLS server name whatever address it dials. A terminating listener would present the device certificate and strip the client's; a passthrough listener routes by server name and refuses one that is not an address of the interface, which `cln` never is. The binding is a raw forward deliberately — either TLS arrangement would look correct and refuse every client.
 
 **CLNrest carries its own credential in the address.** The interface's URL includes the rune the package generated, and its scheme is overridden to `clnrest+https` or `clnrest+http` so that a wallet reading the scheme knows which transport to use — a bare `clnrest://` is assumed to be TLS, which would be wrong for the Tor address.
 
@@ -245,7 +245,7 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 1. **A restore is a recovery, not a resumption.** Channels are force-closed by design; plan to sweep the funds and reinstall.
 2. **The channel database is excluded from backups**, deliberately.
 3. **CLNrest is served as plaintext by the node**, with TLS added at the edge for LAN and clearnet only.
-4. **gRPC cannot be reached through a TLS-terminating path**, because the plugin authenticates clients with their own certificates.
+4. **gRPC cannot be reached through a StartOS TLS listener**, terminating or passthrough, because the plugin authenticates clients with their own certificates and its own certificate names only `cln` and `localhost`.
 5. **A custom external host is incompatible with Tor Only** and is dropped while both are set.
 6. **The watchtower is not configurable.** Its ports, bind addresses, and subscription parameters are fixed.
 7. **Plugins are those built into the image.** Adding another means changing the image, not dropping a file on the volume.
@@ -291,7 +291,7 @@ interfaces:
   ui: { type: ui, port: 4500 }
   rpc: { type: api, port: 8080 }
   peer: { type: p2p, port: 9735 }
-  grpc: { type: api, port: 2106 } # TLS passthrough, not terminated
+  grpc: { type: api, port: 2106 } # raw TCP forward; the plugin's own mutual TLS
   clnrest: { type: api, port: 3010 } # when enabled; URL carries the rune
   websocket: { type: api, port: 7272 } # when the Clams websocket is enabled
   watchtower: { type: api, port: 9814 } # when the watchtower server is enabled
