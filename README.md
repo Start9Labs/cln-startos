@@ -43,7 +43,7 @@ Two images. The node's is built here: upstream's signed release tarball is unpac
 | Architectures | x86_64, aarch64 — both images declare `emulateMissingAs: 'aarch64'`                               |
 | Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                             |
 
-Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
+The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for the tunnel the hidden Clearnet VPN action brings up, and the manifest sets `virtualNetworking` so the container can create its interface. Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
 
 | Subcontainer          | Purpose                                                                         |
 | --------------------- | ------------------------------------------------------------------------------- |
@@ -87,7 +87,7 @@ Two interactions are worth knowing because they produce a state neither setting 
 
 ### store.json
 
-`watchtowerServer` and `watchtowerClients` are the watchtower configuration, `customExternalHosts` the announced address override, and `rescan` and `restore` are one-shot request flags.
+`watchtowerServer` and `watchtowerClients` are the watchtower configuration, `customExternalHosts` the user-managed announced address overrides, `clearnetVpn` the Clearnet VPN's WireGuard configuration and companion-managed public address (kept verbatim; `vpn/wg0.conf` is generated from it on every start and never hand-edited), and `rescan` and `restore` are one-shot request flags.
 
 Those two flags are deliberately **not** cleared when `main` reads them. A session where `lightningd` never comes up must not consume a request, or it vanishes silently — which is how a rescan requested during a crash loop used to be lost. A oneshot clears them only once the node answers RPC, and `main` ignores that clearing write so it does not bounce the service.
 
@@ -129,7 +129,7 @@ Four interfaces always, and three more depending on what is enabled.
 
 ## Installation and First-Run Flow
 
-Install seeds the four models, switches CLNrest on, and starts the node — there is no wizard, and no credential is asked for. Wallet creation is `lightningd`'s own: it generates `hsm_secret` on first start.
+Install seeds the four models and switches CLNrest on — there is no wizard, and no credential is asked for. The service remains stopped until the user starts it; `lightningd` then creates `hsm_secret` on its first start.
 
 The one piece of setup the package performs is the web UI's credential. A oneshot creates a rune scoped to the application and records it alongside the node's public key, regenerating it only if the node's identity changes or the rune is missing. The UI cannot start until that has happened.
 
@@ -137,7 +137,7 @@ The ordering that matters is Bitcoin's: the node starts, but `check-synced` repo
 
 ## Actions
 
-Thirteen actions. Four configure the node, three concern the watchtower, and the rest are recovery and information.
+Fourteen actions. Four configure the node, three concern the watchtower, one is hidden and exists for the TunnelSats service, and the rest are recovery and information.
 
 ### Configuration — General Settings, Plugins, Experimental Features
 
@@ -193,23 +193,28 @@ Deletes the network gossip database, which the node rebuilds from peers. Run it 
 - **Cost:** the node re-learns the network graph after starting, which takes time and affects routing until it does.
 - **Repeat safety:** idempotent.
 
+### Clearnet VPN — hidden
+
+Not user-facing, and not a general VPN facility: it exists for the TunnelSats service, which raises it as a task with its tunnel configuration and public address filled in, so the user only ever sees that prompt. It stores the companion-managed address separately from `customExternalHosts`; `watchHosts` announces both without overwriting addresses the user configured. It also turns Tor Only off, since Tor Only would suppress the announcement and proxy the clearnet peers the tunnel exists for. Costs a restart. A new configuration replaces the tunnel; an empty one turns it off and drops only the address it had advertised. Safe to repeat.
+
 ### Node Info
 
 Read-only, running only: the node's identity and current state.
 
 ## Tasks
 
-One task, raised by a restore rather than at install.
+The package raises one task after a restore; TunnelSats can raise the hidden Clearnet VPN action as another.
 
-| Task              | Severity    | Raised when                        | Cleared when    |
-| ----------------- | ----------- | ---------------------------------- | --------------- |
-| Rescan Blockchain | `important` | Immediately after a backup restore | The action runs |
+| Task              | Severity    | Raised when                                                            | Cleared when                                              |
+| ----------------- | ----------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| Rescan Blockchain | `important` | Immediately after a backup restore                                     | The action runs                                           |
+| Clearnet VPN      | `important` | Only when the TunnelSats service raises it with a tunnel for this node | The stored configuration matches what TunnelSats proposes |
 
 The reason is that a restored node reports an **on-chain balance of zero** until the chain is rescanned, and nothing else in the interface explains why. `important` rather than `critical`: the node should keep running — indeed it must, for the rescan to proceed.
 
 ## Health Checks
 
-Between three and five checks, plus one that appears only after a restore.
+Three checks are always present, with four more for conditional features or recovery states.
 
 | Check                  | Displayed                     | Method                                               | Present                                   |
 | ---------------------- | ----------------------------- | ---------------------------------------------------- | ----------------------------------------- |
@@ -218,9 +223,12 @@ Between three and five checks, plus one that appears only after a restore.
 | `check-synced`         | "Synced"                      | `getinfo`'s sync warnings, and Bitcoin's block count | always                                    |
 | `watchtower-server`    | "TEOS Watchtower Server"      | `teos-cli gettowerinfo` succeeds                     | while the watchtower server is enabled    |
 | `custom-external-host` | "Custom External Host"        | Always fails, with an explanation                    | while Tor Only and a custom host conflict |
+| `vpn-tunnel`           | "Clearnet VPN"                | Age of the tunnel's last WireGuard handshake         | while TunnelSats has configured a tunnel  |
 | `restored`             | "Backup Restoration Detected" | Always fails, with an explanation                    | after an emergency recovery               |
 
 **`check-synced` distinguishes three states**, which is what makes it worth reading: Bitcoin not yet synced, the node catching up to Bitcoin (reported as a block count against Bitcoin's own), and synced. It fails only when `lightning-cli` itself errors, so a red check here is the node, not the chain.
+
+**`vpn-tunnel` reads the tunnel's last handshake.** `starting` until the first one, `failure` once it is more than three minutes old — WireGuard rekeys about every two minutes under traffic. A failing tunnel does not leak: the routing rules the package installs send clearnet traffic nowhere but the tunnel, so it is held, not sent over the ISP connection. The `vpn` oneshot that brings the tunnel up runs before `lightningd` and blocks it if the tunnel cannot be created.
 
 **Two checks are deliberate permanent failures**, used as a way to say something the interface has nowhere else to put. `custom-external-host` reports that an announced address is being suppressed by Tor Only, and names both settings to change. `restored` reports that an emergency recovery has happened and that the node should be drained and reinstalled rather than kept in service — a state that is not a fault in the running software but is a serious one for the operator.
 
@@ -250,6 +258,7 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 6. **The watchtower is not configurable.** Its ports, bind addresses, and subscription parameters are fixed.
 7. **Plugins are those built into the image.** Adding another means changing the image, not dropping a file on the volume.
 8. **No riscv64 build**, and on hardware without a native image the aarch64 build runs emulated.
+9. **The Clearnet VPN carries everything or nothing.** The configuration's `AllowedIPs` must include `0.0.0.0/0`; `DNS =` lines are ignored (the container keeps its resolver); IPv6 is routed into the tunnel when it carries `::/0` and blackholed otherwise; only the peer port is reachable through it; and enabling it turns Tor Only off. One tunnel, and one [Peer], per node.
 
 ---
 
@@ -271,6 +280,7 @@ file_models:
   - /root/.lightning/store.json
   - /root/.lightning/data/app/config.json
   - /root/.lightning/.teos/teos.toml
+  - /root/.lightning/vpn/wg0.conf # generated from store.json's clearnetVpn on every start
 startos_managed_env_vars:
   - TOWERS_DATA_DIR # lightningd
   - BITCOIN_NETWORK # web UI
@@ -309,13 +319,16 @@ actions:
   - reset-password
   - delete-gossip-store # only-stopped
   - node-info
+  - clearnet-vpn # hidden; raised as a task by the tunnelsats service
 tasks:
   - { action: rescan-blockchain, severity: important } # raised after a restore
+  - { action: clearnet-vpn, severity: important } # only when the tunnelsats service raises it
 health_checks:
   - lightningd # displayed "RPC Interface"
   - cln-application # displayed "Web Interface"
   - check-synced # displayed "Synced"
   - watchtower-server # when the watchtower server is enabled
   - custom-external-host # only while Tor Only conflicts with a custom host
+  - vpn-tunnel # displayed "Clearnet VPN"; only while a tunnel is configured; last-handshake age
   - restored # only after an emergency recovery
 ```

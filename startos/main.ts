@@ -1,6 +1,7 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
-import { readFile, writeFile } from 'fs/promises'
+import { createHash } from 'node:crypto'
+import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import {
   parseTowerUri,
   towerKey,
@@ -10,6 +11,7 @@ import { watchtowerClientPlugin } from './actions/watchtower/watchtower'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
 import { storeJson } from './fileModels/store.json'
+import { vpnConfFile } from './fileModels/vpn.conf'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
@@ -22,6 +24,14 @@ import {
   uiPort,
   wsPort,
 } from './utils'
+import {
+  handshakeStaleMs,
+  parseWireguardConfig,
+  renderWgQuick,
+  vpnDownScript,
+  vpnIface,
+  vpnUpScript,
+} from './vpn'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   /**
@@ -48,6 +58,20 @@ export const main = sdk.setupMain(async ({ effects }) => {
   )
 
   const lightningdArgs: string[] = ['--database-upgrade=true']
+
+  const vpn =
+    store.clearnetVpn && parseWireguardConfig(store.clearnetVpn.config)
+  if (vpn && 'error' in vpn) {
+    throw new Error(`invalid clearnet VPN configuration: ${vpn.error}`)
+  }
+  if (vpn) {
+    await mkdir(sdk.volumes.main.subpath('./vpn'), { recursive: true })
+    await vpnConfFile.write(effects, renderWgQuick(vpn.config))
+  } else {
+    await rm(sdk.volumes.main.subpath(`./vpn/${vpnIface}.conf`), {
+      force: true,
+    })
+  }
 
   if (store.rescan) {
     lightningdArgs.push(`--rescan=${store.rescan}`)
@@ -94,7 +118,21 @@ export const main = sdk.setupMain(async ({ effects }) => {
     )
     .const(effects)
 
+  let vpnHealthConfig = store.clearnetVpn?.config ?? null
+  let vpnNoHandshakeSince = Date.now()
+  const vpnConfigHash = createHash('sha256')
+    .update(vpnHealthConfig ?? '')
+    .digest('hex')
+
   const baseDaemons = sdk.Daemons.of(effects)
+    .addOneshot('vpn', {
+      subcontainer: lightningSub,
+      exec: {
+        command: ['sh', '-c', vpn ? vpnUpScript : vpnDownScript],
+        env: { STARTOS_VPN_CONFIG_HASH: vpnConfigHash },
+      },
+      requires: [],
+    })
     .addDaemon('lightningd', {
       subcontainer: lightningSub,
       exec: {
@@ -130,7 +168,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           }
         },
       },
-      requires: [],
+      requires: ['vpn'],
     })
     .addOneshot('commando-config', {
       subcontainer: lightningSub,
@@ -320,6 +358,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
           JSON.stringify(next?.watchtowerClients) &&
         JSON.stringify(prev?.customExternalHosts) ===
           JSON.stringify(next?.customExternalHosts) &&
+        JSON.stringify(prev?.clearnetVpn) ===
+          JSON.stringify(next?.clearnetVpn) &&
         (next?.rescan === undefined || prev?.rescan === next?.rescan) &&
         (next?.restore === undefined || prev?.restore === next?.restore),
     )
@@ -578,6 +618,78 @@ export const main = sdk.setupMain(async ({ effects }) => {
       // server was disabled (SDK 2.0's Daemons.build enforces requires-ordering).
       requires: ['lightningd', 'watchtower-client'],
     })
+    .addHealthCheck('vpn-tunnel', () =>
+      vpn
+        ? {
+            ready: {
+              display: i18n('Clearnet VPN'),
+              trigger: sdk.trigger.statusTrigger(30_000, {
+                starting: 5_000,
+                failure: 30_000,
+              }),
+              fn: async () => {
+                const currentConfig =
+                  (await storeJson
+                    .read((s) => s.clearnetVpn?.config ?? null)
+                    .once()) ?? null
+                if (currentConfig !== vpnHealthConfig) {
+                  vpnHealthConfig = currentConfig
+                  vpnNoHandshakeSince = Date.now()
+                }
+                const noHandshake = () => {
+                  const ageMs = Date.now() - vpnNoHandshakeSince
+                  return ageMs > handshakeStaleMs
+                    ? {
+                        result: 'failure' as const,
+                        message: i18n(
+                          'No WireGuard handshake for ${minutes} minutes. Clearnet traffic is held until the tunnel returns, not sent over your ISP connection.',
+                          { minutes: String(Math.floor(ageMs / 60_000)) },
+                        ),
+                      }
+                    : {
+                        result: 'starting' as const,
+                        message: i18n(
+                          'Waiting for the first WireGuard handshake.',
+                        ),
+                      }
+                }
+                let res
+                try {
+                  res = await lightningSub.exec(
+                    ['wg', 'show', vpnIface, 'latest-handshakes'],
+                    {},
+                    10_000,
+                  )
+                } catch {
+                  return noHandshake()
+                }
+                if (res.exitCode !== 0) return noHandshake()
+                const epoch = Number(
+                  String(res.stdout).trim().split(/\s+/)[1] ?? 0,
+                )
+                if (!epoch) return noHandshake()
+                const ageMs = Date.now() - epoch * 1000
+                if (ageMs > handshakeStaleMs) {
+                  return {
+                    result: 'failure',
+                    message: i18n(
+                      'No WireGuard handshake for ${minutes} minutes. Clearnet traffic is held until the tunnel returns, not sent over your ISP connection.',
+                      { minutes: String(Math.floor(ageMs / 60_000)) },
+                    ),
+                  }
+                }
+                return {
+                  result: 'success',
+                  message: i18n('Tunnel up; last handshake ${seconds}s ago.', {
+                    seconds: String(Math.floor(ageMs / 1000)),
+                  }),
+                }
+              },
+            },
+            requires: ['vpn'],
+          }
+        : null,
+    )
     .addHealthCheck('custom-external-host', () =>
       conf?.['tor-only'] === true && store.customExternalHosts.length
         ? {
