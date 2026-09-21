@@ -12,6 +12,9 @@ import { watchtowerClientInfo } from './watchtower/watchtowerClientInfo'
 import { rescanBlockchain } from './rescanBlockchain'
 import { nodeInfo } from './nodeInfo'
 import { displaySeed } from './displaySeed'
+import { clearnetVpn } from './clearnetVpn'
+import { payInvoice } from './payInvoice'
+import { receivePayment } from './receivePayment'
 
 export const actions = sdk.Actions.of()
   .addAction(config)
@@ -27,5 +30,8 @@ export const actions = sdk.Actions.of()
   .addAction(watchtowerClientInfo)
   .addAction(rescanBlockchain)
   .addAction(nodeInfo)
+  .addAction(clearnetVpn)
+  .addAction(payInvoice)
+  .addAction(receivePayment)
 
 // @TODO generate-lnlink
