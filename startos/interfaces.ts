@@ -88,16 +88,19 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // gRPC
   const grpcMulti = sdk.MultiHost.of(effects, 'grpc')
-  // cln-grpc terminates its own mutual TLS, so StartOS must pass the port
-  // through untouched rather than terminate at the edge (which would present
-  // the device cert and strip the client cert). protocol/addSsl null +
-  // secure.ssl routes raw TCP / SNI passthrough; protocol 'https' does NOT —
-  // the SDK still synthesizes an addSsl config for it, terminating the TLS.
+  // cln-grpc terminates its own mutual TLS, and its certificate names only
+  // `cln` and `localhost`, so every client that verifies it sends `cln` as the
+  // TLS server name whatever address it dials. No StartOS TLS listener can sit
+  // in front of that: terminating (addSsl, or protocol 'https', for which the
+  // SDK synthesizes one) strips the client cert, and a passthrough
+  // (secure.ssl: true) routes by SNI and refuses a name that is not one of the
+  // binding's addresses. secure.ssl: false forwards the port as raw TCP, the
+  // way the peer port is, leaving the handshake to the plugin.
   const grpcMultiOrigin = await grpcMulti.bindPort(grpcPort, {
     protocol: null,
     addSsl: null,
     preferredExternalPort: grpcPort,
-    secure: { ssl: true },
+    secure: { ssl: false },
   })
   const grpc = sdk.createInterface(effects, {
     name: i18n('grpc'),
