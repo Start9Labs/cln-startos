@@ -9,7 +9,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### lightningd
 
 - Upstream: [ElementsProject/lightning](https://github.com/ElementsProject/lightning).
-- **Take lightningd from the release tarballs, not the `elementsproject/lightningd` Docker image.** For v26.06.7 upstream published images built from the wrong tree that omitted the release's security fixes while still reporting the new version on startup. The tarballs are signed; the images are not.
+- **Take lightningd from the release tarballs, not the `elementsproject/lightningd` Docker image.** The tarballs are covered by a GPG-signed checksum manifest; the images carry no signature or provenance, so a tag or digest pin only fixes whichever artifact it captured.
 - Latest release tag:
   ```sh
   gh release view -R ElementsProject/lightning --json tagName -q .tagName
@@ -25,7 +25,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### bitcoin-cli
 
 - Upstream: [Bitcoin Core](https://bitcoincore.org/bin/). Only `bitcoin-cli` is taken; nothing else from the release is used.
-- **It is a hard runtime dependency, not a convenience.** CLN's own `plugin-bcli` execs it, and so does the `check-synced` health check. Without it `lightningd` exits at startup with `The Bitcoin backend died` and the service crash-loops. The upstream lightningd image bundled it, so this only became ours to supply once we stopped using that image.
+- **It is a hard runtime dependency, not a convenience.** CLN's own `plugin-bcli` execs it, and so does the `check-synced` health check. Without it `lightningd` exits at startup with `The Bitcoin backend died` and the service crash-loops.
 - It talks JSON-RPC to whatever `bitcoind` the user runs, so it does not need to track that package's version. **A new Bitcoin Core release is not a bump on its own: refresh this pin only when `CLN_VERSION` moves.**
 - Checksums:
   ```sh

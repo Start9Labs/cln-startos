@@ -224,70 +224,70 @@ const experimentalSpec = fullConfigSpec
                 ),
               },
               InputSpec.of({
-                'min-their-funding-msat': Value.number({
+                'min-their-funding': Value.number({
                   name: i18n('Minimum Their Funding'),
                   description: i18n(
-                    'The minimum funding msats that we require in order to activate our contribution policy to the v2 open.  <b>Default: 10000000</b>',
+                    'The minimum funding that we require in order to activate our contribution policy to the v2 open.  <b>Default: 10000</b>',
                   ),
                   default: null,
                   required: false,
                   min: 0,
-                  max: 10_000_000_000_000,
+                  max: 10_000_000_000,
                   integer: true,
-                  units: 'millisatoshis',
-                  footnote: `${i18n('Default')}: 10000000 millisatoshis`,
+                  units: 'satoshis',
+                  footnote: `${i18n('Default')}: 10000 satoshis`,
                 }),
-                'max-their-funding-msat': Value.number({
+                'max-their-funding': Value.number({
                   name: i18n('Maximum Their Funding'),
                   description: i18n(
-                    'The maximum funding msats that we will consider to activate our contribution policy to the v2 open. Any channel open above this will not be funded.  <b>Default: No max</b>',
+                    'The maximum funding that we will consider to activate our contribution policy to the v2 open. Any channel open above this will not be funded.  <b>Default: No max</b>',
                   ),
                   default: null,
                   required: false,
                   min: 0,
-                  max: 10_000_000_000_000,
+                  max: 10_000_000_000,
                   integer: true,
-                  units: 'millisatoshis',
+                  units: 'satoshis',
                   footnote: `${i18n('Default')}: no maximum`,
                 }),
-                'per-channel-min-msat': Value.number({
+                'per-channel-min': Value.number({
                   name: i18n('Per-Channel Minimum'),
                   description: i18n(
-                    'The minimum amount that we will contribute to a channel open.  <b>Default: 10000000',
+                    'The minimum amount that we will contribute to a channel open.  <b>Default: 10000</b>',
                   ),
                   default: null,
                   required: false,
                   min: 0,
-                  max: 10_000_000_000_000,
+                  max: 10_000_000_000,
                   integer: true,
-                  units: 'millisatoshis',
-                  footnote: `${i18n('Default')}: 10000000 millisatoshis`,
+                  units: 'satoshis',
+                  footnote: `${i18n('Default')}: 10000 satoshis`,
                 }),
-                'per-channel-max-msat': Value.number({
+                'per-channel-max': Value.number({
                   name: i18n('Per-Channel Maximum'),
                   description: i18n(
-                    'The maximum amount that we will contribute to a channel open.  <b>Default: 10000000</b>',
+                    'The maximum amount that we will contribute to a channel open.  <b>Default: No max</b>',
                   ),
                   default: null,
                   required: false,
                   min: 0,
-                  max: 10_000_000_000_000,
+                  max: 10_000_000_000,
                   integer: true,
-                  units: 'millisatoshis',
-                  footnote: `${i18n('Default')}: 10000000 millisatoshis`,
+                  units: 'satoshis',
+                  footnote: `${i18n('Default')}: no maximum`,
                 }),
-                'reserve-tank-msat': Value.number({
+                'reserve-tank': Value.number({
                   name: i18n('Reserve Tank'),
                   description: i18n(
-                    'The amount of msats to leave available in the node wallet.  <b>Default: Nothing (can use all on-chain funds)</b>',
+                    'The amount to leave available in the node wallet.  <b>Default: Nothing (can use all on-chain funds)</b>',
                   ),
                   default: null,
                   required: false,
                   min: 0,
-                  max: 10_000_000_000_000,
+                  max: 10_000_000_000,
                   integer: true,
-                  units: 'millisatoshis',
-                  footnote: `${i18n('Default')}: 0 millisatoshis`,
+                  units: 'satoshis',
+                  footnote: `${i18n('Default')}: 0 satoshis`,
                 }),
               }),
             ),
@@ -363,11 +363,11 @@ function computeDualFundPrefill(
   }
 
   const other = {
-    'min-their-funding-msat': raw['funder-min-their-funding'],
-    'max-their-funding-msat': raw['funder-max-their-funding'],
-    'per-channel-min-msat': raw['funder-per-channel-min'],
-    'per-channel-max-msat': raw['funder-per-channel-max'],
-    'reserve-tank-msat': raw['funder-reserve-tank'],
+    'min-their-funding': raw['funder-min-their-funding'],
+    'max-their-funding': raw['funder-max-their-funding'],
+    'per-channel-min': raw['funder-per-channel-min'],
+    'per-channel-max': raw['funder-per-channel-max'],
+    'reserve-tank': raw['funder-reserve-tank'],
   }
 
   // Determine strategy: if lease fee fields are set, it's merchant; otherwise incognito
@@ -445,11 +445,11 @@ function dualFundToRaw(
   const { strategy, other } = dualFund.value
 
   const commonOther = {
-    'funder-min-their-funding': other['min-their-funding-msat'] ?? undefined,
-    'funder-max-their-funding': other['max-their-funding-msat'] ?? undefined,
-    'funder-per-channel-min': other['per-channel-min-msat'] ?? undefined,
-    'funder-per-channel-max': other['per-channel-max-msat'] ?? undefined,
-    'funder-reserve-tank': other['reserve-tank-msat'] ?? undefined,
+    'funder-min-their-funding': other['min-their-funding'] ?? undefined,
+    'funder-max-their-funding': other['max-their-funding'] ?? undefined,
+    'funder-per-channel-min': other['per-channel-min'] ?? undefined,
+    'funder-per-channel-max': other['per-channel-max'] ?? undefined,
+    'funder-reserve-tank': other['reserve-tank'] ?? undefined,
   }
 
   if (strategy.selection === 'incognito') {

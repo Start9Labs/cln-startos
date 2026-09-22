@@ -35,7 +35,7 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image, whose v26.06.7 build omitted that release's security fixes while still reporting the new version — the tarball's checksum is pinned in the `lightningd-dist` stage and taken from a GPG-verified manifest. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage: `plugin-bcli` and the `check-synced` health check both exec it, and the image it used to come with no longer supplies it.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-dist` stage and taken from a GPG-verified manifest. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
 
 | Property      | Value                                                                                             |
 | ------------- | ------------------------------------------------------------------------------------------------- |
@@ -81,13 +81,13 @@ Four models. One is the node's own configuration, one is the web UI's, one is th
 
 **Derived, and rewritten whenever the underlying address changes:** `proxy` (Tor's SOCKS address), `announce-addr` (the onion and public addresses published on the peer interface, or your custom external host in place of the IPs), and `bitcoin-rpcconnect` / `bitcoin-rpcport`. Editing any of these by hand does not stick.
 
-Everything else — alias, colour, fee policy, channel minimums, the plugin selection, CLBOSS's tuning, the experimental flags — is yours, through the config actions. The only override install makes is switching `clnrest` on.
+Everything else — alias, colour, fee policy, channel minimums, the Bitcoin retry timeout, the plugin selection, CLBOSS's tuning, the experimental flags — is yours, through the config actions. The only override install makes is switching `clnrest` on.
 
 Two interactions are worth knowing because they produce a state neither setting explains alone. A **custom external host is dropped rather than written while Tor Only is enabled**: `always-use-proxy` disables lightningd's DNS resolution, and an `announce-addr` it cannot resolve is a fatal startup error rather than a warning — so the package omits it and raises a health check saying so. And **enabling the Clams websocket adds a second `ws::` bind address** rather than replacing the first.
 
 ### store.json
 
-`watchtowerServer` and `watchtowerClients` are the watchtower configuration, `customExternalHosts` the user-managed announced address overrides, `clearnetVpn` the Clearnet VPN's WireGuard configuration and companion-managed public address (kept verbatim; `vpn/wg0.conf` is generated from it on every start and never hand-edited), and `rescan` and `restore` are one-shot request flags.
+`watchtowerServer`, `watchtowerClients` and `watchtowerLabels` are the watchtower configuration — the labels are kept apart from the tower URIs, keyed by tower id, so renaming a tower does not restart the node — `customExternalHosts` the user-managed announced address overrides, `clearnetVpn` the Clearnet VPN's WireGuard configuration and companion-managed public address (kept verbatim; `vpn/wg0.conf` is generated from it on every start and never hand-edited), and `rescan` and `restore` are one-shot request flags.
 
 Those two flags are deliberately **not** cleared when `main` reads them. A session where `lightningd` never comes up must not consume a request, or it vanishes silently — which is how a rescan requested during a crash loop used to be lost. A oneshot clears them only once the node answers RPC, and `main` ignores that clearing write so it does not bounce the service.
 
@@ -137,15 +137,15 @@ The ordering that matters is Bitcoin's: the node starts, but `check-synced` repo
 
 ## Actions
 
-Sixteen actions. Four configure the node, three concern the watchtower, two handle payments, one is hidden and exists for the TunnelSats service, and the rest are recovery and information.
+Twenty actions. Three configure the node, three concern the watchtower, four drive CLBOSS, two handle payments, one is hidden and exists for the TunnelSats service, and the rest are recovery and information.
 
 ### Configuration — General Settings, Plugins, Experimental Features
 
 Three actions writing `/config`, grouped together. Each writes only the fields it presents, costs seconds plus a restart, and is safe to re-run — the forms are pre-filled from the current file.
 
-- **General Settings** carries node identity, fee policy, channel minimums, Tor Only, the custom external host, and the CLNrest and Clams toggles. Two combinations produce a visible consequence rather than an error: Tor Only with a custom external host drops the host and raises a health check, and the Clams toggle changes the bind addresses.
+- **General Settings** carries node identity, fee policy, channel minimums, Tor Only, the custom external host, the Clams toggle, and `bitcoin-retry-timeout` — how long `plugin-bcli` retries a failing `bitcoin-cli` call before `lightningd` exits with `The Bitcoin backend died` (upstream default 60 seconds, which also raises the RPC client timeout to match). Two combinations produce a visible consequence rather than an error: Tor Only with a custom external host drops the host and raises a health check, and the Clams toggle changes the bind addresses.
 - **Plugins** selects which of the built-in plugins load, and carries CLBOSS's tuning.
-- **Experimental Features** exposes upstream's experimental flags, which are not standardized across implementations and may break between releases.
+- **Experimental Features** exposes upstream's experimental flags, which are not standardized across implementations and may break between releases. Its dual-funding amounts are written to the `funder-*` options as bare numbers, which the funder plugin reads as satoshis; the lease's `channel-fee-max-base-msat` is the one amount in millisatoshis.
 
 ### Watchtower Server, Watchtower Info, Watchtower Client Info
 
@@ -153,7 +153,9 @@ Three actions writing `/config`, grouped together. Each writes only the fields i
 
 Each subscribed tower is stored as the user typed it and parsed by `startos/actions/watchtower/towerUri.ts` into the tower id, host, and port that the `watchtower-client` oneshot passes to `registertower` as three arguments. The host keeps any `https://` prefix, which is what makes the plugin talk TLS to that tower; `lightning-cli` would send a bare IPv4 host as a JSON number, so the host is passed pre-quoted. The same module reconstructs the address `listtowers` reports a tower under, so that an entry written without a port or scheme matches the tower already registered instead of being abandoned and re-registered on every start.
 
-- **What it changes:** `watchtowerServer` and `watchtowerClients` in `store.json`, and through them the daemon chain and the exported interfaces.
+Each tower takes an optional label, stored in `watchtowerLabels` against the tower id parsed from its URI and shown by Watchtower Client Info and the `watchtowers` health check. A label change alone does not restart the node.
+
+- **What it changes:** `watchtowerServer`, `watchtowerClients` and `watchtowerLabels` in `store.json`, and through the first two the daemon chain and the exported interfaces.
 - **Cost:** seconds, then a restart.
 - **Repeat safety:** safe both ways.
 
@@ -207,6 +209,15 @@ Grouped under Payments. **Pay Invoice** pays a BOLT11 invoice from the node's ow
 
 Read-only, running only: the node's identity and current state.
 
+### CLBOSS — Status, Ignore On-chain Funds, Resume On-chain Management, Unmanage Peer
+
+Grouped under CLBOSS, running only, and disabled with a reason unless CLBOSS is enabled in Plugins. Each runs one `clboss-*` RPC command and changes nothing outside CLBOSS's own database.
+
+- **CLBOSS Status** summarizes `clboss-status`: version, connectivity, its low/high fee judgment, whether on-chain funds are being ignored and until when, the channel-candidate count, the unmanaged peers with their tags, and the swap totals from `swap_report`. Read-only.
+- **Ignore On-chain Funds** runs `clboss-ignore-onchain` for a number of hours (default 24), so on-chain funds can be spent or put into channels by hand. CLBOSS resumes by itself when the time runs out; re-running extends it.
+- **Resume On-chain Management** runs `clboss-notice-onchain`. Idempotent.
+- **Unmanage Peer** runs `clboss-unmanage` with a node id and any of the `lnfee`, `open`, `close` and `balance` tags; selecting none returns the peer to full management. It replaces that peer's tags rather than adding to them, and CLBOSS Status is where the current set is read back.
+
 ## Tasks
 
 The package raises one task after a restore; TunnelSats can raise the hidden Clearnet VPN action as another.
@@ -220,7 +231,7 @@ The reason is that a restored node reports an **on-chain balance of zero** until
 
 ## Health Checks
 
-Three checks are always present, with four more for conditional features or recovery states.
+Three checks are always present, with five more for conditional features or recovery states.
 
 | Check                  | Displayed                     | Method                                               | Present                                   |
 | ---------------------- | ----------------------------- | ---------------------------------------------------- | ----------------------------------------- |
@@ -228,11 +239,14 @@ Three checks are always present, with four more for conditional features or reco
 | `cln-application`      | "Web Interface"               | The UI's port is listening                           | always                                    |
 | `check-synced`         | "Synced"                      | `getinfo`'s sync warnings, and Bitcoin's block count | always                                    |
 | `watchtower-server`    | "TEOS Watchtower Server"      | `teos-cli gettowerinfo` succeeds                     | while the watchtower server is enabled    |
+| `watchtowers`          | "Watchtowers"                 | `listtowers` status of every subscribed tower        | while towers are subscribed               |
 | `custom-external-host` | "Custom External Host"        | Always fails, with an explanation                    | while Tor Only and a custom host conflict |
 | `vpn-tunnel`           | "Clearnet VPN"                | Age of the tunnel's last WireGuard handshake         | while TunnelSats has configured a tunnel  |
 | `restored`             | "Backup Restoration Detected" | Always fails, with an explanation                    | after an emergency recovery               |
 
 **`check-synced` distinguishes three states**, which is what makes it worth reading: Bitcoin not yet synced, the node catching up to Bitcoin (reported as a block count against Bitcoin's own), and synced. It fails only when `lightning-cli` itself errors, so a red check here is the node, not the chain.
+
+**`watchtowers` reports the towers this node subscribes to**, by label where one is set. It runs after the registration oneshots, succeeds when every tower is `reachable`, is `loading` while any is `temporary_unreachable` (the client is retrying and queuing appointments), and fails when any is `unreachable`, `misbehaving`, `subscription_error`, or not registered at all — typically an onion tower with Tor not running. Whether other nodes can reach this node's own tower cannot be checked from inside; `watchtower-server` only confirms `teosd` answers.
 
 **`vpn-tunnel` reads the tunnel's last handshake.** `starting` until the first one, `failure` once it is more than three minutes old — WireGuard rekeys about every two minutes under traffic. A failing tunnel does not leak: the routing rules the package installs send clearnet traffic nowhere but the tunnel, so it is held, not sent over the ISP connection. The `vpn` oneshot that brings the tunnel up runs before `lightningd` and blocks it if the tunnel cannot be created.
 
@@ -264,7 +278,8 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 6. **The watchtower is not configurable.** Its ports, bind addresses, and subscription parameters are fixed.
 7. **Plugins are those built into the image.** Adding another means changing the image, not dropping a file on the volume.
 8. **No riscv64 build**, and on hardware without a native image the aarch64 build runs emulated.
-9. **The Clearnet VPN carries everything or nothing.** The configuration's `AllowedIPs` must include `0.0.0.0/0`; `DNS =` lines are ignored (the container keeps its resolver); IPv6 is routed into the tunnel when it carries `::/0` and blackholed otherwise; only the peer port is reachable through it; and enabling it turns Tor Only off. One tunnel, and one [Peer], per node.
+9. **An `hsm_secret` protected by a passphrase cannot be used.** `hsm-passphrase` (formerly `encrypted-hsm`) prompts on a terminal at startup, which the service does not have. A legacy encrypted secret must be decrypted with `lightning-hsmtool decrypt` before it is copied in.
+10. **The Clearnet VPN carries everything or nothing.** The configuration's `AllowedIPs` must include `0.0.0.0/0`; `DNS =` lines are ignored (the container keeps its resolver); IPv6 is routed into the tunnel when it carries `::/0` and blackholed otherwise; only the peer port is reachable through it; and enabling it turns Tor Only off. One tunnel, and one [Peer], per node.
 
 ---
 
@@ -325,6 +340,10 @@ actions:
   - reset-password
   - delete-gossip-store # only-stopped
   - node-info
+  - clboss-status # only-running; disabled unless CLBOSS is enabled
+  - clboss-ignore-onchain # only-running; disabled unless CLBOSS is enabled
+  - clboss-notice-onchain # only-running; disabled unless CLBOSS is enabled
+  - clboss-unmanage # only-running; disabled unless CLBOSS is enabled
   - pay-invoice # only-running; a companion service may raise it as a task
   - receive-payment # only-running
   - clearnet-vpn # hidden; raised as a task by the tunnelsats service
@@ -336,6 +355,7 @@ health_checks:
   - cln-application # displayed "Web Interface"
   - check-synced # displayed "Synced"
   - watchtower-server # when the watchtower server is enabled
+  - watchtowers # while towers are subscribed; per-tower listtowers status
   - custom-external-host # only while Tor Only conflicts with a custom host
   - vpn-tunnel # displayed "Clearnet VPN"; only while a tunnel is configured; last-handshake age
   - restored # only after an emergency recovery

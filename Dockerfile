@@ -66,11 +66,7 @@ WORKDIR /tmp/rust-teos
 RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
-# lightningd, from the signed release tarballs rather than the published image.
-#
-# The v26.06.7 images upstream published were built by CI from the wrong tree and
-# do not contain the release's security fixes, though they report v26.06.7 on
-# startup. The tarballs are the release. These hashes come from
+# lightningd from the signed release tarballs. These hashes come from
 # SHA256SUMS-v26.06.7, GPG-verified against maintainer key
 # 4E4A142F8BD3C38A56B362ED578CAC08472545C5.
 FROM base AS lightningd-dist
@@ -96,9 +92,8 @@ RUN set -eu; \
     tar -xf "$TARBALL" -C /dist/usr/local --strip-components=2
 
 # bitcoin-cli, which CLN's own plugin-bcli and our check-synced health check
-# both exec. The upstream lightningd image bundled it (v27.1.0); a slim base
-# does not, and a missing one kills lightningd at startup with
-# "The Bitcoin backend died". Checksums are from bitcoincore.org's SHA256SUMS.
+# both exec; without it lightningd dies at startup with "The Bitcoin backend
+# died". Checksums are from bitcoincore.org's SHA256SUMS.
 FROM base AS bitcoin-cli
 ARG TARGETARCH
 ARG BITCOIN_VERSION=27.1
@@ -125,8 +120,7 @@ RUN set -eu; \
 # of the -dev packages below pull one in. Without it watchtower-client cannot
 # build an HTTPS client, so no tower ever registers (see README.md).
 #
-# `libpq5` and `libsodium23` are lightningd's own runtime deps, previously
-# supplied by the upstream image.
+# `libpq5` and `libsodium23` are lightningd's own runtime deps.
 FROM debian:bookworm-slim AS final
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
