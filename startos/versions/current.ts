@@ -11,7 +11,11 @@ export const current = VersionInfo.of({
 
 **Fixes**
 
-- The dual funding amounts in Experimental Features are now labeled in satoshis, the unit Core Lightning has always applied them in. If you entered millisatoshi values there, divide them by 1,000.`,
+- The dual funding amounts in Experimental Features are now labeled in satoshis, the unit Core Lightning has always applied them in. If you entered millisatoshi values there, divide them by 1,000.
+
+**Updates**
+
+- Updated the bundled Bitcoin Core RPC client (\`bitcoin-cli\`) to 31.1.`,
     es_ES: `**Novedades**
 
 - Acciones de CLBOSS: ver el estado y los swaps de CLBOSS, pausar y reanudar su gestión de los fondos on-chain, y excluir a un par de toda o parte de su gestión.
@@ -20,7 +24,11 @@ export const current = VersionInfo.of({
 
 **Correcciones**
 
-- Los importes de financiación dual en Funciones experimentales ahora se muestran en satoshis, la unidad en la que Core Lightning siempre los ha aplicado. Si introdujo valores en milisatoshis, divídalos entre 1.000.`,
+- Los importes de financiación dual en Funciones experimentales ahora se muestran en satoshis, la unidad en la que Core Lightning siempre los ha aplicado. Si introdujo valores en milisatoshis, divídalos entre 1.000.
+
+**Actualizaciones**
+
+- Se actualizó el cliente RPC de Bitcoin Core incluido (\`bitcoin-cli\`) a la versión 31.1.`,
     de_DE: `**Neu**
 
 - CLBOSS-Aktionen: Status und Swaps von CLBOSS anzeigen, seine Verwaltung der On-Chain-Mittel pausieren und fortsetzen sowie einen Peer ganz oder teilweise von seiner Verwaltung ausnehmen.
@@ -29,7 +37,11 @@ export const current = VersionInfo.of({
 
 **Fehlerbehebungen**
 
-- Die Beträge für duale Finanzierung unter Experimentelle Funktionen werden jetzt in Satoshis angegeben, der Einheit, in der Core Lightning sie schon immer angewendet hat. Falls Sie dort Millisatoshi-Werte eingegeben haben, teilen Sie sie durch 1.000.`,
+- Die Beträge für duale Finanzierung unter Experimentelle Funktionen werden jetzt in Satoshis angegeben, der Einheit, in der Core Lightning sie schon immer angewendet hat. Falls Sie dort Millisatoshi-Werte eingegeben haben, teilen Sie sie durch 1.000.
+
+**Aktualisierungen**
+
+- Der mitgelieferte Bitcoin-Core-RPC-Client (\`bitcoin-cli\`) wurde auf Version 31.1 aktualisiert.`,
     pl_PL: `**Nowości**
 
 - Akcje CLBOSS: podgląd stanu i swapów CLBOSS, wstrzymywanie i wznawianie zarządzania środkami on-chain oraz wyłączanie peera z części lub całości zarządzania.
@@ -38,7 +50,11 @@ export const current = VersionInfo.of({
 
 **Poprawki**
 
-- Kwoty podwójnego finansowania w Funkcjach eksperymentalnych są teraz opisane w satoshi, czyli w jednostce, w której Core Lightning zawsze je stosował. Jeśli wpisano tam wartości w millisatoshi, podziel je przez 1000.`,
+- Kwoty podwójnego finansowania w Funkcjach eksperymentalnych są teraz opisane w satoshi, czyli w jednostce, w której Core Lightning zawsze je stosował. Jeśli wpisano tam wartości w millisatoshi, podziel je przez 1000.
+
+**Aktualizacje**
+
+- Dołączony klient RPC Bitcoin Core (\`bitcoin-cli\`) został zaktualizowany do wersji 31.1.`,
     fr_FR: `**Nouveautés**
 
 - Actions CLBOSS : consulter l'état et les swaps de CLBOSS, suspendre et reprendre sa gestion des fonds on-chain, et exclure un pair de tout ou partie de sa gestion.
@@ -47,7 +63,11 @@ export const current = VersionInfo.of({
 
 **Corrections**
 
-- Les montants du financement dual dans Fonctionnalités expérimentales sont désormais exprimés en satoshis, l'unité dans laquelle Core Lightning les a toujours appliqués. Si vous y avez saisi des valeurs en millisatoshis, divisez-les par 1 000.`,
+- Les montants du financement dual dans Fonctionnalités expérimentales sont désormais exprimés en satoshis, l'unité dans laquelle Core Lightning les a toujours appliqués. Si vous y avez saisi des valeurs en millisatoshis, divisez-les par 1 000.
+
+**Mises à jour**
+
+- Le client RPC Bitcoin Core inclus (\`bitcoin-cli\`) a été mis à jour vers la version 31.1.`,
   },
   migrations: {},
 })
