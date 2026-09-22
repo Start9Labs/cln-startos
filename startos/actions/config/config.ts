@@ -28,6 +28,7 @@ export const config = sdk.Action.withInput(
     'fee-rate': true,
     'min-capacity': true,
     'funding-confirms': true,
+    'bitcoin-retry-timeout': true,
   }),
 
   // optionally pre-fill the input form

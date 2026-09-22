@@ -9,7 +9,7 @@ import { sdk } from '../../sdk'
 const { InputSpec, Value, Variants } = sdk
 
 const slingPlugin = '/usr/local/libexec/c-lightning/plugins/sling'
-const clbossPlugin = '/usr/local/libexec/c-lightning/plugins/clboss'
+export const clbossPlugin = '/usr/local/libexec/c-lightning/plugins/clboss'
 
 const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
   sling: Value.toggle({

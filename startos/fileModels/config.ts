@@ -30,6 +30,7 @@ const iniNumber = z
     z.string().transform(Number),
     z.number(),
   ])
+  .pipe(z.number())
   .optional()
   .catch(undefined)
 
@@ -74,6 +75,7 @@ export const shape = z.object({
   network: z.literal('bitcoin').catch('bitcoin'),
   'bitcoin-rpcconnect': iniString,
   'bitcoin-rpcport': iniNumber,
+  'bitcoin-retry-timeout': iniNumber,
   'bitcoin-datadir': z.literal(bitcoinDataDir).catch(bitcoinDataDir),
   'bind-addr': z
     .union([z.array(z.string()), z.string().transform((s) => [s])])
@@ -265,6 +267,20 @@ export const fullConfigSpec = InputSpec.of({
     footnote: `${i18n('Default')}: 3 blocks`,
   }),
 
+  // Bitcoin
+  'bitcoin-retry-timeout': Value.number({
+    name: i18n('Bitcoin Retry Timeout'),
+    description: i18n(
+      'How long Core Lightning keeps retrying a request to Bitcoin before it shuts down. Raise it if Core Lightning stops with "The Bitcoin backend died" while Bitcoin is busy, for example during a reindex.',
+    ),
+    default: null,
+    required: false,
+    min: 1,
+    integer: true,
+    units: 'seconds',
+    footnote: `${i18n('Default')}: 60 seconds`,
+  }),
+
   // Payments
   'xpay-handle-pay': Value.triState({
     name: i18n('Xpay'),
@@ -325,6 +341,7 @@ export function fileToForm(
     'fee-per-satoshi': feePerSatoshi,
     'min-capacity-sat': minCapacitySat,
     'funding-confirms': fundingConfirms,
+    'bitcoin-retry-timeout': bitcoinRetryTimeout,
     'xpay-handle-pay': xpayHandlePay,
     'clnrest-host': clnrestHost,
     'clnrest-port': clnrestPort,
@@ -340,6 +357,7 @@ export function fileToForm(
     'fee-rate': feePerSatoshi,
     'min-capacity': minCapacitySat,
     'funding-confirms': fundingConfirms,
+    'bitcoin-retry-timeout': bitcoinRetryTimeout,
     'xpay-handle-pay':
       xpayHandlePay === undefined ? null : xpayHandlePay === 'true',
     clnrest: !!clnrestHost && !!clnrestPort,
@@ -359,6 +377,7 @@ function formToFile(
     'fee-rate': feeRate,
     'min-capacity': minCapacity,
     'funding-confirms': fundingConfirms,
+    'bitcoin-retry-timeout': bitcoinRetryTimeout,
     'xpay-handle-pay': xpayHandlePay,
     clnrest,
   } = input
@@ -405,6 +424,9 @@ function formToFile(
     'fee-per-satoshi': feeRate ?? undefined,
     'min-capacity-sat': minCapacity ?? undefined,
     'funding-confirms': fundingConfirms ?? undefined,
+
+    // Bitcoin
+    'bitcoin-retry-timeout': bitcoinRetryTimeout ?? undefined,
 
     // Payments
     'xpay-handle-pay':

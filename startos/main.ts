@@ -7,6 +7,7 @@ import {
   towerKey,
   towerNetAddr,
 } from './actions/watchtower/towerUri'
+import { errorMessage, literal } from './actions/payments'
 import { watchtowerClientPlugin } from './actions/watchtower/watchtower'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
@@ -618,6 +619,80 @@ export const main = sdk.setupMain(async ({ effects }) => {
       // server was disabled (SDK 2.0's Daemons.build enforces requires-ordering).
       requires: ['lightningd', 'watchtower-client'],
     })
+    .addHealthCheck('watchtowers', () =>
+      watchtowerClientLoaded && store.watchtowerClients.length
+        ? {
+            ready: {
+              display: i18n('Watchtowers'),
+              fn: async () => {
+                const res = await lightningSub.exec(
+                  ['lightning-cli', 'listtowers'],
+                  { cwd: rootDir },
+                )
+                if (res.exitCode !== 0) {
+                  return {
+                    result: 'failure',
+                    message: i18n('Could not list watchtowers: ${error}', {
+                      error: literal(errorMessage(res)),
+                    }),
+                  }
+                }
+                const registered: ListTowers = JSON.parse(res.stdout as string)
+                const labels =
+                  (await storeJson.read((s) => s.watchtowerLabels).once()) ?? []
+                const statuses = store.watchtowerClients.map((entry) => {
+                  const id = parseTowerUri(entry)?.id
+                  return {
+                    name: labels.find((l) => l.id === id)?.label ?? id ?? entry,
+                    status: (id && registered[id]?.status) || 'unregistered',
+                  }
+                })
+                const down = statuses.filter(
+                  (t) =>
+                    t.status !== 'reachable' &&
+                    t.status !== 'temporary_unreachable',
+                )
+                if (down.length) {
+                  return {
+                    result: 'failure',
+                    message: i18n(
+                      '${count} of ${total} watchtowers are unreachable or not registered: ${towers}',
+                      {
+                        count: String(down.length),
+                        total: String(statuses.length),
+                        towers: literal(down.map((t) => t.name).join(', ')),
+                      },
+                    ),
+                  }
+                }
+                const retrying = statuses.filter(
+                  (t) => t.status === 'temporary_unreachable',
+                )
+                if (retrying.length) {
+                  return {
+                    result: 'loading',
+                    message: i18n(
+                      'Retrying ${count} of ${total} watchtowers: ${towers}',
+                      {
+                        count: String(retrying.length),
+                        total: String(statuses.length),
+                        towers: literal(retrying.map((t) => t.name).join(', ')),
+                      },
+                    ),
+                  }
+                }
+                return {
+                  result: 'success',
+                  message: i18n('All ${total} watchtowers are reachable', {
+                    total: String(statuses.length),
+                  }),
+                }
+              },
+            },
+            requires: ['abandontowers'],
+          }
+        : null,
+    )
     .addHealthCheck('vpn-tunnel', () =>
       vpn
         ? {
