@@ -1,43 +1,53 @@
 import { VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.7:3',
+  version: '26.6.7:4',
   releaseNotes: {
-    en_US: `The TunnelSats service can now route this node's clearnet traffic through its tunnel and announce the tunnel's address, by raising a prompt on Core Lightning.
+    en_US: `**New**
 
-New Payments actions: Pay Invoice pays a Lightning invoice from the node, and Receive Payment creates one for it to be paid.
+- CLBOSS actions: view CLBOSS's status and swaps, pause and resume its management of on-chain funds, and exclude a peer from some or all of its management.
+- Watchtowers can be given a label, and a new Watchtowers health check reports whether each subscribed tower is reachable.
+- General Settings has a Bitcoin Retry Timeout setting.
 
-Fixes apps that connect to Core Lightning over gRPC, such as Alby Hub, being refused with "tls: unrecognized name" on StartOS 0.4.0.2 and later. Core Lightning's gRPC certificate is valid only for the name "cln", so every gRPC app asks for that name when it connects, and StartOS refuses a name that is not one of the interface's own addresses. The gRPC port is now forwarded straight to Core Lightning, over IPv4 and IPv6, and Core Lightning still authenticates every client with its own certificates.
+**Fixes**
 
-No action is needed beyond updating.`,
-    es_ES: `El servicio TunnelSats ahora puede enrutar el tráfico clearnet de este nodo por su túnel y anunciar la dirección del túnel, mostrando un aviso en Core Lightning.
+- The dual funding amounts in Experimental Features are now labeled in satoshis, the unit Core Lightning has always applied them in. If you entered millisatoshi values there, divide them by 1,000.`,
+    es_ES: `**Novedades**
 
-Nuevas acciones de Pagos: Pagar factura paga una factura Lightning desde el nodo, y Recibir pago crea una para que se le pague.
+- Acciones de CLBOSS: ver el estado y los swaps de CLBOSS, pausar y reanudar su gestión de los fondos on-chain, y excluir a un par de toda o parte de su gestión.
+- Los Watchtowers pueden llevar una etiqueta, y una nueva comprobación de salud, Watchtowers, indica si cada Watchtower suscrito es accesible.
+- Configuración general incluye el ajuste Tiempo de reintento de Bitcoin.
 
-Corrige el rechazo con «tls: unrecognized name» que recibían las aplicaciones que se conectan a Core Lightning por gRPC, como Alby Hub, en StartOS 0.4.0.2 y versiones posteriores. El certificado gRPC de Core Lightning solo es válido para el nombre «cln», así que toda aplicación gRPC pide ese nombre al conectarse, y StartOS rechaza cualquier nombre que no sea una de las direcciones propias de la interfaz. El puerto gRPC ahora se reenvía directamente a Core Lightning, por IPv4 e IPv6, y Core Lightning sigue autenticando a cada cliente con sus propios certificados.
+**Correcciones**
 
-No hay que hacer nada más que actualizar.`,
-    de_DE: `Der TunnelSats-Dienst kann den Clearnet-Verkehr dieses Knotens jetzt durch seinen Tunnel leiten und die Adresse des Tunnels ankündigen, indem er eine Aufforderung in Core Lightning auslöst.
+- Los importes de financiación dual en Funciones experimentales ahora se muestran en satoshis, la unidad en la que Core Lightning siempre los ha aplicado. Si introdujo valores en milisatoshis, divídalos entre 1.000.`,
+    de_DE: `**Neu**
 
-Neue Aktionen unter Zahlungen: Rechnung bezahlen bezahlt eine Lightning-Rechnung vom Knoten aus, und Zahlung empfangen erstellt eine, mit der er bezahlt werden kann.
+- CLBOSS-Aktionen: Status und Swaps von CLBOSS anzeigen, seine Verwaltung der On-Chain-Mittel pausieren und fortsetzen sowie einen Peer ganz oder teilweise von seiner Verwaltung ausnehmen.
+- Watchtower können eine Bezeichnung erhalten, und eine neue Zustandsprüfung „Watchtower“ meldet, ob jeder abonnierte Watchtower erreichbar ist.
+- Allgemeine Einstellungen enthält die Einstellung Bitcoin-Wiederholungszeitlimit.
 
-Behebt, dass Apps, die sich per gRPC mit Core Lightning verbinden, etwa Alby Hub, unter StartOS 0.4.0.2 und neuer mit „tls: unrecognized name“ abgewiesen wurden. Das gRPC-Zertifikat von Core Lightning gilt nur für den Namen „cln“, daher fragt jede gRPC-App beim Verbinden nach diesem Namen, und StartOS weist jeden Namen ab, der keine eigene Adresse der Schnittstelle ist. Der gRPC-Port wird jetzt direkt an Core Lightning weitergeleitet, über IPv4 und IPv6, und Core Lightning authentifiziert weiterhin jeden Client mit seinen eigenen Zertifikaten.
+**Fehlerbehebungen**
 
-Außer dem Update ist nichts zu tun.`,
-    pl_PL: `Usługa TunnelSats może teraz kierować ruch clearnet tego węzła przez swój tunel i ogłaszać adres tunelu, wyświetlając monit w Core Lightning.
+- Die Beträge für duale Finanzierung unter Experimentelle Funktionen werden jetzt in Satoshis angegeben, der Einheit, in der Core Lightning sie schon immer angewendet hat. Falls Sie dort Millisatoshi-Werte eingegeben haben, teilen Sie sie durch 1.000.`,
+    pl_PL: `**Nowości**
 
-Nowe akcje w grupie Płatności: Zapłać fakturę opłaca fakturę Lightning z węzła, a Odbierz płatność tworzy fakturę do opłacenia.
+- Akcje CLBOSS: podgląd stanu i swapów CLBOSS, wstrzymywanie i wznawianie zarządzania środkami on-chain oraz wyłączanie peera z części lub całości zarządzania.
+- Watchtowerom można nadać etykietę, a nowa kontrola stanu Watchtowery pokazuje, czy każdy subskrybowany Watchtower jest osiągalny.
+- Ustawienia ogólne zawierają ustawienie Limit czasu ponawiania Bitcoin.
 
-Naprawia odrzucanie aplikacji łączących się z Core Lightning przez gRPC, takich jak Alby Hub, z błędem „tls: unrecognized name” w StartOS 0.4.0.2 i nowszych. Certyfikat gRPC Core Lightning jest ważny tylko dla nazwy „cln”, więc każda aplikacja gRPC podaje tę nazwę przy łączeniu, a StartOS odrzuca każdą nazwę, która nie jest jednym z własnych adresów interfejsu. Port gRPC jest teraz przekazywany bezpośrednio do Core Lightning, przez IPv4 i IPv6, a Core Lightning nadal uwierzytelnia każdego klienta własnymi certyfikatami.
+**Poprawki**
 
-Poza aktualizacją nie trzeba nic robić.`,
-    fr_FR: `Le service TunnelSats peut désormais acheminer le trafic clearnet de ce nœud par son tunnel et annoncer l'adresse du tunnel, en affichant une invite dans Core Lightning.
+- Kwoty podwójnego finansowania w Funkcjach eksperymentalnych są teraz opisane w satoshi, czyli w jednostce, w której Core Lightning zawsze je stosował. Jeśli wpisano tam wartości w millisatoshi, podziel je przez 1000.`,
+    fr_FR: `**Nouveautés**
 
-Nouvelles actions Paiements : Payer une facture règle une facture Lightning depuis le nœud, et Recevoir un paiement en crée une pour qu'il soit payé.
+- Actions CLBOSS : consulter l'état et les swaps de CLBOSS, suspendre et reprendre sa gestion des fonds on-chain, et exclure un pair de tout ou partie de sa gestion.
+- Les Watchtowers peuvent recevoir un libellé, et une nouvelle vérification d'état, Watchtowers, indique si chaque Watchtower auquel le noeud est abonné est joignable.
+- Paramètres généraux propose le réglage Délai de nouvelle tentative Bitcoin.
 
-Corrige le refus, avec « tls: unrecognized name », des applications qui se connectent à Core Lightning en gRPC, comme Alby Hub, sous StartOS 0.4.0.2 et versions ultérieures. Le certificat gRPC de Core Lightning n'est valable que pour le nom « cln », si bien que toute application gRPC demande ce nom en se connectant, et StartOS refuse tout nom qui n'est pas l'une des adresses propres de l'interface. Le port gRPC est maintenant transmis directement à Core Lightning, en IPv4 comme en IPv6, et Core Lightning continue d'authentifier chaque client avec ses propres certificats.
+**Corrections**
 
-Rien d'autre que la mise à jour n'est nécessaire.`,
+- Les montants du financement dual dans Fonctionnalités expérimentales sont désormais exprimés en satoshis, l'unité dans laquelle Core Lightning les a toujours appliqués. Si vous y avez saisi des valeurs en millisatoshis, divisez-les par 1 000.`,
   },
   migrations: {},
 })

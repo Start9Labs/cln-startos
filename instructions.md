@@ -39,16 +39,21 @@
 - **Display BIP-39 Seed** — show the 12-word BIP-39 seed for on-chain recovery. Hidden if your wallet predates BIP-39 support in CLN; the seed alone does not recover channel state.
 - **Create Rune** — generate an unrestricted rune for app integrations.
 - **Revoke All Runes** — blacklist every rune this node has issued, so none of them can authenticate again. Run it if a rune may have been copied or exposed, or if an app with RPC access to your node may have created one without your knowledge — for example if you run BTCPay Server, which reaches Core Lightning over its admin RPC socket and shipped an actively exploited vulnerability in versions before 2.4.2. Core Lightning restarts afterwards to issue the web UI a fresh rune; re-issue any other integration's rune with **Create Rune**.
-- **General Settings** — set alias, color, fee base and rate, minimum channel capacity, funding confirmations, Tor-only mode, Clams Websocket, and a custom external host.
+- **General Settings** — set alias, color, fee base and rate, minimum channel capacity, funding confirmations, Tor-only mode, Clams Websocket, a custom external host, and the Bitcoin retry timeout.
+  - **Bitcoin Retry Timeout** is how long Core Lightning keeps retrying Bitcoin before it shuts down with "The Bitcoin backend died". The default is 60 seconds; raise it if that happens while Bitcoin is busy, such as during a reindex.
   - **Custom External Host** announces an external tunnel or VPN endpoint, such as Tunnelsats, as your node's public address. It is announced in place of any public IP StartOS detects, so peers are not handed the home IP the tunnel exists to hide; your Tor address is still announced. Core Lightning resolves the name once at startup, so restart it if the endpoint moves to a new address. Nothing is announced while Tor-only mode is on, because Core Lightning cannot resolve a hostname with every connection forced through the proxy — a failing **Custom External Host** health check appears while both are set, to tell you so.
 - **Plugins** — enable or disable CLNrest, Sling, and CLBOSS, with sub-settings for CLBOSS (min on-chain reserve, auto-close, zero base fee, channel size limits).
-- **Experimental Features** — toggle splicing, shutdown-wrong-funding, and dual funding / liquidity ads (with policy, fuzz percentage, fund probability, and merchant lease-fee settings).
-- **Watchtower Settings** — enable the TEOS watchtower server, enable the watchtower client, and add tower URIs to register with. A tower URI is `<pubkey>@<host>:<port>`, reached over plain HTTP; prefix the host with `https://` for a tower that serves its API over TLS.
+- **Experimental Features** — toggle splicing, shutdown-wrong-funding, and dual funding / liquidity ads (with policy, fuzz percentage, fund probability, and merchant lease-fee settings). Dual-funding amounts are in satoshis, except Channel Fee Max Base, which is in millisatoshis.
+- **Watchtower Settings** — enable the TEOS watchtower server, enable the watchtower client, and add tower URIs to register with. A tower URI is `<pubkey>@<host>:<port>`, reached over plain HTTP; prefix the host with `https://` for a tower that serves its API over TLS. Give each tower an optional label, such as who runs it, so you know who to contact if it goes offline. While you subscribe to towers, the **Watchtowers** health check shows whether each one is reachable.
 - **Watchtower Info** — visible when the watchtower server is enabled; shows the server URI and stats.
 - **Watchtower Client Info** — visible when at least one tower is configured; shows registered towers and subscription state. Towers you add are registered automatically the next time Core Lightning starts, and stay registered across restarts and updates. If this list is empty, give the service a minute after startup and check it again — registration runs shortly after Core Lightning is up. Tower URIs are usually `.onion` addresses, which need Tor installed and running to reach.
 - **Rescan Blockchain** — rescan the blockchain from a given depth or block height. **Required after restoring from backup** — the wallet balance reads zero until a rescan completes.
 - **Reset UI Password** — clear the CLN Application UI password so you can set a new one on the next visit.
 - **Delete Gossip Store** — delete a corrupted `gossip_store`; CLN will rebuild it from peers on next start. Available when the service is stopped.
+- **CLBOSS** — available while CLBOSS is enabled in **Plugins** and the service is running:
+  - **CLBOSS Status** — what CLBOSS sees and is doing: connectivity, its view of on-chain fees, whether it is managing on-chain funds, peers you have excluded, and its swap totals.
+  - **Ignore On-chain Funds** — stop CLBOSS from putting on-chain funds into channels for a number of hours, so you can open a channel or withdraw funds yourself. **Resume On-chain Management** ends it early.
+  - **Unmanage Peer** — stop CLBOSS managing fees, channel opens, channel closes, or rebalancing for one peer, for example to set your own fees on a channel to a friend. Run it again with nothing selected to hand the peer back.
 
 ### Paying and receiving
 
@@ -72,6 +77,25 @@ Run the rescan with a blockheight from before your node was created, prefixed wi
 If the balance is still missing funds after the rescan completes, contact support: your funds are recoverable — the wallet's public descriptors can locate every coin exactly, even ones the rescan missed.
 
 Once any recovered channels have resolved, sweep remaining funds to another wallet and reinstall fresh if you want to keep using the node. Restore only what you must: restoring an old backup over a working node replaces its live records with stale ones.
+
+### Moving an existing node to StartOS
+
+You can bring a Core Lightning node from another machine, keeping its node ID and channels, by copying its data into this service.
+
+1. **Stop Core Lightning on the old machine and make sure it cannot start again.** Two running copies of one node will broadcast old channel states and lose funds. Leave it stopped for good once the move is done.
+2. Install Core Lightning here, start it once so it creates its data directory, then stop it.
+3. From the old node's lightning directory (usually `~/.lightning/bitcoin/`), copy these files to your server's home directory, for example with `scp`: `hsm_secret`, `lightningd.sqlite3`, and `emergency.recover`, plus `lightningd.sqlite3-wal`, `lightningd.sqlite3-shm` and `accounts.sqlite3` if they exist. The gossip store is not needed; the node rebuilds it.
+4. SSH into your server and copy the files into the service's data, replacing the ones there:
+
+   ```
+   sudo cp ~/hsm_secret ~/lightningd.sqlite3 ~/emergency.recover /media/startos/data/package-data/volumes/c-lightning/data/main/bitcoin/
+   ```
+
+   Add any of the optional files you copied to the same command.
+
+5. Start Core Lightning and watch its logs. Settings such as alias and fees are not carried over; set them in **General Settings**.
+
+The old node must run the same Core Lightning version as this service or an older one; its database is upgraded automatically on first start, but it cannot be downgraded. If your `hsm_secret` is encrypted, decrypt it on the old machine with `lightning-hsmtool decrypt` before copying it — this service cannot ask for its password at startup.
 
 ## Limitations
 

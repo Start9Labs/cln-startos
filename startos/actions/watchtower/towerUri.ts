@@ -22,7 +22,7 @@ export function parseTowerUri(uri: string): TowerUri | null {
   if (!host) return null
 
   return {
-    id: trimmed.slice(0, at),
+    id: trimmed.slice(0, at).toLowerCase(),
     host,
     port: port ? Number(port[1]) : defaultTowerPort,
   }
