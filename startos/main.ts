@@ -624,6 +624,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         ? {
             ready: {
               display: i18n('Watchtowers'),
+              trigger: sdk.trigger.statusTrigger(60_000, { starting: 5_000 }),
               fn: async () => {
                 const res = await lightningSub.exec(
                   ['lightning-cli', 'listtowers'],
@@ -773,6 +774,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               // Nothing here initializes, so the default grace period would
               // only show this as "starting" for its first 10 seconds.
               gracePeriod: 0,
+              trigger: sdk.trigger.cooldownTrigger(60_000),
               fn: async () => ({
                 result: 'failure' as const,
                 message: i18n(
