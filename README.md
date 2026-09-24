@@ -35,7 +35,7 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-dist` stage and taken from a GPG-verified manifest. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
 
 | Property      | Value                                                                                             |
 | ------------- | ------------------------------------------------------------------------------------------------- |
