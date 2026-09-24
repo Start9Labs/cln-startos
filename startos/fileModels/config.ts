@@ -311,7 +311,7 @@ function clnIniStringify(data: Record<string, unknown>): string {
       bareFlags.push(`${key}\n`)
     } else {
       for (const v of [val].flat()) {
-        if (v !== undefined) lines.push(`${key}=${v}\n`)
+        if (v !== undefined) lines.push(`${key}=${String(v)}\n`)
       }
     }
   }
