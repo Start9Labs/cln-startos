@@ -20,7 +20,7 @@ For each independent upstream source below: a link to its canonical repo, one co
   gpg --verify SHA256SUMS-<tag>.asc SHA256SUMS-<tag>
   ```
   Maintainer fingerprints are listed on the release page.
-- Current pin: `CLN_VERSION` plus the per-arch `CLN_SHA256_*` args in the `lightningd-dist` stage of `Dockerfile`.
+- Current pin: the global `CLN_VERSION` at the top of `Dockerfile`, the per-arch `CLN_SHA256_*` args in the `lightningd-tarball` stage, and `CLN_SRC_SHA256` in the `lightningd-source` stage.
 
 ### bitcoin-cli
 
@@ -83,7 +83,8 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 ### lightningd
 
-- Update `CLN_VERSION` and both `CLN_SHA256_*` args in the `lightningd-dist` stage of `Dockerfile`, taking the hashes from the GPG-verified `SHA256SUMS` for the `Ubuntu-22.04` tarballs. That build's glibc runs on the bookworm final stage, which is what every other binary in the image is compiled against — check that still holds if you move to a different tarball.
+- Update `CLN_VERSION` and both `CLN_SHA256_*` args in the `lightningd-tarball` stage of `Dockerfile`, taking the hashes from the GPG-verified `SHA256SUMS` for the `Ubuntu-22.04` tarballs. That build's glibc runs on the bookworm final stage, which is what every other binary in the image is compiled against — check that still holds if you move to a different tarball.
+- **If the release has no arm64 tarball**, arm64 builds from source: set `CLN_SRC_SHA256` to the manifest's hash for `clightning-<tag>.zip`, leave `CLN_SHA256_ARM64` empty, and point `lightningd-dist-arm64` at `lightningd-source`. When arm64 tarballs are published again, fill in `CLN_SHA256_ARM64` and point it back at `lightningd-tarball`.
 
 ### bitcoin-cli
 

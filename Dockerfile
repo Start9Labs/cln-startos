@@ -1,3 +1,5 @@
+ARG CLN_VERSION=v26.06.8
+
 # Shared base with common dependencies
 FROM debian:bookworm-slim AS base
 RUN apt-get update -qq && \
@@ -39,8 +41,8 @@ RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends ca-cert
     curl -fSL "https://github.com/daywalker90/sling/releases/download/${SLING_VERSION}/sling-${SLING_VERSION}-${SLING_ARCH}-linux-gnu.tar.gz" \
     | tar xz -C /usr/local/bin/
 
-# rust-teos builder
-FROM base AS builder-rust
+# Rust toolchain, shared by rust-teos and the lightningd source build
+FROM base AS rust-base
 ENV RUST_PROFILE=release \
     PATH="/root/.cargo/bin:/root/.local/bin:$PATH" \
     PROTOBUF_VERSION=21.12 \
@@ -61,19 +63,21 @@ RUN apt-get update -qq && \
     cp -r protobuf-${PROTOBUF_VERSION}/src/google /usr/local/include/ && \
     rm -rf protobuf*
 
+# rust-teos builder
+FROM rust-base AS builder-rust
 COPY ./rust-teos /tmp/rust-teos
 WORKDIR /tmp/rust-teos
 RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
 # lightningd from the signed release tarballs. These hashes come from
-# SHA256SUMS-v26.06.7, GPG-verified against maintainer key
+# SHA256SUMS-v26.06.8, GPG-verified against maintainer key
 # 4E4A142F8BD3C38A56B362ED578CAC08472545C5.
-FROM base AS lightningd-dist
+FROM base AS lightningd-tarball
 ARG TARGETARCH
-ARG CLN_VERSION=v26.06.7
-ARG CLN_SHA256_AMD64=53ddf124fe7058b6a2fc059d104976cc54ba5be21dc55b295cd82d01cabeb39c
-ARG CLN_SHA256_ARM64=a6e89d49468dac83122d6b795796b7f2ebb55eab6181b419f1cf9a73aeae3965
+ARG CLN_VERSION
+ARG CLN_SHA256_AMD64=0c05412ff8078dc3ad649385e7068a5935c384979ece785db0333f532e9244b6
+ARG CLN_SHA256_ARM64=
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends ca-certificates xz-utils && \
     rm -rf /var/lib/apt/lists/*
@@ -90,6 +94,30 @@ RUN set -eu; \
     echo "${SHA}  ${TARBALL}" | sha256sum -c -; \
     mkdir -p /dist/usr/local; \
     tar -xf "$TARBALL" -C /dist/usr/local --strip-components=2
+
+# lightningd built from the release's source zip, for an arch upstream
+# published no tarball for. The hash is from the same signed SHA256SUMS.
+FROM rust-base AS lightningd-source
+ARG CLN_VERSION
+ARG CLN_SRC_SHA256=2809c4f6aba5e928317d9857fbff5b29232b5e799ed74e1150872a9bf11de025
+RUN apt-get update -qq && \
+    apt-get install -qq -y --no-install-recommends \
+    libsodium-dev libsqlite3-dev zlib1g-dev python3-mako lowdown unzip && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /tmp
+RUN set -eu; \
+    ZIP="clightning-${CLN_VERSION}.zip"; \
+    curl -fsSLO --retry 3 "https://github.com/ElementsProject/lightning/releases/download/${CLN_VERSION}/${ZIP}"; \
+    echo "${CLN_SRC_SHA256}  ${ZIP}" | sha256sum -c -; \
+    unzip -q "$ZIP"; \
+    cd "clightning-${CLN_VERSION}"; \
+    ./configure --prefix=/usr/local --disable-valgrind; \
+    make -j"$(nproc)" install-program DESTDIR=/dist RUST_PROFILE=release VERSION="${CLN_VERSION}"
+
+# v26.06.8 has no arm64 tarball (ElementsProject/lightning#9557).
+FROM lightningd-tarball AS lightningd-dist-amd64
+FROM lightningd-source AS lightningd-dist-arm64
+FROM lightningd-dist-${TARGETARCH} AS lightningd-dist
 
 # bitcoin-cli, which CLN's own plugin-bcli and our check-synced health check
 # both exec; without it lightningd dies at startup with "The Bitcoin backend
