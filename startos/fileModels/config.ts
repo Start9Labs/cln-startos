@@ -1,5 +1,4 @@
 import { FileHelper, T, z } from '@start9labs/start-sdk'
-import * as INI from 'ini'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import {
@@ -301,29 +300,39 @@ export const fullConfigSpec = InputSpec.of({
   }),
 })
 
-// CLN uses bare flags for boolean options (e.g. `experimental-dual-fund` not
-// `experimental-dual-fund=true`). The `ini` package always writes `key=value`,
-// so we use a custom serializer that extracts boolean true values as bare flags.
+// lightningd reads each value verbatim to the end of the line: no quoting, escaping or inline comments.
 function clnIniStringify(data: Record<string, unknown>): string {
+  const lines: string[] = []
   const bareFlags: string[] = []
-  const iniData: Record<string, unknown> = {}
 
   for (const [key, val] of Object.entries(data)) {
     if (val === undefined || val === false) continue
     if (val === true) {
-      bareFlags.push(key)
-    } else if (Array.isArray(val)) {
-      const filtered = val.filter((v) => v !== undefined)
-      if (filtered.length > 0) iniData[key] = filtered
+      bareFlags.push(`${key}\n`)
     } else {
-      iniData[key] = val
+      for (const v of [val].flat()) {
+        if (v !== undefined) lines.push(`${key}=${String(v)}\n`)
+      }
     }
   }
 
-  let result = INI.stringify(iniData, { bracketedArray: false })
+  return [...lines, ...bareFlags].join('')
+}
 
-  for (const flag of bareFlags) {
-    result += `${flag}\n`
+function clnIniParse(text: string): Record<string, string | string[] | true> {
+  const result: Record<string, string | string[] | true> = {}
+
+  for (const line of text.split('\n').map((l) => l.trim())) {
+    if (!line || line.startsWith('#')) continue
+    const eq = line.indexOf('=')
+    if (eq < 0) {
+      result[line] = true
+      continue
+    }
+    const key = line.slice(0, eq).trim()
+    const val = line.slice(eq + 1).trim()
+    const prev = result[key]
+    result[key] = prev === undefined || prev === true ? val : [prev, val].flat()
   }
 
   return result
@@ -447,7 +456,7 @@ export const clnConfig = FileHelper.raw<FormData>(
   (formData) =>
     clnIniStringify(formToFile(formData) as Record<string, unknown>),
   (iniString) => {
-    const base = shape.parse(INI.parse(iniString, { bracketedArray: false }))
+    const base = shape.parse(clnIniParse(iniString))
     return fileToForm(base)
   },
   (data) => fullConfigSpec.partialValidator.parse(data),
