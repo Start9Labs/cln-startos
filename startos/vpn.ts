@@ -71,19 +71,19 @@ export function isHostPort(value: string): boolean {
   return !!m && Number(m[2]) >= 1 && Number(m[2]) <= 65535
 }
 
-// Unmarked traffic can only leave through the tunnel's table, so a tunnel that is down drops it rather than leaking it; on-link routes (the bridge) still win via suppress_prefixlength 0.
+// Unmarked traffic can only leave through the tunnel's table, whose blackhole outlives wg0, so a tunnel that is down drops it rather than leaking it; on-link routes (the bridge) still win via suppress_prefixlength 0.
 export function renderWgQuick(c: WireguardConfig): string {
-  const v6 = c.allowedIps.split(', ').includes('::/0')
-    ? `ip -6 route add default dev %i table ${vpnTable}`
-    : `ip -6 route add blackhole default table ${vpnTable}`
   const postUp = [
     `wg set %i fwmark ${vpnTable}`,
     `ip -4 route add default dev %i table ${vpnTable}`,
-    `ip -4 rule add not fwmark ${vpnTable} table ${vpnTable}`,
-    'ip -4 rule add table main suppress_prefixlength 0',
-    v6,
-    `ip -6 rule add not fwmark ${vpnTable} table ${vpnTable}`,
-    'ip -6 rule add table main suppress_prefixlength 0',
+    ...(c.allowedIps.split(', ').includes('::/0')
+      ? [`ip -6 route add default dev %i table ${vpnTable}`]
+      : []),
+    ...['-4', '-6'].flatMap((f) => [
+      `ip ${f} route add blackhole default metric 4294967295 table ${vpnTable}`,
+      `ip ${f} rule add not fwmark ${vpnTable} table ${vpnTable}`,
+      `ip ${f} rule add table main suppress_prefixlength 0`,
+    ]),
     'sysctl -q -w net.ipv4.conf.all.src_valid_mark=1 || true',
     // Only the peer port is reachable from the tunnel; Core Lightning's other listeners are not.
     ...['iptables', 'ip6tables'].flatMap((t) => [
