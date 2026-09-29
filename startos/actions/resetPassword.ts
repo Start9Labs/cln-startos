@@ -23,7 +23,9 @@ export const resetPassword = sdk.Action.withoutInput(
     return {
       version: '1',
       title: i18n('Success'),
-      message: i18n('Launch the CLN UI to set a new password'),
+      message: i18n(
+        'Open the CLN UI at its .local, IP, or .onion address to set a new password',
+      ),
       result: null,
     }
   },
