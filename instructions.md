@@ -18,7 +18,7 @@
 
 1. Install and fully sync **Bitcoin** if you haven't already.
 2. Start Core Lightning. The wallet is created automatically on first start; no seed phrase setup is required.
-3. Open the **Web UI** interface and set the UI password on first access. Save this password — it is independent of your StartOS credentials.
+3. Open the **Web UI** interface and set the UI password on first access. Save this password — it is independent of your StartOS credentials. After 5 wrong passwords within 15 minutes, the Web UI pauses logins for everyone for 15 minutes; restart Core Lightning to clear it sooner.
 4. To connect a wallet app or other client, run the **Create Rune** action to generate an unrestricted rune, or use the rune embedded in the **CLNrest** interface URL.
 
 ## Using Core Lightning
@@ -48,7 +48,7 @@
 - **Watchtower Info** — visible when the watchtower server is enabled; shows the server URI and stats.
 - **Watchtower Client Info** — visible when at least one tower is configured; shows registered towers and subscription state. Towers you add are registered automatically the next time Core Lightning starts, and stay registered across restarts and updates. If this list is empty, give the service a minute after startup and check it again — registration runs shortly after Core Lightning is up. Tower URIs are usually `.onion` addresses, which need Tor installed and running to reach.
 - **Rescan Blockchain** — rescan the blockchain from a given depth or block height. **Required after restoring from backup** — the wallet balance reads zero until a rescan completes.
-- **Reset UI Password** — clear the CLN Application UI password so you can set a new one on the next visit.
+- **Reset UI Password** — clear the CLN Application UI password so you can set a new one on your next visit from its `.local`, IP, or `.onion` address.
 - **Delete Gossip Store** — delete a corrupted `gossip_store`; CLN will rebuild it from peers on next start. Available when the service is stopped.
 - **CLBOSS** — available while CLBOSS is enabled in **Plugins** and the service is running:
   - **CLBOSS Status** — what CLBOSS sees and is doing: connectivity, its view of on-chain fees, whether it is managing on-chain funds, peers you have excluded, and its swap totals.

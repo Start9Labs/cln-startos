@@ -36,7 +36,7 @@ const dict = {
   'Reset UI Password': 27,
   'Reset UI Password in the event it is lost or forgotten': 28,
   Success: 29,
-  'Launch the CLN UI to set a new password': 30,
+  'Open the CLN UI at its .local, IP, or .onion address to set a new password': 30,
 
   // actions/generateRune.ts
   'Create Rune': 31,
