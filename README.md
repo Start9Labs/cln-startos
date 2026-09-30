@@ -137,7 +137,7 @@ The ordering that matters is Bitcoin's: the node starts, but `check-synced` repo
 
 ## Actions
 
-Twenty actions. Three configure the node, three concern the watchtower, four drive CLBOSS, two handle payments, one is hidden and exists for the TunnelSats service, and the rest are recovery and information.
+Twenty actions. Three configure the node, three concern the watchtower, four drive CLBOSS, two handle payments, one is hidden and exists for a companion package, and the rest are recovery and information.
 
 ### Configuration — General Settings, Plugins, Experimental Features
 
@@ -197,7 +197,7 @@ Deletes the network gossip database, which the node rebuilds from peers. Run it 
 
 ### Clearnet VPN — hidden
 
-Not user-facing, and not a general VPN facility: it exists for the TunnelSats service, which raises it as a task with its tunnel configuration and public address filled in, so the user only ever sees that prompt. It stores the companion-managed address separately from `customExternalHosts`; `watchHosts` announces both without overwriting addresses the user configured. It also turns Tor Only off, since Tor Only would suppress the announcement and proxy the clearnet peers the tunnel exists for. Costs a restart. A new configuration replaces the tunnel; an empty one turns it off and drops only the address it had advertised. Safe to repeat.
+Not user-facing, and raised as a task by a companion package with its tunnel configuration and public address filled in. Its only known uses are the TunnelSats community package and running it by hand with some other WireGuard configuration, which is unsupported. It is not how a node is made reachable or routed: inbound reachability comes from addresses on the node's StartOS interfaces, and outbound traffic leaves through the gateway StartOS selects for it. It stores the companion-managed address separately from `customExternalHosts`; `watchHosts` announces both without overwriting addresses the user configured. It also turns Tor Only off, since Tor Only would suppress the announcement and proxy the clearnet peers the tunnel exists for. Costs a restart. A new configuration replaces the tunnel; an empty one turns it off and drops only the address it had advertised. Safe to repeat.
 
 ### Pay Invoice, Receive Payment
 
@@ -220,12 +220,12 @@ Grouped under CLBOSS, running only, and disabled with a reason unless CLBOSS is 
 
 ## Tasks
 
-The package raises one task after a restore; TunnelSats can raise the hidden Clearnet VPN action as another.
+The package raises one task after a restore; a companion package can raise the hidden Clearnet VPN action as another.
 
 | Task              | Severity    | Raised when                                                            | Cleared when                                              |
 | ----------------- | ----------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
 | Rescan Blockchain | `important` | Immediately after a backup restore                                     | The action runs                                           |
-| Clearnet VPN      | `important` | Only when the TunnelSats service raises it with a tunnel for this node | The stored configuration matches what TunnelSats proposes |
+| Clearnet VPN      | `important` | Only when a companion package raises it with a tunnel for this node | The stored configuration matches what the companion package proposes |
 
 The reason is that a restored node reports an **on-chain balance of zero** until the chain is rescanned, and nothing else in the interface explains why. `important` rather than `critical`: the node should keep running — indeed it must, for the rescan to proceed.
 
@@ -241,7 +241,7 @@ Three checks are always present, with five more for conditional features or reco
 | `watchtower-server`    | "TEOS Watchtower Server"      | `teos-cli gettowerinfo` succeeds                     | while the watchtower server is enabled    |
 | `watchtowers`          | "Watchtowers"                 | `listtowers` status of every subscribed tower        | while towers are subscribed               |
 | `custom-external-host` | "Custom External Host"        | Always fails, with an explanation                    | while Tor Only and a custom host conflict |
-| `vpn-tunnel`           | "Clearnet VPN"                | Age of the tunnel's last WireGuard handshake         | while TunnelSats has configured a tunnel  |
+| `vpn-tunnel`           | "Clearnet VPN"                | Age of the tunnel's last WireGuard handshake         | while a tunnel is configured  |
 | `restored`             | "Backup Restoration Detected" | Always fails, with an explanation                    | after an emergency recovery               |
 
 **`check-synced` distinguishes three states**, which is what makes it worth reading: Bitcoin not yet synced, the node catching up to Bitcoin (reported as a block count against Bitcoin's own), and synced. It fails only when `lightning-cli` itself errors, so a red check here is the node, not the chain.
@@ -279,7 +279,6 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 7. **Plugins are those built into the image.** Adding another means changing the image, not dropping a file on the volume.
 8. **No riscv64 build**, and on hardware without a native image the aarch64 build runs emulated.
 9. **An `hsm_secret` protected by a passphrase cannot be used.** `hsm-passphrase` (formerly `encrypted-hsm`) prompts on a terminal at startup, which the service does not have. A legacy encrypted secret must be decrypted with `lightning-hsmtool decrypt` before it is copied in.
-10. **The Clearnet VPN carries everything or nothing.** The configuration's `AllowedIPs` must include `0.0.0.0/0`; `DNS =` lines are ignored (the container keeps its resolver); IPv6 is routed into the tunnel when it carries `::/0` and blackholed otherwise; only the peer port is reachable through it; and enabling it turns Tor Only off. One tunnel, and one [Peer], per node.
 
 ---
 
@@ -346,10 +345,10 @@ actions:
   - clboss-unmanage # only-running; disabled unless CLBOSS is enabled
   - pay-invoice # only-running; a companion service may raise it as a task
   - receive-payment # only-running
-  - clearnet-vpn # hidden; raised as a task by the tunnelsats service
+  - clearnet-vpn # hidden; raised as a task by a companion package
 tasks:
   - { action: rescan-blockchain, severity: important } # raised after a restore
-  - { action: clearnet-vpn, severity: important } # only when the tunnelsats service raises it
+  - { action: clearnet-vpn, severity: important } # only when a companion package raises it
 health_checks:
   - lightningd # displayed "RPC Interface"
   - cln-application # displayed "Web Interface"

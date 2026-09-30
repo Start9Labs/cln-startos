@@ -197,9 +197,9 @@ export const fullConfigSpec = InputSpec.of({
     default: null,
     required: false,
     description: i18n(
-      'A public address at which your node can be reached through an external tunnel or VPN endpoint, such as Tunnelsats. Enter a domain, optionally followed by a port (e.g. example.com:22222); the port defaults to 9735. This is announced in place of any public IP address StartOS detects, so peers are not handed the home IP the tunnel exists to hide. Your Tor address is still announced.',
+      'A public address at which your node can be reached through an external tunnel or VPN endpoint. Enter a domain, optionally followed by a port (e.g. example.com:22222); the port defaults to 9735. This is announced in place of any public IP address StartOS detects, so peers are not handed the home IP the tunnel exists to hide. Your Tor address is still announced.',
     ),
-    placeholder: 'example.tunnelsatsv2.com:22222',
+    placeholder: 'example.com:22222',
     patterns: [
       {
         regex: '^([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}(:[0-9]{1,5})?$',

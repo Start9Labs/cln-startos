@@ -29,7 +29,7 @@ const inputSpec = InputSpec.of({
   }),
 })
 
-// Hidden: a companion service that owns a tunnel (e.g. TunnelSats) raises it as a task with the input filled in.
+// Hidden: raised as a task, input filled in, by a companion package that owns a tunnel; TunnelSats is the only known one, and running it by hand is unsupported.
 export const clearnetVpn = sdk.Action.withInput(
   'clearnet-vpn',
   async ({ effects }) => ({
