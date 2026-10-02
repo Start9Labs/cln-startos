@@ -16,14 +16,6 @@ const experimentalSpec = fullConfigSpec
       ),
       footnote: `${i18n('Default')}: false`,
     }),
-    splicing: Value.triState({
-      name: i18n('Splicing'),
-      default: null,
-      description: i18n(
-        'Enables support for the splicing protocol (bolt #863), allowing both parties to dynamically adjust the size a channel. These changes can be built interactively using PSBT and combined with other channel actions including dual fund, additional channel splices, or generic transaction activity. The operations will be bundled into a single transaction. The channel will remain active while awaiting splice confirmation, however you can only spend the smaller of the prior channel balance and the new one.  <b>Default: Disabled</b>',
-      ),
-      footnote: `${i18n('Default')}: false`,
-    }),
     'dual-fund': Value.union({
       name: i18n('Dual Funding And Liquidity Ads'),
       description: i18n(
@@ -330,7 +322,6 @@ export const experimental = sdk.Action.withInput(
     return {
       ...form,
       'shutdown-wrong-funding': raw?.['experimental-shutdown-wrong-funding'],
-      splicing: raw?.['experimental-splicing'],
       'dual-fund': computeDualFundPrefill(raw),
     }
   },
@@ -349,7 +340,6 @@ export const experimental = sdk.Action.withInput(
         'experimental-dual-fund': dualFund.selection === 'enabled' || undefined,
         'experimental-shutdown-wrong-funding':
           input['shutdown-wrong-funding'] || undefined,
-        'experimental-splicing': input.splicing || undefined,
       },
     })
   },
