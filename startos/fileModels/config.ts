@@ -121,7 +121,6 @@ export const shape = z.object({
 
   // Experimental
   'experimental-dual-fund': iniBoolean,
-  'experimental-splicing': iniBoolean,
   'experimental-shutdown-wrong-funding': iniBoolean,
 
   // CLBOSS (plugin options, read from config when plugin is loaded at startup)

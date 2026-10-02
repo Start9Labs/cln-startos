@@ -147,8 +147,6 @@ export default {
     // actions/config/experimental.ts (InputSpec fields)
     161: 'Cierre con financiación incorrecta',
     162: 'Permitir el cierre de canal con txids alternativos. Si un nodo remoto ha abierto un canal, pero afirma que usó el txid incorrecto (y el canal aún no se ha usado), esto le permite negociar un cierre limpio con el txid que ofrece. <b>Por defecto: Falso</b>',
-    163: 'Splicing',
-    164: 'Habilita soporte para el protocolo de splicing (bolt #863), permitiendo a ambas partes ajustar dinámicamente el tamaño de un canal. Estos cambios pueden construirse interactivamente usando PSBT y combinarse con otras acciones de canal incluyendo dual fund, splices adicionales de canal, o actividad de transacciones genéricas. Las operaciones se agruparán en una sola transacción. El canal permanecerá activo mientras espera la confirmación del splice, sin embargo solo puede gastar el menor entre el saldo anterior del canal y el nuevo. <b>Por defecto: Deshabilitado</b>',
     165: 'Xpay',
     166: 'Configurar esto hace que xpay intercepte simplemente los comandos pay (falso por defecto). Tenga en cuenta que la respuesta será diferente del comando pay normal, sin embargo. <b>Por defecto: Deshabilitado</b>',
     167: 'Financiación dual y anuncios de liquidez',
@@ -470,8 +468,6 @@ export default {
     // actions/config/experimental.ts (InputSpec fields)
     161: 'Falsche Finanzierung abschalten',
     162: 'Kanalschließung mit alternativen txids erlauben. Wenn ein entfernter Knoten einen Kanal eröffnet hat, aber behauptet, die falsche txid verwendet zu haben (und der Kanal noch nicht verwendet wurde), ermöglicht dies ihm, eine saubere Schließung mit der angebotenen txid auszuhandeln. <b>Standard: Falsch</b>',
-    163: 'Splicing',
-    164: 'Aktiviert die Unterstützung für das Splicing-Protokoll (Bolt #863), das es beiden Parteien ermöglicht, die Größe eines Kanals dynamisch anzupassen. Diese Änderungen können interaktiv mit PSBT erstellt und mit anderen Kanalaktionen kombiniert werden, einschließlich Dual Fund, zusätzlicher Kanal-Splices oder generischer Transaktionsaktivität. Die Operationen werden in einer einzigen Transaktion gebündelt. Der Kanal bleibt aktiv, während auf die Splice-Bestätigung gewartet wird, Sie können jedoch nur den kleineren Betrag des vorherigen Kanalguthabens und des neuen ausgeben. <b>Standard: Deaktiviert</b>',
     165: 'Xpay',
     166: 'Diese Einstellung lässt xpay einfach Pay-Befehle abfangen (standardmäßig falsch). Beachten Sie, dass die Antwort sich vom normalen Pay-Befehl unterscheiden wird. <b>Standard: Deaktiviert</b>',
     167: 'Duale Finanzierung und Liquiditätsanzeigen',
@@ -793,8 +789,6 @@ export default {
     // actions/config/experimental.ts (InputSpec fields)
     161: 'Zamknięcie z błędnym finansowaniem',
     162: 'Pozwól na zamknięcie kanału z alternatywnymi txid. Jeśli zdalny węzeł otworzył kanał, ale twierdzi, że użył nieprawidłowego txid (a kanał nie był jeszcze używany), pozwala mu to wynegocjować czyste zamknięcie z oferowanym txid. <b>Domyślnie: Fałsz</b>',
-    163: 'Splicing',
-    164: "Włącza obsługę protokołu splicing (bolt #863), pozwalając obu stronom dynamicznie dostosowywać rozmiar kanału. Te zmiany można budować interaktywnie przy użyciu PSBT i łączyć z innymi akcjami kanału, w tym dual fund, dodatkowymi splice'ami kanału lub ogólną aktywnością transakcyjną. Operacje zostaną zgrupowane w jednej transakcji. Kanał pozostanie aktywny podczas oczekiwania na potwierdzenie splice, jednak możesz wydać tylko mniejszy z poprzedniego salda kanału i nowego. <b>Domyślnie: Wyłączony</b>",
     165: 'Xpay',
     166: 'Ustawienie tego sprawia, że xpay przechwytuje po prostu polecenia pay (domyślnie fałsz). Należy zauważyć, że odpowiedź będzie się różnić od normalnego polecenia pay. <b>Domyślnie: Wyłączony</b>',
     167: 'Podwójne finansowanie i ogłoszenia o płynności',
@@ -1116,8 +1110,6 @@ export default {
     // actions/config/experimental.ts (InputSpec fields)
     161: 'Fermeture avec financement incorrect',
     162: "Permettre la fermeture de canal avec des txids alternatifs. Si un noeud distant a ouvert un canal, mais prétend avoir utilisé le mauvais txid (et que le canal n'a pas encore été utilisé), cela lui permet de négocier une fermeture propre avec le txid qu'il propose. <b>Par défaut : Faux</b>",
-    163: 'Splicing',
-    164: "Active la prise en charge du protocole de splicing (bolt #863), permettant aux deux parties d'ajuster dynamiquement la taille d'un canal. Ces modifications peuvent être construites de manière interactive en utilisant PSBT et combinées avec d'autres actions de canal, y compris le dual fund, des splices de canal supplémentaires ou une activité de transaction générique. Les opérations seront regroupées en une seule transaction. Le canal restera actif en attendant la confirmation du splice, cependant vous ne pouvez dépenser que le plus petit entre le solde précédent du canal et le nouveau. <b>Par défaut : Désactivé</b>",
     165: 'Xpay',
     166: 'Ce paramètre fait que xpay intercepte simplement les commandes pay (faux par défaut). Notez que la réponse sera différente de la commande pay normale, cependant. <b>Par défaut : Désactivé</b>',
     167: 'Financement dual et annonces de liquidité',
