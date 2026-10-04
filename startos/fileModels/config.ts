@@ -125,7 +125,8 @@ export const shape = z.object({
 
   // CLBOSS (plugin options, read from config when plugin is loaded at startup)
   'clboss-min-onchain': iniNumber,
-  'clboss-auto-close': iniBoolean,
+  // CLBOSS registers this as a bool option, so a bare key (no =value) makes lightningd refuse to start
+  'clboss-auto-close': iniStringBoolean,
   'clboss-zerobasefee': iniEnum([...clbossZerobasefees]),
   'clboss-min-channel': iniNumber,
   'clboss-max-channel': iniNumber,
