@@ -134,7 +134,10 @@ export const plugins = sdk.Action.withInput(
             selection: 'enabled' as const,
             value: {
               'min-onchain': raw?.['clboss-min-onchain'],
-              'auto-close': raw?.['clboss-auto-close'],
+              'auto-close':
+                raw?.['clboss-auto-close'] === undefined
+                  ? null
+                  : raw['clboss-auto-close'] === 'true',
               zerobasefee: raw?.['clboss-zerobasefee'] ?? 'default',
               'min-channel': raw?.['clboss-min-channel'],
               'max-channel': raw?.['clboss-max-channel'],
@@ -166,7 +169,9 @@ export const plugins = sdk.Action.withInput(
       if (!rawPlugins.includes(clbossPlugin)) rawPlugins.push(clbossPlugin)
       const { value } = clboss
       clbossConfig['clboss-min-onchain'] = value['min-onchain'] || undefined
-      clbossConfig['clboss-auto-close'] = value['auto-close'] || undefined
+      clbossConfig['clboss-auto-close'] = value['auto-close']
+        ? 'true'
+        : undefined
       clbossConfig['clboss-zerobasefee'] =
         value.zerobasefee === 'default' ? undefined : value.zerobasefee
       clbossConfig['clboss-min-channel'] = value['min-channel'] || undefined

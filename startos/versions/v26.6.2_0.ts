@@ -100,7 +100,9 @@ Notes de version de Core Lightning : https://github.com/ElementsProject/lightnin
         }
         if (clboss?.enabled === 'enabled') {
           configRaw['clboss-min-onchain'] = clboss['min-onchain'] || undefined
-          configRaw['clboss-auto-close'] = clboss['auto-close'] || undefined
+          configRaw['clboss-auto-close'] = clboss['auto-close']
+            ? 'true'
+            : undefined
           configRaw['clboss-zerobasefee'] =
             clboss.zerobasefee === 'default' ? undefined : clboss.zerobasefee
           configRaw['clboss-min-channel'] = clboss['min-channel'] || undefined
