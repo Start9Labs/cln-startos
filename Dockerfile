@@ -1,4 +1,4 @@
-ARG CLN_VERSION=v26.06.8
+ARG CLN_VERSION=v26.06.9
 
 # Shared base with common dependencies
 FROM debian:bookworm-slim AS base
@@ -71,13 +71,13 @@ RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
 # lightningd from the signed release tarballs. These hashes come from
-# SHA256SUMS-v26.06.8, GPG-verified against maintainer key
+# SHA256SUMS-v26.06.9 and -arm64, GPG-verified against maintainer key
 # 4E4A142F8BD3C38A56B362ED578CAC08472545C5.
 FROM base AS lightningd-tarball
 ARG TARGETARCH
 ARG CLN_VERSION
-ARG CLN_SHA256_AMD64=0c05412ff8078dc3ad649385e7068a5935c384979ece785db0333f532e9244b6
-ARG CLN_SHA256_ARM64=
+ARG CLN_SHA256_AMD64=da19bd04de3ebb2ae525cfc114b69bf45ce1c53fad7877d011b4fcaeacf0e45a
+ARG CLN_SHA256_ARM64=8bff3b55e41078fc98fb2f0bc454b975aed6fa858c4fe8d7a77e711f2a73e97e
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends ca-certificates xz-utils && \
     rm -rf /var/lib/apt/lists/*
@@ -99,7 +99,7 @@ RUN set -eu; \
 # published no tarball for. The hash is from the same signed SHA256SUMS.
 FROM rust-base AS lightningd-source
 ARG CLN_VERSION
-ARG CLN_SRC_SHA256=2809c4f6aba5e928317d9857fbff5b29232b5e799ed74e1150872a9bf11de025
+ARG CLN_SRC_SHA256=ac37b1b6c41b6c60cf06dd8cd7500f1fab04411cf2f3bc126838d8cafab4538d
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
     libsodium-dev libsqlite3-dev zlib1g-dev python3-mako lowdown unzip && \
@@ -114,9 +114,8 @@ RUN set -eu; \
     ./configure --prefix=/usr/local --disable-valgrind; \
     make -j"$(nproc)" install-program DESTDIR=/dist RUST_PROFILE=release VERSION="${CLN_VERSION}"
 
-# v26.06.8 has no arm64 tarball (ElementsProject/lightning#9557).
 FROM lightningd-tarball AS lightningd-dist-amd64
-FROM lightningd-source AS lightningd-dist-arm64
+FROM lightningd-tarball AS lightningd-dist-arm64
 FROM lightningd-dist-${TARGETARCH} AS lightningd-dist
 
 # bitcoin-cli, which CLN's own plugin-bcli and our check-synced health check
