@@ -1,7 +1,7 @@
 import { FileHelper, z } from '@start9labs/start-sdk'
 import { sdk } from '../sdk'
 
-const shape = z.object({
+const shape = z.looseObject({
   unit: z.string().catch('SATS'),
   fiatUnit: z.string().catch('USD'),
   appMode: z.string().catch('DARK'),

@@ -10,7 +10,9 @@ export const deleteGossipStore = sdk.Action.withoutInput(
   async ({ effects }) => ({
     name: i18n('Delete Gossip Store'),
     description: i18n('Deletes gossip_store in the case of corruption'),
-    warning: null,
+    warning: i18n(
+      'Core Lightning forgets the network map it has gathered and rebuilds it from peers when it next starts, so payments may not find a route until it has.',
+    ),
     allowedStatuses: 'only-stopped',
     group: null,
     visibility: 'enabled',
@@ -20,10 +22,8 @@ export const deleteGossipStore = sdk.Action.withoutInput(
   async ({ effects }) => {
     await fs.rm('/media/startos/volumes/main//bitcoin/gossip_store', {
       recursive: true,
+      force: true,
     })
-
-    await sdk.restart(effects)
-
     return {
       version: '1',
       title: i18n('Success'),

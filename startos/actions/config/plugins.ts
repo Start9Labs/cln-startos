@@ -22,7 +22,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
   clboss: Value.union({
     name: i18n('CLBOSS settings'),
     description: i18n(
-      'CLBOSS is an automated manager for Core Lightning forwarding nodes.  <b>Default: Disabled</b><br><b>Source: https://github.com/ZmnSCPxj/clboss</b>',
+      'CLBOSS is an automated manager for Core Lightning forwarding nodes. Source: https://github.com/ZmnSCPxj/clboss\n- Disabled: you open channels and set fees yourself.\n- Enabled: CLBOSS opens channels, buys inbound liquidity, rebalances channels and sets forwarding fees on its own.',
     ),
     warning: i18n(
       "CLBOSS automatically manages your CLN node. It is experimental software and will probably not be profitable to run. It will automatically open channels, buy incoming liquidity, rebalance channels, and set forwarding fees. If you don't want this behavior or don't understand what this means, please keep this option disabled. Source: https://github.com/ZmnSCPxj/clboss#operating",
@@ -58,7 +58,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
           zerobasefee: Value.select({
             name: i18n('Zero Base Fee'),
             description: i18n(
-              'Specify how this node will advertise its base fee. <ul><li><b>Required:  </b>The base fee must be always 0.</li><li><b>Allow:  </b>If the heuristics of CLBOSS think it might be a good idea to set base fee to 0, let it be 0, but otherwise set it to whatever value the heuristics want.</li><li><b>Disallow:  </b>The base fee must always be non-zero. If the heuristics think it might be good to set it to 0, set it to 1 instead.</li></ul><b>Default:  default (use fee set by Advanced -> Routing Base Fee)</b><br>Some pathfinding algorithms under development may strongly prefer 0 or low base fees, so you might want to set CLBOSS to 0 base fee, or to allow a 0 base fee.',
+              "How CLBOSS advertises this node's base fee. Some pathfinding algorithms favor nodes with a zero or low base fee.\n- default: same as allow.\n- required: the base fee is always 0.\n- allow: CLBOSS sets the base fee to 0 when its heuristics favor it, and to whatever they choose otherwise.\n- disallow: the base fee is never 0; where the heuristics would choose 0, CLBOSS sets 1.",
             ),
             default: 'default',
             values: Object.fromEntries(
@@ -70,7 +70,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
           'min-channel': Value.number({
             name: i18n('Min Channel Size'),
             description: i18n(
-              'Sets the minimum channel sizes that CLBOSS will make.  <b>Default:  No minimum</b>',
+              'The smallest channel CLBOSS opens. CLBOSS raises any value below 500,000 satoshis to 500,000.',
             ),
             default: null,
             required: false,
@@ -79,12 +79,12 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
             integer: true,
             units: 'satoshis',
             placeholder: null,
-            footnote: `${i18n('Default')}: no minimum`,
+            footnote: `${i18n('Default')}: 500000 satoshis`,
           }),
           'max-channel': Value.number({
             name: i18n('Max Channel Size'),
             description: i18n(
-              'Sets the maximum channel sizes that CLBOSS will make.  <b>Default:  No maximum</b>',
+              'The largest channel CLBOSS opens. CLBOSS raises it to at least twice the minimum channel size.',
             ),
             default: null,
             required: false,
@@ -93,7 +93,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
             integer: true,
             units: 'satoshis',
             placeholder: null,
-            footnote: `${i18n('Default')}: no maximum`,
+            footnote: `${i18n('Default')}: 16777215 satoshis`,
           }),
         }),
       },

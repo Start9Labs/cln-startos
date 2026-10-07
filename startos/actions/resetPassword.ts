@@ -10,7 +10,11 @@ export const resetPassword = sdk.Action.withoutInput(
   async ({ effects }) => ({
     name: i18n('Reset UI Password'),
     description: i18n('Reset UI Password in the event it is lost or forgotten'),
-    warning: null,
+    warning: (await configJson.read((c) => c.password).const(effects))
+      ? i18n(
+          'The current CLN UI password stops working, and whoever next opens the CLN UI sets a new one.',
+        )
+      : null,
     allowedStatuses: 'any',
     group: null,
     visibility: 'enabled',

@@ -21,7 +21,7 @@ const watchtowerSpec = InputSpec.of({
   'wt-client': Value.union({
     name: i18n('Watchtower Client'),
     description: i18n(
-      'Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>',
+      'A watchtower watches your channels while your node is offline and acts if a channel peer tries to cheat.\n- Disabled: no watchtower watches your channels.\n- Enabled: this node registers its channels with the watchtower servers you list.',
     ),
     warning: null,
     default: 'disabled',
@@ -36,7 +36,7 @@ const watchtowerSpec = InputSpec.of({
                 name: i18n('Add Watchtower Servers'),
                 minLength: 1,
                 description: i18n(
-                  "Add URIs of watchtower servers to connect to, in the form <pubkey>@<host>:<port>. Prefix the host with https:// if the tower serves its API over TLS. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158",
+                  "Add URIs of watchtower servers to connect to, in the form pubkey@host:port. Prefix the host with https:// if the tower serves its API over TLS. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158",
                 ),
               },
               {

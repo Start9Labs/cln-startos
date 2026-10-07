@@ -525,11 +525,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
                   JSON.stringify(tower.host),
                   String(tower.port),
                 ],
-                { cwd: rootDir },
-                undefined,
                 {
-                  abort: abort.reason,
-                  signal: abort,
+                  cwd: rootDir,
+                  abort: { abort: abort.reason, signal: abort },
                 },
               )
 
@@ -582,11 +580,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
               console.log(`Watchtower client removing ${tower}`)
               const res = await subcontainer.exec(
                 ['lightning-cli', 'abandontower', id],
-                { cwd: rootDir },
-                undefined,
                 {
-                  abort: abort.reason,
-                  signal: abort,
+                  cwd: rootDir,
+                  abort: { abort: abort.reason, signal: abort },
                 },
               )
 
@@ -733,8 +729,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
                 try {
                   res = await lightningSub.exec(
                     ['wg', 'show', vpnIface, 'latest-handshakes'],
-                    {},
-                    10_000,
+                    { timeout: 10_000 },
                   )
                 } catch {
                   return noHandshake()

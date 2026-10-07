@@ -40,7 +40,7 @@ Two images. The node's is built here: upstream's signed release tarball is unpac
 | Property      | Value                                                                                             |
 | ------------- | ------------------------------------------------------------------------------------------------- |
 | Images        | Built from `Dockerfile` on `debian:bookworm-slim`, plus `ghcr.io/elementsproject/cln-application` |
-| Architectures | x86_64, aarch64 — both images declare `emulateMissingAs: 'aarch64'`                               |
+| Architectures | x86_64, aarch64 — both images declare `emulateMissing: true`                                      |
 | Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                             |
 
 The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for the tunnel the hidden Clearnet VPN action brings up, and the manifest sets `virtualNetworking` so the container can create its interface. Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
@@ -159,17 +159,19 @@ Each tower takes an optional label, stored in `watchtowerLabels` against the tow
 - **Cost:** seconds, then a restart.
 - **Repeat safety:** safe both ways.
 
-**Watchtower Info** and **Watchtower Client Info** are read-only, available only while running, and each is hidden unless the corresponding side is enabled: the first reports this node's tower identity, the second the towers it is subscribed to.
+**Watchtower Info** and **Watchtower Client Info** are read-only, available only while running, and each is hidden unless the corresponding side is enabled: the first reports this node's tower identity, the second the towers it is subscribed to. When the underlying `teos-cli gettowerinfo` or `lightning-cli listtowers` fails, the result shows its error output in a copyable field.
 
 ### Create Rune, Revoke All Runes
 
-**Create Rune** mints an access credential for an external application, with the restrictions you specify. Available only while running; each run produces a new rune and does not affect existing ones.
+**Create Rune** mints an unrestricted access credential for an external application. Available only while running; each run produces a new rune and does not affect existing ones.
 
 **Revoke All Runes** invalidates every rune this node has issued **including the web UI's**, which is regenerated automatically on the next start. Run it when a credential may have been exposed. It is not selective — that is the point of it — so anything you have connected must be re-authorized afterwards.
 
+If `createrune`, `showrunes` or `blacklistrune` fails, either action shows the error output in a copyable field.
+
 ### Display BIP-39 Seed
 
-Shows the seed words backing the on-chain wallet, for disaster recovery. Note what it is not: the seed alone cannot recover channel funds.
+Shows the 12 seed words backing the on-chain wallet, for disaster recovery, as a numbered grid of three rows in a masked, copyable field. Note what it is not: the seed alone cannot recover channel funds.
 
 - **Visibility:** hidden entirely when no wallet exists yet, and shown as disabled with an explanation on a node whose wallet predates BIP-39 seeds — such a wallet cannot be given one, and moving the funds to a fresh install is the only route.
 - **Repeat safety:** read-only.
@@ -185,13 +187,13 @@ Re-scans the chain for wallet outputs. Run it after a restore, or when an on-cha
 
 ### Reset UI Password
 
-Sets a new password for the web UI, writing its `config.json`. It does not touch the node, its runes, or any external application's access.
+Clears the web UI's password in its `config.json`; whoever next opens the UI sets a new one. It asks for confirmation when a password is set, and does nothing visible when none is. It does not touch the node, its runes, or any external application's access.
 
 ### Delete Gossip Store
 
 Deletes the network gossip database, which the node rebuilds from peers. Run it if gossip is suspected corrupt.
 
-- **Availability:** only while stopped, since the file is open in use.
+- **Availability:** only while stopped, since the file is open in use. Asks for confirmation before running.
 - **Cost:** the node re-learns the network graph after starting, which takes time and affects routing until it does.
 - **Repeat safety:** idempotent.
 
@@ -215,7 +217,7 @@ Grouped under CLBOSS, running only, and disabled with a reason unless CLBOSS is 
 
 - **CLBOSS Status** summarizes `clboss-status`: version, connectivity, its low/high fee judgment, whether on-chain funds are being ignored and until when, the channel-candidate count, the unmanaged peers with their tags, and the swap totals from `swap_report`. Read-only.
 - **Ignore On-chain Funds** runs `clboss-ignore-onchain` for a number of hours (default 24), so on-chain funds can be spent or put into channels by hand. CLBOSS resumes by itself when the time runs out; re-running extends it.
-- **Resume On-chain Management** runs `clboss-notice-onchain`. Idempotent.
+- **Resume On-chain Management** runs `clboss-notice-onchain`, after asking for confirmation. Idempotent.
 - **Unmanage Peer** runs `clboss-unmanage` with a node id and any of the `lnfee`, `open`, `close` and `balance` tags; selecting none returns the peer to full management. It replaces that peer's tags rather than adding to them, and CLBOSS Status is where the current set is read back.
 
 ## Tasks

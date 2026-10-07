@@ -19,7 +19,7 @@ const experimentalSpec = fullConfigSpec
     'dual-fund': Value.union({
       name: i18n('Dual Funding And Liquidity Ads'),
       description: i18n(
-        'Dual Funding enables use of the channel opening protocol v2, in which both channel parties commit funds into the channel at opening. This potentially solves all sorts of problems with liquidity on the Lightning Network, but is currently experimental and only implemented by Core Lightning so far.<br>See https://blog.blockstream.com/setting-up-liquidity-ads-in-c-lightning/ for more details.  <b>Default: Disabled</b>',
+        'Dual funding lets both parties commit funds to a channel when it opens (channel opening protocol v2). See https://blog.blockstream.com/setting-up-liquidity-ads-in-c-lightning/ for more details.\n- Disabled: channels others open to this node are funded by the opener alone.\n- Enabled: this node contributes funds to dual-funding requests by the strategy you choose below.',
       ),
       warning: i18n(
         'Dual funding is an experimental feature which can cause your node to automatically commit on-chain funds into channels that may or may not be profitable. <b>Use at your own risk!</b>',
@@ -33,7 +33,7 @@ const experimentalSpec = fullConfigSpec
             strategy: Value.union({
               name: i18n('Dual-Funding Channel Acceptance Strategy'),
               description: i18n(
-                "Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings.<br><ul><li><b>Incognito: </b>Wait for others to stumble upon your unadvertised node and open a dual-fund request, then react in a more complex way</li><li><b>Liquidity Merchant: </b>Advertise and sell liquidity on the market in a straightforward way (i.e., always match 100% of requested funds, and don't accept dual-funding requests that aren't channel lease requests).</li></ul><br><b>Default: Incognito</b>",
+                '- Incognito: wait for others to find your unadvertised node and send a dual-funding request, then answer it by the policy you set below.\n- Liquidity Merchant: advertise and sell liquidity on the market, always matching 100% of the requested funds and declining dual-funding requests that are not channel lease requests.',
               ),
               default: 'incognito',
               variants: Variants.of({
@@ -43,7 +43,7 @@ const experimentalSpec = fullConfigSpec
                     policy: Value.union({
                       name: i18n('Policy'),
                       description: i18n(
-                        '<ul><li><b>Match: </b>Contribute a percentage of their requested funds.</li><li><b>Available: </b>Contribute policy_mod percent of our available node wallet funds.</li><li><b>Fixed: </b>Contribute a fixed number of sats to v2 channel open requests.</li></ul><br><b>Default: Fixed</b>',
+                        "- Match: contribute a percentage of the funds the peer requests.\n- Available: contribute a percentage of the funds available in this node's wallet.\n- Fixed: contribute a fixed number of satoshis to each dual-funding request.",
                       ),
                       warning: null,
                       default: 'fixed',
@@ -111,7 +111,7 @@ const experimentalSpec = fullConfigSpec
                     'fuzz-percent': Value.number({
                       name: i18n('Fuzz Percentage'),
                       description: i18n(
-                        'A percentage to fuzz the resulting contribution amount by.<b>WARNING: Fuzzing with a Match 100% policy can cause random failures.<b><br><b>Defaults to 0% (no fuzz)</b>',
+                        'A percentage to fuzz the resulting contribution amount by.<b>WARNING: Fuzzing with a Match 100% policy can cause random failures.</b><br><b>Defaults to 0% (no fuzz)</b>',
                       ),
                       default: null,
                       required: false,

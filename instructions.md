@@ -48,8 +48,8 @@
 - **Watchtower Info** — visible when the watchtower server is enabled; shows the server URI and stats.
 - **Watchtower Client Info** — visible when at least one tower is configured; shows registered towers and subscription state. Towers you add are registered automatically the next time Core Lightning starts, and stay registered across restarts and updates. If this list is empty, give the service a minute after startup and check it again — registration runs shortly after Core Lightning is up. Tower URIs are usually `.onion` addresses, which need Tor installed and running to reach.
 - **Rescan Blockchain** — rescan the blockchain from a given depth or block height. **Required after restoring from backup** — the wallet balance reads zero until a rescan completes.
-- **Reset UI Password** — clear the CLN Application UI password so you can set a new one on your next visit from its `.local`, IP, or `.onion` address.
-- **Delete Gossip Store** — delete a corrupted `gossip_store`; CLN will rebuild it from peers on next start. Available when the service is stopped.
+- **Reset UI Password** — clear the CLN Application UI password so you can set a new one on your next visit from its `.local`, IP, or `.onion` address. It asks you to confirm first, because the current password stops working.
+- **Delete Gossip Store** — delete a corrupted `gossip_store`; CLN will rebuild it from peers on next start, and payments may not find a route until it has. Available when the service is stopped, and asks you to confirm first.
 - **CLBOSS** — available while CLBOSS is enabled in **Plugins** and the service is running:
   - **CLBOSS Status** — what CLBOSS sees and is doing: connectivity, its view of on-chain fees, whether it is managing on-chain funds, peers you have excluded, and its swap totals.
   - **Ignore On-chain Funds** — stop CLBOSS from putting on-chain funds into channels for a number of hours, so you can open a channel or withdraw funds yourself. **Resume On-chain Management** ends it early.

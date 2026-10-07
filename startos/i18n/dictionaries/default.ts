@@ -47,10 +47,10 @@ const dict = {
 
   // actions/displaySeed.ts
   'Display BIP-39 Seed': 36,
-  'The BIP-39 Seed can be used to recover on-chain funds in a disaster recovery scenario. Note this seed is insufficient to recover': 37,
-  'No BIP-39 Seed found. Wallets initialized on earler versions of CLN were not derived from a BIP-39 Seed. If a BIP-39 Seed is desired, all funds will need to be transferred out of this node. After all funds have been safely transferred to another wallet, CLN can be uninstalled, and then installed fresh': 38,
+  "The BIP-39 seed recovers this node's on-chain funds in a disaster. It does not recover funds in channels.": 37,
+  'No BIP-39 Seed found. Wallets initialized on earlier versions of CLN were not derived from a BIP-39 Seed. If a BIP-39 Seed is desired, all funds will need to be transferred out of this node. After all funds have been safely transferred to another wallet, CLN can be uninstalled, and then installed fresh': 38,
   'BIP-39 Seed': 39,
-  'WARNING: This seed is highly sensitive and sharing it with other will result in loss of funds. This Seed is for restoring on-chain ONLY funds; it has no knowledge of channel state.': 40,
+  'WARNING: This seed is highly sensitive and sharing it with others will result in loss of funds. This Seed is for restoring on-chain ONLY funds; it has no knowledge of channel state.': 40,
 
   // actions/rescanBlockchain.ts
   'Rescan Blockchain': 41,
@@ -129,11 +129,11 @@ const dict = {
 
   // actions/rescanBlockchain.ts (InputSpec fields)
   'Depth (or Blockheight if prefixed with a hyphen)': 98,
-  'Depth expressed as a positive number or blockheight prefixed with a hyphen.': 99,
+  'A positive number rescans that many blocks back from the tip. A negative number rescans from that block height to the tip: -800000 starts at block 800,000.': 99,
 
   // actions/config/config.ts (InputSpec fields)
   Alias: 100,
-  'A custom, human-readable name for your node.  This is publicly visible to the Lightning Network.  <b>Default: Unique id of pattern: start9-[random alphanumerics]</b>': 101,
+  'The name other Lightning nodes and network explorers show for your node. Leave it empty and Core Lightning uses a name derived from your node ID.': 101,
   'Must be at least 1 character and no more than 32 characters': 102,
   Color: 103,
   'The public color of your node on the Lightning Network in hexadecimal.  <b>Default: Random color</b>': 104,
@@ -156,7 +156,7 @@ const dict = {
   'Automatically rebalance multiple channels. This is a CLI-only tool.  <b>Default: Disabled</b><br><b>Source:  https://github.com/daywalker90/sling</b>': 143,
   "Distinct from the C-Lightning-REST plugin, CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service. It also broadcasts Core Lightning notifications to listeners connected to its websocket server. By generating REST API endpoints, it enables the execution of Core Lightning's RPC methods behind the scenes and provides responses in JSON format.  <b>Default: True</b>": 144,
   'CLBOSS settings': 145,
-  'CLBOSS is an automated manager for Core Lightning forwarding nodes.  <b>Default: Disabled</b><br><b>Source: https://github.com/ZmnSCPxj/clboss</b>': 146,
+  'CLBOSS is an automated manager for Core Lightning forwarding nodes. Source: https://github.com/ZmnSCPxj/clboss\n- Disabled: you open channels and set fees yourself.\n- Enabled: CLBOSS opens channels, buys inbound liquidity, rebalances channels and sets forwarding fees on its own.': 146,
   "CLBOSS automatically manages your CLN node. It is experimental software and will probably not be profitable to run. It will automatically open channels, buy incoming liquidity, rebalance channels, and set forwarding fees. If you don't want this behavior or don't understand what this means, please keep this option disabled. Source: https://github.com/ZmnSCPxj/clboss#operating": 147,
   Disabled: 148,
   Enabled: 149,
@@ -166,11 +166,11 @@ const dict = {
   'Enable if you want CLBOSS to have the ability to close channels it deems unprofitable.  This can be costly, please understand the ramifications before enabling.  <b>Default: False</b>': 153,
   'This feature is EXPERIMENTAL AND DANGEROUS!': 154,
   'Zero Base Fee': 155,
-  'Specify how this node will advertise its base fee. <ul><li><b>Required:  </b>The base fee must be always 0.</li><li><b>Allow:  </b>If the heuristics of CLBOSS think it might be a good idea to set base fee to 0, let it be 0, but otherwise set it to whatever value the heuristics want.</li><li><b>Disallow:  </b>The base fee must always be non-zero. If the heuristics think it might be good to set it to 0, set it to 1 instead.</li></ul><b>Default:  default (use fee set by Advanced -> Routing Base Fee)</b><br>Some pathfinding algorithms under development may strongly prefer 0 or low base fees, so you might want to set CLBOSS to 0 base fee, or to allow a 0 base fee.': 156,
+  "How CLBOSS advertises this node's base fee. Some pathfinding algorithms favor nodes with a zero or low base fee.\n- default: same as allow.\n- required: the base fee is always 0.\n- allow: CLBOSS sets the base fee to 0 when its heuristics favor it, and to whatever they choose otherwise.\n- disallow: the base fee is never 0; where the heuristics would choose 0, CLBOSS sets 1.": 156,
   'Min Channel Size': 157,
-  'Sets the minimum channel sizes that CLBOSS will make.  <b>Default:  No minimum</b>': 158,
+  'The smallest channel CLBOSS opens. CLBOSS raises any value below 500,000 satoshis to 500,000.': 158,
   'Max Channel Size': 159,
-  'Sets the maximum channel sizes that CLBOSS will make.  <b>Default:  No maximum</b>': 160,
+  'The largest channel CLBOSS opens. CLBOSS raises it to at least twice the minimum channel size.': 160,
 
   // actions/config/experimental.ts (InputSpec fields)
   'Shutdown Wrong Funding': 161,
@@ -178,13 +178,13 @@ const dict = {
   Xpay: 165,
   'Setting this makes xpay intercept simply pay commands (default false). Note that the response will be different from the normal pay command, however.  <b>Default: Disabled</b>': 166,
   'Dual Funding And Liquidity Ads': 167,
-  'Dual Funding enables use of the channel opening protocol v2, in which both channel parties commit funds into the channel at opening. This potentially solves all sorts of problems with liquidity on the Lightning Network, but is currently experimental and only implemented by Core Lightning so far.<br>See https://blog.blockstream.com/setting-up-liquidity-ads-in-c-lightning/ for more details.  <b>Default: Disabled</b>': 168,
+  'Dual funding lets both parties commit funds to a channel when it opens (channel opening protocol v2). See https://blog.blockstream.com/setting-up-liquidity-ads-in-c-lightning/ for more details.\n- Disabled: channels others open to this node are funded by the opener alone.\n- Enabled: this node contributes funds to dual-funding requests by the strategy you choose below.': 168,
   'Dual funding is an experimental feature which can cause your node to automatically commit on-chain funds into channels that may or may not be profitable. <b>Use at your own risk!</b>': 169,
   'Dual-Funding Channel Acceptance Strategy': 170,
-  "Select from two different operating strategies: Incognito, or Liquidity Merchant, and fine-tune your selected strategy's settings.<br><ul><li><b>Incognito: </b>Wait for others to stumble upon your unadvertised node and open a dual-fund request, then react in a more complex way</li><li><b>Liquidity Merchant: </b>Advertise and sell liquidity on the market in a straightforward way (i.e., always match 100% of requested funds, and don't accept dual-funding requests that aren't channel lease requests).</li></ul><br><b>Default: Incognito</b>": 171,
+  '- Incognito: wait for others to find your unadvertised node and send a dual-funding request, then answer it by the policy you set below.\n- Liquidity Merchant: advertise and sell liquidity on the market, always matching 100% of the requested funds and declining dual-funding requests that are not channel lease requests.': 171,
   Incognito: 172,
   Policy: 173,
-  '<ul><li><b>Match: </b>Contribute a percentage of their requested funds.</li><li><b>Available: </b>Contribute policy_mod percent of our available node wallet funds.</li><li><b>Fixed: </b>Contribute a fixed number of sats to v2 channel open requests.</li></ul><br><b>Default: Fixed</b>': 174,
+  "- Match: contribute a percentage of the funds the peer requests.\n- Available: contribute a percentage of the funds available in this node's wallet.\n- Fixed: contribute a fixed number of satoshis to each dual-funding request.": 174,
   Match: 175,
   'Percentage of Requested Funds to Commit': 176,
   'Percentage of requested funds to commit to the channel. If this is a channel lease request, we match based on their requested funds. If it is not a channel lease request (and leases only is false, which is is by default), then we match their funding amount. Note: any lease match less than 100 will likely fail, as clients will not accept a lease less than their request.  <b>Default: 100</b>': 177,
@@ -195,7 +195,7 @@ const dict = {
   'Fixed Number of Satoshis to Commit': 182,
   'Fixed number of sats to contribute to the channel.  <b>Default: 10000</b>': 183,
   'Fuzz Percentage': 184,
-  'A percentage to fuzz the resulting contribution amount by.<b>WARNING: Fuzzing with a Match 100% policy can cause random failures.<b><br><b>Defaults to 0% (no fuzz)</b>': 185,
+  'A percentage to fuzz the resulting contribution amount by.<b>WARNING: Fuzzing with a Match 100% policy can cause random failures.</b><br><b>Defaults to 0% (no fuzz)</b>': 185,
   'Fund Probability': 186,
   'The percent of v2 channel open requests to apply our policy to. Valid values are integers from 0 (fund no requests) to 100 (fund every request). Useful for randomizing opens that receive funds.  <b>Default: 100</b>': 187,
   'Liquidity Merchant': 188,
@@ -226,9 +226,9 @@ const dict = {
   'Watchtower Server': 211,
   'Allow other nodes to connect to your watchtower server on the network.  <b>Default: Disabled</b>': 212,
   'Watchtower Client': 213,
-  'Enable the client and connect to a watchtower server(s) of your choice in order to use watchtower features.  <b>Default: Disabled</b>': 214,
+  'A watchtower watches your channels while your node is offline and acts if a channel peer tries to cheat.\n- Disabled: no watchtower watches your channels.\n- Enabled: this node registers its channels with the watchtower servers you list.': 214,
   'Add Watchtower Servers': 215,
-  "Add URIs of watchtower servers to connect to, in the form <pubkey>@<host>:<port>. Prefix the host with https:// if the tower serves its API over TLS. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158": 216,
+  "Add URIs of watchtower servers to connect to, in the form pubkey@host:port. Prefix the host with https:// if the tower serves its API over TLS. If you don't know of anyone with a server, you can find some on this public listing: https://github.com/talaia-labs/rust-teos/discussions/158": 216,
 
   // main.ts (emergency recovery)
   'Backup Restoration Detected': 218,
@@ -272,7 +272,7 @@ const dict = {
   Invoice: 251,
   'A Lightning invoice.': 252,
   'As stated in the invoice': 253,
-  'Most invoices state their amount; enter one only when the invoice leaves it open.': 254,
+  'Most invoices state their amount.\n- As stated in the invoice: pay the amount the invoice carries.\n- Enter an amount: only for an invoice that leaves the amount open.': 254,
   'Maximum fee': 255,
   'The most this node may pay in routing fees, as a percentage of the amount.': 256,
   'The invoice could not be decoded: ${error}': 257,
@@ -351,10 +351,17 @@ const dict = {
   'Stop CLBOSS from managing some or all of what it does with one peer, for example to set your own fees on a channel to a friend. CLBOSS Status lists the peers you have excluded.': 330,
   'Must be a 66-character node ID.': 331,
   'Stop managing': 332,
-  'Select nothing to return the peer to full management.': 333,
+  'Select nothing to return the peer to full management.\n- Channel fees: CLBOSS stops setting the fees of channels with this peer.\n- Opening channels: CLBOSS stops opening channels to this peer.\n- Closing channels: CLBOSS stops closing channels with this peer.\n- Rebalancing: CLBOSS stops moving funds to or from this peer.': 333,
   'Peer updated': 334,
   'CLBOSS no longer manages ${tags} for this peer.': 335,
   'CLBOSS fully manages this peer again.': 336,
+  'Core Lightning forgets the network map it has gathered and rebuilds it from peers when it next starts, so payments may not find a route until it has.': 337,
+  'The current CLN UI password stops working, and whoever next opens the CLN UI sets a new one.': 338,
+  'CLBOSS resumes putting on-chain funds into channels of its choosing.': 339,
+  'Creating the rune failed. Its error output is below.': 340,
+  'Revoking the runes failed. Its error output is below.': 341,
+  "Reading the watchtower server's status failed. Its error output is below.": 342,
+  'Listing the watchtowers failed. Its error output is below.': 343,
 } as const
 
 /**
