@@ -2,7 +2,7 @@ import { FileHelper, z } from '@start9labs/start-sdk'
 import { bitcoinDataDir } from '../utils'
 import { sdk } from '../sdk'
 
-const shape = z.object({
+const shape = z.looseObject({
   api_bind: z.literal('0.0.0.0').catch('0.0.0.0'),
   api_port: z.literal(9814).catch(9814),
   tor_support: z.literal(false).catch(false),

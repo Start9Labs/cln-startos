@@ -69,7 +69,7 @@ export const clbossZerobasefees = [
   'disallow',
 ] as const
 
-export const shape = z.object({
+export const shape = z.looseObject({
   // Enforced by StartOS
   network: z.literal('bitcoin').catch('bitcoin'),
   'bitcoin-rpcconnect': iniString,
@@ -143,7 +143,7 @@ export const fullConfigSpec = InputSpec.of({
     default: null,
     required: false,
     description: i18n(
-      'A custom, human-readable name for your node.  This is publicly visible to the Lightning Network.  <b>Default: Unique id of pattern: start9-[random alphanumerics]</b>',
+      'The name other Lightning nodes and network explorers show for your node. Leave it empty and Core Lightning uses a name derived from your node ID.',
     ),
     patterns: [
       {
@@ -153,7 +153,6 @@ export const fullConfigSpec = InputSpec.of({
         ),
       },
     ],
-    footnote: `${i18n('Default')}: start9-[random alphanumerics]`,
   }),
   color: Value.text({
     name: i18n('Color'),

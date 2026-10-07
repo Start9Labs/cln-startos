@@ -8,7 +8,7 @@ const rescanBlockchainSpec = InputSpec.of({
   rescan: Value.number({
     name: i18n('Depth (or Blockheight if prefixed with a hyphen)'),
     description: i18n(
-      'Depth expressed as a positive number or blockheight prefixed with a hyphen.',
+      'A positive number rescans that many blocks back from the tip. A negative number rescans from that block height to the tip: -800000 starts at block 800,000.',
     ),
     default: null,
     integer: true,

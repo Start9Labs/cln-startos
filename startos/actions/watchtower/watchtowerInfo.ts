@@ -147,8 +147,16 @@ export const watchtowerInfo = sdk.Action.withoutInput(
     return {
       version: '1',
       title: i18n('Failure'),
-      message: `Error running 'gettowerinfo': ${String(res.stderr)}`,
-      result: null,
+      message: i18n(
+        "Reading the watchtower server's status failed. Its error output is below.",
+      ),
+      result: {
+        type: 'multiline',
+        value: String(res.stderr),
+        copyable: true,
+        masked: false,
+        qr: false,
+      },
     }
   },
 )

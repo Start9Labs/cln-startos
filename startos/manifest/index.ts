@@ -1,5 +1,5 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { depBitcoindDescription, long, short } from './i18n'
+import { long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'c-lightning',
@@ -21,7 +21,7 @@ export const manifest = setupManifest({
         },
       },
       arch: ['x86_64', 'aarch64'],
-      emulateMissingAs: 'aarch64',
+      emulateMissing: true,
     },
     ui: {
       source: {
@@ -29,17 +29,7 @@ export const manifest = setupManifest({
           'ghcr.io/elementsproject/cln-application:26.09@sha256:27684e8e495d077ce661793f74b25d50c2e40f68552cb1ba57d6750dd2585798',
       },
       arch: ['x86_64', 'aarch64'],
-      emulateMissingAs: 'aarch64',
-    },
-  },
-  dependencies: {
-    bitcoind: {
-      description: depBitcoindDescription,
-      optional: false,
-      metadata: {
-        title: 'Bitcoin',
-        icon: 'https://raw.githubusercontent.com/Start9Labs/bitcoin-core-startos/feec0b1dae42961a257948fe39b40caf8672fce1/dep-icon.svg',
-      },
+      emulateMissing: true,
     },
   },
 })

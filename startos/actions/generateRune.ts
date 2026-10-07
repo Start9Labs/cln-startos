@@ -53,8 +53,14 @@ export const createRune = sdk.Action.withoutInput(
     return {
       version: '1',
       title: i18n('Failed to Create Rune'),
-      message: `Error: ${String(runeRes.stderr)}`,
-      result: null,
+      message: i18n('Creating the rune failed. Its error output is below.'),
+      result: {
+        type: 'multiline',
+        value: String(runeRes.stderr),
+        copyable: true,
+        masked: false,
+        qr: false,
+      },
     }
   },
 )

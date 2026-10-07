@@ -132,8 +132,16 @@ export const watchtowerClientInfo = sdk.Action.withoutInput(
     return {
       version: '1',
       title: i18n('Failure'),
-      message: `Error running 'listtowers': ${String(res.stderr)}`,
-      result: null,
+      message: i18n(
+        'Listing the watchtowers failed. Its error output is below.',
+      ),
+      result: {
+        type: 'multiline',
+        value: String(res.stderr),
+        copyable: true,
+        masked: false,
+        qr: false,
+      },
     }
   },
 )

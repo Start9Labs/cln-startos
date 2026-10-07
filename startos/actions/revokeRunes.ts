@@ -57,8 +57,14 @@ export const revokeRunes = sdk.Action.withoutInput(
       return {
         version: '1',
         title: i18n('Failed to Revoke Runes'),
-        message: `Error: ${outcome.error}`,
-        result: null,
+        message: i18n('Revoking the runes failed. Its error output is below.'),
+        result: {
+          type: 'multiline',
+          value: String(outcome.error),
+          copyable: true,
+          masked: false,
+          qr: false,
+        },
       }
 
     if (outcome.revoked) {

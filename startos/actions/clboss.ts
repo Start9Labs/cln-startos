@@ -187,7 +187,9 @@ export const clbossNoticeOnchain = sdk.Action.withoutInput(
     description: i18n(
       'Let CLBOSS manage on-chain funds again after Ignore On-chain Funds.',
     ),
-    warning: null,
+    warning: i18n(
+      'CLBOSS resumes putting on-chain funds into channels of its choosing.',
+    ),
     allowedStatuses: 'only-running',
     group: i18n('CLBOSS'),
     visibility: await visibility(effects),
@@ -238,7 +240,7 @@ export const clbossUnmanage = sdk.Action.withInput(
     tags: Value.multiselect({
       name: i18n('Stop managing'),
       description: i18n(
-        'Select nothing to return the peer to full management.',
+        'Select nothing to return the peer to full management.\n- Channel fees: CLBOSS stops setting the fees of channels with this peer.\n- Opening channels: CLBOSS stops opening channels to this peer.\n- Closing channels: CLBOSS stops closing channels with this peer.\n- Rebalancing: CLBOSS stops moving funds to or from this peer.',
       ),
       default: [],
       values: unmanageTags,
