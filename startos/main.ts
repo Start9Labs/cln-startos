@@ -110,6 +110,23 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'lightning-sub',
   )
 
+  const lightningGetinfo = async () => {
+    for (let attempt = 1; ; attempt++) {
+      const res = await lightningSub.exec([
+        'lightning-cli',
+        `--lightning-dir=${rootDir}`,
+        'getinfo',
+      ])
+      if (
+        (res.exitCode === 0 && res.stdout.length > 0) ||
+        res.timedOutAfter !== null ||
+        attempt === 3
+      )
+        return res
+      await new Promise((resolve) => setTimeout(resolve, 1_000))
+    }
+  }
+
   // Restart only when bitcoind writes a replacement cookie — an absent cookie
   // means bitcoind is down, and stopping lightningd then hangs its shutdown.
   await FileHelper.string(`${await lightningSub.rootfs}/mnt/bitcoin/.cookie`)
@@ -152,11 +169,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ready: {
         display: i18n('RPC Interface'),
         fn: async () => {
-          const res = await lightningSub.exec([
-            'lightning-cli',
-            `--lightning-dir=${rootDir}`,
-            'getinfo',
-          ])
+          const res = await lightningGetinfo()
           if (res.exitCode === 0) {
             return {
               message: i18n('The RPC interface is ready'),
@@ -262,11 +275,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ready: {
         display: i18n('Synced'),
         fn: async () => {
-          const getinfoRes = await lightningSub.exec([
-            'lightning-cli',
-            `--lightning-dir=${rootDir}`,
-            'getinfo',
-          ])
+          const getinfoRes = await lightningGetinfo()
 
           // Check the exit code before parsing: when lightningd's RPC is not
           // answering, lightning-cli exits non-zero with empty stdout, and

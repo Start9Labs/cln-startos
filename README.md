@@ -224,9 +224,9 @@ Grouped under CLBOSS, running only, and disabled with a reason unless CLBOSS is 
 
 The package raises one task after a restore; a companion package can raise the hidden Clearnet VPN action as another.
 
-| Task              | Severity    | Raised when                                                            | Cleared when                                              |
-| ----------------- | ----------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
-| Rescan Blockchain | `important` | Immediately after a backup restore                                     | The action runs                                           |
+| Task              | Severity    | Raised when                                                         | Cleared when                                                         |
+| ----------------- | ----------- | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Rescan Blockchain | `important` | Immediately after a backup restore                                  | The action runs                                                      |
 | Clearnet VPN      | `important` | Only when a companion package raises it with a tunnel for this node | The stored configuration matches what the companion package proposes |
 
 The reason is that a restored node reports an **on-chain balance of zero** until the chain is rescanned, and nothing else in the interface explains why. `important` rather than `critical`: the node should keep running — indeed it must, for the rescan to proceed.
@@ -237,16 +237,16 @@ Three checks are always present, with five more for conditional features or reco
 
 | Check                  | Displayed                     | Method                                               | Present                                   |
 | ---------------------- | ----------------------------- | ---------------------------------------------------- | ----------------------------------------- |
-| `lightningd`           | "RPC Interface"               | `lightning-cli getinfo` succeeds                     | always                                    |
+| `lightningd`           | "RPC Interface"               | `lightning-cli getinfo` succeeds within three tries  | always                                    |
 | `cln-application`      | "Web Interface"               | The UI's port is listening                           | always                                    |
 | `check-synced`         | "Synced"                      | `getinfo`'s sync warnings, and Bitcoin's block count | always                                    |
 | `watchtower-server`    | "TEOS Watchtower Server"      | `teos-cli gettowerinfo` succeeds                     | while the watchtower server is enabled    |
 | `watchtowers`          | "Watchtowers"                 | `listtowers` status of every subscribed tower        | while towers are subscribed               |
 | `custom-external-host` | "Custom External Host"        | Always fails, with an explanation                    | while Tor Only and a custom host conflict |
-| `vpn-tunnel`           | "Clearnet VPN"                | Age of the tunnel's last WireGuard handshake         | while a tunnel is configured  |
+| `vpn-tunnel`           | "Clearnet VPN"                | Age of the tunnel's last WireGuard handshake         | while a tunnel is configured              |
 | `restored`             | "Backup Restoration Detected" | Always fails, with an explanation                    | after an emergency recovery               |
 
-**`check-synced` distinguishes three states**, which is what makes it worth reading: Bitcoin not yet synced, the node catching up to Bitcoin (reported as a block count against Bitcoin's own), and synced. It fails only when `lightning-cli` itself errors, so a red check here is the node, not the chain.
+**`check-synced` distinguishes three states**, which is what makes it worth reading: Bitcoin not yet synced, the node catching up to Bitcoin (reported as a block count against Bitcoin's own), and synced. It fails only when `lightning-cli` itself errors on three tries in a row, so a red check here is the node, not the chain.
 
 **`watchtowers` reports the towers this node subscribes to**, by label where one is set. It runs after the registration oneshots, succeeds when every tower is `reachable`, is `loading` while any is `temporary_unreachable` (the client is retrying and queuing appointments), and fails when any is `unreachable`, `misbehaving`, `subscription_error`, or not registered at all — typically an onion tower with Tor not running. Whether other nodes can reach this node's own tower cannot be checked from inside; `watchtower-server` only confirms `teosd` answers.
 
