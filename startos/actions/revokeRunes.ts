@@ -64,6 +64,7 @@ export const revokeRunes = sdk.Action.withoutInput(
           copyable: true,
           masked: false,
           qr: false,
+          filename: null,
         },
       }
 

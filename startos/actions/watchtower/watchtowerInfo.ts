@@ -75,6 +75,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
             copyable: true,
             masked: true,
             qr: true,
+            launchable: false,
             type: 'single',
           }
         }) || []
@@ -103,6 +104,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
               value: `${towerInfo.n_registered_users}`,
               copyable: false,
               qr: false,
+              launchable: false,
               masked: false,
               type: 'single',
             },
@@ -114,6 +116,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
               ),
               copyable: false,
               qr: false,
+              launchable: false,
               masked: false,
               type: 'single',
             },
@@ -125,6 +128,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
               ),
               copyable: false,
               qr: false,
+              launchable: false,
               masked: false,
               type: 'single',
             },
@@ -136,6 +140,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
               ),
               copyable: false,
               qr: false,
+              launchable: false,
               masked: false,
               type: 'single',
             },
@@ -156,6 +161,7 @@ export const watchtowerInfo = sdk.Action.withoutInput(
         copyable: true,
         masked: false,
         qr: false,
+        filename: null,
       },
     }
   },

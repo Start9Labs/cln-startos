@@ -43,6 +43,7 @@ export const createRune = sdk.Action.withoutInput(
         result: {
           value: rune.rune,
           qr: true,
+          launchable: false,
           masked: true,
           copyable: true,
           type: 'single',
@@ -60,6 +61,7 @@ export const createRune = sdk.Action.withoutInput(
         copyable: true,
         masked: false,
         qr: false,
+        filename: null,
       },
     }
   },

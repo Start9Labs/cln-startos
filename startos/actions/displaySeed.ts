@@ -69,6 +69,7 @@ export const displaySeed = sdk.Action.withoutInput(
         copyable: true,
         masked: true,
         qr: false,
+        filename: null,
         type: 'multiline',
         value: seedGrid(hsmSecretContents!.replace(/\u0000/g, '').split(' ')),
       },
