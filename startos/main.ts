@@ -178,7 +178,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
           }
           return {
             message: i18n('The RPC interface is not ready'),
-            result: 'loading',
+            result: 'starting',
           }
         },
       },
