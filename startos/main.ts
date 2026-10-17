@@ -775,10 +775,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
         ? {
             ready: {
               display: i18n('Custom External Host'),
-              // Nothing here initializes, so the default grace period would
-              // only show this as "starting" for its first 10 seconds.
+              // The result only changes when main restarts, so check once.
               gracePeriod: 0,
-              trigger: sdk.trigger.cooldownTrigger(60_000),
+              trigger: async function* () {
+                yield
+              },
               fn: async () => ({
                 result: 'failure' as const,
                 message: i18n(
