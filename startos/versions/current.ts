@@ -1,17 +1,17 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.9:4',
+  version: '26.6.9:5',
   releaseNotes: {
-    en_US: 'The Custom External Host health check runs once per start.',
+    en_US:
+      'Stops trusting certificates from a compromised certificate authority (eMudhra).',
     es_ES:
-      'La comprobación de estado Host Externo Personalizado se ejecuta una vez por inicio.',
+      'Deja de confiar en los certificados de una autoridad de certificación comprometida (eMudhra).',
     de_DE:
-      'Die Statusprüfung Benutzerdefinierter externer Host läuft einmal pro Start.',
+      'Vertraut Zertifikaten einer kompromittierten Zertifizierungsstelle (eMudhra) nicht mehr.',
     pl_PL:
-      'Kontrola stanu Niestandardowy host zewnętrzny jest wykonywana raz przy każdym uruchomieniu.',
-    fr_FR:
-      'La vérification d’état Hôte externe personnalisé s’exécute une fois par démarrage.',
+      'Przestaje ufać certyfikatom przejętego urzędu certyfikacji (eMudhra).',
+    fr_FR: `Ne fait plus confiance aux certificats d'une autorité de certification compromise (eMudhra).`,
   },
   migrations: {
     up: async () => {},
