@@ -35,13 +35,13 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is pulled as published. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is upstream's, with its `node` binary replaced from `node:22.23.4-bookworm-slim` by `Dockerfile.ui`, a temporary layer that comes out once upstream ships an image on Node 22.23.4 or later. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
 
-| Property      | Value                                                                                             |
-| ------------- | ------------------------------------------------------------------------------------------------- |
-| Images        | Built from `Dockerfile` on `debian:bookworm-slim`, plus `ghcr.io/elementsproject/cln-application` |
-| Architectures | x86_64, aarch64 — both images declare `emulateMissing: true`                                      |
-| Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                             |
+| Property      | Value                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Images        | Built from `Dockerfile` on `debian:bookworm-slim`, plus `ghcr.io/elementsproject/cln-application` + `Dockerfile.ui` |
+| Architectures | x86_64, aarch64 — both images declare `emulateMissing: true`                                                        |
+| Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                                               |
 
 The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for the tunnel the hidden Clearnet VPN action brings up, and the manifest sets `virtualNetworking` so the container can create its interface. Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
 
@@ -288,7 +288,7 @@ Restoring a Lightning node's channel database is dangerous — a stale copy clai
 
 ```yaml
 package_id: c-lightning
-image: ./Dockerfile # on debian:bookworm-slim; plus ghcr.io/elementsproject/cln-application
+image: ./Dockerfile # on debian:bookworm-slim; plus ghcr.io/elementsproject/cln-application (+ Dockerfile.ui)
 architectures:
   - x86_64
   - aarch64

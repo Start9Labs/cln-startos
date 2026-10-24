@@ -45,7 +45,7 @@ For each independent upstream source below: a link to its canonical repo, one co
   gh api /users/elementsproject/packages/container/cln-application/versions \
     --jq '.[].metadata.container.tags[]' | sort -u | head -20
   ```
-- Current pin: `images.ui.source.dockerTag` in `startos/manifest/index.ts` (`ghcr.io/elementsproject/cln-application:<version>`).
+- Current pin: the `IMAGE` build arg of `images.ui` in `startos/manifest/index.ts` (`ghcr.io/elementsproject/cln-application:<version>`), layered by `Dockerfile.ui`.
 
 ### CLBOSS
 
@@ -92,7 +92,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 ### CLN Application (Web UI)
 
-- Bump the `dockerTag` for the `ui` image in `startos/manifest/index.ts` to `ghcr.io/elementsproject/cln-application:<new version>`.
+- Bump the `IMAGE` build arg for the `ui` image in `startos/manifest/index.ts` to `ghcr.io/elementsproject/cln-application:<new version>`. While `Dockerfile.ui` exists, keep it unless the new image's `NODE_VERSION` is 22.23.4 or later; if it is, delete `Dockerfile.ui` and put `source: { dockerTag: '<new image>' }` back.
 
 ### CLBOSS
 
