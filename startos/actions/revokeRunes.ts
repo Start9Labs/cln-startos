@@ -1,7 +1,7 @@
 import { rm } from 'fs/promises'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
-import { commandoEnv, mainMounts, rootDir } from '../utils'
+import { commandoEnv, errorMessage, mainMounts, rootDir } from '../utils'
 
 export const revokeRunes = sdk.Action.withoutInput(
   // id
@@ -32,8 +32,7 @@ export const revokeRunes = sdk.Action.withoutInput(
         const shown = await subc.exec(['lightning-cli', 'showrunes'], {
           cwd: rootDir,
         })
-        if (shown.exitCode !== 0)
-          return { error: String(shown.stderr) } as const
+        if (shown.exitCode !== 0) return { error: errorMessage(shown) } as const
 
         const { runes } = JSON.parse(shown.stdout as string) as {
           runes: { unique_id: string }[]
@@ -49,7 +48,7 @@ export const revokeRunes = sdk.Action.withoutInput(
         )
         return blacklisted.exitCode === 0
           ? ({ revoked: runes.length } as const)
-          : ({ error: String(blacklisted.stderr) } as const)
+          : ({ error: errorMessage(blacklisted) } as const)
       },
     )
 

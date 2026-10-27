@@ -19,7 +19,7 @@
 1. Install and fully sync **Bitcoin** if you haven't already.
 2. Start Core Lightning. The wallet is created automatically on first start; no seed phrase setup is required.
 3. Open the **Web UI** interface and set the UI password on first access. Save this password — it is independent of your StartOS credentials. After 5 wrong passwords within 15 minutes, the Web UI pauses logins for everyone for 15 minutes; restart Core Lightning to clear it sooner.
-4. To connect a wallet app or other client, run the **Create Rune** action to generate an unrestricted rune, or use the rune embedded in the **CLNrest** interface URL.
+4. To connect a wallet app or other client, run the **Create Rune** action to generate a rune with only the permissions the app needs, or use the rune embedded in the **CLNrest** interface URL, which can spend your node's funds.
 
 ## Using Core Lightning
 
@@ -37,7 +37,7 @@
 
 - **Node Info** — display your node ID and peer URI(s) to share with channel partners.
 - **Display BIP-39 Seed** — show the 12-word BIP-39 seed for on-chain recovery. Hidden if your wallet predates BIP-39 support in CLN; the seed alone does not recover channel state.
-- **Create Rune** — generate an unrestricted rune for app integrations.
+- **Create Rune** — generate a rune for an app. **Read-only** lets it view the node but not spend from or change it. **Custom restrictions** takes the restrictions an app asks for, as a JSON array: if the app gives you a `lightning-cli createrune` command, copy what is inside the quotes after `restrictions=`. **Unrestricted** gives full control, funds included, so give it only to an app you trust.
 - **Revoke All Runes** — blacklist every rune this node has issued, so none of them can authenticate again. Run it if a rune may have been copied or exposed, or if an app with RPC access to your node may have created one without your knowledge — for example if you run BTCPay Server, which reaches Core Lightning over its admin RPC socket and shipped an actively exploited vulnerability in versions before 2.4.2. Core Lightning restarts afterwards to issue the web UI a fresh rune; re-issue any other integration's rune with **Create Rune**.
 - **General Settings** — set alias, color, fee base and rate, minimum channel capacity, funding confirmations, Tor-only mode, Clams Websocket, a custom external host, and the Bitcoin retry timeout.
   - **Bitcoin Retry Timeout** is how long Core Lightning keeps retrying Bitcoin before it shuts down with "The Bitcoin backend died". The default is 60 seconds; raise it if that happens while Bitcoin is busy, such as during a reindex.

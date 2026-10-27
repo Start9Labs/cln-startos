@@ -7,7 +7,7 @@ import {
   towerKey,
   towerNetAddr,
 } from './actions/watchtower/towerUri'
-import { errorMessage, literal } from './actions/payments'
+import { literal } from './actions/payments'
 import { watchtowerClientPlugin } from './actions/watchtower/watchtower'
 import { ListTowers } from './actions/watchtower/watchtowerClientInfo'
 import { clnConfig } from './fileModels/config'
@@ -19,6 +19,7 @@ import {
   bitcoinDataDir,
   bitcoindRpcBridge,
   clnrestPort,
+  errorMessage,
   grpcPort,
   mainMounts,
   rootDir,

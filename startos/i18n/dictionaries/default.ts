@@ -40,9 +40,9 @@ const dict = {
 
   // actions/generateRune.ts
   'Create Rune': 31,
-  'Generate a rune with no restrictions. This rune can be used to connect with integrations such as Alby.': 32,
-  "This rune has no restrictions! Anyone who has access to this rune could drain funds from your node. Be careful when giving this to apps that you don't trust": 33,
-  'Successfully added unrestricted rune': 34,
+  'Generate a rune, the credential an app uses to connect to this node, with the permissions you choose.': 32,
+  'An unrestricted rune can do anything on this node, including draining its funds. Choose it only for an app you trust.': 33,
+  'Created an unrestricted rune. Anyone who holds it has full control of this node, including its funds.': 34,
   'Failed to Create Rune': 35,
 
   // actions/displaySeed.ts
@@ -362,6 +362,16 @@ const dict = {
   'Revoking the runes failed. Its error output is below.': 341,
   "Reading the watchtower server's status failed. Its error output is below.": 342,
   'Listing the watchtowers failed. Its error output is below.': 343,
+  Permissions: 344,
+  "What an app holding the rune may do.\n- Read-only: Core Lightning's list and get commands and summary, except listdatastore. Enough to view the node, not to spend from or change it.\n- Custom restrictions: only what the restrictions you enter allow.\n- Unrestricted: everything, including spending all of the node's funds.": 345,
+  'Read-only': 346,
+  'Custom restrictions': 347,
+  Unrestricted: 348,
+  Restrictions: 349,
+  "A JSON array of restrictions, as Core Lightning's createrune takes them. Every restriction must pass, and each is an array of alternatives, one of which must pass. An app that gives you a lightning-cli createrune command has them inside the quotes after restrictions=.": 350,
+  'Restrictions must be a JSON array of arrays of strings, with at least one string in each, such as [["method=getinfo"]].': 351,
+  'Created a read-only rune.': 352,
+  'Created a rune limited to the restrictions you entered.': 353,
 } as const
 
 /**

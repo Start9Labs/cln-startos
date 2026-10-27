@@ -2,9 +2,9 @@ import { T } from '@start9labs/start-sdk'
 import { clnConfig } from '../fileModels/config'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
-import { mainMounts, rootDir } from '../utils'
+import { cliJson, errorMessage, mainMounts, rootDir } from '../utils'
 import { clbossPlugin } from './config/plugins'
-import { cliJson, errorMessage, literal, row, sats } from './payments'
+import { literal, row, sats } from './payments'
 
 const { InputSpec, Value } = sdk
 

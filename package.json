@@ -1,7 +1,7 @@
 {
   "name": "cln-startos",
   "dependencies": {
-    "@start9labs/start-sdk": "3.1.0",
+    "@start9labs/start-sdk": "3.1.1",
     "bitcoin-core-startos": "github:Start9Labs/bitcoin-core-startos#next/28.x",
     "dotenv": "^17.2.0",
     "tor-startos": "github:Start9Labs/tor-startos#next"
