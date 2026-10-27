@@ -163,7 +163,13 @@ Each tower takes an optional label, stored in `watchtowerLabels` against the tow
 
 ### Create Rune, Revoke All Runes
 
-**Create Rune** mints an unrestricted access credential for an external application. Available only while running; each run produces a new rune and does not affect existing ones.
+**Create Rune** mints an access credential for an external application, with the permissions chosen in its form:
+
+- **Read-only** — Core Lightning's built-in `readonly` set: any `list*` or `get*` command and `summary`, except `listdatastore`.
+- **Custom restrictions** — a JSON array of restrictions as `createrune` takes them, the argument an app's own `lightning-cli createrune restrictions='…'` recipe carries. The action refuses anything but a non-empty array of non-empty arrays of strings: `[]` would mint an unrestricted rune, and Core Lightning stores a rune with an empty restriction that crashes `lightningd` whenever `showrunes`, which Revoke All Runes runs, reads it back. Core Lightning validates the restrictions themselves, and its error is what the action shows.
+- **Unrestricted** — full control of the node, funds included.
+
+Available only while running; each run produces a new rune and does not affect existing ones.
 
 **Revoke All Runes** invalidates every rune this node has issued **including the web UI's**, which is regenerated automatically on the next start. Run it when a credential may have been exposed. It is not selective — that is the point of it — so anything you have connected must be re-authorized afterwards.
 
@@ -334,7 +340,7 @@ actions:
   - watchtower
   - watchtower-info # hidden unless the server is enabled
   - watchtower-client-info # hidden unless clients are registered
-  - createrune
+  - createrune # only-running; read-only, custom restrictions, or unrestricted
   - revoke-runes
   - display-seed # hidden with no wallet; disabled on a pre-BIP-39 wallet
   - rescan-blockchain

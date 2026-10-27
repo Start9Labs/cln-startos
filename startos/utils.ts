@@ -27,6 +27,22 @@ export const mainMounts = sdk.Mounts.of().mountVolume({
   readonly: false,
 })
 
+export function cliJson<T>(stdout: unknown): T | null {
+  if (typeof stdout !== 'string') return null
+  try {
+    return JSON.parse(stdout.slice(stdout.indexOf('{'))) as T
+  } catch {
+    return null
+  }
+}
+
+// lightning-cli reports an RPC error as a JSON object on stdout, exit code 1, sometimes after `# …` progress lines.
+export const errorMessage = (res: { stdout: unknown; stderr: unknown }) => {
+  const raw = String(res.stdout || res.stderr).trim()
+  const parsed = cliJson<{ message?: unknown }>(raw)
+  return parsed?.message ? String(parsed.message) : raw || 'unknown'
+}
+
 /**
  * bitcoind's RPC bridge address, resolved through `sdk.host.getBridgeAddress` and
  * split into the `{ host, port }` pair lightningd's config, teos.toml, and the
