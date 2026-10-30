@@ -33,7 +33,7 @@
 - **Clams Websocket** — websocket endpoint for Clams Remote, shown when the `clams-remote-websocket` option is on.
 - **TEOS Watchtower** — present only when the watchtower server is enabled.
 
-If you publish the **Peer** interface through StartTunnel to keep your home IP private, also select that tunnel on Core Lightning's **Outbound Traffic** tab. Connections Core Lightning opens itself, to the peers it connects to and opens channels with, otherwise leave through your home router, so those peers see your home IP. In Tor-only mode this doesn't apply. If you use the tunnel for another reason, such as a port your router can't forward, there is nothing to change.
+If you publish the **Peer** interface through StartTunnel to keep your home IP private, send Core Lightning's outbound traffic through that tunnel too. Connections Core Lightning opens itself, to the peers it connects to and opens channels with, otherwise leave through your home router, so those peers see your home IP. In Tor-only mode this doesn't apply. If you use the tunnel for another reason, such as a port your router can't forward, there is nothing to change.
 
 ### Actions
 
