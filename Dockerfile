@@ -1,4 +1,4 @@
-ARG CLN_VERSION=v26.06.9
+ARG CLN_VERSION=v26.06.10
 
 # Shared base with common dependencies
 FROM debian:bookworm-slim AS base
@@ -71,13 +71,13 @@ RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 
 # lightningd from the signed release tarballs. These hashes come from
-# SHA256SUMS-v26.06.9 and -arm64, GPG-verified against maintainer key
+# SHA256SUMS-v26.06.10 and -arm64, GPG-verified against maintainer key
 # 4E4A142F8BD3C38A56B362ED578CAC08472545C5.
 FROM base AS lightningd-tarball
 ARG TARGETARCH
 ARG CLN_VERSION
-ARG CLN_SHA256_AMD64=da19bd04de3ebb2ae525cfc114b69bf45ce1c53fad7877d011b4fcaeacf0e45a
-ARG CLN_SHA256_ARM64=8bff3b55e41078fc98fb2f0bc454b975aed6fa858c4fe8d7a77e711f2a73e97e
+ARG CLN_SHA256_AMD64=e1e0a7e89b55060e2470d8568ba535a3124d6823c628def548cadeef4279c491
+ARG CLN_SHA256_ARM64=3b45ff376a50d111fe3dfa84d46823ae2109721be4a7fa4e174b5d603117f557
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends ca-certificates xz-utils && \
     rm -rf /var/lib/apt/lists/*
@@ -99,7 +99,7 @@ RUN set -eu; \
 # published no tarball for. The hash is from the same signed SHA256SUMS.
 FROM rust-base AS lightningd-source
 ARG CLN_VERSION
-ARG CLN_SRC_SHA256=ac37b1b6c41b6c60cf06dd8cd7500f1fab04411cf2f3bc126838d8cafab4538d
+ARG CLN_SRC_SHA256=4914561e6d108dacca0183d7e6b3b1c224c580597ddcbb397299ef5b0fcc3230
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends \
     libsodium-dev libsqlite3-dev zlib1g-dev python3-mako lowdown unzip && \
@@ -123,9 +123,9 @@ FROM lightningd-dist-${TARGETARCH} AS lightningd-dist
 # died". Checksums are from bitcoincore.org's SHA256SUMS.
 FROM base AS bitcoin-cli
 ARG TARGETARCH
-ARG BITCOIN_VERSION=31.1
-ARG BITCOIN_SHA256_AMD64=b80d9c3e04da78fb6f0569685673418cf686fadba9042d926d13fb87ff503f9e
-ARG BITCOIN_SHA256_ARM64=dcf1873f2208ba4f962f3398d47e154c39c0084be8f4553e05c940d0ace3d004
+ARG BITCOIN_VERSION=32.1
+ARG BITCOIN_SHA256_AMD64=61545c17c3120fb7412f896d248b11993af04ec8817aad3649c55b2afb044963
+ARG BITCOIN_SHA256_ARM64=7ed37c7373eb6aa3e3f72842596a1afeba1b223717033cade9842b25773e1922
 RUN apt-get update -qq && \
     apt-get install -qq -y --no-install-recommends ca-certificates && \
     rm -rf /var/lib/apt/lists/*
