@@ -135,10 +135,8 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
     const clnrestMultiOrigin = await clnrestMulti.bindPort(clnrestPort, {
       protocol: 'http',
       preferredExternalPort: clnrestPort,
-      addSsl: {
-        preferredExternalPort: clnrestPort,
-        addXForwardedHeaders: false,
-      },
+      addSsl: { preferredExternalPort: clnrestPort },
+      proxy: { addXForwardedHeaders: false },
     })
 
     // Revoke Runes deletes .commando-env before the commando-config oneshot
