@@ -1,23 +1,18 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.10:0',
+  version: '26.6.10:1',
   releaseNotes: {
-    en_US: `Updates Core Lightning to 26.06.10, a security release from the Core Lightning developers. Upgrade as soon as you can.
-
-Core Lightning release notes: https://github.com/ElementsProject/lightning/releases/tag/v26.06.10`,
-    es_ES: `Actualiza Core Lightning a 26.06.10, una versión de seguridad de los desarrolladores de Core Lightning. Actualiza cuanto antes.
-
-Notas de la versión de Core Lightning: https://github.com/ElementsProject/lightning/releases/tag/v26.06.10`,
-    de_DE: `Aktualisiert Core Lightning auf 26.06.10, eine Sicherheitsversion der Core-Lightning-Entwickler. Aktualisieren Sie so bald wie möglich.
-
-Core-Lightning-Versionshinweise: https://github.com/ElementsProject/lightning/releases/tag/v26.06.10`,
-    pl_PL: `Aktualizuje Core Lightning do wersji 26.06.10, wydania zabezpieczeń od twórców Core Lightning. Zaktualizuj jak najszybciej.
-
-Informacje o wydaniu Core Lightning: https://github.com/ElementsProject/lightning/releases/tag/v26.06.10`,
-    fr_FR: `Met à jour Core Lightning vers la version 26.06.10, une version de sécurité publiée par les développeurs de Core Lightning. Mettez à jour dès que possible.
-
-Notes de version de Core Lightning : https://github.com/ElementsProject/lightning/releases/tag/v26.06.10`,
+    en_US:
+      'Requires StartOS 0.4.1 or later. Fixes memory use growing while the service runs.',
+    es_ES:
+      'Requiere StartOS 0.4.1 o posterior. Corrige el aumento del uso de memoria mientras el servicio está en ejecución.',
+    de_DE:
+      'Erfordert StartOS 0.4.1 oder neuer. Behebt einen während der Laufzeit des Dienstes ansteigenden Speicherverbrauch.',
+    pl_PL:
+      'Wymaga StartOS 0.4.1 lub nowszego. Naprawia wzrost zużycia pamięci podczas działania usługi.',
+    fr_FR:
+      "Nécessite StartOS 0.4.1 ou une version ultérieure. Corrige l'augmentation de la consommation de mémoire pendant le fonctionnement du service.",
   },
   migrations: {
     up: async () => {},
