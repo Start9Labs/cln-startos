@@ -27,6 +27,21 @@ export const mainMounts = sdk.Mounts.of().mountVolume({
   readonly: false,
 })
 
+/** Host path of the rune dependents mount as `public/payments`. */
+export const paymentsRuneFile = '/media/startos/volumes/public/payments/rune'
+
+// Invoicing and paying only: no withdraw, close, fundchannel or connect.
+export const paymentsRestrictions = [
+  [
+    'method=listfunds',
+    'method=invoice',
+    'method=pay',
+    'method=listinvoices',
+    'method=listpays',
+    'method=waitanyinvoice',
+  ],
+]
+
 export function cliJson<T>(stdout: unknown): T | null {
   if (typeof stdout !== 'string') return null
   try {

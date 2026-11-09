@@ -52,11 +52,14 @@ The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for t
 
 ## Volume and Data Layout
 
-One volume, holding everything.
+Two volumes.
 
-| Volume | Mount Point        | Purpose                                                                                                                                |
-| ------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `main` | `/root/.lightning` | The lightning directory: `config`, the node's `hsm_secret` and channel database, the UI's own data, the watchtower's, and `store.json` |
+| Volume   | Mount Point        | Purpose                                                                                                                                |
+| -------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `main`   | `/root/.lightning` | The lightning directory: `config`, the node's `hsm_secret` and channel database, the UI's own data, the watchtower's, and `store.json` |
+| `public` | not mounted        | Credentials for dependent services, one subdirectory per tier. Not backed up                                                           |
+
+**Dependents mount a tier of `public`, never `main`**, which holds `hsm_secret`. The `export-credentials` oneshot keeps `payments/rune`: a rune restricted to `listfunds`, `invoice`, `pay`, `listinvoices`, `listpays` and `waitanyinvoice` (`paymentsRestrictions` in `startos/utils.ts`), for use over CLNRest. On each start it keeps the existing rune if `checkrune` still accepts it and mints a new one otherwise, so after **Revoke All Runes** dependents get a fresh rune at the next start.
 
 Bitcoin's data directory is mounted **read-only** at `/mnt/bitcoin`, which is how both `lightningd` and the watchtower read its RPC cookie without a password ever being stored.
 
@@ -303,6 +306,7 @@ subcontainers:
   - cln-application-sub # the web UI
 volumes:
   main: /root/.lightning
+  public: (not mounted) # credentials for dependents; not backed up
 file_models:
   - /root/.lightning/config
   - /root/.lightning/store.json

@@ -1,7 +1,8 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rm, writeFile } from 'fs/promises'
+import { mkdir, readFile, rename, rm, writeFile } from 'fs/promises'
+import { dirname } from 'node:path'
 import {
   parseTowerUri,
   towerKey,
@@ -18,10 +19,13 @@ import { sdk } from './sdk'
 import {
   bitcoinDataDir,
   bitcoindRpcBridge,
+  cliJson,
   clnrestPort,
   errorMessage,
   grpcPort,
   mainMounts,
+  paymentsRestrictions,
+  paymentsRuneFile,
   rootDir,
   uiPort,
   wsPort,
@@ -229,6 +233,42 @@ export const main = sdk.setupMain(async ({ effects }) => {
             `LIGHTNING_PUBKEY="${pubkey}"\nLIGHTNING_RUNE="${rune}"\n`,
           )
 
+          return null
+        },
+      },
+      requires: ['lightningd'],
+    })
+    .addOneshot('export-credentials', {
+      subcontainer: lightningSub,
+      exec: {
+        fn: async (subcontainer) => {
+          const cli = ['lightning-cli', `--lightning-dir=${rootDir}`]
+          const existing = (
+            await readFile(paymentsRuneFile, 'utf-8').catch(() => '')
+          ).trim()
+          if (existing) {
+            const check = await subcontainer.exec([
+              ...cli,
+              '-k',
+              'checkrune',
+              `rune=${existing}`,
+              'method=listfunds',
+            ])
+            if (cliJson<{ valid?: boolean }>(check.stdout)?.valid) return null
+          }
+          const res = await subcontainer.exec([
+            ...cli,
+            'createrune',
+            'null',
+            JSON.stringify(paymentsRestrictions),
+          ])
+          if (res.exitCode !== 0) {
+            throw new Error(`createrune failed: ${errorMessage(res)}`)
+          }
+          const { rune } = JSON.parse(res.stdout as string)
+          await mkdir(dirname(paymentsRuneFile), { recursive: true })
+          await writeFile(`${paymentsRuneFile}.tmp`, rune)
+          await rename(`${paymentsRuneFile}.tmp`, paymentsRuneFile)
           return null
         },
       },
