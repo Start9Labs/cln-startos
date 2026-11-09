@@ -20,15 +20,28 @@ export const bitcoinDataDir = '/mnt/bitcoin'
 /** Host path of the rune the CLN Application UI authenticates with. */
 export const commandoEnv = '/media/startos/volumes/main/.commando-env'
 
-export const mainMounts = sdk.Mounts.of().mountVolume({
-  volumeId: 'main',
-  subpath: null,
-  mountpoint: rootDir,
-  readonly: false,
-})
+export const publicMountpoint = '/mnt/public'
+export const rpcFile = `${publicMountpoint}/rpc/lightning-rpc`
+
+export const mainMounts = sdk.Mounts.of()
+  .mountVolume({
+    volumeId: 'main',
+    subpath: null,
+    mountpoint: rootDir,
+    readonly: false,
+  })
+  .mountVolume({
+    volumeId: 'public',
+    subpath: null,
+    mountpoint: publicMountpoint,
+    readonly: false,
+  })
 
 /** Host path of the rune dependents mount as `public/payments`. */
 export const paymentsRuneFile = '/media/startos/volumes/public/payments/rune'
+
+/** cln-grpc's mTLS files in the lightning dir, copied to `public/grpc` for dependents. */
+export const grpcCertFiles = ['ca.pem', 'client.pem', 'client-key.pem']
 
 // Invoicing and paying only: no withdraw, close, fundchannel or connect.
 export const paymentsRestrictions = [

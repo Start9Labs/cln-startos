@@ -9,7 +9,6 @@ export const { createBackup, restoreInit } = sdk.setupBackups(
     sdk.Backups.ofVolumes('main')
       .setOptions({
         exclude: [
-          'bitcoin/lightning-rpc',
           'bitcoin/lightningd.sqlite3',
           'bitcoin/lightningd.sqlite3-wal',
           'bitcoin/lightningd.sqlite3-shm',

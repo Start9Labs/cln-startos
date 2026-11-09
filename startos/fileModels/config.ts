@@ -6,6 +6,7 @@ import {
   clnrestPort,
   grpcPort,
   peerPort,
+  rpcFile,
   websocketPort,
   wsPort,
 } from '../utils'
@@ -83,6 +84,7 @@ export const shape = z.looseObject({
   'bitcoin-rpcpassword': z.undefined().catch(undefined),
   'grpc-port': z.literal(grpcPort).catch(grpcPort),
   'grpc-host': z.literal('[::]').catch('[::]'),
+  'rpc-file': z.literal(rpcFile).catch(rpcFile),
 
   // Dynamic (set at runtime)
   'announce-addr': iniStringArray,
@@ -413,6 +415,7 @@ function formToFile(
     'bitcoin-rpcpassword': undefined,
     'grpc-port': grpcPort,
     'grpc-host': '[::]',
+    'rpc-file': rpcFile,
 
     // Node identity
     alias: alias || undefined,
