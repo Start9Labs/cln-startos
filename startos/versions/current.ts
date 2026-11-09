@@ -4,15 +4,15 @@ export const current = VersionInfo.of({
   version: '26.6.10:4',
   releaseNotes: {
     en_US:
-      'Requires StartOS 0.4.1 or later. Peers can now open connections to your node over its public IPv6 address.',
+      'Requires StartOS 0.4.1 or later. Peers and watchtower clients can now connect to your node over its IPv6 addresses.',
     es_ES:
-      'Requiere StartOS 0.4.1 o posterior. Los pares ahora pueden abrir conexiones con tu nodo a través de su dirección IPv6 pública.',
+      'Requiere StartOS 0.4.1 o posterior. Los pares y los clientes de la torre de vigilancia ahora pueden conectarse a tu nodo a través de sus direcciones IPv6.',
     de_DE:
-      'Erfordert StartOS 0.4.1 oder neuer. Peers können jetzt Verbindungen zu deinem Knoten über seine öffentliche IPv6-Adresse aufbauen.',
+      'Erfordert StartOS 0.4.1 oder neuer. Peers und Watchtower-Clients können sich jetzt über die IPv6-Adressen deines Knotens mit ihm verbinden.',
     pl_PL:
-      'Wymaga StartOS 0.4.1 lub nowszego. Peery mogą teraz nawiązywać połączenia z twoim węzłem przez jego publiczny adres IPv6.',
+      'Wymaga StartOS 0.4.1 lub nowszego. Peery i klienci wieży strażniczej mogą teraz łączyć się z twoim węzłem przez jego adresy IPv6.',
     fr_FR:
-      'Nécessite StartOS 0.4.1 ou une version ultérieure. Les pairs peuvent désormais ouvrir des connexions vers votre nœud via son adresse IPv6 publique.',
+      'Nécessite StartOS 0.4.1 ou une version ultérieure. Les pairs et les clients de la tour de guet peuvent désormais se connecter à votre nœud via ses adresses IPv6.',
   },
   migrations: {
     up: async () => {},
