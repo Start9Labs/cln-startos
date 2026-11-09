@@ -57,9 +57,18 @@ Two volumes.
 | Volume   | Mount Point        | Purpose                                                                                                                                |
 | -------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `main`   | `/root/.lightning` | The lightning directory: `config`, the node's `hsm_secret` and channel database, the UI's own data, the watchtower's, and `store.json` |
-| `public` | not mounted        | Credentials for dependent services, one subdirectory per tier. Not backed up                                                           |
+| `public` | `/mnt/public`      | What dependent services connect with, one subdirectory per tier, including the RPC socket. Not backed up                               |
 
-**Dependents mount a tier of `public`, never `main`**, which holds `hsm_secret`. The `export-credentials` oneshot keeps `payments/rune`: a rune restricted to `listfunds`, `invoice`, `pay`, `listinvoices`, `listpays` and `waitanyinvoice` (`paymentsRestrictions` in `startos/utils.ts`), for use over CLNRest. On each start it keeps the existing rune if `checkrune` still accepts it and mints a new one otherwise, so after **Revoke All Runes** dependents get a fresh rune at the next start.
+**Dependents mount a tier of `public`, never `main`**, which holds `hsm_secret`. The tiers:
+
+| Tier       | Holds                                                        | Kept by                                                                                   |
+| ---------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `rpc`      | `lightning-rpc`, the node's RPC socket — full control        | `lightningd` itself: `rpc-file` is enforced to `/mnt/public/rpc/lightning-rpc`            |
+| `grpc`     | `ca.pem`, `client.pem`, `client-key.pem` — full control      | `export-credentials`, copied from the cln-grpc plugin's files in `bitcoin/` on each start |
+| `admin`    | `.commando-env` — the web UI's unrestricted rune and node id | `export-credentials`, copied from the volume root on each start                           |
+| `payments` | `rune` — invoicing and paying only, for use over CLNRest     | `export-credentials`                                                                      |
+
+The payments rune is restricted to `listfunds`, `invoice`, `pay`, `listinvoices`, `listpays` and `waitanyinvoice` (`paymentsRestrictions` in `startos/utils.ts`). On each start `export-credentials` keeps the existing rune if `checkrune` still accepts it and mints a new one otherwise, so after **Revoke All Runes** dependents get a fresh rune at the next start. Every copy is written to a temporary file and renamed into place, so a dependent never reads a partial file.
 
 Bitcoin's data directory is mounted **read-only** at `/mnt/bitcoin`, which is how both `lightningd` and the watchtower read its RPC cookie without a password ever being stored.
 
@@ -78,7 +87,7 @@ Four models. One is the node's own configuration, one is the web UI's, one is th
 
 ### config
 
-**Enforced** — rewritten whenever the package writes the file: `network`, `bitcoin-datadir`, `bind-addr`, `grpc-port`, `grpc-host`, and `clnrest-protocol`. `bitcoin-rpcuser` and `bitcoin-rpcpassword` are modelled as "must be absent" and deleted if present, because authentication is by the cookie read through the mount.
+**Enforced** — rewritten whenever the package writes the file: `network`, `bitcoin-datadir`, `bind-addr`, `grpc-port`, `grpc-host`, `rpc-file`, and `clnrest-protocol`. `bitcoin-rpcuser` and `bitcoin-rpcpassword` are modelled as "must be absent" and deleted if present, because authentication is by the cookie read through the mount.
 
 `clnrest-protocol` is the one enforced value that is an override rather than a constant: **upstream defaults CLNrest to HTTPS, and this package forces plaintext.** A Tor onion address already encrypts, and wallets reaching the node that way cannot validate a StartOS-issued certificate; LAN and clearnet callers still get TLS, terminated by StartOS at the edge. See [Network Access and Interfaces](#network-access-and-interfaces).
 
@@ -267,7 +276,7 @@ Three checks are always present, with five more for conditional features or reco
 
 The `main` volume is copied wholesale — `sdk.Backups.ofVolumes('main')` — but the exclusions are the substance, because **the channel database is deliberately not backed up.**
 
-- **Excluded:** `lightningd.sqlite3` and its write-ahead sidecars, the RPC socket, the gossip store, and the application log.
+- **Excluded:** `lightningd.sqlite3` and its write-ahead sidecars, the gossip store, and the application log. The `public` volume is not backed up at all.
 - **Included:** `hsm_secret`, `config`, `store.json`, the emergency-recovery file, the watchtower's data, and the UI's settings.
 
 Restoring a Lightning node's channel database is dangerous — a stale copy claims a channel state the network has moved past — so this package does not restore one. What comes back is the node's identity and enough to recover funds, not a resumable node.
@@ -306,7 +315,7 @@ subcontainers:
   - cln-application-sub # the web UI
 volumes:
   main: /root/.lightning
-  public: (not mounted) # credentials for dependents; not backed up
+  public: /mnt/public # rpc socket and credentials for dependents, one dir per tier; not backed up
 file_models:
   - /root/.lightning/config
   - /root/.lightning/store.json

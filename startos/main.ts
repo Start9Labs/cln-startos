@@ -1,7 +1,16 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'fs/promises'
+import {
+  access,
+  copyFile,
+  mkdir,
+  readFile,
+  rename,
+  rm,
+  writeFile,
+} from 'fs/promises'
+import { setTimeout as sleep } from 'node:timers/promises'
 import { dirname } from 'node:path'
 import {
   parseTowerUri,
@@ -21,7 +30,9 @@ import {
   bitcoindRpcBridge,
   cliJson,
   clnrestPort,
+  commandoEnv,
   errorMessage,
+  grpcCertFiles,
   grpcPort,
   mainMounts,
   paymentsRestrictions,
@@ -78,6 +89,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
       force: true,
     })
   }
+
+  await mkdir(sdk.volumes.public.subpath('./rpc'), { recursive: true })
 
   if (store.rescan) {
     lightningdArgs.push(`--rescan=${store.rescan}`)
@@ -241,7 +254,42 @@ export const main = sdk.setupMain(async ({ effects }) => {
     .addOneshot('export-credentials', {
       subcontainer: lightningSub,
       exec: {
-        fn: async (subcontainer) => {
+        fn: async (subcontainer, abort) => {
+          const exportFile = async (
+            dst: string,
+            write: (tmp: string) => Promise<void>,
+          ) => {
+            await mkdir(dirname(dst), { recursive: true })
+            await write(`${dst}.tmp`)
+            await rename(`${dst}.tmp`, dst)
+          }
+
+          // cln-grpc creates these on its first start, not necessarily before lightningd answers RPC.
+          for (const file of grpcCertFiles) {
+            while (
+              !(await access(
+                sdk.volumes.main.subpath(`./bitcoin/${file}`),
+              ).then(
+                () => true,
+                () => false,
+              ))
+            ) {
+              if (abort.aborted) return null
+              await sleep(2_000, undefined, { signal: abort }).catch(() => {})
+            }
+          }
+          for (const file of grpcCertFiles) {
+            await exportFile(
+              sdk.volumes.public.subpath(`./grpc/${file}`),
+              (tmp) =>
+                copyFile(sdk.volumes.main.subpath(`./bitcoin/${file}`), tmp),
+            )
+          }
+          await exportFile(
+            sdk.volumes.public.subpath('./admin/.commando-env'),
+            (tmp) => copyFile(commandoEnv, tmp),
+          )
+
           const cli = ['lightning-cli', `--lightning-dir=${rootDir}`]
           const existing = (
             await readFile(paymentsRuneFile, 'utf-8').catch(() => '')
@@ -266,13 +314,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
             throw new Error(`createrune failed: ${errorMessage(res)}`)
           }
           const { rune } = JSON.parse(res.stdout as string)
-          await mkdir(dirname(paymentsRuneFile), { recursive: true })
-          await writeFile(`${paymentsRuneFile}.tmp`, rune)
-          await rename(`${paymentsRuneFile}.tmp`, paymentsRuneFile)
+          await exportFile(paymentsRuneFile, (tmp) => writeFile(tmp, rune))
           return null
         },
       },
-      requires: ['lightningd'],
+      requires: ['lightningd', 'commando-config'],
     })
     .addDaemon('cln-application', {
       subcontainer: sdk.SubContainer.of(
