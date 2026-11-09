@@ -79,7 +79,7 @@ export const shape = z.looseObject({
   'bitcoin-datadir': z.literal(bitcoinDataDir).catch(bitcoinDataDir),
   'bind-addr': z
     .union([z.array(z.string()), z.string().transform((s) => [s])])
-    .catch([`0.0.0.0:${peerPort}`, `ws::${wsPort}`]),
+    .catch([`:${peerPort}`, `ws::${wsPort}`]),
   'bitcoin-rpcuser': z.undefined().catch(undefined),
   'bitcoin-rpcpassword': z.undefined().catch(undefined),
   'grpc-port': z.literal(grpcPort).catch(grpcPort),
@@ -425,7 +425,7 @@ function formToFile(
     'always-use-proxy':
       torOnly == null ? undefined : torOnly ? 'true' : 'false',
     'bind-addr': [
-      `0.0.0.0:${peerPort}`,
+      `:${peerPort}`,
       `ws::${wsPort}`,
       ...(clamsRemote ? [`ws::${websocketPort}`] : []),
     ],

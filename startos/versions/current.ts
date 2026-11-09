@@ -1,27 +1,21 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
-import { rm } from 'fs/promises'
-import { sdk } from '../sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.10:3',
+  version: '26.6.10:4',
   releaseNotes: {
     en_US:
-      'Requires StartOS 0.4.1 or later. Services that depend on Core Lightning can now connect with a rune limited to invoices and payments, or through its RPC socket, gRPC or admin rune, without access to its seed; services that use the RPC socket need their own update to keep connecting.',
+      'Requires StartOS 0.4.1 or later. Peers can now open connections to your node over its public IPv6 address.',
     es_ES:
-      'Requiere StartOS 0.4.1 o posterior. Los servicios que dependen de Core Lightning ahora pueden conectarse con una runa limitada a facturas y pagos, o a través de su socket RPC, gRPC o runa de administrador, sin acceso a su semilla; los servicios que usan el socket RPC necesitan su propia actualización para seguir conectándose.',
+      'Requiere StartOS 0.4.1 o posterior. Los pares ahora pueden abrir conexiones con tu nodo a través de su dirección IPv6 pública.',
     de_DE:
-      'Erfordert StartOS 0.4.1 oder neuer. Dienste, die von Core Lightning abhängen, können sich jetzt mit einer auf Rechnungen und Zahlungen beschränkten Rune oder über seinen RPC-Socket, gRPC oder seine Admin-Rune verbinden, ohne Zugriff auf seinen Seed; Dienste, die den RPC-Socket nutzen, benötigen ein eigenes Update, um sich weiterhin zu verbinden.',
+      'Erfordert StartOS 0.4.1 oder neuer. Peers können jetzt Verbindungen zu deinem Knoten über seine öffentliche IPv6-Adresse aufbauen.',
     pl_PL:
-      'Wymaga StartOS 0.4.1 lub nowszego. Usługi zależne od Core Lightning mogą teraz łączyć się za pomocą runy ograniczonej do faktur i płatności albo przez jego gniazdo RPC, gRPC lub runę administratora, bez dostępu do jego seeda; usługi korzystające z gniazda RPC potrzebują własnej aktualizacji, aby nadal się łączyć.',
+      'Wymaga StartOS 0.4.1 lub nowszego. Peery mogą teraz nawiązywać połączenia z twoim węzłem przez jego publiczny adres IPv6.',
     fr_FR:
-      "Nécessite StartOS 0.4.1 ou une version ultérieure. Les services qui dépendent de Core Lightning peuvent désormais s'y connecter avec une rune limitée aux factures et aux paiements, ou via son socket RPC, gRPC ou sa rune d'administration, sans accès à sa seed ; les services qui utilisent le socket RPC ont besoin de leur propre mise à jour pour continuer à se connecter.",
+      'Nécessite StartOS 0.4.1 ou une version ultérieure. Les pairs peuvent désormais ouvrir des connexions vers votre nœud via son adresse IPv6 publique.',
   },
   migrations: {
-    up: async () => {
-      await rm(sdk.volumes.main.subpath('./bitcoin/lightning-rpc'), {
-        force: true,
-      })
-    },
+    up: async () => {},
     down: IMPOSSIBLE,
   },
 })
