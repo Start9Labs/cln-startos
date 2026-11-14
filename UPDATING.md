@@ -105,3 +105,9 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### Sling
 
 - Update the `SLING_VERSION` ARG in `Dockerfile` to the new release tag (including the leading `v`).
+
+## Swap plugin compatibility
+
+Keep the native CLN build unmodified. Before approving an upstream release for swap use, run the crash, closing-replay, recovery-fee, bidirectional payment, expiry, lost-reply, renewal and restore tests listed in `assets/swap-compatibility.json`. Record the exact stock binary SHA-256 per architecture, upstream release and durable test receipt in `approved_engines`. Never approve by version string, accept a volume-supplied override, or bypass the check to get a green health check.
+
+The bundled runtime is pinned by `assets/swap-runtime-source.json` and sealed by `assets/swap-node/runtime-manifest.json`. Update code and hashes together, run integrity tests with `python3 -B`, and retain all journal and recovery compatibility. Runtime code is installed from the image; nothing loads Python from a node volume. Updating the CLN release without corresponding tested hashes refuses swap activation; ordinary nodes remain usable.

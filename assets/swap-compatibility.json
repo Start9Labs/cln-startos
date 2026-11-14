@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "approved_engines": [],
+  "review": "Draft integration: no stock engine is approved for swap activation yet.",
+  "required_tests": [
+    "Important-plugin crash and ordinary plugin controls",
+    "Committed final HTLC replay after closing and restart",
+    "No swap hook continuation or forwarding during closing recovery",
+    "On-chain recovery with accurate anchor witness fee weight",
+    "Both swap directions, lost replies, expiry and restart",
+    "Fresh setup, disable, renewal, restore barrier and official-package upgrade"
+  ]
+}

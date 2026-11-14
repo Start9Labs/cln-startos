@@ -1,0 +1,37 @@
+{
+  "environments": [
+    "regtest",
+    "mainnet"
+  ],
+  "files": {
+    "authority_plugin.py": "0f84047bdfadc3a04608d728e63790fd87f23541c7820e070e2094985d9a3185",
+    "bolt11.py": "8bf26568bce09894af34eab23db2546d9330e257df92f9232d4affff08919f80",
+    "bounded_authority.py": "3bbdfcdfa6e848b0dfed4351222fa3ba27766eb4d3c8c686624f46e4dc2fcf20",
+    "chain_identity.py": "8c6bface976f26aa8401622eb5ef0d7ae290a8428bb52d519d4908c2544203dc",
+    "chain_recovery.py": "9fb7725e67b440e9c76dcfc4e3c17a5b740c0acd3880f120e7d83b789488741b",
+    "coordinator_admin.py": "abb0ee6b6e87a46774a13c3f89c27810ab2cc2971ac2329d4a9e4ab5de69884d",
+    "coordinator_admin_cli.py": "42f7bf34da71d0d1f9107c69c8efe02a802e1d9c46233ef4f7ae5feec7fb67ad",
+    "customer_invoice.py": "bae1ddb76468d4d74c0e56086504ab8b83e451685491779bdc2d2053b4647a59",
+    "customer_plugin.py": "c683c968bc4e244950f09f667dee9a22ced4ede4b3aa625964d668cb3e4be748",
+    "customer_remote.py": "7ecee9b1e0e3626782d4984d6fb1eaf7be7b17962ddcd17ddfacd8b30d9b912c",
+    "deadline_protection.py": "c323e6c89446893fc007492b245a0763560305348fa82caeb1e7ea9427cf18e2",
+    "gate_plugin.py": "9bb34ce2ca0094f928f41a1cfbd8fdbd3f6709604d6b25a849dd1b6c2135309c",
+    "held_gate.py": "4bab2a28ede584238388b21ddbd81205b69590818c89669c3ac49b77e7ff1cfa",
+    "node_bootstrap.py": "5425068785a798f20ccc95f711437880e5b2af9198293c60db7a7c4a15c44ab8",
+    "node_cli.py": "0f5aecf7c9ca135d684e8555c4dafa72866acbb6c821439a9a9e1feab8a40d9a",
+    "onchain_retirement.py": "8c23e5c30dbad746ac604fafe6255ee2ab36eaa21a880299462b9a777be9bbb2",
+    "package_admin.py": "90440f9bc9f9398ea5a8933de84a6de36dd80e7303bdbeb3fcee37f8ca33cc10",
+    "package_customer.py": "b3d8a003fc5b107b92f29bec43d298bb54f73bf033f59384c552f8ddae6a2c2e",
+    "package_gate.py": "6e80b9ee768d4312bc84d324134bdb560b8c8ba3d15a94f889e1819198127e2e",
+    "package_node.py": "3886d9c7b1efac31a9e3c24d2f9cecfc60a23f11d374ddf3a9f1633e7746aede",
+    "package_verify.py": "76dc6a1038f33a1dada16ba57feb1aed38b65a11fecb5f1ef00ee4310c684408",
+    "remote_authority.py": "f9e4c157a3aca94041713e255668bdfe21173918d8c943248278c8a23ff4cf33",
+    "restore_barrier.py": "502251697353357c4338af2c93f58a80a8756e2400c1227856f912ef145279df",
+    "route_plan.py": "e84828dd835d4e5b734bec16432585a5f795e0b184ad3690e44b15fa05464083"
+  },
+  "fixture": "0102",
+  "generation": "a",
+  "regtest_only": false,
+  "role": "node",
+  "schema": 2
+}
