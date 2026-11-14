@@ -1,3 +1,5 @@
+import { publicationDaemon } from './live/localController'
+import { profile as swapProfile, rawInvoke as swapCall } from './live/actions'
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { createHash } from 'node:crypto'
@@ -173,8 +175,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
       subcontainer: lightningSub,
       exec: {
         command: [
-          'lightningd',
-          `--lightning-dir=${rootDir}`,
+          '/usr/local/libexec/swap-node/package_node.py',
+          '--mainnet',
+          '--profile',
+          'btc-cln-v1',
+          '--root',
+          rootDir,
+          'launch',
           `--conf=${rootDir}/config`,
           ...lightningdArgs,
         ],
@@ -877,5 +884,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
             requires: [],
           }
         : null,
+    )
+    .addDaemon(
+      'local-controller-publication',
+      publicationDaemon(effects, swapProfile, swapCall),
     )
 })

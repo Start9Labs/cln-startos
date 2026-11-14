@@ -1,4 +1,5 @@
-import { copyFile } from 'fs/promises'
+import { clearPublication } from './live/localController'
+import { copyFile, writeFile, unlink } from 'fs/promises'
 import { rescanBlockchain } from './actions/rescanBlockchain'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
@@ -9,6 +10,10 @@ export const { createBackup, restoreInit } = sdk.setupBackups(
     sdk.Backups.ofVolumes('main')
       .setOptions({
         exclude: [
+          'local-controller-enabled.json',
+          'bitcoin/swap-coordinator-v1',
+          'bitcoin/.swap-setup-*',
+          'bitcoin/lightning-rpc',
           'bitcoin/lightningd.sqlite3',
           'bitcoin/lightningd.sqlite3-wal',
           'bitcoin/lightningd.sqlite3-shm',
@@ -17,6 +22,17 @@ export const { createBackup, restoreInit } = sdk.setupBackups(
         ],
       })
       .setPostRestore(async (effects) => {
+        await clearPublication()
+        await unlink(
+          sdk.volumes.main.subpath('local-controller-enabled.json'),
+        ).catch((e: any) => {
+          if (e.code !== 'ENOENT') throw e
+        })
+        await writeFile(
+          sdk.volumes.main.subpath('node-restored.json'),
+          JSON.stringify({ schema: 1, recovery: true }),
+          { mode: 0o600 },
+        )
         // CLN's chanbackup plugin keeps emergency.recover describing the
         // CURRENT channel set, so once the restored node processes (and
         // forgets) the old channels, it rewrites the file without them.

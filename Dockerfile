@@ -152,7 +152,7 @@ FROM debian:bookworm-slim AS final
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates libev-dev libcurl4-gnutls-dev libsqlite3-dev libunwind-dev \
-    libpq5 libsodium23 wireguard-tools iptables iproute2 procps && \
+    libpq5 libsodium23 python3 wireguard-tools iptables iproute2 procps && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=bitcoin-cli /usr/bin/bitcoin-cli /usr/bin/bitcoin-cli
@@ -161,3 +161,11 @@ COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
 COPY --from=builder-rust /root/.cargo/bin/teos* /usr/local/bin/
 COPY --from=builder-rust /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/
 COPY --from=sling /usr/local/bin/sling /usr/local/libexec/c-lightning/plugins/
+
+# Application plugins only. The upstream CLN binary and release checksums are unchanged.
+COPY assets/swap-node/ /usr/local/libexec/swap-node/
+COPY assets/local_controller_trust.py /usr/local/libexec/local-controller-trust.py
+COPY assets/swap-compatibility.py /usr/local/libexec/swap-compatibility.py
+COPY assets/swap-compatibility.json /usr/local/share/swap-compatibility.json
+RUN chmod 755 /usr/local/libexec/swap-node/package_*.py && \
+    python3 -B -c 'import sys; sys.path.insert(0,"/usr/local/libexec/swap-node"); import package_verify; package_verify.verify("/usr/local/libexec/swap-node", "node")'

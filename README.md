@@ -16,6 +16,18 @@
 
 ---
 
+## Optional Swap Controller integration (draft)
+
+The package bundles application plugins from BitcoinMechanic's tested swap runtime; it does not patch or replace upstream Core Lightning. The stock CLN release, checksums, third-party plugins, UI, service ID and public package exports are retained. Plugin source and per-file integrity hashes live in `assets/swap-node`; provenance is in `assets/swap-runtime-source.json`.
+
+**This draft does not enable swaps on stock 26.06.10.** `assets/swap-compatibility.json` has no approved engine hashes. The image-owned check rejects setup and refuses to launch an existing swap namespace with an unvalidated engine. A node without that namespace starts the ordinary upstream binary with no swap plugins loaded. The approval list must remain empty until documented crash/replay/on-chain recovery tests pass; adding a version label alone is insufficient.
+
+After validation, Trust Local Swap Controller is the single opt-in action. It initializes a separate coordinator namespace, enables CLNrest and restarts the node to load the important hook plugins. Managed incoming/outgoing grants renew automatically within the existing 100,000-sat per-swap limit. The controller reads scoped credentials from `public/swap-controller.json` (`local-swap-node-v1`, profile `btc-cln-v1`), and calls CLNrest over the StartOS service bridge. These credentials are spending authority; only an operator-approved dependent service should mount this publication. Disabling trust pauses new use while retaining recovery records.
+
+Backups exclude live swap authority and transient credentials. Restore removes publication/opt-in state and writes the restored-node fence before normal CLN recovery. This is not a migration from our modified BTC package: installing over active or historical fork swap state needs a separately tested migration and is unsupported by this draft.
+
+The package must not carry C patches to satisfy the compatibility gate. Necessary engine fixes belong in ElementsProject/lightning and reach this package through its normal upstream release update. Track the remaining acceptance work in the PR before enabling or publishing this integration.
+
 ## Table of Contents
 
 - [Image and Container Runtime](#image-and-container-runtime)

@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/BitcoinMechanic/btc-cln-startos",
+  "commit": "51276a9a053ed1c226c988b525438d318ee1d391",
+  "path": "assets/swap-node",
+  "tested_fork_package": "#privkeyio:26.6.10:17",
+  "adaptation": "node_cli.py uses upstream /usr/local/bin/lightningd and requires image-owned compatibility approval for an existing swap namespace. No C code or engine release changes.",
+  "stock_engine_compatibility": "Unapproved; see swap-compatibility.json and PR validation gates."
+}

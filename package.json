@@ -1,12 +1,15 @@
 {
   "name": "cln-startos",
   "dependencies": {
-    "@start9labs/start-sdk": "4.0.0",
+    "@start9labs/start-sdk": "4.1.0",
     "bitcoin-core-startos": "github:Start9Labs/bitcoin-core-startos#next/28.x",
     "dotenv": "^17.2.0",
     "tor-startos": "github:Start9Labs/tor-startos#next"
   },
   "overrides": {
     "@start9labs/start-sdk": "$@start9labs/start-sdk"
+  },
+  "scripts": {
+    "test:swap-integration": "python3 -B -m unittest discover -s tests && node tests/test-swap-actions.cjs && PYTHONPATH=assets/swap-node:assets python3 -B -m unittest test_timelock_errors"
   }
 }

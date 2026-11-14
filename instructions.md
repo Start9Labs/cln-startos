@@ -104,3 +104,9 @@ The old node must run the same Core Lightning version as this service or an olde
 - **Mainnet only.** Testnet, signet, and regtest are not exposed.
 - **Bitcoin authentication is cookie-based.** `bitcoin-rpcuser` and `bitcoin-rpcpassword` are intentionally not configurable; CLN uses the mounted Bitcoin cookie file.
 - **The `config` file is managed through actions.** Manual edits will be overwritten on the next config sync.
+
+## Swap Controller support (draft, not enabled)
+
+The Swap Coordinator actions prepare optional support for the local Swap Controller. The current stock CLN build has not passed the required swap recovery checks, so enabling trust reports a compatibility error without creating authority. Ordinary Lightning use is unaffected. Do not replace the existing modified BTC coordinator package with this draft.
+
+Once a stock engine is validated, enabling **Trust Local Swap Controller** will authorize automatic scoped grants for the controller, without manual grant approvals or credential copying. Incoming swap protection can force-close the receiving channel near a deadline. Disabling trust stops new grant use while preserving recovery for existing swaps. Restoring a backup never restores swap authority automatically.
