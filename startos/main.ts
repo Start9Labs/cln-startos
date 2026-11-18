@@ -1,6 +1,6 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
-import { rpcCookieName, rpcSubpath } from 'bitcoin-core-startos/startos/utils'
+import { rpcCookieName, rpcVolumeId } from 'bitcoin-core-startos/startos/utils'
 import { createHash } from 'node:crypto'
 import {
   access,
@@ -122,9 +122,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
     mainMounts.mountDependency<typeof bitcoinManifest>({
       dependencyId: 'bitcoind',
       mountpoint: bitcoinDataDir,
-      subpath: rpcSubpath,
+      subpath: null,
       readonly: true,
-      volumeId: 'main',
+      volumeId: rpcVolumeId,
     }),
     'lightning-sub',
   )
