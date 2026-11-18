@@ -70,7 +70,7 @@ Two volumes.
 
 The payments rune is restricted to `listfunds`, `invoice`, `pay`, `listinvoices`, `listpays` and `waitanyinvoice` (`paymentsRestrictions` in `startos/utils.ts`). On each start `export-credentials` keeps the existing rune if `checkrune` still accepts it and mints a new one otherwise, so after **Revoke All Runes** dependents get a fresh rune at the next start. Every copy is written to a temporary file and renamed into place, so a dependent never reads a partial file.
 
-Bitcoin's data directory is mounted **read-only** at `/mnt/bitcoin`, which is how both `lightningd` and the watchtower read its RPC cookie without a password ever being stored.
+Only Bitcoin's `rpc/` directory is mounted, **read-only** at `/mnt/bitcoin`, which is how both `lightningd` and the watchtower read its RPC cookie without a password ever being stored; the rest of Bitcoin's data directory is not visible.
 
 The watchtower client's own database is deliberately relocated onto this volume. Upstream defaults it to the user's home directory, which is not persistent here, and the effect of leaving it there is silent: the client would re-key and forget every registered tower on each container rebuild.
 
@@ -111,9 +111,9 @@ The web UI's `config.json` carries its display preferences and its password hash
 
 One, and it is required.
 
-| Dependency | Kind      | Health checks               | Mount                     | Why                            |
-| ---------- | --------- | --------------------------- | ------------------------- | ------------------------------ |
-| Bitcoin    | `running` | `bitcoind`, `sync-progress` | `/mnt/bitcoin`, read-only | Chain data, and the RPC cookie |
+| Dependency | Kind      | Health checks               | Mount                               | Why                                     |
+| ---------- | --------- | --------------------------- | ----------------------------------- | --------------------------------------- |
+| Bitcoin    | `running` | `bitcoind`, `sync-progress` | `rpc/` at `/mnt/bitcoin`, read-only | Chain data over RPC, and the RPC cookie |
 
 Both health checks are required, not just "running": a node that is up but still syncing cannot serve a Lightning node correctly, and the sync state is surfaced again in this package's own [`check-synced`](#health-checks).
 
@@ -337,7 +337,7 @@ startos_managed_env_vars:
   - LIGHTNING_REST_PROTOCOL # web UI
   - LIGHTNING_GRPC_PORT # web UI
 dependencies:
-  - bitcoind # required; mounted read-only at /mnt/bitcoin
+  - bitcoind # required; its rpc/ mounted read-only at /mnt/bitcoin
 interfaces:
   ui: { type: ui, port: 4500 }
   rpc: { type: api, port: 8080 }

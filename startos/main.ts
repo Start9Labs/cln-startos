@@ -1,5 +1,6 @@
 import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
+import { rpcCookieName, rpcSubpath } from 'bitcoin-core-startos/startos/utils'
 import { createHash } from 'node:crypto'
 import {
   access,
@@ -121,7 +122,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     mainMounts.mountDependency<typeof bitcoinManifest>({
       dependencyId: 'bitcoind',
       mountpoint: bitcoinDataDir,
-      subpath: null,
+      subpath: rpcSubpath,
       readonly: true,
       volumeId: 'main',
     }),
@@ -147,7 +148,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   // Restart only when bitcoind writes a replacement cookie — an absent cookie
   // means bitcoind is down, and stopping lightningd then hangs its shutdown.
-  await FileHelper.string(`${await lightningSub.rootfs}/mnt/bitcoin/.cookie`)
+  await FileHelper.string(
+    `${await lightningSub.rootfs}${bitcoinDataDir}/${rpcCookieName}`,
+  )
     .read(
       (cookie) => cookie,
       (prev, next) => next === null || prev === next,
@@ -411,7 +414,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
               'bitcoin-cli',
               `--rpcconnect=${bitcoind.host}`,
               `--rpcport=${bitcoind.port}`,
-              '--rpccookiefile=/mnt/bitcoin/.cookie',
+              `--rpccookiefile=${bitcoinDataDir}/${rpcCookieName}`,
               'getblockcount',
             ])
             if (bitcoinGetblockcount.exitCode !== 0) {

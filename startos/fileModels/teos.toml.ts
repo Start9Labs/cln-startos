@@ -1,4 +1,5 @@
 import { FileHelper, z } from '@start9labs/start-sdk'
+import { rpcCookieName } from 'bitcoin-core-startos/startos/utils'
 import { bitcoinDataDir } from '../utils'
 import { sdk } from '../sdk'
 
@@ -14,8 +15,8 @@ const shape = z.looseObject({
   btc_rpc_connect: z.string().optional().catch(undefined),
   btc_rpc_port: z.number().optional().catch(undefined),
   btc_rpc_cookie: z
-    .literal(`${bitcoinDataDir}/.cookie`)
-    .catch(`${bitcoinDataDir}/.cookie`),
+    .literal(`${bitcoinDataDir}/${rpcCookieName}`)
+    .catch(`${bitcoinDataDir}/${rpcCookieName}`),
   btc_rpc_user: z.literal(undefined).catch(undefined),
   btc_rpc_password: z.literal(undefined).catch(undefined),
 
