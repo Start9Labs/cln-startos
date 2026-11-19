@@ -82,7 +82,7 @@ Four models. One is the node's own configuration, one is the web UI's, one is th
 | ----------------------- | ------ | ----------------------- | ------------------------------------------------------------------- |
 | `/config`               | INI    | Yes — `FileHelper.raw`  | Every init, the config actions, and `watchHosts` on address changes |
 | `/store.json`           | JSON   | Yes — `FileHelper.json` | Every init, the watchtower and rescan actions, `main`, and restore  |
-| `/data/app/config.json` | JSON   | Yes — `FileHelper.json` | Every init, and the Reset UI Password action                        |
+| `/data/app/config.json` | JSON   | Yes — `FileHelper.json` | Every init, and the Create/Reset UI Password action                 |
 | `/.teos/teos.toml`      | TOML   | Yes — `FileHelper.toml` | Every init                                                          |
 
 ### config
@@ -99,13 +99,13 @@ Two interactions are worth knowing because they produce a state neither setting 
 
 ### store.json
 
-`watchtowerServer`, `watchtowerClients` and `watchtowerLabels` are the watchtower configuration — the labels are kept apart from the tower URIs, keyed by tower id, so renaming a tower does not restart the node — `customExternalHosts` the user-managed announced address overrides, `clearnetVpn` the Clearnet VPN's WireGuard configuration and companion-managed public address (kept verbatim; `vpn/wg0.conf` is generated from it on every start and never hand-edited), and `rescan` and `restore` are one-shot request flags.
+`watchtowerServer`, `watchtowerClients` and `watchtowerLabels` are the watchtower configuration — the labels are kept apart from the tower URIs, keyed by tower id, so renaming a tower does not restart the node — `customExternalHosts` the user-managed announced address overrides, `clearnetVpn` the Clearnet VPN's WireGuard configuration and companion-managed public address (kept verbatim; `vpn/wg0.conf` is generated from it on every start and never hand-edited), `uiPasswordSet` whether the user holds a UI password (absent on installs that predate it, where init derives it from `config.json`), and `rescan` and `restore` are one-shot request flags.
 
 Those two flags are deliberately **not** cleared when `main` reads them. A session where `lightningd` never comes up must not consume a request, or it vanishes silently — which is how a rescan requested during a crash loop used to be lost. A oneshot clears them only once the node answers RPC, and `main` ignores that clearing write so it does not bounce the service.
 
 ### config.json and teos.toml
 
-The web UI's `config.json` carries its display preferences and its password hash. `teos.toml` is entirely enforced apart from Bitcoin's address, which is derived like the node's: every port, bind address, and subscription parameter is a fixed value, so the watchtower is not configurable from here.
+The web UI's `config.json` carries its display preferences and its password hash, in cln-application's own `scrypt$16384$<salt>$<key>` format. It never holds an empty password: upstream lets any visitor set the first one, so init replaces an empty password with an unusable hash until the user runs Create UI Password. `teos.toml` is entirely enforced apart from Bitcoin's address, which is derived like the node's: every port, bind address, and subscription parameter is a fixed value, so the watchtower is not configurable from here.
 
 ## Dependencies
 
@@ -203,9 +203,9 @@ Re-scans the chain for wallet outputs. Run it after a restore, or when an on-cha
 - **Cost:** hours. `check-synced` stays red for the duration; leave the node and Bitcoin running.
 - **Repeat safety:** safe to re-run. Because the flag is only consumed once the node answers RPC, a request survives a failed start rather than being silently dropped.
 
-### Reset UI Password
+### Create UI Password / Reset UI Password
 
-Clears the web UI's password in its `config.json`; whoever next opens the UI sets a new one. It asks for confirmation when a password is set, and does nothing visible when none is. It does not touch the node, its runes, or any external application's access.
+Generates a 22-character web UI password, applies scrypt to its lowercase SHA-256 hex digest (matching the browser's login submission), writes that hash to `config.json`, sets `uiPasswordSet`, and shows the password once (masked, copyable). Named Create until a password is set, Reset afterwards, when it asks for confirmation. Sessions the UI has already issued live in its memory and stay valid until Core Lightning restarts. It does not touch the node, its runes, or any external application's access.
 
 ### Delete Gossip Store
 
@@ -240,14 +240,15 @@ Grouped under CLBOSS, running only, and disabled with a reason unless CLBOSS is 
 
 ## Tasks
 
-The package raises one task after a restore; a companion package can raise the hidden Clearnet VPN action as another.
+The package raises Create UI Password until the user has a UI password, and Rescan Blockchain after a restore; a companion package can raise the hidden Clearnet VPN action as another.
 
-| Task              | Severity    | Raised when                                                         | Cleared when                                                         |
-| ----------------- | ----------- | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Rescan Blockchain | `important` | Immediately after a backup restore                                  | The action runs                                                      |
-| Clearnet VPN      | `important` | Only when a companion package raises it with a tunnel for this node | The stored configuration matches what the companion package proposes |
+| Task               | Severity    | Raised when                                                         | Cleared when                                                         |
+| ------------------ | ----------- | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Create UI Password | `important` | On init while `uiPasswordSet` is false                              | The action runs                                                      |
+| Rescan Blockchain  | `important` | Immediately after a backup restore                                  | The action runs                                                      |
+| Clearnet VPN       | `important` | Only when a companion package raises it with a tunnel for this node | The stored configuration matches what the companion package proposes |
 
-The reason is that a restored node reports an **on-chain balance of zero** until the chain is rescanned, and nothing else in the interface explains why. `important` rather than `critical`: the node should keep running — indeed it must, for the rescan to proceed.
+Create UI Password is `important` rather than `critical` because the UI is already locked; blocking start would only take a running node offline. Rescan Blockchain is raised because a restored node reports an **on-chain balance of zero** until the chain is rescanned, and nothing else in the interface explains why. `important` rather than `critical`: the node should keep running — indeed it must, for the rescan to proceed.
 
 ## Health Checks
 
@@ -368,6 +369,7 @@ actions:
   - receive-payment # only-running
   - clearnet-vpn # hidden; raised as a task by a companion package
 tasks:
+  - { action: reset-password, severity: important } # until a UI password exists
   - { action: rescan-blockchain, severity: important } # raised after a restore
   - { action: clearnet-vpn, severity: important } # only when a companion package raises it
 health_checks:

@@ -10,6 +10,7 @@ const shape = z.looseObject({
     .catch([]),
   restore: z.boolean().optional().catch(undefined),
   customExternalHosts: z.array(z.string()).catch([]),
+  uiPasswordSet: z.boolean().optional().catch(undefined),
   // Verbatim: the companion's task compares it byte for byte.
   clearnetVpn: z
     .looseObject({

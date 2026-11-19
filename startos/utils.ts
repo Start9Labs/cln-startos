@@ -1,4 +1,6 @@
 import { T } from '@start9labs/start-sdk'
+import { createHash, randomBytes, scrypt } from 'node:crypto'
+import { promisify } from 'node:util'
 import {
   rpcHostId as btcRpcHostId,
   rpcPort as btcRpcPort,
@@ -92,3 +94,20 @@ export const bitcoindRpcBridge = async (effects: T.Effects) => {
   const [host, port] = addr.split(':')
   return { host, port: Number(port) }
 }
+
+// cln-application's stored format (shared/utils.ts hashPassword): scrypt$N$salt$key, N=16384, keylen 64.
+const uiPasswordHash = (salt: Buffer, key: Buffer) =>
+  ['scrypt', 16384, salt.toString('hex'), key.toString('hex')].join('$')
+
+// cln-application's browser submits the password's SHA-256 hex digest.
+export async function hashUiPassword(password: string) {
+  const salt = randomBytes(16)
+  const digest = createHash('sha256').update(password).digest('hex')
+  return uiPasswordHash(
+    salt,
+    (await promisify(scrypt)(digest, salt, 64)) as Buffer,
+  )
+}
+
+export const lockedUiPassword = () =>
+  uiPasswordHash(randomBytes(16), randomBytes(64))
