@@ -205,7 +205,7 @@ Re-scans the chain for wallet outputs. Run it after a restore, or when an on-cha
 
 ### Create UI Password / Reset UI Password
 
-Generates a 22-character web UI password, writes its scrypt hash to `config.json`, sets `uiPasswordSet`, and shows the password once (masked, copyable). Named Create until a password is set, Reset afterwards, when it asks for confirmation. Sessions the UI has already issued live in its memory and stay valid until Core Lightning restarts. It does not touch the node, its runes, or any external application's access.
+Generates a 22-character web UI password, applies scrypt to its lowercase SHA-256 hex digest (matching the browser's login submission), writes that hash to `config.json`, sets `uiPasswordSet`, and shows the password once (masked, copyable). Named Create until a password is set, Reset afterwards, when it asks for confirmation. Sessions the UI has already issued live in its memory and stay valid until Core Lightning restarts. It does not touch the node, its runes, or any external application's access.
 
 ### Delete Gossip Store
 
