@@ -34,9 +34,9 @@ const dict = {
 
   // actions/resetPassword.ts
   'Reset UI Password': 27,
-  'Reset UI Password in the event it is lost or forgotten': 28,
+  'Generate a new password for the CLN UI': 28,
   Success: 29,
-  'Open the CLN UI at its .local, IP, or .onion address to set a new password': 30,
+  'Your CLN UI password is below. Save it to a password manager.': 30,
 
   // actions/generateRune.ts
   'Create Rune': 31,
@@ -356,7 +356,7 @@ const dict = {
   'CLBOSS no longer manages ${tags} for this peer.': 335,
   'CLBOSS fully manages this peer again.': 336,
   'Core Lightning forgets the network map it has gathered and rebuilds it from peers when it next starts, so payments may not find a route until it has.': 337,
-  'The current CLN UI password stops working, and whoever next opens the CLN UI sets a new one.': 338,
+  'Replaces the current CLN UI password. Browsers already signed in stay signed in until Core Lightning restarts.': 338,
   'CLBOSS resumes putting on-chain funds into channels of its choosing.': 339,
   'Creating the rune failed. Its error output is below.': 340,
   'Revoking the runes failed. Its error output is below.': 341,
@@ -372,6 +372,9 @@ const dict = {
   'Restrictions must be a JSON array of arrays of strings, with at least one string in each, such as [["method=getinfo"]].': 351,
   'Created a read-only rune.': 352,
   'Created a rune limited to the restrictions you entered.': 353,
+  'Create UI Password': 354,
+  'Generate the password for the CLN UI': 355,
+  'Create a password to sign in to the CLN UI': 356,
 } as const
 
 /**

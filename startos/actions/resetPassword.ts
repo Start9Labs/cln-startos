@@ -1,36 +1,58 @@
+import { utils } from '@start9labs/start-sdk'
 import { configJson } from '../fileModels/config.json'
+import { storeJson } from '../fileModels/store.json'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
+import { hashUiPassword } from '../utils'
 
 export const resetPassword = sdk.Action.withoutInput(
   // id
   'reset-password',
 
   // metadata
-  async ({ effects }) => ({
-    name: i18n('Reset UI Password'),
-    description: i18n('Reset UI Password in the event it is lost or forgotten'),
-    warning: (await configJson.read((c) => c.password).const(effects))
-      ? i18n(
-          'The current CLN UI password stops working, and whoever next opens the CLN UI sets a new one.',
-        )
-      : null,
-    allowedStatuses: 'any',
-    group: null,
-    visibility: 'enabled',
-  }),
+  async ({ effects }) => {
+    const isSet = await storeJson.read((s) => s.uiPasswordSet).const(effects)
+    return {
+      name: isSet ? i18n('Reset UI Password') : i18n('Create UI Password'),
+      description: isSet
+        ? i18n('Generate a new password for the CLN UI')
+        : i18n('Generate the password for the CLN UI'),
+      warning: isSet
+        ? i18n(
+            'Replaces the current CLN UI password. Browsers already signed in stay signed in until Core Lightning restarts.',
+          )
+        : null,
+      allowedStatuses: 'any',
+      group: null,
+      visibility: 'enabled',
+    }
+  },
 
   // the execution function
   async ({ effects }) => {
-    await configJson.merge(effects, { password: '' })
+    const password = utils.getDefaultString({
+      charset: 'a-z,A-Z,1-9,!,@,$,%,&,*',
+      len: 22,
+    })
+    await configJson.merge(effects, {
+      password: await hashUiPassword(password),
+    })
+    await storeJson.merge(effects, { uiPasswordSet: true })
 
     return {
       version: '1',
       title: i18n('Success'),
       message: i18n(
-        'Open the CLN UI at its .local, IP, or .onion address to set a new password',
+        'Your CLN UI password is below. Save it to a password manager.',
       ),
-      result: null,
+      result: {
+        type: 'single',
+        value: password,
+        masked: true,
+        copyable: true,
+        qr: false,
+        launchable: false,
+      },
     }
   },
 )
