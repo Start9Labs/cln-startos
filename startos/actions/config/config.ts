@@ -41,11 +41,7 @@ export const config = sdk.Action.withInput(
   // the execution function. The custom external host lives in store.json, not
   // the config file — watchHosts merges it into announce-addr on every start —
   // and formToFile drops the field, so the same input can feed both writes.
-  async ({ effects, input: submitted }) => {
-    // The form has no `raw` field; drop one a caller added, or it would be written into the config verbatim.
-    const { raw: _raw, ...input } = submitted as typeof submitted & {
-      raw?: unknown
-    }
+  async ({ effects, input }) => {
     const host = input['custom-external-host']?.trim()
     await storeJson.merge(effects, {
       customExternalHosts: host ? [host] : [],

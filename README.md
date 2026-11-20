@@ -87,7 +87,7 @@ Four models. One is the node's own configuration, one is the web UI's, one is th
 
 ### config
 
-**Enforced** — rewritten whenever the package writes the file: `network`, `bitcoin-datadir`, `bind-addr`, `grpc-port`, `grpc-host`, `rpc-file`, and `clnrest-protocol`. `bitcoin-rpcuser` and `bitcoin-rpcpassword` are modelled as "must be absent" and deleted if present, because authentication is by the cookie read through the mount. A write whose key contains a newline, carriage return or `=`, or whose value contains a newline or carriage return, is refused rather than written, and General Settings ignores any `raw` field in its input.
+**Enforced** — rewritten whenever the package writes the file: `network`, `bitcoin-datadir`, `bind-addr`, `grpc-port`, `grpc-host`, `rpc-file`, and `clnrest-protocol`. `bitcoin-rpcuser` and `bitcoin-rpcpassword` are modelled as "must be absent" and deleted if present, because authentication is by the cookie read through the mount.
 
 `clnrest-protocol` is the one enforced value that is an override rather than a constant: **upstream defaults CLNrest to HTTPS, and this package forces plaintext.** A Tor onion address already encrypts, and wallets reaching the node that way cannot validate a StartOS-issued certificate; LAN and clearnet callers still get TLS, terminated by StartOS at the edge. See [Network Access and Interfaces](#network-access-and-interfaces).
 

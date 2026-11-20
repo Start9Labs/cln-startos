@@ -308,16 +308,11 @@ function clnIniStringify(data: Record<string, unknown>): string {
 
   for (const [key, val] of Object.entries(data)) {
     if (val === undefined || val === false) continue
-    if (/[\r\n=]/.test(key))
-      throw new Error(`invalid config key: ${JSON.stringify(key)}`)
     if (val === true) {
       bareFlags.push(`${key}\n`)
     } else {
       for (const v of [val].flat()) {
-        if (v === undefined) continue
-        if (/[\r\n]/.test(String(v)))
-          throw new Error(`invalid value for config key ${key}`)
-        lines.push(`${key}=${String(v)}\n`)
+        if (v !== undefined) lines.push(`${key}=${String(v)}\n`)
       }
     }
   }
