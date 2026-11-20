@@ -136,7 +136,7 @@ Three interfaces always, and three more depending on what is enabled.
 
 **gRPC is forwarded as a plain TCP port, with no StartOS TLS listener in front of it.** The plugin performs its own mutual TLS, and its certificate names only `cln` and `localhost`, so every client that verifies it sends `cln` as the TLS server name whatever address it dials. A terminating listener would present the device certificate and strip the client's; a passthrough listener routes by server name and refuses one that is not an address of the interface, which `cln` never is. The binding is a raw forward deliberately — either TLS arrangement would look correct and refuse every client.
 
-**CLNrest carries its own credential in the address.** The interface's URL includes the unrestricted rune from `public/admin`, so the interface is masked, and its scheme is overridden to `clnrest+https` or `clnrest+http` so that a wallet reading the scheme knows which transport to use — a bare `clnrest://` is assumed to be TLS, which would be wrong for the Tor address.
+**CLNrest's address carries no credential.** Any installed service can read another's exported interfaces, query string included, so the unrestricted rune is handed out only by the **Show CLNrest Connection** action. The interface's scheme is overridden to `clnrest+https` or `clnrest+http` so that a wallet reading the scheme knows which transport to use — a bare `clnrest://` is assumed to be TLS, which would be wrong for the Tor address.
 
 ## Installation and First-Run Flow
 
@@ -148,7 +148,7 @@ The ordering that matters is Bitcoin's: the node starts, but `check-synced` repo
 
 ## Actions
 
-Twenty actions. Three configure the node, three concern the watchtower, four drive CLBOSS, two handle payments, one is hidden and exists for a companion package, and the rest are recovery and information.
+Twenty-one actions. Three configure the node, three concern the watchtower, four drive CLBOSS, two handle payments, one is hidden and exists for a companion package, and the rest are credentials, recovery and information.
 
 ### Configuration — General Settings, Plugins, Experimental Features
 
@@ -171,6 +171,14 @@ Each tower takes an optional label, stored in `watchtowerLabels` against the tow
 - **Repeat safety:** safe both ways.
 
 **Watchtower Info** and **Watchtower Client Info** are read-only, available only while running, and each is hidden unless the corresponding side is enabled: the first reports this node's tower identity, the second the towers it is subscribed to. When the underlying `teos-cli gettowerinfo` or `lightning-cli listtowers` fails, the result shows its error output in a copyable field.
+
+### Show CLNrest Connection
+
+Shows the URL of each enabled, non-local CLNrest address (LAN, Tor, domains) with `?rune=` and the unrestricted rune from `public/admin/.commando-env` appended, one masked, copyable, QR-scannable field per address. This is the connection string Zeus and similar wallets take.
+
+- **Visibility:** disabled with a reason while CLNrest is off in Plugins.
+- **Availability:** any status; until the node has started once and written the rune, it reports that CLNrest is not ready.
+- **Repeat safety:** read-only. **Revoke All Runes** invalidates the rune it shows; the next start mints a new one, which this action then shows.
 
 ### Create Rune, Revoke All Runes
 
@@ -341,7 +349,7 @@ interfaces:
   ui: { type: ui, port: 4500 }
   peer: { type: p2p, port: 9735 }
   grpc: { type: api, port: 2106 } # raw TCP forward; the plugin's own mutual TLS
-  clnrest: { type: api, port: 3010 } # when enabled; masked, URL carries the unrestricted rune
+  clnrest: { type: api, port: 3010 } # when enabled; carries no credential
   websocket: { type: api, port: 7272 } # when the Clams websocket is enabled
   watchtower: { type: api, port: 9814 } # when the watchtower server is enabled
 actions:
@@ -351,6 +359,7 @@ actions:
   - watchtower
   - watchtower-info # hidden unless the server is enabled
   - watchtower-client-info # hidden unless clients are registered
+  - clnrest-connection # disabled unless CLNrest is enabled; shows the URLs with the unrestricted rune
   - createrune # only-running; read-only, custom restrictions, or unrestricted
   - revoke-runes
   - display-seed # hidden with no wallet; disabled on a pre-BIP-39 wallet
