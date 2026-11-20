@@ -2,6 +2,7 @@ import { FileHelper } from '@start9labs/start-sdk'
 import { manifest as bitcoinManifest } from 'bitcoin-core-startos/startos/manifest'
 import { rpcCookieName, rpcVolumeId } from 'bitcoin-core-startos/startos/utils'
 import { createHash } from 'node:crypto'
+import { parse } from 'dotenv'
 import {
   access,
   copyFile,
@@ -27,6 +28,7 @@ import { vpnConfFile } from './fileModels/vpn.conf'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
+  adminCommandoEnv,
   bitcoinDataDir,
   bitcoindRpcBridge,
   cliJson,
@@ -35,11 +37,13 @@ import {
   errorMessage,
   grpcCertFiles,
   grpcPort,
+  invoiceRestrictions,
   mainMounts,
   paymentsRestrictions,
   paymentsRuneFile,
   rootDir,
   uiPort,
+  uiRestrictions,
   wsPort,
 } from './utils'
 import {
@@ -157,6 +161,62 @@ export const main = sdk.setupMain(async ({ effects }) => {
     )
     .const(effects)
 
+  const cli = ['lightning-cli', `--lightning-dir=${rootDir}`]
+  const allows = async (rune: string, method: string) =>
+    !!cliJson<{ valid?: boolean }>(
+      (
+        await lightningSub.exec([
+          ...cli,
+          '-k',
+          'checkrune',
+          `rune=${rune}`,
+          `method=${method}`,
+        ])
+      ).stdout,
+    )?.valid
+  const createrune = async (restrictions?: string[][]) => {
+    const res = await lightningSub.exec([
+      ...cli,
+      'createrune',
+      ...(restrictions ? ['null', JSON.stringify(restrictions)] : []),
+    ])
+    if (res.exitCode !== 0) {
+      throw new Error(`createrune failed: ${errorMessage(res)}`)
+    }
+    return JSON.parse(res.stdout as string).rune as string
+  }
+  const blacklist = async (rune: string) => {
+    const shown = await lightningSub.exec([
+      ...cli,
+      '-k',
+      'showrunes',
+      `rune=${rune}`,
+    ])
+    const id = cliJson<{ runes?: { unique_id: string }[] }>(shown.stdout)
+      ?.runes?.[0]?.unique_id
+    if (id === undefined) {
+      throw new Error(`showrunes failed: ${errorMessage(shown)}`)
+    }
+    const res = await lightningSub.exec([
+      ...cli,
+      '-k',
+      'blacklistrune',
+      `start=${id}`,
+      `end=${id}`,
+    ])
+    if (res.exitCode !== 0) {
+      throw new Error(`blacklistrune failed: ${errorMessage(res)}`)
+    }
+  }
+  const exportFile = async (
+    dst: string,
+    write: (tmp: string) => Promise<void>,
+  ) => {
+    await mkdir(dirname(dst), { recursive: true })
+    await write(`${dst}.tmp`)
+    await rename(`${dst}.tmp`, dst)
+  }
+
   let vpnHealthConfig = store.clearnetVpn?.config ?? null
   let vpnNoHandshakeSince = Date.now()
   const vpnConfigHash = createHash('sha256')
@@ -208,47 +268,66 @@ export const main = sdk.setupMain(async ({ effects }) => {
     .addOneshot('commando-config', {
       subcontainer: lightningSub,
       exec: {
-        fn: async (subcontainer) => {
-          const commandoEnv = `${await lightningSub.rootfs}${rootDir}/.commando-env`
-          const cliBase = ['lightning-cli', `--lightning-dir=${rootDir}`]
-
-          // Get current pubkey
-          const getinfoRes = await subcontainer.exec([...cliBase, 'getinfo'])
+        fn: async () => {
+          const getinfoRes = await lightningSub.exec([...cli, 'getinfo'])
           if (getinfoRes.exitCode !== 0) {
             throw new Error(`getinfo failed: ${String(getinfoRes.stderr)}`)
           }
           const { id: pubkey } = JSON.parse(getinfoRes.stdout as string)
 
-          // Check existing config
-          const existing = await readFile(commandoEnv, 'utf-8').catch(() => '')
-          const existingPubkey = existing.match(
-            /^LIGHTNING_PUBKEY="(.+)"$/m,
-          )?.[1]
-          const existingRune = existing.match(/^LIGHTNING_RUNE="(.+)"$/m)?.[1]
+          const ui = parse(await readFile(commandoEnv, 'utf-8').catch(() => ''))
+          const sameNode = ui.LIGHTNING_PUBKEY === pubkey
+          let uiRune = sameNode ? ui.LIGHTNING_RUNE : undefined
+          let invoiceRune = sameNode ? ui.INVOICE_RUNE : undefined
 
-          if (existingPubkey === pubkey && existingRune) {
-            console.log('Commando config: pubkey matches, rune exists')
-            return null
+          if (uiRune && (await allows(uiRune, 'blacklistrune'))) {
+            console.log('Commando config: revoking an unrestricted UI rune')
+            await blacklist(uiRune)
+            uiRune = undefined
+          }
+          if (!uiRune || !(await allows(uiRune, 'getinfo'))) {
+            console.log('Commando config: generating the UI rune')
+            uiRune = await createrune(uiRestrictions)
+          }
+          if (
+            !invoiceRune ||
+            !(await allows(invoiceRune, 'invoice')) ||
+            !(await allows(invoiceRune, 'listinvoices')) ||
+            (await allows(invoiceRune, 'getinfo'))
+          ) {
+            console.log('Commando config: generating the invoice rune')
+            invoiceRune = await createrune(invoiceRestrictions)
+          }
+          if (
+            !sameNode ||
+            uiRune !== ui.LIGHTNING_RUNE ||
+            invoiceRune !== ui.INVOICE_RUNE
+          ) {
+            await exportFile(commandoEnv, (tmp) =>
+              writeFile(
+                tmp,
+                `LIGHTNING_PUBKEY="${pubkey}"\nLIGHTNING_RUNE="${uiRune}"\nINVOICE_RUNE="${invoiceRune}"\n`,
+              ),
+            )
           }
 
-          // Generate new rune
-          console.log('Commando config: generating new rune')
-          const runeRes = await subcontainer.exec([
-            ...cliBase,
-            'createrune',
-            'null',
-            '[["For Application#"]]',
-          ])
-          if (runeRes.exitCode !== 0) {
-            throw new Error(`createrune failed: ${String(runeRes.stderr)}`)
-          }
-          const { rune } = JSON.parse(runeRes.stdout as string)
-
-          await writeFile(
-            commandoEnv,
-            `LIGHTNING_PUBKEY="${pubkey}"\nLIGHTNING_RUNE="${rune}"\n`,
+          const admin = parse(
+            await readFile(adminCommandoEnv, 'utf-8').catch(() => ''),
           )
-
+          if (
+            admin.LIGHTNING_PUBKEY !== pubkey ||
+            !admin.LIGHTNING_RUNE ||
+            !(await allows(admin.LIGHTNING_RUNE, 'createrune'))
+          ) {
+            console.log('Commando config: generating the admin rune')
+            const adminRune = await createrune()
+            await exportFile(adminCommandoEnv, (tmp) =>
+              writeFile(
+                tmp,
+                `LIGHTNING_PUBKEY="${pubkey}"\nLIGHTNING_RUNE="${adminRune}"\n`,
+              ),
+            )
+          }
           return null
         },
       },
@@ -257,16 +336,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     .addOneshot('export-credentials', {
       subcontainer: lightningSub,
       exec: {
-        fn: async (subcontainer, abort) => {
-          const exportFile = async (
-            dst: string,
-            write: (tmp: string) => Promise<void>,
-          ) => {
-            await mkdir(dirname(dst), { recursive: true })
-            await write(`${dst}.tmp`)
-            await rename(`${dst}.tmp`, dst)
-          }
-
+        fn: async (_subcontainer, abort) => {
           // cln-grpc creates these on its first start, not necessarily before lightningd answers RPC.
           for (const file of grpcCertFiles) {
             while (
@@ -288,35 +358,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
                 copyFile(sdk.volumes.main.subpath(`./bitcoin/${file}`), tmp),
             )
           }
-          await exportFile(
-            sdk.volumes.public.subpath('./admin/.commando-env'),
-            (tmp) => copyFile(commandoEnv, tmp),
-          )
 
-          const cli = ['lightning-cli', `--lightning-dir=${rootDir}`]
           const existing = (
             await readFile(paymentsRuneFile, 'utf-8').catch(() => '')
           ).trim()
-          if (existing) {
-            const check = await subcontainer.exec([
-              ...cli,
-              '-k',
-              'checkrune',
-              `rune=${existing}`,
-              'method=listfunds',
-            ])
-            if (cliJson<{ valid?: boolean }>(check.stdout)?.valid) return null
-          }
-          const res = await subcontainer.exec([
-            ...cli,
-            'createrune',
-            'null',
-            JSON.stringify(paymentsRestrictions),
-          ])
-          if (res.exitCode !== 0) {
-            throw new Error(`createrune failed: ${errorMessage(res)}`)
-          }
-          const { rune } = JSON.parse(res.stdout as string)
+          if (existing && (await allows(existing, 'listfunds'))) return null
+          const rune = await createrune(paymentsRestrictions)
           await exportFile(paymentsRuneFile, (tmp) => writeFile(tmp, rune))
           return null
         },
@@ -329,20 +376,31 @@ export const main = sdk.setupMain(async ({ effects }) => {
         {
           imageId: 'ui',
         },
-        mainMounts,
+        sdk.Mounts.of()
+          .mountVolume({
+            volumeId: 'main',
+            subpath: 'ui',
+            mountpoint: `${rootDir}/ui`,
+            readonly: false,
+          })
+          .mountVolume({
+            volumeId: 'main',
+            subpath: 'data/app',
+            mountpoint: `${rootDir}/data/app`,
+            readonly: false,
+          }),
         'cln-application-sub',
       ),
       exec: {
         command: ['node', '/app/apps/backend/dist/server.js'],
         env: {
           BITCOIN_NETWORK: 'bitcoin',
-          LIGHTNING_DATA_DIR: rootDir,
           APP_PROTOCOL: 'https',
           APP_HOST: '0.0.0.0',
           APP_PORT: String(uiPort),
           APP_CONFIG_FILE: `${rootDir}/data/app/config.json`,
           APP_LOG_FILE: `${rootDir}/data/app/application-cln.log`,
-          LIGHTNING_VARS_FILE: `${rootDir}/.commando-env`,
+          LIGHTNING_VARS_FILE: `${rootDir}/ui/.commando-env`,
           LIGHTNING_WS_PORT: String(wsPort),
           LIGHTNING_REST_PORT: String(clnrestPort),
           // clnrest runs plaintext (clnrest-protocol=http); the app defaults

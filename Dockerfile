@@ -36,10 +36,20 @@ RUN autoreconf -i && \
 FROM base AS sling
 ARG TARGETARCH
 ARG SLING_VERSION=v4.3.1
-RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/* && \
-    if [ "$TARGETARCH" = "amd64" ]; then SLING_ARCH=x86_64; else SLING_ARCH=aarch64; fi && \
-    curl -fSL "https://github.com/daywalker90/sling/releases/download/${SLING_VERSION}/sling-${SLING_VERSION}-${SLING_ARCH}-linux-gnu.tar.gz" \
-    | tar xz -C /usr/local/bin/
+ARG SLING_SHA256_AMD64=71dd089d5c1544e7dacc17318fdc70db6802c80db9f5ae8496f19f0ab6a758d5
+ARG SLING_SHA256_ARM64=eef6ee5f6fbe6960b2b999969773f39caba6a4e3818cc7020ba32c1e4f4bb1b4
+RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN set -eu; \
+    case "$TARGETARCH" in \
+      amd64) SLING_ARCH=x86_64; SHA="$SLING_SHA256_AMD64" ;; \
+      arm64) SLING_ARCH=aarch64; SHA="$SLING_SHA256_ARM64" ;; \
+      *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
+    esac; \
+    TARBALL="sling-${SLING_VERSION}-${SLING_ARCH}-linux-gnu.tar.gz"; \
+    curl -fsSLO "https://github.com/daywalker90/sling/releases/download/${SLING_VERSION}/${TARBALL}"; \
+    echo "${SHA}  ${TARBALL}" | sha256sum -c -; \
+    tar -xzf "$TARBALL" -C /usr/local/bin/; \
+    rm "$TARBALL"
 
 # Rust toolchain, shared by rust-teos and the lightningd source build
 FROM base AS rust-base

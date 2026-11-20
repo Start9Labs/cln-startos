@@ -1,6 +1,7 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 import { readFile, writeFile } from 'fs/promises'
-import { commandoEnv } from '../utils'
+
+const commandoEnv = '/media/startos/volumes/main/.commando-env'
 
 export const v_26_6_8_3 = VersionInfo.of({
   version: '26.6.8:3',

@@ -35,7 +35,7 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is upstream's, with its `node` binary replaced from `node:22.23.4-bookworm-slim` by `Dockerfile.ui`, a temporary layer that comes out once upstream ships an image on Node 22.23.4 or later. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is upstream's, with its `node` binary replaced from a digest-pinned `node:22.23.5-bookworm-slim` by `Dockerfile.ui`, a temporary layer that asserts the version and comes out once upstream ships an image on Node 22.23.5 or later. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
 
 | Property      | Value                                                                                                               |
 | ------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -43,12 +43,12 @@ Two images. The node's is built here: upstream's signed release tarball is unpac
 | Architectures | x86_64, aarch64 — both images declare `emulateMissing: true`                                                        |
 | Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                                               |
 
-The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for the tunnel the hidden Clearnet VPN action brings up, and the manifest sets `virtualNetworking` so the container can create its interface. Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile`. Nothing is fetched at runtime, so the image is self-contained.
+The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for the tunnel the hidden Clearnet VPN action brings up, and the manifest sets `virtualNetworking` so the container can create its interface. Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules, and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile` and checked against a per-architecture SHA-256. Nothing is fetched at runtime, so the image is self-contained.
 
-| Subcontainer          | Purpose                                                                         |
-| --------------------- | ------------------------------------------------------------------------------- |
-| `lightning-sub`       | `lightningd`, the watchtower server, and every oneshot — the one to `attach` to |
-| `cln-application-sub` | The web UI, which talks to the node over its RPC and rune                       |
+| Subcontainer          | Purpose                                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `lightning-sub`       | `lightningd`, the watchtower server, and every oneshot — the one to `attach` to                                           |
+| `cln-application-sub` | The web UI, which talks to the node over commando with its restricted rune; it mounts only `main`'s `ui/` and `data/app/` |
 
 ## Volume and Data Layout
 
@@ -61,14 +61,14 @@ Two volumes.
 
 **Dependents mount a tier of `public`, never `main`**, which holds `hsm_secret`. The tiers:
 
-| Tier       | Holds                                                        | Kept by                                                                                   |
-| ---------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| `rpc`      | `lightning-rpc`, the node's RPC socket — full control        | `lightningd` itself: `rpc-file` is enforced to `/mnt/public/rpc/lightning-rpc`            |
-| `grpc`     | `ca.pem`, `client.pem`, `client-key.pem` — full control      | `export-credentials`, copied from the cln-grpc plugin's files in `bitcoin/` on each start |
-| `admin`    | `.commando-env` — the web UI's unrestricted rune and node id | `export-credentials`, copied from the volume root on each start                           |
-| `payments` | `rune` — invoicing and paying only, for use over CLNRest     | `export-credentials`                                                                      |
+| Tier       | Holds                                                    | Kept by                                                                                   |
+| ---------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `rpc`      | `lightning-rpc`, the node's RPC socket — full control    | `lightningd` itself: `rpc-file` is enforced to `/mnt/public/rpc/lightning-rpc`            |
+| `grpc`     | `ca.pem`, `client.pem`, `client-key.pem` — full control  | `export-credentials`, copied from the cln-grpc plugin's files in `bitcoin/` on each start |
+| `admin`    | `.commando-env` — an unrestricted rune and the node id   | `commando-config`                                                                         |
+| `payments` | `rune` — invoicing and paying only, for use over CLNRest | `export-credentials`                                                                      |
 
-The payments rune is restricted to `listfunds`, `invoice`, `pay`, `listinvoices`, `listpays` and `waitanyinvoice` (`paymentsRestrictions` in `startos/utils.ts`). On each start `export-credentials` keeps the existing rune if `checkrune` still accepts it and mints a new one otherwise, so after **Revoke All Runes** dependents get a fresh rune at the next start. Every copy is written to a temporary file and renamed into place, so a dependent never reads a partial file.
+The payments rune is restricted to `listfunds`, `invoice`, `pay`, `listinvoices`, `listpays` and `waitanyinvoice` (`paymentsRestrictions` in `startos/utils.ts`). On each start `commando-config` and `export-credentials` keep each existing rune if `checkrune` still accepts it (for `admin`, accepts `createrune`) and mint a new one otherwise, so after **Revoke All Runes** dependents get a fresh rune at the next start. A dependent that reads its rune only when it starts, such as Ride The Lightning, needs a restart to pick up the new one. Every copy is written to a temporary file and renamed into place, so a dependent never reads a partial file.
 
 Only Bitcoin's `public` volume is mounted, **read-only** at `/mnt/bitcoin`, which is how both `lightningd` and the watchtower read its RPC cookie without a password ever being stored; the rest of Bitcoin's data directory is not visible.
 
@@ -123,12 +123,11 @@ The node additionally **restarts when Bitcoin writes a replacement RPC cookie**,
 
 ## Network Access and Interfaces
 
-Four interfaces always, and three more depending on what is enabled.
+Three interfaces always, and three more depending on what is enabled.
 
 | Interface       | Id           | Type | Port | Present                                     |
 | --------------- | ------------ | ---- | ---- | ------------------------------------------- |
 | Web UI          | `ui`         | ui   | 4500 | always                                      |
-| RPC             | `rpc`        | api  | 8080 | always                                      |
 | Peer            | `peer`       | p2p  | 9735 | always                                      |
 | gRPC            | `grpc`       | api  | 2106 | always                                      |
 | CLNrest         | `clnrest`    | api  | 3010 | when CLNrest is enabled (it is, at install) |
@@ -137,13 +136,13 @@ Four interfaces always, and three more depending on what is enabled.
 
 **gRPC is forwarded as a plain TCP port, with no StartOS TLS listener in front of it.** The plugin performs its own mutual TLS, and its certificate names only `cln` and `localhost`, so every client that verifies it sends `cln` as the TLS server name whatever address it dials. A terminating listener would present the device certificate and strip the client's; a passthrough listener routes by server name and refuses one that is not an address of the interface, which `cln` never is. The binding is a raw forward deliberately — either TLS arrangement would look correct and refuse every client.
 
-**CLNrest carries its own credential in the address.** The interface's URL includes the rune the package generated, and its scheme is overridden to `clnrest+https` or `clnrest+http` so that a wallet reading the scheme knows which transport to use — a bare `clnrest://` is assumed to be TLS, which would be wrong for the Tor address.
+**CLNrest carries its own credential in the address.** The interface's URL includes the unrestricted rune from `public/admin`, so the interface is masked, and its scheme is overridden to `clnrest+https` or `clnrest+http` so that a wallet reading the scheme knows which transport to use — a bare `clnrest://` is assumed to be TLS, which would be wrong for the Tor address.
 
 ## Installation and First-Run Flow
 
 Install seeds the four models and switches CLNrest on — there is no wizard, and no credential is asked for. The service remains stopped until the user starts it; `lightningd` then creates `hsm_secret` on its first start.
 
-The one piece of setup the package performs is the web UI's credential. A oneshot creates a rune scoped to the application and records it alongside the node's public key, regenerating it only if the node's identity changes or the rune is missing. The UI cannot start until that has happened.
+The one piece of setup the package performs is the web UI's credentials. The `commando-config` oneshot writes `main/ui/.commando-env` with the node's public key, a rune restricted to the methods cln-application's backend forwards (`uiRestrictions` in `startos/utils.ts`), and an invoice rune restricted to `invoice` and `listinvoices` (`invoiceRestrictions`), which the UI's Connect Wallet screen offers. It keeps each rune while the node's identity is unchanged and `checkrune` still accepts it; it blacklists a UI rune that would allow `blacklistrune` (one minted without method restrictions) and replaces any rune that fails. The UI's own connect URLs therefore carry the restricted rune, not full access. The UI cannot start until the oneshot has run.
 
 The ordering that matters is Bitcoin's: the node starts, but `check-synced` reports Bitcoin's progress and then its own until both are caught up, which on a fresh Bitcoin node is the length of an initial block download.
 
@@ -183,7 +182,7 @@ Each tower takes an optional label, stored in `watchtowerLabels` against the tow
 
 Available only while running; each run produces a new rune and does not affect existing ones.
 
-**Revoke All Runes** invalidates every rune this node has issued **including the web UI's**, which is regenerated automatically on the next start. Run it when a credential may have been exposed. It is not selective — that is the point of it — so anything you have connected must be re-authorized afterwards.
+**Revoke All Runes** invalidates every rune this node has issued **including the web UI's and the `public/admin` and `public/payments` runes**, which are regenerated automatically when the action restarts the node. Run it when a credential may have been exposed. It is not selective — that is the point of it — so anything you have connected must be re-authorized afterwards.
 
 If `createrune`, `showrunes` or `blacklistrune` fails, either action shows the error output in a copyable field.
 
@@ -221,7 +220,7 @@ Not user-facing, and raised as a task by a companion package with its tunnel con
 
 ### Pay Invoice, Receive Payment
 
-Grouped under Payments. **Pay Invoice** pays a BOLT11 invoice from the node's own funds: paste the invoice, whether its amount is stated in it or entered here — an invoice that leaves the amount open requires one, one that states it refuses one — and the most it may spend in routing fees as a percentage. Every payment requires confirmation that the amount and destination were verified. A task-prefilled invoice is decoded before the prompt opens, displays its amount, destination, and description, and cannot be edited; execution rejects an invoice that differs from the reviewed one. It then pays with a 60-second retry window and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one reviewed prompt; the node never hands out a rune for it.
+Grouped under Payments. **Pay Invoice** pays a BOLT11 invoice from the node's own funds: paste the invoice, whether its amount is stated in it or entered here — an invoice that leaves the amount open requires one, one that states it refuses one — and the most it may spend in routing fees as a percentage. Every payment requires confirmation that the amount and destination were verified. A task may preset only the invoice: the prompt refuses to open for one whose prefill sets the amount, fee or confirmation to anything but its default (as stated in the invoice, 1 %, off). A task-prefilled invoice is decoded before the prompt opens, displays its amount, destination, and description, and cannot be edited; execution rejects an invoice that differs from the reviewed one. It then pays with a 60-second retry window and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one reviewed prompt; the node never hands out a rune for it.
 
 **Receive Payment** creates a BOLT11 invoice for this node: an optional amount (none makes an amount-less invoice the payer fills in), an optional description carried in the invoice, and an expiry in hours, default 24. Runs `lightning-cli invoice` under a generated `startos-<uuid>` label; lightningd chooses the route hints. Returns the invoice as text and QR code, plus the payment hash. Only while running. Safe to repeat — each run registers a new invoice and nothing is charged.
 
@@ -326,7 +325,6 @@ file_models:
 startos_managed_env_vars:
   - TOWERS_DATA_DIR # lightningd
   - BITCOIN_NETWORK # web UI
-  - LIGHTNING_DATA_DIR # web UI
   - APP_PROTOCOL # web UI
   - APP_HOST # web UI
   - APP_PORT # web UI
@@ -341,10 +339,9 @@ dependencies:
   - bitcoind # required; its public volume mounted read-only at /mnt/bitcoin
 interfaces:
   ui: { type: ui, port: 4500 }
-  rpc: { type: api, port: 8080 }
   peer: { type: p2p, port: 9735 }
   grpc: { type: api, port: 2106 } # raw TCP forward; the plugin's own mutual TLS
-  clnrest: { type: api, port: 3010 } # when enabled; URL carries the rune
+  clnrest: { type: api, port: 3010 } # when enabled; masked, URL carries the unrestricted rune
   websocket: { type: api, port: 7272 } # when the Clams websocket is enabled
   watchtower: { type: api, port: 9814 } # when the watchtower server is enabled
 actions:

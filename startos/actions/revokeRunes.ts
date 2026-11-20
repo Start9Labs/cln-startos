@@ -1,7 +1,6 @@
-import { rm } from 'fs/promises'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
-import { commandoEnv, errorMessage, mainMounts, rootDir } from '../utils'
+import { errorMessage, mainMounts, rootDir } from '../utils'
 
 export const revokeRunes = sdk.Action.withoutInput(
   // id
@@ -67,15 +66,8 @@ export const revokeRunes = sdk.Action.withoutInput(
         },
       }
 
-    if (outcome.revoked) {
-      // The CLN Application UI authenticates with a rune of its own, cached in
-      // .commando-env and reused for as long as it is present and the node
-      // pubkey matches. Blacklisting it without clearing that cache locks the
-      // UI out for good, so drop the file and let the commando-config oneshot
-      // mint a replacement on the way back up.
-      await rm(commandoEnv, { force: true })
-      await sdk.restart(effects)
-    }
+    // The commando-config oneshot replaces the UI's and dependents' runes on the way back up.
+    if (outcome.revoked) await sdk.restart(effects)
 
     return {
       version: '1',

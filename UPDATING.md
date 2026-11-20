@@ -46,6 +46,7 @@ For each independent upstream source below: a link to its canonical repo, one co
     --jq '.[].metadata.container.tags[]' | sort -u | head -20
   ```
 - Current pin: the `IMAGE` build arg of `images.ui` in `startos/manifest/index.ts` (`ghcr.io/elementsproject/cln-application:<version>`), layered by `Dockerfile.ui`.
+- On every bump, diff `ALLOWED_METHODS` in the new tag's `apps/backend/source/controllers/lightning.ts` against `uiRestrictions` in `startos/utils.ts`, and add any new method except `createrune`. A method missing there is refused by the UI's rune, so that part of the UI fails. `commando-config` keeps any existing UI rune that still passes `getinfo`, so a changed list also needs the old rune replaced on update, or existing installs keep it.
 
 ### CLBOSS
 
@@ -77,7 +78,7 @@ For each independent upstream source below: a link to its canonical repo, one co
   ```sh
   gh release view -R daywalker90/sling --json tagName -q .tagName
   ```
-- Current pin: `ARG SLING_VERSION=v<version>` in the `sling` stage of `Dockerfile`.
+- Current pin: `ARG SLING_VERSION=v<version>` and its `SLING_SHA256_*` checksums in the `sling` stage of `Dockerfile`.
 
 ## Applying the bump
 
@@ -92,7 +93,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 ### CLN Application (Web UI)
 
-- Bump the `IMAGE` build arg for the `ui` image in `startos/manifest/index.ts` to `ghcr.io/elementsproject/cln-application:<new version>`. While `Dockerfile.ui` exists, keep it unless the new image's `NODE_VERSION` is 22.23.4 or later; if it is, delete `Dockerfile.ui` and put `source: { dockerTag: '<new image>' }` back.
+- Bump the `IMAGE` build arg for the `ui` image in `startos/manifest/index.ts` to `ghcr.io/elementsproject/cln-application:<new version>`. While `Dockerfile.ui` exists, keep it unless the new image's `NODE_VERSION` is 22.23.5 or later; if it is, delete `Dockerfile.ui` and put `source: { dockerTag: '<new image>' }` back.
 
 ### CLBOSS
 
@@ -104,4 +105,4 @@ For each independent upstream source below: a link to its canonical repo, one co
 
 ### Sling
 
-- Update the `SLING_VERSION` ARG in `Dockerfile` to the new release tag (including the leading `v`).
+- Update the `SLING_VERSION` ARG in `Dockerfile` to the new release tag (including the leading `v`), and both `SLING_SHA256_*` args to the `x86_64-linux-gnu` and `aarch64-linux-gnu` tarballs' digests (`gh release view <tag> -R daywalker90/sling --json assets`), checked against a `sha256sum` of the downloaded files.

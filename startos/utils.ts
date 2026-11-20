@@ -9,7 +9,6 @@ import { sdk } from './sdk'
 
 export const uiPort = 4500
 export const wsPort = 4269
-export const rpcPort = 8080
 export const peerPort = 9735
 export const clnrestPort = 3010
 export const watchtowerPort = 9814
@@ -19,8 +18,12 @@ export const grpcPort = 2106
 export const rootDir = '/root/.lightning'
 export const bitcoinDataDir = '/mnt/bitcoin'
 
-/** Host path of the rune the CLN Application UI authenticates with. */
-export const commandoEnv = '/media/startos/volumes/main/.commando-env'
+/** Host path of the CLN Application UI's vars file: the node id, its rune and its invoice rune. */
+export const commandoEnv = '/media/startos/volumes/main/ui/.commando-env'
+
+/** Host path of the unrestricted rune and node id dependents mount as `public/admin`. */
+export const adminCommandoEnv =
+  '/media/startos/volumes/public/admin/.commando-env'
 
 export const publicMountpoint = '/mnt/public'
 export const rpcFile = `${publicMountpoint}/rpc/lightning-rpc`
@@ -38,6 +41,33 @@ export const mainMounts = sdk.Mounts.of()
     mountpoint: publicMountpoint,
     readonly: false,
   })
+
+// The methods cln-application's backend forwards (ALLOWED_METHODS in apps/backend/source/controllers/lightning.ts), less createrune, which lightningd allows only an unrestricted rune; its invoice rune is minted here.
+export const uiRestrictions = [
+  [
+    'getinfo',
+    'listfunds',
+    'listpeers',
+    'listpeerchannels',
+    'listnodes',
+    'sql',
+    'listsqlschemas',
+    'feerates',
+    'fundchannel',
+    'close',
+    'withdraw',
+    'newaddr',
+    'pay',
+    'keysend',
+    'invoice',
+    'offer',
+    'decode',
+    'fetchinvoice',
+  ].map((m) => `method=${m}`),
+]
+
+// What cln-application's Connect Wallet screen creates and recognizes as its invoice rune.
+export const invoiceRestrictions = [['method=invoice', 'method=listinvoices']]
 
 /** Host path of the rune dependents mount as `public/payments`. */
 export const paymentsRuneFile = '/media/startos/volumes/public/payments/rune'
