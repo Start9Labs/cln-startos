@@ -5,6 +5,7 @@ import { plugins } from './config/plugins'
 import { watchtower } from './watchtower/watchtower'
 import { createRune } from './generateRune'
 import { revokeRunes } from './revokeRunes'
+import { clnrestConnection } from './clnrestConnection'
 import { deleteGossipStore } from './deleteGossipStore'
 import { resetPassword } from './resetPassword'
 import { watchtowerInfo } from './watchtower/watchtowerInfo'
@@ -28,6 +29,7 @@ export const actions = sdk.Actions.of()
   .addAction(experimental)
   .addAction(plugins)
   .addAction(watchtower)
+  .addAction(clnrestConnection)
   .addAction(createRune)
   .addAction(revokeRunes)
   .addAction(deleteGossipStore)

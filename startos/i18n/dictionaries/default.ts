@@ -374,6 +374,16 @@ const dict = {
   'Generate the password for the CLN UI': 355,
   'Create a password to sign in to the CLN UI': 356,
   'This request presets the amount, fee or confirmation, which only you may set. Run Pay Invoice yourself with its invoice instead.': 357,
+
+  // actions/clnrestConnection.ts
+  'Show CLNrest Connection': 358,
+  "Show the CLNrest address with this node's unrestricted rune, for connecting a wallet such as Zeus.": 359,
+  'This connection has full control of your node, funds included. Give it only to a wallet you trust.': 360,
+  'Enable CLNrest in Plugins first.': 361,
+  'CLNrest Not Ready': 362,
+  'Start Core Lightning and wait for it to finish starting, then run this action again.': 363,
+  'CLNrest Connection': 364,
+  "Scan or paste one of these into your wallet. Each carries this node's unrestricted rune: anyone holding it can spend your funds. Use the clnrest+http address for Tor and a clnrest+https address on your LAN or a domain.": 365,
 } as const
 
 /**

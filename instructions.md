@@ -9,7 +9,7 @@
 
 - A **Core Lightning** node (`lightningd`) running mainnet, with an auto-created wallet on first start.
 - A **Web UI** (CLN Application) for managing channels, payments, and invoices, with its own generated password.
-- A **gRPC** interface and (when enabled) a **CLNrest** REST interface that publishes a URL containing a pre-generated rune for wallet apps.
+- A **gRPC** interface and (when enabled) a **CLNrest** REST interface for wallet apps such as Zeus.
 - An optional **Clams Websocket** endpoint for Clams Remote.
 - A bundled set of plugins built into the image: **CLBOSS** (automated channel management), **Sling** (channel rebalancing), and **TEOS** for watchtower client and server functionality.
 - A required dependency on **Bitcoin** — install and fully sync Bitcoin first; CLN will not start without it.
@@ -19,7 +19,7 @@
 1. Install and fully sync **Bitcoin** if you haven't already.
 2. Start Core Lightning. The wallet is created automatically on first start; no seed phrase setup is required.
 3. Run the **Create UI Password** action and save the password it shows — it is independent of your StartOS credentials. Then open the **Web UI** interface and sign in with it. After 5 wrong passwords within 15 minutes, the Web UI pauses logins for everyone for 15 minutes; restart Core Lightning to clear it sooner.
-4. To connect a wallet app or other client, run the **Create Rune** action to generate a rune with only the permissions the app needs, or use the masked **CLNrest** interface URL, whose rune has full control of your node, funds included. The Web UI's Connect Wallet screen offers a rune limited to what the Web UI itself does, plus an invoice-only rune.
+4. To connect a wallet app or other client, run the **Create Rune** action to generate a rune with only the permissions the app needs, or run **Show CLNrest Connection** for a CLNrest connection whose rune has full control of your node, funds included. The Web UI's Connect Wallet screen offers a rune limited to what the Web UI itself does, plus an invoice-only rune.
 
 ## Using Core Lightning
 
@@ -28,7 +28,7 @@
 - **Web UI** — the CLN Application web dashboard for day-to-day node operation.
 - **Peer** — the Lightning peer-to-peer port; share this address with peers who want to open channels with you.
 - **grpc** — the gRPC API for apps and plugins that prefer typed RPC.
-- **CLNrest** — REST API. When enabled, the published URL contains the rune wallet apps need to authenticate. The scheme tells wallets like Zeus which protocol to use: `clnrest+http://` for plain-HTTP addresses (use this for Tor onion addresses — Tor already encrypts) and `clnrest+https://` for SSL addresses (LAN/clearnet).
+- **CLNrest** — REST API. Its address carries no credential: a wallet also needs a rune, which **Show CLNrest Connection** adds for you, or one from **Create Rune**. The scheme tells wallets like Zeus which protocol to use: `clnrest+http://` for plain-HTTP addresses (use this for Tor onion addresses — Tor already encrypts) and `clnrest+https://` for SSL addresses (LAN/clearnet).
 - **Clams Websocket** — websocket endpoint for Clams Remote, shown when the `clams-remote-websocket` option is on.
 - **TEOS Watchtower** — present only when the watchtower server is enabled.
 
@@ -38,6 +38,7 @@ If you publish the **Peer** interface through StartTunnel to keep your home IP p
 
 - **Node Info** — display your node ID and peer URI(s) to share with channel partners.
 - **Display BIP-39 Seed** — show the 12-word BIP-39 seed for on-chain recovery. Hidden if your wallet predates BIP-39 support in CLN; the seed alone does not recover channel state.
+- **Show CLNrest Connection** — show each CLNrest address with your node's unrestricted rune attached, as text to copy or a QR code to scan, for connecting a wallet such as Zeus. Anyone holding it can spend your funds, so give it only to a wallet you trust; for an app that needs less, use **Create Rune** instead. Available while CLNrest is enabled in **Plugins**.
 - **Create Rune** — generate a rune for an app. **Read-only** lets it view the node but not spend from or change it. **Custom restrictions** takes the restrictions an app asks for, as a JSON array: if the app gives you a `lightning-cli createrune` command, copy what is inside the quotes after `restrictions=`. **Unrestricted** gives full control, funds included, so give it only to an app you trust.
 - **Revoke All Runes** — blacklist every rune this node has issued, so none of them can authenticate again. Run it if a rune may have been copied or exposed, or if an app with RPC access to your node may have created one without your knowledge — for example if you run BTCPay Server, which reaches Core Lightning over its admin RPC socket and shipped an actively exploited vulnerability in versions before 2.4.2. Core Lightning restarts afterwards to issue the web UI a fresh rune; re-issue any other integration's rune with **Create Rune**.
 - **General Settings** — set alias, color, fee base and rate, minimum channel capacity, funding confirmations, Tor-only mode, Clams Websocket, a custom external host, and the Bitcoin retry timeout.

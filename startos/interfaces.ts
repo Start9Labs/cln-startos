@@ -1,5 +1,4 @@
 import { clnConfig } from './fileModels/config'
-import { parse } from 'dotenv'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
@@ -7,20 +6,20 @@ import {
   uiPort,
   peerPort,
   clnrestPort,
-  adminCommandoEnv,
   watchtowerPort,
   grpcPort,
   websocketPort,
 } from './utils'
-import { FileHelper } from '@start9labs/start-sdk'
 
 // Host ids (the `sdk.MultiHost.of` groups) for the hosts we look up via
 // `sdk.host.getOwn`; distinct from the interface ids exported on them.
 export const peerHostId = 'peer'
 export const watchtowerHostId = 'watchtower'
+export const clnrestHostId = 'clnrest'
 
 export const peerInterfaceId = 'peer'
 export const teosInterfaceId = 'watchtower'
+export const clnrestInterfaceId = 'clnrest'
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const receipts = []
@@ -107,7 +106,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
 
   // clnrest
   if (conf?.clnrest) {
-    const clnrestMulti = sdk.MultiHost.of(effects, 'clnrest')
+    const clnrestMulti = sdk.MultiHost.of(effects, clnrestHostId)
     // clnrest is forced to plaintext (clnrest-protocol=http in the config) so
     // that a plain-HTTP endpoint exists for Tor onion services — Tor already
     // encrypts, and wallets like Zeus can't validate StartOS-issued certs.
@@ -119,38 +118,24 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       proxy: { addXForwardedHeaders: false },
     })
 
-    // An absent file is the gap before the commando-config oneshot first writes it, not a removal.
-    const contents = await FileHelper.string(adminCommandoEnv)
-      .read(
-        (env) => env,
-        (prev, next) => next === null || prev === next,
-      )
-      .const(effects)
-
-    if (contents) {
-      const rune = parse(contents)['LIGHTNING_RUNE']
-
-      const clnrest = sdk.createInterface(effects, {
-        name: i18n('CLNrest'),
-        id: 'clnrest',
-        description: i18n(
-          'CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.',
-        ),
-        type: 'api',
-        masked: true,
-        // Zeus's clnrest parser reads the transport protocol from the scheme:
-        // clnrest+https:// / clnrest+http://. A bare clnrest:// is treated as
-        // https, so the http (Tor) URL must carry the +http marker.
-        schemeOverride: { ssl: 'clnrest+https', noSsl: 'clnrest+http' },
-        username: null,
-        path: '',
-        query: { rune: rune ? rune : 'Error parsing Rune' },
-      })
-      const clnrestReceipt = await clnrestMultiOrigin.export([clnrest])
-      receipts.push(clnrestReceipt)
-    } else {
-      console.log('Rune not found')
-    }
+    const clnrest = sdk.createInterface(effects, {
+      name: i18n('CLNrest'),
+      id: clnrestInterfaceId,
+      description: i18n(
+        'CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.',
+      ),
+      type: 'api',
+      masked: false,
+      // Zeus's clnrest parser reads the transport protocol from the scheme:
+      // clnrest+https:// / clnrest+http://. A bare clnrest:// is treated as
+      // https, so the http (Tor) URL must carry the +http marker.
+      schemeOverride: { ssl: 'clnrest+https', noSsl: 'clnrest+http' },
+      username: null,
+      path: '',
+      query: {},
+    })
+    const clnrestReceipt = await clnrestMultiOrigin.export([clnrest])
+    receipts.push(clnrestReceipt)
   }
 
   // websocket (clams)
