@@ -46,6 +46,7 @@ For each independent upstream source below: a link to its canonical repo, one co
     --jq '.[].metadata.container.tags[]' | sort -u | head -20
   ```
 - Current pin: the `IMAGE` build arg of `images.ui` in `startos/manifest/index.ts` (`ghcr.io/elementsproject/cln-application:<version>`), layered by `Dockerfile.ui`.
+- On every bump, diff `ALLOWED_METHODS` in the new tag's `apps/backend/source/controllers/lightning.ts` against `uiRestrictions` in `startos/utils.ts`, and add any new method except `createrune`. A method missing there is refused by the UI's rune, so that part of the UI fails. `commando-config` keeps any existing UI rune that still passes `getinfo`, so a changed list also needs the old rune replaced on update, or existing installs keep it.
 
 ### CLBOSS
 
