@@ -16,6 +16,8 @@ type Decoded = {
   description?: string
 }
 
+const defaultFeePercent = 1
+
 type ReviewedInvoice = { invoice: string; decoded: Decoded }
 const reviewedInvoices = new Map<string, ReviewedInvoice>()
 
@@ -51,10 +53,28 @@ const inputSpec = async ({
   effects: T.Effects
   prefill: unknown | null
 }) => {
+  // The UI merges a task's prefill over the form, so a task may set these only to their defaults.
+  const preset = prefill as {
+    invoice?: unknown
+    amount?: { selection?: unknown; value?: object }
+    'max-fee-percent'?: unknown
+    confirmed?: unknown
+  } | null
+  if (
+    (preset?.amount !== undefined &&
+      (preset.amount?.selection !== 'invoice' ||
+        Object.keys(preset.amount.value ?? {}).length)) ||
+    (preset?.['max-fee-percent'] ?? defaultFeePercent) !== defaultFeePercent ||
+    (preset?.confirmed ?? false) !== false
+  ) {
+    throw new Error(
+      i18n(
+        'This request presets the amount, fee or confirmation, which only you may set. Run Pay Invoice yourself with its invoice instead.',
+      ),
+    )
+  }
   const invoice =
-    typeof (prefill as { invoice?: unknown } | null)?.invoice === 'string'
-      ? (prefill as { invoice: string }).invoice.trim()
-      : null
+    typeof preset?.invoice === 'string' ? preset.invoice.trim() : null
   const decoded = invoice ? await decodeInvoice(effects, invoice) : null
   if (invoice && decoded && effects.eventId) {
     reviewedInvoices.set(effects.eventId, { invoice, decoded })
@@ -116,7 +136,7 @@ const inputSpec = async ({
         'The most this node may pay in routing fees, as a percentage of the amount.',
       ),
       required: true,
-      default: 1,
+      default: defaultFeePercent,
       min: 0,
       max: 100,
       step: 0.1,

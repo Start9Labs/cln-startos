@@ -5,10 +5,9 @@ import { i18n } from './i18n'
 import { sdk } from './sdk'
 import {
   uiPort,
-  rpcPort,
   peerPort,
   clnrestPort,
-  commandoEnv,
+  adminCommandoEnv,
   watchtowerPort,
   grpcPort,
   websocketPort,
@@ -44,25 +43,6 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   })
   const uiReceipt = await uiMultiOrigin.export([ui])
   receipts.push(uiReceipt)
-
-  // RPC
-  const rpcMulti = sdk.MultiHost.of(effects, 'rpc')
-  const rpcMultiOrigin = await rpcMulti.bindPort(rpcPort, {
-    protocol: 'http',
-  })
-  const rpc = sdk.createInterface(effects, {
-    name: i18n('RPC'),
-    id: 'rpc',
-    description: i18n('Listens for JSON-RPC commands over HTTP.'),
-    type: 'api',
-    masked: false,
-    schemeOverride: null,
-    username: null,
-    path: '',
-    query: {},
-  })
-  const rpcReceipt = await rpcMultiOrigin.export([rpc])
-  receipts.push(rpcReceipt)
 
   // Peer
   const peerMulti = sdk.MultiHost.of(effects, peerHostId)
@@ -139,9 +119,8 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       proxy: { addXForwardedHeaders: false },
     })
 
-    // Revoke Runes deletes .commando-env before the commando-config oneshot
-    // mints a replacement, so an absent file is a gap, not a removal.
-    const contents = await FileHelper.string(commandoEnv)
+    // An absent file is the gap before the commando-config oneshot first writes it, not a removal.
+    const contents = await FileHelper.string(adminCommandoEnv)
       .read(
         (env) => env,
         (prev, next) => next === null || prev === next,
@@ -158,7 +137,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
           'CLNRest is a lightweight Python-based built-in Core Lightning plugin (from v23.08) that transforms RPC calls into a REST service.',
         ),
         type: 'api',
-        masked: false,
+        masked: true,
         // Zeus's clnrest parser reads the transport protocol from the scheme:
         // clnrest+https:// / clnrest+http://. A bare clnrest:// is treated as
         // https, so the http (Tor) URL must carry the +http marker.

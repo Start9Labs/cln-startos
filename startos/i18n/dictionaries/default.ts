@@ -19,8 +19,6 @@ const dict = {
   // interfaces.ts
   'Web UI': 13,
   'The web interface of CLN': 14,
-  RPC: 15,
-  'Listens for JSON-RPC commands over HTTP.': 16,
   Peer: 17,
   'Listens for incoming connections from lightning peers.': 18,
   grpc: 19,
@@ -375,6 +373,7 @@ const dict = {
   'Create UI Password': 354,
   'Generate the password for the CLN UI': 355,
   'Create a password to sign in to the CLN UI': 356,
+  'This request presets the amount, fee or confirmation, which only you may set. Run Pay Invoice yourself with its invoice instead.': 357,
 } as const
 
 /**

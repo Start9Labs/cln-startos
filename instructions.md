@@ -9,7 +9,7 @@
 
 - A **Core Lightning** node (`lightningd`) running mainnet, with an auto-created wallet on first start.
 - A **Web UI** (CLN Application) for managing channels, payments, and invoices, with its own generated password.
-- A **JSON-RPC** interface, a **gRPC** interface, and (when enabled) a **CLNrest** REST interface that publishes a URL containing a pre-generated rune for wallet apps.
+- A **gRPC** interface and (when enabled) a **CLNrest** REST interface that publishes a URL containing a pre-generated rune for wallet apps.
 - An optional **Clams Websocket** endpoint for Clams Remote.
 - A bundled set of plugins built into the image: **CLBOSS** (automated channel management), **Sling** (channel rebalancing), and **TEOS** for watchtower client and server functionality.
 - A required dependency on **Bitcoin** — install and fully sync Bitcoin first; CLN will not start without it.
@@ -19,14 +19,13 @@
 1. Install and fully sync **Bitcoin** if you haven't already.
 2. Start Core Lightning. The wallet is created automatically on first start; no seed phrase setup is required.
 3. Run the **Create UI Password** action and save the password it shows — it is independent of your StartOS credentials. Then open the **Web UI** interface and sign in with it. After 5 wrong passwords within 15 minutes, the Web UI pauses logins for everyone for 15 minutes; restart Core Lightning to clear it sooner.
-4. To connect a wallet app or other client, run the **Create Rune** action to generate a rune with only the permissions the app needs, or use the rune embedded in the **CLNrest** interface URL, which can spend your node's funds.
+4. To connect a wallet app or other client, run the **Create Rune** action to generate a rune with only the permissions the app needs, or use the masked **CLNrest** interface URL, whose rune has full control of your node, funds included. The Web UI's Connect Wallet screen offers a rune limited to what the Web UI itself does, plus an invoice-only rune.
 
 ## Using Core Lightning
 
 ### Interfaces
 
 - **Web UI** — the CLN Application web dashboard for day-to-day node operation.
-- **RPC** — JSON-RPC over HTTP for `lightning-cli` and scripts.
 - **Peer** — the Lightning peer-to-peer port; share this address with peers who want to open channels with you.
 - **grpc** — the gRPC API for apps and plugins that prefer typed RPC.
 - **CLNrest** — REST API. When enabled, the published URL contains the rune wallet apps need to authenticate. The scheme tells wallets like Zeus which protocol to use: `clnrest+http://` for plain-HTTP addresses (use this for Tor onion addresses — Tor already encrypts) and `clnrest+https://` for SSL addresses (LAN/clearnet).
