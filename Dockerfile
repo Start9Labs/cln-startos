@@ -77,6 +77,9 @@ RUN apt-get update -qq && \
 FROM rust-base AS builder-rust
 COPY ./rust-teos /tmp/rust-teos
 WORKDIR /tmp/rust-teos
+# patches/README.md says what retires each; --forward --fuzz=0 fails the build once one is absorbed or stale
+COPY ./patches /tmp/patches
+RUN set -e; for p in /tmp/patches/*.patch; do patch -p1 --forward --fuzz=0 <"$p"; done
 RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
 

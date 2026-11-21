@@ -102,6 +102,7 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### TEOS
 
 - `cd rust-teos && git fetch --tags && git checkout <new ref> && cd .. && git add rust-teos`.
+- Check each **Retire when** in [patches/README.md](patches/README.md). Delete a patch the new pin absorbs, along with its section; re-derive one whose context changed. A stale or absorbed patch fails the build.
 
 ### Sling
 
