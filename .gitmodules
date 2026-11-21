@@ -4,3 +4,6 @@
 [submodule "rust-teos"]
 	path = rust-teos
 	url = https://github.com/talaia-labs/rust-teos
+[submodule "xrebalance"]
+	path = xrebalance
+	url = https://github.com/ksedgwic/xrebalance

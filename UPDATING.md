@@ -61,6 +61,15 @@ For each independent upstream source below: a link to its canonical repo, one co
   ```
 - Current pin: commit checked out in the `clboss/` git submodule. Inspect with `git -C clboss describe --tags --always`.
 
+### xrebalance
+
+- Upstream: [ksedgwic/xrebalance](https://github.com/ksedgwic/xrebalance), the rebalance executor CLBOSS 0.17+ drives. It is loaded only while CLBOSS is enabled, so it moves with CLBOSS: CLBOSS 0.17.0 requires xrebalance v0.4.5 or later, and a CLBOSS bump should check its upgrade notes for a newer minimum.
+- No GitHub releases are published; take the latest tag:
+  ```sh
+  gh api repos/ksedgwic/xrebalance/tags --jq '.[0].name'
+  ```
+- Current pin: commit checked out in the `xrebalance/` git submodule. Inspect with `git -C xrebalance describe --tags --always`.
+
 ### TEOS (watchtower)
 
 - Upstream: [talaia-labs/rust-teos](https://github.com/talaia-labs/rust-teos).
@@ -98,6 +107,10 @@ For each independent upstream source below: a link to its canonical repo, one co
 ### CLBOSS
 
 - `cd clboss && git fetch --tags && git checkout <new ref> && cd .. && git add clboss`.
+
+### xrebalance
+
+- `cd xrebalance && git fetch --tags && git checkout <new tag> && cd .. && git add xrebalance`. It builds in the `builder-rust` stage with `cargo install --locked --path`, so a tag whose `Cargo.lock` is out of date fails the build rather than resolving new dependencies.
 
 ### TEOS
 

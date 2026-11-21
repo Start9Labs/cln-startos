@@ -10,6 +10,9 @@ const { InputSpec, Value, Variants } = sdk
 
 const slingPlugin = '/usr/local/libexec/c-lightning/plugins/sling'
 export const clbossPlugin = '/usr/local/libexec/c-lightning/plugins/clboss'
+// CLBOSS 0.17+ rebalances only through xrebalance, so it loads exactly when CLBOSS does
+export const xrebalancePlugin =
+  '/usr/local/libexec/c-lightning/plugins/xrebalance'
 
 const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
   sling: Value.toggle({
@@ -166,6 +169,8 @@ export const plugins = sdk.Action.withInput(
     // Manage clboss plugin path and config keys
     const clbossConfig: Record<string, unknown> = {}
     if (clboss.selection === 'enabled') {
+      if (!rawPlugins.includes(xrebalancePlugin))
+        rawPlugins.push(xrebalancePlugin)
       if (!rawPlugins.includes(clbossPlugin)) rawPlugins.push(clbossPlugin)
       const { value } = clboss
       clbossConfig['clboss-min-onchain'] = value['min-onchain'] || undefined
@@ -177,8 +182,10 @@ export const plugins = sdk.Action.withInput(
       clbossConfig['clboss-min-channel'] = value['min-channel'] || undefined
       clbossConfig['clboss-max-channel'] = value['max-channel'] || undefined
     } else {
-      const idx = rawPlugins.indexOf(clbossPlugin)
-      if (idx !== -1) rawPlugins.splice(idx, 1)
+      for (const p of [clbossPlugin, xrebalancePlugin]) {
+        const idx = rawPlugins.indexOf(p)
+        if (idx !== -1) rawPlugins.splice(idx, 1)
+      }
       clbossConfig['clboss-min-onchain'] = undefined
       clbossConfig['clboss-auto-close'] = undefined
       clbossConfig['clboss-zerobasefee'] = undefined
