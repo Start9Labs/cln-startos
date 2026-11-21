@@ -1,4 +1,6 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
+import { clbossPlugin, xrebalancePlugin } from '../actions/config/plugins'
+import { clnConfig } from '../fileModels/config'
 
 export const current = VersionInfo.of({
   version: '26.6.10:9',
@@ -45,7 +47,20 @@ export const current = VersionInfo.of({
 - CLBOSS 0.17.3. CLBOSS rééquilibre désormais les canaux via le plugin xrebalance fourni, qui est chargé et déchargé avec CLBOSS. Si CLBOSS a un swap en cours, laissez-le se terminer avant de mettre à jour.`,
   },
   migrations: {
-    up: async ({ effects }) => {},
+    up: async ({ effects }) => {
+      const raw = (await clnConfig.read().once())?.raw
+      const plugins = (raw?.plugin || []).filter(
+        (p): p is string => typeof p === 'string',
+      )
+      if (
+        plugins.includes(clbossPlugin) &&
+        !plugins.includes(xrebalancePlugin)
+      ) {
+        await clnConfig.merge(effects, {
+          raw: { ...(raw ?? {}), plugin: [...plugins, xrebalancePlugin] },
+        })
+      }
+    },
     down: IMPOSSIBLE,
   },
 })

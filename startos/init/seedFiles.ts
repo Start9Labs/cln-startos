@@ -1,4 +1,3 @@
-import { clbossPlugin, xrebalancePlugin } from '../actions/config/plugins'
 import { clnConfig } from '../fileModels/config'
 import { configJson } from '../fileModels/config.json'
 import { storeJson } from '../fileModels/store.json'
@@ -14,18 +13,6 @@ export const seedFiles = sdk.setupOnInit(async (effects, kind) => {
     await clnConfig.merge(effects, { clnrest: true })
   } else {
     await clnConfig.merge(effects, {})
-  }
-
-  // CLBOSS 0.17 rebalances only through xrebalance: a node that already runs
-  // CLBOSS (updated from 0.16.x, or restored from an older backup) gains it here
-  const raw = (await clnConfig.read().once())?.raw
-  const plugins = (raw?.plugin || []).filter(
-    (p): p is string => typeof p === 'string',
-  )
-  if (plugins.includes(clbossPlugin) && !plugins.includes(xrebalancePlugin)) {
-    await clnConfig.merge(effects, {
-      raw: { ...(raw ?? {}), plugin: [...plugins, xrebalancePlugin] },
-    })
   }
 
   // teos (watchtower) reaches bitcoind over the bridge too; absent until
