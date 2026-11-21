@@ -9,7 +9,7 @@
 > upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[Core Lightning](https://github.com/ElementsProject/lightning) is a Lightning Network node implementation. This package builds it with three plugins built into the image, runs a web UI alongside it, and can act as — or subscribe to — a BOLT13 watchtower.
+[Core Lightning](https://github.com/ElementsProject/lightning) is a Lightning Network node implementation. This package bundles extra plugins, runs a web UI alongside it, and can act as — or subscribe to — a BOLT13 watchtower.
 
 - **Upstream repo:** <https://github.com/ElementsProject/lightning>
 - **Wrapper repo:** <https://github.com/Start9Labs/cln-startos>
@@ -35,7 +35,7 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is upstream's, with its `node` binary replaced from a digest-pinned `node:22.23.5-bookworm-slim` by `Dockerfile.ui`, a temporary layer that asserts the version and comes out once upstream ships an image on Node 22.23.5 or later. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and extra plugins are added; the web UI's is upstream's, with its `node` binary replaced from a digest-pinned `node:22.23.5-bookworm-slim` by `Dockerfile.ui`, a temporary layer that asserts the version and comes out once upstream ships an image on Node 22.23.5 or later. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
 
 | Property      | Value                                                                                                               |
 | ------------- | ------------------------------------------------------------------------------------------------------------------- |
