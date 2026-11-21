@@ -82,9 +82,12 @@ COPY ./patches /tmp/patches
 RUN set -e; for p in /tmp/patches/*.patch; do patch -p1 --forward --fuzz=0 <"$p"; done
 RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
-# xrebalance: the rebalance executor CLBOSS 0.17+ drives; loaded only alongside CLBOSS
+# xrebalance: the rebalance executor CLBOSS 0.17+ drives; loaded only alongside CLBOSS.
+# Its own WORKDIR matters: rustup picks the toolchain from the working directory, and
+# rust-teos's rust-toolchain.toml pins 1.81, too old for xrebalance's edition-2024 deps.
 COPY ./xrebalance /tmp/xrebalance
-RUN cargo install --locked --path /tmp/xrebalance
+WORKDIR /tmp/xrebalance
+RUN cargo install --locked --path .
 
 # lightningd from the signed release tarballs. These hashes come from
 # SHA256SUMS-v26.06.10 and -arm64, GPG-verified against maintainer key
