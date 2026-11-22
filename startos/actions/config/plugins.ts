@@ -10,6 +10,9 @@ const { InputSpec, Value, Variants } = sdk
 
 const slingPlugin = '/usr/local/libexec/c-lightning/plugins/sling'
 export const clbossPlugin = '/usr/local/libexec/c-lightning/plugins/clboss'
+// CLBOSS 0.17+ rebalances only through xrebalance, so it loads exactly when CLBOSS does
+export const xrebalancePlugin =
+  '/usr/local/libexec/c-lightning/plugins/xrebalance'
 
 const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
   sling: Value.toggle({
@@ -36,7 +39,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
           'min-onchain': Value.number({
             name: i18n('Minimum On-Chain'),
             description: i18n(
-              'The minimum amount that CLBOSS will leave in the on-chain wallet. The intent is that this amount will be used in the future, by your node, to manage anchor-commitment channels, or post-Taproot Decker-Russell-Osuntokun channels. These channel types need some small amount of on-chain funds to unilaterally close, so it is not recommended to set it to 0. The amount specified is a ballpark figure, and CLBOSS may leave slightly lower or slightly higher than this amount.  <b>Default: 30000</b>',
+              'The target amount CLBOSS leaves in the on-chain wallet for channel management and closing fees. CLBOSS uses at least 30,000 satoshis; the actual balance may be slightly lower or higher.  <b>Default: 30000</b>',
             ),
             default: null,
             required: false,
@@ -70,7 +73,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
           'min-channel': Value.number({
             name: i18n('Min Channel Size'),
             description: i18n(
-              'The smallest channel CLBOSS opens. CLBOSS raises any value below 500,000 satoshis to 500,000.',
+              'The minimum channel size CLBOSS targets, with a floor of 500,000 satoshis. CLBOSS can lower this minimum when the channel size limits conflict; see Max Channel Size.',
             ),
             default: null,
             required: false,
@@ -84,7 +87,7 @@ const pluginsSpec = fullConfigSpec.filter({ clnrest: true }).add({
           'max-channel': Value.number({
             name: i18n('Max Channel Size'),
             description: i18n(
-              'The largest channel CLBOSS opens. CLBOSS raises it to at least twice the minimum channel size.',
+              'The largest channel CLBOSS opens, with a floor of 1,520,000 satoshis. The maximum must be at least three times the minimum plus 20,000 satoshis. If the limits conflict, CLBOSS keeps the maximum and lowers the minimum to fit.',
             ),
             default: null,
             required: false,
@@ -166,6 +169,8 @@ export const plugins = sdk.Action.withInput(
     // Manage clboss plugin path and config keys
     const clbossConfig: Record<string, unknown> = {}
     if (clboss.selection === 'enabled') {
+      if (!rawPlugins.includes(xrebalancePlugin))
+        rawPlugins.push(xrebalancePlugin)
       if (!rawPlugins.includes(clbossPlugin)) rawPlugins.push(clbossPlugin)
       const { value } = clboss
       clbossConfig['clboss-min-onchain'] = value['min-onchain'] || undefined
@@ -177,8 +182,10 @@ export const plugins = sdk.Action.withInput(
       clbossConfig['clboss-min-channel'] = value['min-channel'] || undefined
       clbossConfig['clboss-max-channel'] = value['max-channel'] || undefined
     } else {
-      const idx = rawPlugins.indexOf(clbossPlugin)
-      if (idx !== -1) rawPlugins.splice(idx, 1)
+      for (const p of [clbossPlugin, xrebalancePlugin]) {
+        const idx = rawPlugins.indexOf(p)
+        if (idx !== -1) rawPlugins.splice(idx, 1)
+      }
       clbossConfig['clboss-min-onchain'] = undefined
       clbossConfig['clboss-auto-close'] = undefined
       clbossConfig['clboss-zerobasefee'] = undefined

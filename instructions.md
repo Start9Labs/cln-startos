@@ -11,7 +11,7 @@
 - A **Web UI** (CLN Application) for managing channels, payments, and invoices, with its own generated password.
 - A **gRPC** interface and (when enabled) a **CLNrest** REST interface for wallet apps such as Zeus.
 - An optional **Clams Websocket** endpoint for Clams Remote.
-- A bundled set of plugins built into the image: **CLBOSS** (automated channel management), **Sling** (channel rebalancing), and **TEOS** for watchtower client and server functionality.
+- A bundled set of plugins built into the image: **CLBOSS** (automated channel management, which rebalances through the bundled **xrebalance** plugin), **Sling** (channel rebalancing), and **TEOS** for watchtower client and server functionality.
 - A required dependency on **Bitcoin** — install and fully sync Bitcoin first; CLN will not start without it.
 
 ## Getting set up

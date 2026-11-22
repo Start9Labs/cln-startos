@@ -9,7 +9,7 @@
 > upstream documentation is accurate and fully applicable — see the
 > Documentation section of `instructions.md` for links.
 
-[Core Lightning](https://github.com/ElementsProject/lightning) is a Lightning Network node implementation. This package builds it with three plugins built into the image, runs a web UI alongside it, and can act as — or subscribe to — a BOLT13 watchtower.
+[Core Lightning](https://github.com/ElementsProject/lightning) is a Lightning Network node implementation. This package bundles extra plugins, runs a web UI alongside it, and can act as — or subscribe to — a BOLT13 watchtower.
 
 - **Upstream repo:** <https://github.com/ElementsProject/lightning>
 - **Wrapper repo:** <https://github.com/Start9Labs/cln-startos>
@@ -35,7 +35,7 @@
 
 ## Image and Container Runtime
 
-Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and three extra plugins are added; the web UI's is upstream's, with its `node` binary replaced from a digest-pinned `node:22.23.5-bookworm-slim` by `Dockerfile.ui`, a temporary layer that asserts the version and comes out once upstream ships an image on Node 22.23.5 or later. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
+Two images. The node's is built here: upstream's signed release tarball is unpacked onto a slim Debian base and extra plugins are added; the web UI's is upstream's, with its `node` binary replaced from a digest-pinned `node:22.23.5-bookworm-slim` by `Dockerfile.ui`, a temporary layer that asserts the version and comes out once upstream ships an image on Node 22.23.5 or later. lightningd comes from the tarball rather than the `elementsproject/lightningd` image because the tarball is signed: its checksum is pinned in the `lightningd-tarball` stage and taken from a GPG-verified manifest. For a release upstream published no arm64 tarball for, the arm64 image instead compiles lightningd in the `lightningd-source` stage from the release's source zip, whose checksum comes from the same manifest; `lightningd-dist` picks the stage per architecture. `bitcoin-cli` is pinned and checksummed the same way in the `bitcoin-cli` stage, because `plugin-bcli` and the `check-synced` health check both exec it.
 
 | Property      | Value                                                                                                               |
 | ------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -43,7 +43,7 @@ Two images. The node's is built here: upstream's signed release tarball is unpac
 | Architectures | x86_64, aarch64 — both images declare `emulateMissing: true`                                                        |
 | Entrypoint    | `lightningd` with an explicit config path; the UI runs its own server                                               |
 
-The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for the tunnel the hidden Clearnet VPN action brings up, and the manifest sets `virtualNetworking` so the container can create its interface. Three plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules (rust-teos with the fixes in `patches/`, each listed in its README), and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile` and checked against a per-architecture SHA-256. Nothing is fetched at runtime, so the image is self-contained.
+The final stage also installs `wireguard-tools`, `iptables` and `iproute2` for the tunnel the hidden Clearnet VPN action brings up, and the manifest sets `virtualNetworking` so the container can create its interface. Four plugins are dropped into the plugin directory at build time: **CLBOSS** (automated channel management), **xrebalance** (the rebalance executor CLBOSS drives) and **watchtower-client**/**teosd** from rust-teos (BOLT13 watchtower, both client and server) are compiled from their git submodules (rust-teos with the fixes in `patches/`, each listed in its README), and **sling** (rebalancing) is an upstream release binary pinned by `SLING_VERSION` in the `Dockerfile` and checked against a per-architecture SHA-256. Nothing is fetched at runtime, so the image is self-contained.
 
 | Subcontainer          | Purpose                                                                                                                   |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -239,6 +239,8 @@ Read-only, running only: the node's identity and current state.
 ### CLBOSS — Status, Ignore On-chain Funds, Resume On-chain Management, Unmanage Peer
 
 Grouped under CLBOSS, running only, and disabled with a reason unless CLBOSS is enabled in Plugins. Each runs one `clboss-*` RPC command and changes nothing outside CLBOSS's own database.
+
+CLBOSS rebalances only through the **xrebalance** plugin, so the Plugins action loads and unloads the two together, and the 26.6.10:9 migration adds xrebalance to a config that already loads CLBOSS, on an update or a restore of an older backup. `clboss-rebalance-mode` is left at its default. xrebalance keeps no files: what it learns from rebalance attempts goes into a persistent askrene layer (`xrebalance`) inside lightningd's database, so like the channel database it is not backed up, which costs nothing since its constraints expire after six hours by default.
 
 - **CLBOSS Status** summarizes `clboss-status`: version, connectivity, its low/high fee judgment, whether on-chain funds are being ignored and until when, the channel-candidate count, the unmanaged peers with their tags, and the swap totals from `swap_report`. Read-only.
 - **Ignore On-chain Funds** runs `clboss-ignore-onchain` for a number of hours (default 24), so on-chain funds can be spent or put into channels by hand. CLBOSS resumes by itself when the time runs out; re-running extends it.

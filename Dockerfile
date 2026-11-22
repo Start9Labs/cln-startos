@@ -51,7 +51,7 @@ RUN set -eu; \
     tar -xzf "$TARBALL" -C /usr/local/bin/; \
     rm "$TARBALL"
 
-# Rust toolchain, shared by rust-teos and the lightningd source build
+# Rust toolchain, shared by rust-teos, xrebalance and the lightningd source build
 FROM base AS rust-base
 ENV RUST_PROFILE=release \
     PATH="/root/.cargo/bin:/root/.local/bin:$PATH" \
@@ -82,6 +82,12 @@ COPY ./patches /tmp/patches
 RUN set -e; for p in /tmp/patches/*.patch; do patch -p1 --forward --fuzz=0 <"$p"; done
 RUN cargo install --locked --path teos && \
     cargo install --locked --path watchtower-plugin
+# xrebalance: the rebalance executor CLBOSS 0.17+ drives; loaded only alongside CLBOSS.
+# Its own WORKDIR matters: rustup picks the toolchain from the working directory, and
+# rust-teos's rust-toolchain.toml pins 1.81, too old for xrebalance's edition-2024 deps.
+COPY ./xrebalance /tmp/xrebalance
+WORKDIR /tmp/xrebalance
+RUN cargo install --locked --path .
 
 # lightningd from the signed release tarballs. These hashes come from
 # SHA256SUMS-v26.06.10 and -arm64, GPG-verified against maintainer key
@@ -171,6 +177,7 @@ RUN apt-get update && \
 COPY --from=bitcoin-cli /usr/bin/bitcoin-cli /usr/bin/bitcoin-cli
 COPY --from=lightningd-dist /dist/usr/local /usr/local
 COPY --from=clboss /usr/local/bin/clboss /usr/local/libexec/c-lightning/plugins/
+COPY --from=builder-rust /root/.cargo/bin/xrebalance /usr/local/libexec/c-lightning/plugins/
 COPY --from=builder-rust /root/.cargo/bin/teos* /usr/local/bin/
 COPY --from=builder-rust /root/.cargo/bin/watchtower-client /usr/local/libexec/c-lightning/plugins/
 COPY --from=sling /usr/local/bin/sling /usr/local/libexec/c-lightning/plugins/
