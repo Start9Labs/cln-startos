@@ -7,15 +7,16 @@ import { lockedUiPassword } from '../utils'
 
 export const taskUiPassword = sdk.setupOnInit(async (effects) => {
   const isSet = await storeJson.read((s) => s.uiPasswordSet).const(effects)
-  if (isSet) return
-
-  // cln-application lets any visitor set the first password, so an empty one is never left in place.
-  if (await configJson.read((c) => c.password).once()) {
+  const password = await configJson.read((c) => c.password).once()
+  if (password && isSet !== false) {
     if (isSet === undefined) {
       await storeJson.merge(effects, { uiPasswordSet: true })
-      return
     }
-  } else {
+    return
+  }
+
+  // cln-application lets any visitor set the first password, so an empty one is never left in place.
+  if (!password) {
     await configJson.merge(effects, { password: lockedUiPassword() })
   }
 

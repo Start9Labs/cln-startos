@@ -251,11 +251,11 @@ CLBOSS rebalances only through the **xrebalance** plugin, so the Plugins action 
 
 The package raises Create UI Password until the user has a UI password, and Rescan Blockchain after a restore; a companion package can raise the hidden Clearnet VPN action as another.
 
-| Task               | Severity    | Raised when                                                         | Cleared when                                                         |
-| ------------------ | ----------- | ------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Create UI Password | `important` | On init while `uiPasswordSet` is false                              | The action runs                                                      |
-| Rescan Blockchain  | `important` | Immediately after a backup restore                                  | The action runs                                                      |
-| Clearnet VPN       | `important` | Only when a companion package raises it with a tunnel for this node | The stored configuration matches what the companion package proposes |
+| Task               | Severity    | Raised when                                                             | Cleared when                                                         |
+| ------------------ | ----------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Create UI Password | `important` | On init while `uiPasswordSet` is false or `config.json` has no password | The action runs                                                      |
+| Rescan Blockchain  | `important` | Immediately after a backup restore                                      | The action runs                                                      |
+| Clearnet VPN       | `important` | Only when a companion package raises it with a tunnel for this node     | The stored configuration matches what the companion package proposes |
 
 Create UI Password is `important` rather than `critical` because the UI is already locked; blocking start would only take a running node offline. Rescan Blockchain is raised because a restored node reports an **on-chain balance of zero** until the chain is rescanned, and nothing else in the interface explains why. `important` rather than `critical`: the node should keep running — indeed it must, for the rescan to proceed.
 
