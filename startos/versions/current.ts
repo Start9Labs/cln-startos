@@ -10,6 +10,7 @@ export const current = VersionInfo.of({
 - [Sling 4.3.2](https://github.com/daywalker90/sling/releases/tag/v4.3.2): \`sling-depleteuptoamount\` now defaults to 2,000,000 sats as documented. Jobs that set this value themselves are unaffected.
 - CLBOSS pays a swap invoice only when it matches the swap it requested.
 - The watchtower client keeps sending channel updates to its towers when a tower confirms the same update twice, without a restart of Core Lightning.
+- A missing or emptied Web UI password is replaced with a locked one and the Create UI Password task returns, so the Web UI is not left open to the first visitor.
 
 **Changed**
 
@@ -19,6 +20,7 @@ export const current = VersionInfo.of({
 - [Sling 4.3.2](https://github.com/daywalker90/sling/releases/tag/v4.3.2): \`sling-depleteuptoamount\` ahora tiene por defecto 2.000.000 sats, como indica la documentación. Los trabajos que fijan este valor ellos mismos no se ven afectados.
 - CLBOSS solo paga una factura de swap cuando coincide con el swap que solicitó.
 - El cliente de watchtower sigue enviando las actualizaciones de canal a sus torres cuando una torre confirma la misma actualización dos veces, sin necesidad de reiniciar Core Lightning.
+- Una contraseña de la interfaz web ausente o vacía se sustituye por una bloqueada y vuelve la tarea Crear contraseña de la interfaz, de modo que la interfaz web no queda abierta al primer visitante.
 
 **Cambiado**
 
@@ -27,6 +29,7 @@ export const current = VersionInfo.of({
 
 - [Sling 4.3.2](https://github.com/daywalker90/sling/releases/tag/v4.3.2): \`sling-depleteuptoamount\` hat jetzt wie dokumentiert den Standardwert 2.000.000 Sats. Jobs, die diesen Wert selbst setzen, sind nicht betroffen.
 - CLBOSS bezahlt eine Swap-Rechnung nur, wenn sie zu dem angeforderten Swap passt.
+- Ein fehlendes oder leeres Passwort der Weboberfläche wird durch ein gesperrtes ersetzt und die Aufgabe „UI-Passwort erstellen“ erscheint wieder, sodass die Weboberfläche nicht für den ersten Besucher offen bleibt.
 - Der Watchtower-Client sendet Kanal-Updates weiter an seine Tower, wenn ein Tower dasselbe Update zweimal bestätigt, ohne dass Core Lightning neu gestartet werden muss.
 
 **Geändert**
@@ -36,6 +39,7 @@ export const current = VersionInfo.of({
 
 - [Sling 4.3.2](https://github.com/daywalker90/sling/releases/tag/v4.3.2): \`sling-depleteuptoamount\` ma teraz domyślnie 2 000 000 satów, zgodnie z dokumentacją. Zadania, które same ustawiają tę wartość, nie są objęte zmianą.
 - CLBOSS płaci fakturę swapu tylko wtedy, gdy pasuje ona do swapu, o który poprosił.
+- Brakujące lub puste hasło interfejsu WWW jest zastępowane zablokowanym, a zadanie utworzenia hasła interfejsu wraca, dzięki czemu interfejs WWW nie jest otwarty dla pierwszego odwiedzającego.
 - Klient watchtower nadal wysyła aktualizacje kanałów do swoich wież, gdy wieża potwierdzi tę samą aktualizację dwa razy, bez ponownego uruchamiania Core Lightning.
 
 **Zmieniono**
@@ -45,6 +49,7 @@ export const current = VersionInfo.of({
 
 - [Sling 4.3.2](https://github.com/daywalker90/sling/releases/tag/v4.3.2) : \`sling-depleteuptoamount\` vaut désormais par défaut 2 000 000 sats, comme documenté. Les tâches qui fixent elles-mêmes cette valeur ne sont pas concernées.
 - CLBOSS ne paie une facture de swap que si elle correspond au swap qu'il a demandé.
+- Un mot de passe d'interface web absent ou vide est remplacé par un mot de passe verrouillé et la tâche de création du mot de passe de l'interface revient, de sorte que l'interface web n'est pas ouverte au premier visiteur.
 - Le client watchtower continue d'envoyer les mises à jour de canal à ses tours lorsqu'une tour confirme deux fois la même mise à jour, sans redémarrer Core Lightning.
 
 **Modifié**
