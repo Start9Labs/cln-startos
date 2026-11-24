@@ -360,6 +360,7 @@ export default {
     375: 'Creada',
     376: 'Caduca',
     377: 'Red',
+    378: 'Fuera del intervalo de fechas admitido',
   },
   de_DE: {
     0: 'Core Lightning wird gestartet!',
@@ -720,6 +721,7 @@ export default {
     375: 'Erstellt',
     376: 'Läuft ab',
     377: 'Netzwerk',
+    378: 'Außerhalb des unterstützten Datumsbereichs',
   },
   pl_PL: {
     0: 'Uruchamianie Core Lightning!',
@@ -1080,6 +1082,7 @@ export default {
     375: 'Utworzona',
     376: 'Wygasa',
     377: 'Sieć',
+    378: 'Poza obsługiwanym zakresem dat',
   },
   fr_FR: {
     0: 'Démarrage de Core Lightning !',
@@ -1440,5 +1443,6 @@ export default {
     375: 'Créée',
     376: 'Expire',
     377: 'Réseau',
+    378: 'Au-delà de la plage de dates prise en charge',
   },
 } satisfies Record<string, LangDict>
