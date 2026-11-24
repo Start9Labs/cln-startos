@@ -131,6 +131,8 @@ type PayResult = {
   amount_sent_msat?: number
 }
 
+type ListedPay = Omit<PayResult, 'payment_preimage'> & { preimage?: string }
+
 export const payInvoice = sdk.Action.withInput(
   'pay-invoice',
   async ({ effects }) => ({
@@ -198,14 +200,62 @@ export const payInvoice = sdk.Action.withInput(
           ],
           { timeout: 90_000 },
         )
-        const paid =
+        let paid =
           payRes.exitCode === 0 ? cliJson<PayResult>(payRes.stdout) : null
         if (paid?.status !== 'complete') {
-          throw new Error(
-            i18n('Payment failed: ${reason}', {
-              reason: literal(errorMessage(payRes)),
-            }),
+          // Only a listing with nothing complete or pending, after a normal pay exit, is a failure.
+          const listRes = await subc.exec(
+            [
+              'lightning-cli',
+              `--lightning-dir=${rootDir}`,
+              '-k',
+              'listpays',
+              `bolt11=${invoice}`,
+            ],
+            { timeout: 15_000 },
           )
+          const pays =
+            listRes.exitCode === 0
+              ? (cliJson<{ pays?: ListedPay[] }>(listRes.stdout)?.pays ?? null)
+              : null
+          const complete = pays?.find((pay) => pay.status === 'complete')
+          if (complete) {
+            paid = { ...complete, payment_preimage: complete.preimage }
+          } else if (
+            pays === null ||
+            payRes.exitCode === null ||
+            pays.some((pay) => pay.status === 'pending')
+          ) {
+            return {
+              version: '1' as const,
+              title: i18n('Payment pending'),
+              message: i18n(
+                'The payment of ${amount} sats to ${destination} has no confirmed final result and can still complete. Do not pay a replacement invoice. Run Pay Invoice again with the same invoice to see its final result.',
+                {
+                  amount: sats(
+                    entered === null ? decoded.amount_msat : entered * 1000,
+                  ),
+                  destination: decoded.payee ?? '-',
+                },
+              ),
+              result: {
+                type: 'single' as const,
+                name: i18n('Payment hash'),
+                description: null,
+                copyable: true,
+                qr: false,
+                masked: false,
+                value: decoded.payment_hash ?? '',
+                launchable: false,
+              },
+            }
+          } else {
+            throw new Error(
+              i18n('Payment failed: ${reason}', {
+                reason: literal(errorMessage(payRes)),
+              }),
+            )
+          }
         }
         const amount = sats(paid.amount_msat)
         const fee = sats((paid.amount_sent_msat ?? 0) - (paid.amount_msat ?? 0))

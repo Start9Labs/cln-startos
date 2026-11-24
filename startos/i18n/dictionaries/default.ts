@@ -399,6 +399,8 @@ const dict = {
   Expires: 376,
   Network: 377,
   'Beyond the supported calendar range': 378,
+  'Payment pending': 379,
+  'The payment of ${amount} sats to ${destination} has no confirmed final result and can still complete. Do not pay a replacement invoice. Run Pay Invoice again with the same invoice to see its final result.': 380,
 } as const
 
 /**

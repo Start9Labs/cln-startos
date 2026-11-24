@@ -361,6 +361,8 @@ export default {
     376: 'Caduca',
     377: 'Red',
     378: 'Fuera del intervalo de fechas admitido',
+    379: 'Pago pendiente',
+    380: 'El pago de ${amount} sats a ${destination} no tiene un resultado final confirmado y aún puede completarse. No pague una factura de reemplazo. Vuelva a ejecutar Pagar factura con la misma factura para ver su resultado final.',
   },
   de_DE: {
     0: 'Core Lightning wird gestartet!',
@@ -722,6 +724,8 @@ export default {
     376: 'Läuft ab',
     377: 'Netzwerk',
     378: 'Außerhalb des unterstützten Datumsbereichs',
+    379: 'Zahlung ausstehend',
+    380: 'Für die Zahlung von ${amount} Sats an ${destination} liegt kein bestätigtes Endergebnis vor, und sie kann noch abgeschlossen werden. Bezahlen Sie keine Ersatzrechnung. Führen Sie „Rechnung bezahlen“ mit derselben Rechnung erneut aus, um das endgültige Ergebnis zu sehen.',
   },
   pl_PL: {
     0: 'Uruchamianie Core Lightning!',
@@ -1083,6 +1087,8 @@ export default {
     376: 'Wygasa',
     377: 'Sieć',
     378: 'Poza obsługiwanym zakresem dat',
+    379: 'Płatność w toku',
+    380: 'Płatność ${amount} satów do ${destination} nie ma potwierdzonego wyniku końcowego i nadal może się zakończyć. Nie płać faktury zastępczej. Uruchom ponownie Zapłać fakturę z tą samą fakturą, aby zobaczyć jej ostateczny wynik.',
   },
   fr_FR: {
     0: 'Démarrage de Core Lightning !',
@@ -1444,5 +1450,7 @@ export default {
     376: 'Expire',
     377: 'Réseau',
     378: 'Au-delà de la plage de dates prise en charge',
+    379: 'Paiement en attente',
+    380: 'Le paiement de ${amount} sats à ${destination} n’a pas de résultat final confirmé et peut encore aboutir. Ne payez pas de facture de remplacement. Relancez Payer une facture avec la même facture pour voir son résultat final.',
   },
 } satisfies Record<string, LangDict>
