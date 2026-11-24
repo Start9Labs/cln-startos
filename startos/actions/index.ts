@@ -14,6 +14,7 @@ import { rescanBlockchain } from './rescanBlockchain'
 import { nodeInfo } from './nodeInfo'
 import { displaySeed } from './displaySeed'
 import { clearnetVpn } from './clearnetVpn'
+import { decodeInvoiceAction } from './decodeInvoice'
 import { payInvoice } from './payInvoice'
 import { receivePayment } from './receivePayment'
 import {
@@ -39,6 +40,7 @@ export const actions = sdk.Actions.of()
   .addAction(rescanBlockchain)
   .addAction(nodeInfo)
   .addAction(clearnetVpn)
+  .addAction(decodeInvoiceAction)
   .addAction(payInvoice)
   .addAction(receivePayment)
   .addAction(clbossStatus)
