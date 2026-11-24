@@ -59,9 +59,11 @@ If you publish the **Peer** interface through StartTunnel to keep your home IP p
 
 ### Paying and receiving
 
-**Pay Invoice** pays a Lightning invoice from your node without a wallet app: paste it, enter an amount only if the invoice leaves it open, set the most you are willing to pay in routing fees, and confirm. Verify the decoded amount, destination, and description before sending; payments cannot be reversed. The result shows what was paid and the preimage. A service that needs a payment from you can raise the same prompt with those details disclosed and the invoice locked.
+**Decode Invoice** shows what an invoice asks for without paying it: its amount, destination, description, when it was created and expires, its network and its payment hash. Run it on any invoice you want to check before paying. It reads BOLT11 invoices (`lnbc…`); BOLT12 offers and invoices are not supported here.
 
-**Receive Payment** creates an invoice for someone to pay you: set an amount (or leave it empty to let them choose), a description they will see, and how long it stays payable, then show them the QR code or send them the invoice text. Both live under **Payments**.
+**Pay Invoice** pays a BOLT11 invoice from your node without a wallet app: paste it, enter an amount only if the invoice leaves it open, set the most you are willing to pay in routing fees, confirm that you verified the amount and destination (with **Decode Invoice** first), and send. Payments cannot be reversed. The result shows what was paid and the preimage. A service that needs a payment from you can raise the same prompt with the invoice locked and its amount and destination shown.
+
+**Receive Payment** creates an invoice for someone to pay you: set an amount (or leave it empty to let them choose), a description they will see, and how long it stays payable, then show them the QR code or send them the invoice text. All three live under **Payments**.
 
 ### Backups and restore
 

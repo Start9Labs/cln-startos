@@ -2,49 +2,21 @@ import { T } from '@start9labs/start-sdk'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { cliJson, errorMessage, mainMounts, rootDir } from '../utils'
-import { literal, row, sats } from './payments'
+import {
+  Decoded,
+  decodeInvoice,
+  literal,
+  multilineRow,
+  row,
+  sats,
+} from './payments'
 
 const { InputSpec, Value, Variants } = sdk
-
-const cli = ['lightning-cli', `--lightning-dir=${rootDir}`]
-
-type Decoded = {
-  type: string
-  valid: boolean
-  payee?: string
-  amount_msat?: number
-  description?: string
-}
 
 const defaultFeePercent = 1
 
 type ReviewedInvoice = { invoice: string; decoded: Decoded }
 const reviewedInvoices = new Map<string, ReviewedInvoice>()
-
-async function decodeInvoice(
-  effects: T.Effects,
-  invoice: string,
-): Promise<Decoded> {
-  return sdk.SubContainer.withTemp(
-    effects,
-    { imageId: 'lightning' },
-    mainMounts,
-    'decode-pay-invoice',
-    async (subc) => {
-      const decodeRes = await subc.exec([...cli, 'decode', invoice])
-      const decoded =
-        decodeRes.exitCode === 0 ? cliJson<Decoded>(decodeRes.stdout) : null
-      if (!decoded?.valid || decoded.type !== 'bolt11 invoice') {
-        throw new Error(
-          i18n('The invoice could not be decoded: ${error}', {
-            error: literal(errorMessage(decodeRes)),
-          }),
-        )
-      }
-      return decoded
-    },
-  )
-}
 
 const inputSpec = async ({
   effects,
@@ -79,7 +51,7 @@ const inputSpec = async ({
   if (invoice && decoded && effects.eventId) {
     reviewedInvoices.set(effects.eventId, { invoice, decoded })
   }
-  const details = decoded
+  const description = decoded
     ? decoded.amount_msat === undefined
       ? i18n('Amountless invoice to ${destination}; enter the amount below.', {
           destination: decoded.payee ?? '-',
@@ -89,9 +61,6 @@ const inputSpec = async ({
           destination: decoded.payee ?? '-',
         })
     : i18n('A Lightning invoice.')
-  const description = decoded
-    ? `${details} ${i18n('Description')}: ${decoded.description || '-'}`
-    : details
 
   return InputSpec.of({
     invoice: Value.text({
@@ -147,7 +116,7 @@ const inputSpec = async ({
     confirmed: Value.toggle({
       name: i18n('I verified the amount and destination'),
       description: i18n(
-        'Confirm these details before sending. Lightning payments cannot be reversed.',
+        'Check them first with Decode Invoice. Lightning payments cannot be reversed.',
       ),
       default: false,
     }),
@@ -218,7 +187,8 @@ export const payInvoice = sdk.Action.withInput(
       async (subc) => {
         const payRes = await subc.exec(
           [
-            ...cli,
+            'lightning-cli',
+            `--lightning-dir=${rootDir}`,
             '-k',
             'pay',
             `bolt11=${invoice}`,
@@ -252,7 +222,7 @@ export const payInvoice = sdk.Action.withInput(
             value: [
               row(i18n('Amount'), `${amount} sats`, false),
               row(i18n('Fee'), `${fee} sats`, false),
-              row(i18n('Description'), decoded.description || '-', false),
+              multilineRow(i18n('Description'), decoded.description || '-'),
               row(i18n('Destination'), destination, true),
               row(i18n('Preimage'), paid.payment_preimage ?? '', true),
             ],

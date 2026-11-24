@@ -384,6 +384,21 @@ const dict = {
   'Start Core Lightning and wait for it to finish starting, then run this action again.': 363,
   'CLNrest Connection': 364,
   "Scan or paste one of these into your wallet. Each carries this node's unrestricted rune: anyone holding it can spend your funds. Use the clnrest+http address for Tor and a clnrest+https address on your LAN or a domain.": 365,
+
+  // actions/decodeInvoice.ts
+  'Check them first with Decode Invoice. Lightning payments cannot be reversed.': 366,
+  'This is a BOLT12 offer or invoice. Decode Invoice and Pay Invoice take only BOLT11 invoices, which begin with lnbc.': 367,
+  'Decode Invoice': 368,
+  'Show what a Lightning invoice asks for before you pay it. Nothing is paid.': 369,
+  'Amountless: you enter the amount when you pay': 370,
+  'Invoice decoded': 371,
+  'This invoice expired on ${date}. It can no longer be paid.': 372,
+  'Nothing has been paid. Check these details before you pay.': 373,
+  'Description hash': 374,
+  Created: 375,
+  Expires: 376,
+  Network: 377,
+  'Beyond the supported calendar range': 378,
 } as const
 
 /**

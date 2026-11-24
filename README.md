@@ -148,7 +148,7 @@ The ordering that matters is Bitcoin's: the node starts, but `check-synced` repo
 
 ## Actions
 
-Twenty-one actions. Three configure the node, three concern the watchtower, four drive CLBOSS, two handle payments, one is hidden and exists for a companion package, and the rest are credentials, recovery and information.
+Twenty-two actions. Three configure the node, three concern the watchtower, four drive CLBOSS, three handle payments, one is hidden and exists for a companion package, and the rest are credentials, recovery and information.
 
 ### Configuration — General Settings, Plugins, Experimental Features
 
@@ -226,9 +226,11 @@ Deletes the network gossip database, which the node rebuilds from peers. Run it 
 
 Not user-facing, and raised as a task by a companion package with its tunnel configuration and public address filled in. Its only known uses are the TunnelSats community package and running it by hand with some other WireGuard configuration, which is unsupported. It is not how a node is made reachable or routed: inbound reachability comes from addresses on the node's StartOS interfaces, and outbound traffic leaves through the gateway StartOS selects for it. It stores the companion-managed address separately from `customExternalHosts`; `watchHosts` announces both without overwriting addresses the user configured. It also turns Tor Only off, since Tor Only would suppress the announcement and proxy the clearnet peers the tunnel exists for. Costs a restart. A new configuration replaces the tunnel; an empty one turns it off and drops only the address it had advertised. Safe to repeat.
 
-### Pay Invoice, Receive Payment
+### Decode Invoice, Pay Invoice, Receive Payment
 
-Grouped under Payments. **Pay Invoice** pays a BOLT11 invoice from the node's own funds: paste the invoice, whether its amount is stated in it or entered here — an invoice that leaves the amount open requires one, one that states it refuses one — and the most it may spend in routing fees as a percentage. Every payment requires confirmation that the amount and destination were verified. A task may preset only the invoice: the prompt refuses to open for one whose prefill sets the amount, fee or confirmation to anything but its default (as stated in the invoice, 1 %, off). A task-prefilled invoice is decoded before the prompt opens, displays its amount, destination, and description, and cannot be edited; execution rejects an invoice that differs from the reviewed one. It then pays with a 60-second retry window and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one reviewed prompt; the node never hands out a rune for it.
+Grouped under Payments. **Decode Invoice** runs `lightning-cli decode` on a pasted BOLT11 invoice and pays nothing: it returns the amount (or that the invoice is amountless), payee, description (its hash when the invoice commits to one instead), creation and expiry times, network (from the invoice's currency) and payment hash, and its message says whether the invoice has expired. A BOLT12 offer or invoice is refused with a message saying so, since Pay Invoice pays only BOLT11. Only while running. Read-only and safe to repeat. Pay Invoice uses the same decode, so it refuses BOLT12 the same way.
+
+**Pay Invoice** pays a BOLT11 invoice from the node's own funds: paste the invoice, whether its amount is stated in it or entered here — an invoice that leaves the amount open requires one, one that states it refuses one — and the most it may spend in routing fees as a percentage. Every payment requires confirmation that the amount and destination were verified, and that confirmation points the user to Decode Invoice. A task may preset only the invoice: the prompt refuses to open for one whose prefill sets the amount, fee or confirmation to anything but its default (as stated in the invoice, 1 %, off). A task-prefilled invoice is decoded before the prompt opens, displays its amount and destination, and cannot be edited; execution rejects an invoice that differs from the reviewed one. It then pays with a 60-second retry window and returns the amount, fee, description, destination and preimage; a failure returns lightningd's reason. Only while running. Not idempotent — running it twice pays twice if the invoice allows it, which a single-use BOLT11 does not. A companion service can raise it as a task with the invoice filled in, so a payment it needs is one reviewed prompt; the node never hands out a rune for it.
 
 **Receive Payment** creates a BOLT11 invoice for this node: an optional amount (none makes an amount-less invoice the payer fills in), an optional description carried in the invoice, and an expiry in hours, default 24. Runs `lightning-cli invoice` under a generated `startos-<uuid>` label; lightningd chooses the route hints. Returns the invoice as text and QR code, plus the payment hash. Only while running. Safe to repeat — each run registers a new invoice and nothing is charged.
 
@@ -373,6 +375,7 @@ actions:
   - clboss-ignore-onchain # only-running; disabled unless CLBOSS is enabled
   - clboss-notice-onchain # only-running; disabled unless CLBOSS is enabled
   - clboss-unmanage # only-running; disabled unless CLBOSS is enabled
+  - decode-invoice # only-running; read-only
   - pay-invoice # only-running; a companion service may raise it as a task
   - receive-payment # only-running
   - clearnet-vpn # hidden; raised as a task by a companion package
