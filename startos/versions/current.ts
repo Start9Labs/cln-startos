@@ -1,43 +1,23 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
-  version: '26.6.10:10',
+  version: '26.6.10:11',
   releaseNotes: {
-    en_US: `**Added**
+    en_US: `**Fixed**
 
-- Decode Invoice, under Payments: it shows an invoice's amount, destination, description, creation and expiry times, network and payment hash, and pays nothing.
+- Pay Invoice reports a payment that is still in flight as pending, with its payment hash, instead of as failed. Running it again with the same invoice shows the final result.`,
+    es_ES: `**Corregido**
 
-**Changed**
+- Pagar factura informa como pendiente, con su hash de pago, un pago que sigue en curso, en lugar de como fallido. Volver a ejecutarla con la misma factura muestra el resultado final.`,
+    de_DE: `**Behoben**
 
-- A payment prompt from another service shows only the invoice's amount and destination; the description appears in the result after paying.`,
-    es_ES: `**Añadido**
+- Rechnung bezahlen meldet eine noch laufende Zahlung als ausstehend, mit ihrem Zahlungs-Hash, statt als fehlgeschlagen. Ein erneuter Aufruf mit derselben Rechnung zeigt das endgültige Ergebnis.`,
+    pl_PL: `**Naprawiono**
 
-- Decodificar factura, en Pagos: muestra el importe, el destino, la descripción, las fechas de creación y caducidad, la red y el hash de pago de una factura, sin pagar nada.
+- Zapłać fakturę zgłasza płatność, która wciąż jest w toku, jako oczekującą, z jej hashem płatności, zamiast jako nieudaną. Ponowne uruchomienie z tą samą fakturą pokazuje ostateczny wynik.`,
+    fr_FR: `**Corrigé**
 
-**Cambiado**
-
-- Una solicitud de pago de otro servicio muestra solo el importe y el destino de la factura; la descripción aparece en el resultado tras pagar.`,
-    de_DE: `**Hinzugefügt**
-
-- Rechnung dekodieren, unter Zahlungen: zeigt Betrag, Ziel, Beschreibung, Erstellungs- und Ablaufzeit, Netzwerk und Zahlungs-Hash einer Rechnung und bezahlt nichts.
-
-**Geändert**
-
-- Eine Zahlungsaufforderung eines anderen Dienstes zeigt nur Betrag und Ziel der Rechnung; die Beschreibung erscheint nach der Zahlung im Ergebnis.`,
-    pl_PL: `**Dodano**
-
-- Dekoduj fakturę, w grupie Płatności: pokazuje kwotę, miejsce docelowe, opis, czas utworzenia i wygaśnięcia, sieć oraz hash płatności faktury i niczego nie płaci.
-
-**Zmieniono**
-
-- Prośba o płatność od innej usługi pokazuje tylko kwotę i miejsce docelowe faktury; opis pojawia się w wyniku po zapłacie.`,
-    fr_FR: `**Ajouté**
-
-- Décoder une facture, dans Paiements : affiche le montant, la destination, la description, les dates de création et d’expiration, le réseau et le hachage de paiement d’une facture, sans rien payer.
-
-**Modifié**
-
-- Une demande de paiement d’un autre service n’affiche que le montant et la destination de la facture ; la description apparaît dans le résultat après le paiement.`,
+- Payer une facture signale un paiement encore en cours comme en attente, avec son hachage de paiement, au lieu de l’indiquer comme échoué. La relancer avec la même facture affiche le résultat final.`,
   },
   migrations: {
     up: async ({ effects }) => {},
