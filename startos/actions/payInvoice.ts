@@ -2,7 +2,14 @@ import { T } from '@start9labs/start-sdk'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { cliJson, errorMessage, mainMounts, rootDir } from '../utils'
-import { Decoded, decodeInvoice, literal, row, sats } from './payments'
+import {
+  Decoded,
+  decodeInvoice,
+  literal,
+  multilineRow,
+  row,
+  sats,
+} from './payments'
 
 const { InputSpec, Value, Variants } = sdk
 
@@ -215,7 +222,7 @@ export const payInvoice = sdk.Action.withInput(
             value: [
               row(i18n('Amount'), `${amount} sats`, false),
               row(i18n('Fee'), `${fee} sats`, false),
-              row(i18n('Description'), decoded.description || '-', false),
+              multilineRow(i18n('Description'), decoded.description || '-'),
               row(i18n('Destination'), destination, true),
               row(i18n('Preimage'), paid.payment_preimage ?? '', true),
             ],

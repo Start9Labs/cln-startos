@@ -1,7 +1,7 @@
 import { T } from '@start9labs/start-sdk'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
-import { decodeInvoice, row } from './payments'
+import { decodeInvoice, multilineRow, row } from './payments'
 
 const { InputSpec, Value } = sdk
 
@@ -64,7 +64,7 @@ export const decodeInvoiceAction = sdk.Action.withInput(
           ),
           row(i18n('Destination'), decoded.payee ?? '-', true),
           decoded.description !== undefined || !decoded.description_hash
-            ? row(i18n('Description'), decoded.description || '-', false)
+            ? multilineRow(i18n('Description'), decoded.description || '-')
             : row(i18n('Description hash'), decoded.description_hash, true),
           row(i18n('Created'), utc(created), false),
           row(i18n('Expires'), utc(expires), false),

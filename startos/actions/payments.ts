@@ -8,6 +8,17 @@ export const sats = (msat: number | undefined) =>
 
 export const literal = (text: string) => text.replace(/\$/g, '$$$$')
 
+export const multilineRow = (name: string, value: string) => ({
+  name,
+  description: null,
+  copyable: false,
+  qr: false,
+  masked: false,
+  type: 'multiline' as const,
+  value,
+  filename: null,
+})
+
 export const row = (
   name: string,
   value: string,
