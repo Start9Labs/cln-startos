@@ -401,6 +401,7 @@ const dict = {
   'Beyond the supported calendar range': 378,
   'Payment pending': 379,
   'The payment of ${amount} sats to ${destination} has no confirmed final result and can still complete. Do not pay a replacement invoice. Run Pay Invoice again with the same invoice to see its final result.': 380,
+  'This is not a Lightning invoice. A BOLT11 invoice begins with lnbc.': 381,
 } as const
 
 /**

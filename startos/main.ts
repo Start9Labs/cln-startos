@@ -677,10 +677,11 @@ export const main = sdk.setupMain(async ({ effects }) => {
               const res = await subcontainer.exec(
                 [
                   'lightning-cli',
+                  '-k',
                   'registertower',
-                  tower.id,
-                  JSON.stringify(tower.host),
-                  String(tower.port),
+                  `tower_id=${tower.id}`,
+                  `host=${JSON.stringify(tower.host)}`,
+                  `port=${tower.port}`,
                 ],
                 {
                   cwd: rootDir,
