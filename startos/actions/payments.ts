@@ -52,6 +52,13 @@ export async function decodeInvoice(
   effects: T.Effects,
   invoice: string,
 ): Promise<Decoded> {
+  if (!/^(lightning:)?ln/i.test(invoice)) {
+    throw new Error(
+      i18n(
+        'This is not a Lightning invoice. A BOLT11 invoice begins with lnbc.',
+      ),
+    )
+  }
   return sdk.SubContainer.withTemp(
     effects,
     { imageId: 'lightning' },
@@ -61,8 +68,9 @@ export async function decodeInvoice(
       const decodeRes = await subc.exec([
         'lightning-cli',
         `--lightning-dir=${rootDir}`,
+        '-k',
         'decode',
-        invoice,
+        `string=${invoice}`,
       ])
       const decoded =
         decodeRes.exitCode === 0 ? cliJson<Decoded>(decodeRes.stdout) : null
