@@ -35,9 +35,9 @@ RUN autoreconf -i && \
 # sling - download prebuilt binary
 FROM base AS sling
 ARG TARGETARCH
-ARG SLING_VERSION=v4.3.2
-ARG SLING_SHA256_AMD64=458d01bcfddb5417d05046836692ed0ad56bd3be508c3e4fc399415377d0e459
-ARG SLING_SHA256_ARM64=485ddbf680799b3d4e6863648ad81d175ee76f935ccc252e967f088cb8b1ba7f
+ARG SLING_VERSION=v4.3.3
+ARG SLING_SHA256_AMD64=66b67b60b7b2bc5d2d2f82a993ad995a7bb1e0dc818e61c2a449b19dd6401d08
+ARG SLING_SHA256_ARM64=1db8d7e9ca3e1779745d8b6ce3ee60b847e694f8dce1d8605bea3626ac6fef52
 RUN apt-get update -qq && apt-get install -qq -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN set -eu; \
     case "$TARGETARCH" in \
